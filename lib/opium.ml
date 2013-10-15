@@ -96,6 +96,25 @@ module Local_map = struct
       | _ -> return None
 end
 
+module Method_bin = struct
+  type 'a t = 'a Queue.t array
+
+  let create () = Array.init 7 ~f:(fun _ -> Queue.create ())
+
+  let int_of_meth = function
+    | `GET     -> 0
+    | `POST    -> 1
+    | `PUT     -> 2
+    | `DELETE  -> 3
+    | `HEAD    -> 4
+    | `PATCH   -> 5
+    | `OPTIONS -> 6
+
+  let add t meth value = Queue.enqueue t.(int_of_meth meth) value
+
+  let get t meth = t.(int_of_meth meth)
+end
+
 module App = struct
   type 'action endpoint = {
     meth: C.Code.meth;
