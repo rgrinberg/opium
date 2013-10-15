@@ -72,7 +72,7 @@ module Response = struct
 end
 
 module Action = struct
-  type t = Request.t -> Co.Server.response
+  type t = Request.t -> Response.t
 end
 
 module Local_map = struct
