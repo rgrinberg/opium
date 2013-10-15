@@ -174,11 +174,15 @@ module App = struct
         !acc >>> (fun req -> acc := filter req));
     !acc
 
+  let order_filters app =
+    { app with before_filters=(List.rev app.before_filters);
+               after_filters=(List.rev app.after_filters); }
+
   let server ?(port=3000) app =
-    let before_filters = List.rev app.before_filters in
+    let app = order_filters app in
     Co.Server.create ~on_handler_error:`Raise (Tcp.on_port port)
       (fun ~body sock req -> 
-         let req = apply_filters before_filters (return req) in
+         let req = apply_filters app.before_filters (return req) in
          req >>= fun req ->
          let uri        = local_path req in
          let endpoint   = matching_endpoint app.routes req uri in
