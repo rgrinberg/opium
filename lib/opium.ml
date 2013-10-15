@@ -122,10 +122,12 @@ module App = struct
     action: 'action;
   }
 
+  type 'a filter = 'a -> 'a Deferred.t
+
   type t = {
-    before_filters : (Co.Request.t -> Co.Request.t Deferred.t) Queue.t;
+    before_filters : Co.Request.t filter Queue.t;
     routes : (Request.t -> Response.t Deferred.t) endpoint Method_bin.t;
-    after_filters : (Response.t -> Response.t Deferred.t) Queue.t;
+    after_filters : Response.t filter Queue.t;
     not_found : (Request.t -> Response.t Deferred.t);
     public_dir : Local_map.t option;
   }
@@ -159,9 +161,18 @@ module App = struct
     endpoints |> Queue.find_map ~f:(fun ep -> 
         uri |> Route.match_url ep.route |> Option.map ~f:(fun p -> (ep, p)))
 
+  let apply_filters filters req = (* not pretty... *)
+    let acc = ref req in
+    filters |> Queue.iter ~f:(fun filter ->
+      !acc >>> (fun req -> acc := filter req)
+    );
+    !acc
+
   let server ?(port=3000) app =
     Co.Server.create ~on_handler_error:`Raise (Tcp.on_port port)
       (fun ~body sock req -> 
+         let req = apply_filters app.before_filters (return req) in
+         req >>= fun req ->
          let uri        = local_path req in
          let endpoint   = matching_endpoint app.routes req uri in
          match endpoint with
@@ -195,7 +206,7 @@ module Std = struct
   let not_found = App.not_found
   let app = App.app
 
-  let before action = ()
+  let before action app = Queue.enqueue app.App.before_filters action
   let after action = ()
 
   let start endpoints = 
