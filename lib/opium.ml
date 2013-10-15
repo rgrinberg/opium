@@ -171,8 +171,7 @@ module App = struct
   let apply_filters filters req = (* not pretty... *)
     let acc = ref req in
     filters |> List.iter ~f:(fun filter ->
-      !acc >>> (fun req -> acc := filter req)
-    );
+        !acc >>> (fun req -> acc := filter req));
     !acc
 
   let server ?(port=3000) app =
