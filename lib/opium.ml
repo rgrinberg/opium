@@ -125,12 +125,19 @@ module App = struct
   type 'a filter = 'a -> 'a Deferred.t
 
   type t = {
-    before_filters : Co.Request.t filter Queue.t;
+    mutable before_filters : Co.Request.t filter list;
     routes : (Request.t -> Response.t Deferred.t) endpoint Method_bin.t;
-    after_filters : Response.t filter Queue.t;
+    mutable after_filters : Response.t filter list;
     not_found : (Request.t -> Response.t Deferred.t);
     public_dir : Local_map.t option;
   }
+
+  type builder = t -> unit
+
+  let build : t -> builder -> unit = fun t builder -> builder t
+
+  let cons_before app filter =
+    app.before_filters <- (filter::app.before_filters)
 
   let local_path = Fn.compose Uri.path C.Request.uri
 
@@ -147,9 +154,9 @@ module App = struct
     let public_dir =
       let open Local_map in
       Some { prefix="/public"; local_path="./public" } in
-    { before_filters=Queue.create ();
+    { before_filters=[];
       routes=Method_bin.create ();
-      after_filters=Queue.create ();
+      after_filters=[];
       public_dir; not_found }
 
   let public_path root requested =
@@ -163,15 +170,16 @@ module App = struct
 
   let apply_filters filters req = (* not pretty... *)
     let acc = ref req in
-    filters |> Queue.iter ~f:(fun filter ->
+    filters |> List.iter ~f:(fun filter ->
       !acc >>> (fun req -> acc := filter req)
     );
     !acc
 
   let server ?(port=3000) app =
+    let before_filters = List.rev app.before_filters in
     Co.Server.create ~on_handler_error:`Raise (Tcp.on_port port)
       (fun ~body sock req -> 
-         let req = apply_filters app.before_filters (return req) in
+         let req = apply_filters before_filters (return req) in
          req >>= fun req ->
          let uri        = local_path req in
          let endpoint   = matching_endpoint app.routes req uri in
@@ -206,12 +214,13 @@ module Std = struct
   let not_found = App.not_found
   let app = App.app
 
-  let before action app = Queue.enqueue app.App.before_filters action
+  let before action app = App.cons_before app action
+
   let after action = ()
 
   let start endpoints = 
     let app = App.app () in
-    endpoints |> List.iter ~f:(fun e -> e app);
+    endpoints |> List.iter ~f:(App.build app);
     app |> App.server |> ignore;
     Scheduler.go ()
 end
