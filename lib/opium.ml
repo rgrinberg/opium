@@ -148,8 +148,7 @@ module App = struct
          | None -> 
            let resp = 
              match app.public_dir with
-             | Some public_dir -> 
-               Local_map.public_serve public_dir ~requested:uri
+             | Some pd -> Local_map.public_serve pd ~requested:uri
              | None -> return None
            in resp >>= function
            | None -> app.not_found @@ Request.({raw=req; params=[]})
