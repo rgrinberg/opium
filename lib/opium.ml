@@ -123,7 +123,7 @@ module App = struct
   }
 
   type t = {
-    before_filters : (Request.t -> Request.t Deferred.t) Queue.t;
+    before_filters : (Co.Request.t -> Co.Request.t Deferred.t) Queue.t;
     routes : (Request.t -> Response.t Deferred.t) endpoint Method_bin.t;
     after_filters : (Response.t -> Response.t Deferred.t) Queue.t;
     not_found : (Request.t -> Response.t Deferred.t);
@@ -157,7 +157,7 @@ module App = struct
   let matching_endpoint endpoints req uri =
     let endpoints = Method_bin.get endpoints (C.Request.meth req) in
     endpoints |> Queue.find_map ~f:(fun ep -> 
-      uri |> Route.match_url ep.route |> Option.map ~f:(fun p -> (ep, p)))
+        uri |> Route.match_url ep.route |> Option.map ~f:(fun p -> (ep, p)))
 
   let server ?(port=3000) app =
     Co.Server.create ~on_handler_error:`Raise (Tcp.on_port port)
