@@ -5,6 +5,45 @@ open Cow
 module C = Cohttp
 module Co = Cohttp_async
 
+module Session = struct
+  module Response = C.Response
+  module Request = C.Request
+  module Cookie = C.Cookie.Set_cookie_hdr
+
+  let get request ~key = 
+    let header = Request.headers request in
+    let cookies = Cookie.extract header in
+    cookies |> List.find_map ~f:(fun (k, v) ->
+      if k = key then 
+        v |> Cookie.value |> C.Base64.decode |> Option.some
+      else None)
+
+  let update_cookie cookie new_value =
+    let c = cookie in
+    let open Cookie in
+    let k = c |> binding |> fst in
+    let (path, domain) = (path c, domain c) in
+    Cookie.make ~expiry:(expiration c) ?path ?domain
+    ~secure:(is_secure c) (k, new_value)
+
+  let update_headers r h =
+    let open Response in
+    make ~status:(status r) ~version:(version r) ~encoding:(encoding r)
+    ~headers:h ()
+
+  let set response ~key ~value =
+    (* wtf is this? *)
+    let header = Response.headers response in
+    header 
+    |> Cookie.extract 
+    |> List.map ~f:(fun (k, cookie) ->
+      if k = key then (k, update_cookie cookie value) else (k, cookie))
+    |> List.map ~f:(Fn.compose Cookie.serialize snd)
+    |> List.fold ~init:header ~f:(fun header (k,v) -> 
+        C.Header.replace header k v)
+    |> update_headers response
+end
+
 let tap x ~f = (ignore (f x); x)
 
 (* for now we will use PCRE's *)
@@ -71,10 +110,6 @@ module Response = struct
       Co.Server.respond_with_string ~headers:xml_header (Xml.to_string s)
 end
 
-module Action = struct
-  type t = Request.t -> Response.t
-end
-
 module Local_map = struct
   type t = {
     prefix: string;
@@ -129,7 +164,7 @@ module App = struct
     routes : (Request.t -> Response.t Deferred.t) endpoint Method_bin.t;
     mutable after_filters : Response.t filter list;
     not_found : (Request.t -> Response.t Deferred.t);
-    public_dir : Local_map.t option;
+    public_dir : Local_map.t option; (* deprecated? *)
   }
 
   type builder = t -> unit
