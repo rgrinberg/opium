@@ -5,46 +5,11 @@ open Cow
 module C = Cohttp
 module Co = Cohttp_async
 
-module Session = struct
-  module Response = C.Response
-  module Request = C.Request
-  module Cookie = C.Cookie.Set_cookie_hdr
-
-  let get request ~key = 
-    let header = Request.headers request in
-    let cookies = Cookie.extract header in
-    cookies |> List.find_map ~f:(fun (k, v) ->
-      if k = key then 
-        v |> Cookie.value |> C.Base64.decode |> Option.some
-      else None)
-
-  let update_cookie cookie new_value =
-    let c = cookie in
-    let open Cookie in
-    let k = c |> binding |> fst in
-    let (path, domain) = (path c, domain c) in
-    Cookie.make ~expiry:(expiration c) ?path ?domain
-    ~secure:(is_secure c) (k, new_value)
-
-  let update_headers r h =
-    let open Response in
-    make ~status:(status r) ~version:(version r) ~encoding:(encoding r)
-    ~headers:h ()
-
-  let set response ~key ~value =
-    (* wtf is this? *)
-    let header = Response.headers response in
-    header 
-    |> Cookie.extract 
-    |> List.map ~f:(fun (k, cookie) ->
-      if k = key then (k, update_cookie cookie value) else (k, cookie))
-    |> List.map ~f:(Fn.compose Cookie.serialize snd)
-    |> List.fold ~init:header ~f:(fun header (k,v) -> 
-        C.Header.replace header k v)
-    |> update_headers response
-end
-
 let tap x ~f = (ignore (f x); x)
+
+module Log = struct
+  let exn_ e = Log.Global.error "%s" (Exn.to_string e)
+end
 
 (* for now we will use PCRE's *)
 module Route = struct
@@ -79,10 +44,11 @@ end
 
 module Request = struct
   type t = {
-    raw : Co.Request.t;
+    request : Co.Request.t;
     params : (string * string) list;
   }
-  let raw {raw;_} = raw
+
+  let request {request;_} = request
   let param {params;_} p = List.Assoc.find_exn params p
 end
 
@@ -183,7 +149,7 @@ module App = struct
 
   let app () = 
     let not_found req = 
-      let path = req |> Request.raw |> local_path in
+      let path = req |> Request.request |> local_path in
       Co.Server.respond_with_string ~code:`Not_found ("Not found: " ^ path)
     in
     let public_dir =
@@ -213,26 +179,35 @@ module App = struct
     { app with before_filters=(List.rev app.before_filters);
                after_filters=(List.rev app.after_filters); }
 
-  let server ?(port=3000) app =
+  let server ?(debug=true) ?(port=3000) app =
     let app = order_filters app in
+    let cb ~body sock req =
+      let req = apply_filters app.before_filters (return req) in
+      req >>= fun req ->
+      let uri        = local_path req in
+      let endpoint   = matching_endpoint app.routes req uri in
+      match endpoint with
+      | Some ({route;action;_}, params) ->
+        action Request.({ request=req; params })
+      | None -> 
+        let resp = 
+          match app.public_dir with
+          | Some pd -> Local_map.public_serve pd ~requested:uri
+          | None -> return None
+        in resp >>= function
+        | None -> app.not_found @@ Request.({request=req; params=[]})
+        | Some s -> return s
+    in
     Co.Server.create ~on_handler_error:`Raise (Tcp.on_port port)
-      (fun ~body sock req -> 
-         let req = apply_filters app.before_filters (return req) in
-         req >>= fun req ->
-         let uri        = local_path req in
-         let endpoint   = matching_endpoint app.routes req uri in
-         match endpoint with
-         | Some ({route;action;_}, params) ->
-           action Request.({ raw=req; params })
-         | None -> 
-           let resp = 
-             match app.public_dir with
-             | Some pd -> Local_map.public_serve pd ~requested:uri
-             | None -> return None
-           in resp >>= function
-           | None -> app.not_found @@ Request.({raw=req; params=[]})
-           | Some s -> return s
-      ) >>= fun _ -> Deferred.never ()
+      (if debug
+       then (fun ~body sock req ->
+           try_with (fun () -> cb ~body sock req) >>= function
+           | Ok v -> return v
+           | Error _exn ->
+             Log.exn_ _exn;
+             let body = sprintf "<pre>%s</pre>" (Exn.to_string _exn) in
+             Co.Server.respond_with_string body)
+       else cb) >>= fun _ -> Deferred.never ()
 end
 
 module Std = struct
