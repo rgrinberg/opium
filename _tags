@@ -1,0 +1,4 @@
+true: thread,debug
+true: syntax(camlp4o)
+true: package(core,async,cohttp.async,sexplib,sexplib.syntax,pcre,cow,cow.syntax,oUnit)
+<lib> or <lib_test> or <examples> : include

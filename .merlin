@@ -1,0 +1,13 @@
+S lib
+S lib_test
+S examples
+B _build/lib
+B _build/lib_test
+B _build/examples
+PKG core
+PKG async
+PKG cohttp.async
+PKG pcre
+PKG oUnit
+PKG cow.syntax
+PKG sexplib.syntax
