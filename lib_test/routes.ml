@@ -1,6 +1,6 @@
 open Core.Std
 open OUnit
-(* TODO switch to ounity 2.0 *)
+(* TODO switch to ounit 2.0 *)
 
 module O = Opium
 
