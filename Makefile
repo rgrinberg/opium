@@ -13,12 +13,7 @@ build:
 	$(OCAMLBUILD) $(INSTALL_TARGETS)
 	$(OCAMLBUILD) $(TARGETS)
 
-job_create:
-	./job_create.native
-
-all:
-	make build
-	make test
+all: build test
 
 test:
 	./routes.native
