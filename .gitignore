@@ -1,4 +1,6 @@
 *.cmi
 *.cmx
 *.cmxi
+lib/intf.ml
 _build/**
+*.native
