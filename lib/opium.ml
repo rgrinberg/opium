@@ -81,6 +81,7 @@ end
 module Std = struct
   module Response = Response
   module Request = Rock.Request
+  module Middleware = Middleware_pack
   module App = App
 
   let get route action =
@@ -97,10 +98,16 @@ module Std = struct
   let before action app = App.cons_before app action
   let after action app = App.cons_after app action
 
-  let start endpoints =
+  let start ?(debug=true) endpoints =
     let app = App.app () in
     endpoints |> List.iter ~f:(App.build app);
-    let app = Rock.App.create ~middlewares:[Router.m app.App.routes]
+    let middlewares = [Middleware.Router.m app.App.routes] in
+    let middlewares =
+      if debug
+      then middlewares
+      else middlewares
+    in
+    let app = Rock.App.create ~middlewares
         ~handler:Rock.Handler.default in
     app |> Rock.App.run ~port:3000 >>| ignore |> don't_wait_for;
     Scheduler.go ()
