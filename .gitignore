@@ -1,0 +1,4 @@
+*.cmi
+*.cmx
+*.cmxi
+_build/**
