@@ -49,19 +49,6 @@ module Middleware = struct
 
   let apply_middlewares middlewares handler =
     List.fold_left middlewares ~init:handler ~f:(fun h m -> m h)
-
-  module Debug = struct
-    let exn_ e = Log.Global.error "%s" (Exn.to_string e)
-    let m handler req =
-      try_with (fun () -> handler req) >>= function
-      | Ok v -> return v
-      | Error _exn ->
-        exn_ _exn;
-        let body = sprintf "<pre>%s</pre>" (Exn.to_string _exn)
-                   |> Pipe_extra.singleton in
-        return @@ Response.create ~code:`Internal_server_error ~body
-  end
-
 end
 
 module App = struct
