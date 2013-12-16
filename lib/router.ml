@@ -60,7 +60,7 @@ type 'action endpoint = {
   meth: Co.Code.meth;
   route: Route.t;
   action: 'action;
-}
+} with fields
 
 (** finds matching endpoint and returns it with the parsed list of parameters *)
 let matching_endpoint endpoints meth uri =

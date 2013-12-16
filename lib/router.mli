@@ -25,7 +25,8 @@ type 'action endpoint = {
   meth : meth;
   route : Route.t;
   action : 'action;
-}
+} with fields
+
 val matching_endpoint :
   'a endpoint Queue.t Array.t ->
   meth ->
