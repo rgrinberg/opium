@@ -28,8 +28,7 @@ type 'action endpoint = {
 } with fields
 
 val matching_endpoint :
-  'a endpoint Queue.t Array.t ->
-  meth ->
+  'a endpoint Queue.t Array.t -> meth ->
   string -> ('a endpoint * (string * string) List.t) option
 
 module Env : sig
@@ -38,6 +37,4 @@ module Env : sig
 end
 
 val param : Rock.Request.t -> string -> string
-val m :
-  (Rock.Request.t -> 'a) endpoint Queue.t Array.t ->
-  (Rock.Request.t -> 'a) -> Rock.Request.t -> 'a
+val m : (Rock.Handler.t endpoint) Method_bin.t -> Rock.Middleware.t
