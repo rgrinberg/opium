@@ -1,17 +1,13 @@
 open Core.Std
 open Async.Std
-
+open Rock
 module Co = Cohttp
 
 type meth = Cohttp.Code.meth
 
-open Rock
-
 module Method_bin = struct
   type 'a t = 'a Queue.t array
-
   let create () = Array.init 7 ~f:(fun _ -> Queue.create ())
-
   let int_of_meth = function
     | `GET     -> 0
     | `POST    -> 1
@@ -20,12 +16,11 @@ module Method_bin = struct
     | `HEAD    -> 4
     | `PATCH   -> 5
     | `OPTIONS -> 6
-
   let add t meth value = Queue.enqueue t.(int_of_meth meth) value
-
   let get t meth = t.(int_of_meth meth)
 end
 
+(** Provides sinatra like param bindings *)
 module Route = struct
   type t = Pcre.regexp
 
@@ -56,6 +51,9 @@ module Route = struct
     else Some (get_named_matches ~rex s)
 end
 
+(* an endpoint is simply an action tied to the way it's dispatched.
+   like a Handler.t but also has user specified params and is
+   specifying to an http method *)
 type 'action endpoint = {
   meth: Co.Code.meth;
   route: Route.t;
