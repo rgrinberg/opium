@@ -11,7 +11,6 @@ module Response = struct
     | `Xml of Xml.t ]
 
   let content_type ct = Cohttp.Header.init_with "Content-Type" ct
-
   let json_header = content_type "application/json"
   let xml_header = content_type "application/xml"
   let html_header = content_type "text/html"
@@ -101,7 +100,7 @@ module Std = struct
   let before action app = App.cons_before app action
   let after action app = App.cons_after app action
 
-  let start ?(debug=true) endpoints =
+  let start ?(verbose=true) ?(debug=true) ?(port=3000) endpoints =
     let app = App.app () in
     endpoints |> List.iter ~f:(App.build app);
     let middlewares = [Middleware.Router.m app.App.routes] in
