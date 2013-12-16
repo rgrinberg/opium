@@ -7,7 +7,8 @@ open Rock
 
 type t = {
   prefix: string;
-  local_path: string; }
+  local_path: string;
+} with fields
 
 let error_body_default =
   "<html><body><h1>404 Not Found</h1></body></html>"
