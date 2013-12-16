@@ -70,8 +70,8 @@ let matching_endpoint endpoints meth uri =
 
 module Env = struct
   type path_params = (string * string) list
-  let key : path_params Univ_map.Key.t = (* TODO: sexp_opaque *)
-    Univ_map.Key.create "path_params" (fun _ -> Sexp.of_string "path_params")
+  let key : path_params Univ_map.Key.t =
+    Univ_map.Key.create "path_params" sexp_of_opaque
 end
 
 (* not param_exn since if the endpoint was selected it's likely that the parameter
