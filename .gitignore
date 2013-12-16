@@ -4,3 +4,4 @@
 lib/intf.ml
 _build/**
 *.native
+*.sh
