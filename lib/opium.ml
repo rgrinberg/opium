@@ -83,6 +83,9 @@ module Std = struct
   module Request = Rock.Request
   module Middleware = Middleware_pack
   module App = App
+  module Rock = Rock
+
+  let param = Middleware.Router.param
 
   let get route action =
     App.register ~meth:`GET ~route:(Router.Route.create route) ~action
