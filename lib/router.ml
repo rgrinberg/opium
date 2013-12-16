@@ -3,6 +3,8 @@ open Async.Std
 
 module Co = Cohttp
 
+type meth = Cohttp.Code.meth
+
 open Rock
 
 module Method_bin = struct
