@@ -104,7 +104,7 @@ module Std = struct
     let middlewares = [Middleware.Router.m app.App.routes] in
     let middlewares =
       if debug
-      then middlewares
+      then Middleware.Debug.m::middlewares
       else middlewares
     in
     let app = Rock.App.create ~middlewares
