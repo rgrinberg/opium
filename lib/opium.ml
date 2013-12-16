@@ -109,8 +109,9 @@ module Std = struct
       then Middleware.Debug.m::middlewares
       else middlewares
     in
-    let app = Rock.App.create ~middlewares
-        ~handler:Rock.Handler.default in
-    app |> Rock.App.run ~port:3000 >>| ignore |> don't_wait_for;
+    if verbose then
+      Log.Global.info "Running on port: %d%s" port (if debug then " (debug)" else "");
+    let app = Rock.App.create ~middlewares ~handler:Rock.Handler.default in
+    app |> Rock.App.run ~port >>| ignore |> don't_wait_for;
     Scheduler.go ()
 end
