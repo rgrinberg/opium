@@ -22,4 +22,5 @@ val before : Request.t filter -> 'a t -> unit
 val after : Response.t filter -> 'a t -> unit
 
 val start : ?verbose:bool -> ?debug:bool -> ?port:int
+  -> ?extra_middlewares:(Rock.Middleware.t list)
   -> Handler.t builder list -> never_returns

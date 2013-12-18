@@ -87,10 +87,11 @@ let app = app
 let before action app = cons_before app action
 let after action app = cons_after app action
 
-let start ?(verbose=true) ?(debug=true) ?(port=3000) endpoints =
+let start ?(verbose=true) ?(debug=true) ?(port=3000) ?(extra_middlewares=[])
+    endpoints =
   let app = app () in
   endpoints |> List.iter ~f:(build app);
-  let middlewares = [Middleware_pack.Router.m app.routes] in
+  let middlewares = [Middleware_pack.Router.m app.routes] @ extra_middlewares in
   let middlewares =
     if debug
     then Middleware_pack.Debug.m::middlewares
