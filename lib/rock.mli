@@ -4,7 +4,7 @@ open Async.Std
 module Request : sig
   type t = {
     request : Cohttp.Request.t;
-    env : Univ_map.t;
+    mutable env : Univ_map.t;
   } with fields
   val create : ?env:Univ_map.t -> Cohttp.Request.t -> t
   val uri : t -> Uri.t

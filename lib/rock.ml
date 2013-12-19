@@ -9,7 +9,7 @@ module Co = Cohttp
 module Request = struct
   type t = {
     request: Cohttp.Request.t;
-    env: Univ_map.t;
+    mutable env: Univ_map.t;
   } with fields
   let create ?(env=Univ_map.empty) request =
     { request; env }
