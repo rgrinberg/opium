@@ -91,7 +91,7 @@ let start ?(verbose=true) ?(debug=true) ?(port=3000) ?(extra_middlewares=[])
     endpoints =
   let app = app () in
   endpoints |> List.iter ~f:(build app);
-  let middlewares = [Middleware_pack.Router.m app.routes] @ extra_middlewares in
+  let middlewares = extra_middlewares @ [Middleware_pack.Router.m app.routes] in
   let middlewares =
     if debug
     then Middleware_pack.Debug.m::middlewares
