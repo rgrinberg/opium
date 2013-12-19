@@ -82,7 +82,7 @@ let m endpoints default req =
   let url = req |> Request.uri |> Uri.to_string in
   match matching_endpoint endpoints (Request.meth req) url with
   | None -> Handler.call default req
-  | Some (endpoint, params) ->
-    let req =
-      Request.({ req with env=Univ_map.add_exn (env req) Env.key params })
-    in Handler.call endpoint.action req
+  | Some (endpoint, params) -> begin
+      Request.set_env req @@ Univ_map.add_exn (Request.env req) Env.key params;
+      Handler.call endpoint.action req
+    end
