@@ -36,9 +36,26 @@ let get_cookie = get "/get/:key" begin fun req ->
     respond @@ `String (sprintf "Cookie %s is: %s" key value) 
   end
 
+let all_cookies = get "/cookies" begin fun req ->
+    let cookies = req
+                  |> Cookie.cookies
+                  |> List.map ~f:(fun (k,v) -> k ^ "=" ^ v)
+                  |> String.concat ~sep:"\n"
+    in
+    respond @@ `String (sprintf "<pre>%s</pre>" cookies)
+  end
+
 (* exceptions should be nicely formatted *)
 let throws = get "/yyy" (fun req ->
     Log.Global.info "Crashing...";
     List.hd_exn [])
 
-let _ = start [e1; e2; e3; e4; get_cookie; set_cookie; throws]
+let _ = start ~extra_middlewares:[Cookie.m]
+    [ e1
+    ; e2
+    ; e3
+    ; e4
+    ; get_cookie
+    ; set_cookie
+    ; all_cookies
+    ; throws ]
