@@ -11,4 +11,4 @@ PKG pcre
 PKG oUnit
 PKG cow.syntax
 PKG sexplib.syntax
-PKG fieldslib.sytnax
+PKG fieldslib.syntax
