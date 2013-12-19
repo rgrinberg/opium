@@ -40,7 +40,7 @@ module Handler = struct
   type t = Request.t -> Response.t Deferred.t
   let call app req = app req
 
-  let default _ = return @@ Response.create ()
+  let default _ = return @@ Response.string_body "route failed (404)"
   let not_found _ =
     return @@ Response.string_body ~code:`Not_found
       "<html><body><h1>404 - Not found</h1></body></html>"
