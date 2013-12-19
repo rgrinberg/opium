@@ -26,7 +26,6 @@ let cookies req = req
 let get req ~key =
   let cookies = cookies_raw req in
   let encoded_key = encode key in
-  Log.Global.info "There are: %d cookies" (List.length cookies);
   cookies |> List.find_map ~f:(fun (k,v) ->
       if k = encoded_key then Some (decode v) else None)
 
@@ -34,14 +33,12 @@ let set_cookies req cookies =
   let env = Rock.Request.env req in
   let current_cookies = current_cookies req in
   let all_cookies = current_cookies @ cookies in (* TODO: wrong *)
-  Rock.Request.set_env req (Univ_map.set env Env.key all_cookies);
-  Log.Global.info "Adding cookies: %s" (req |> Rock.Request.env |> Univ_map.sexp_of_t |> Sexp.to_string_hum)
+  Rock.Request.set_env req (Univ_map.set env Env.key all_cookies)
 
 let set req ~key ~data =
   set_cookies req [(key, data)]
 
 let m handler req =             (* TODO: "optimize" *)
-  Log.Global.info "in the cookie middleware";
   Rock.Handler.call handler req >>| fun response ->
   let cookie_headers =
     let module Cookie = Co.Cookie.Set_cookie_hdr in
@@ -49,7 +46,6 @@ let m handler req =             (* TODO: "optimize" *)
       (encode k, encode v) |> Cookie.make ~path:"/" |> Cookie.serialize
     in current_cookies req |> List.map ~f in
   let old_headers = Rock.Response.headers response in
-  Log.Global.info "Setting: %d cookies" (old_headers |> Co.Header.to_lines |> List.length);
   { response with Rock.Response.headers=(
        List.fold_left cookie_headers ~init:old_headers
          ~f:(fun headers (k,v) -> Co.Header.add headers k v))
