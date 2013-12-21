@@ -35,8 +35,7 @@ let set_cookies req cookies =
   let all_cookies = current_cookies @ cookies in (* TODO: wrong *)
   Rock.Request.set_env req (Univ_map.set env Env.key all_cookies)
 
-let set req ~key ~data =
-  set_cookies req [(key, data)]
+let set req ~key ~data = set_cookies req [(key, data)]
 
 let m handler req =             (* TODO: "optimize" *)
   Rock.Handler.call handler req >>| fun response ->
