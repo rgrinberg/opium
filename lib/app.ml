@@ -26,8 +26,6 @@ end
 type 'a filter = 'a -> 'a Deferred.t
 
 type 'a t = {
-  mutable before_filters : Rock.Request.t filter list;
-  mutable after_filters : Rock.Response.t filter list;
   routes : 'a Router.endpoint Router.Method_bin.t;
   not_found : Rock.Handler.t;
   public_dir : Static.t option;
@@ -37,12 +35,6 @@ type 'a builder = 'a t -> unit
 
 let build : 'a t -> 'a builder -> unit = fun t builder -> builder t
 
-let cons_before app filter =
-  app.before_filters <- (filter::app.before_filters)
-
-let cons_after app filter =
-  app.after_filters <- (filter::app.after_filters)
-
 let register app ~meth ~route ~action =
   Router.Method_bin.add app.routes meth {Router.meth; route; action}
 
@@ -50,9 +42,7 @@ let app () =
   let public_dir =
     let open Static in
     Some { prefix="/public"; local_path="./public" } in
-  { before_filters=[];
-    routes=Router.Method_bin.create ();
-    after_filters=[];
+  { routes=Router.Method_bin.create ();
     public_dir;
     not_found=Rock.Handler.not_found }
 
@@ -66,10 +56,6 @@ let apply_filters filters req = (* not pretty... *)
       !acc >>> (fun req -> acc := filter req));
   !acc
 
-let order_filters app =
-  { app with before_filters=(List.rev app.before_filters);
-             after_filters=(List.rev app.after_filters); }
-
 let param = Middleware_pack.Router.param
 let respond = Response_helpers.respond
 
@@ -82,13 +68,8 @@ let delete route action =
 let put route action =
   register ~meth:`PUT ~route:(Router.Route.create route) ~action
 
-let app = app
-
-let before action app = cons_before app action
-let after action app = cons_after app action
-
-let start ?(verbose=true) ?(debug=true) ?(port=3000) ?(extra_middlewares=[])
-    endpoints =
+let start ?(verbose=true) ?(debug=true) ?(port=3000)
+    ?(extra_middlewares=[]) endpoints =
   let app = app () in
   endpoints |> List.iter ~f:(build app);
   let middlewares = extra_middlewares @ [Middleware_pack.Router.m app.routes] in
