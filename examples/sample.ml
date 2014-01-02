@@ -22,7 +22,6 @@ let e4 = put "/hello/:x/from/:y" begin fun req ->
   end
 
 let set_cookie = get "/set/:key/:value" begin fun req ->
-    Log.Global.info "Setting cookie";
     let (key, value) = (param req "key", param req "value") in
     Cookie.set req key value;
     respond @@ `String (Printf.sprintf "Set %s to %s" key value)
