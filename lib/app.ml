@@ -23,8 +23,6 @@ module Response_helpers = struct
         respond_with_string ~headers:xml_header (Xml.to_string s)
 end
 
-type 'a filter = 'a -> 'a Deferred.t
-
 type 'a t = {
   routes : 'a Router.endpoint Router.Method_bin.t;
   not_found : Rock.Handler.t;
@@ -49,12 +47,6 @@ let app () =
 let public_path root requested =
   let asked_path = Filename.concat root requested in
   Option.some_if (String.is_prefix asked_path ~prefix:root) asked_path
-
-let apply_filters filters req = (* not pretty... *)
-  let acc = ref req in
-  filters |> List.iter ~f:(fun filter ->
-      !acc >>> (fun req -> acc := filter req));
-  !acc
 
 let param = Middleware_pack.Router.param
 let respond = Response_helpers.respond

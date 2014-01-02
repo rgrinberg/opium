@@ -2,7 +2,6 @@ open Core.Std
 open Async.Std
 open Rock
 
-type 'a filter = 'a -> 'a Deferred.t
 type 'a t
 type 'a builder
 
