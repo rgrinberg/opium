@@ -21,7 +21,9 @@ let cookies_raw req = req
 
 let cookies req = req
                   |> cookies_raw
-                  |> List.map ~f:(fun (k,v) -> (decode k, decode v))
+                  |> List.filter_map ~f:(fun (k,v) ->
+                      (* ignore bad cookies *)
+                      Option.try_with @@ fun () -> (decode k, decode v))
 
 let get req ~key =
   let cookies = cookies_raw req in
