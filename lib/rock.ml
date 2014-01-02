@@ -64,7 +64,6 @@ module App = struct
                                           
   let run { handler; middlewares } ~port =
     let module Server = Cohttp_async.Server in
-    let middlewares = List.rev middlewares in
     Server.create
       ~on_handler_error:`Raise (Tcp.on_port port)
       begin fun ~body sock req ->

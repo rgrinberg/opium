@@ -64,11 +64,9 @@ let start ?(verbose=true) ?(debug=true) ?(port=3000)
     ?(extra_middlewares=[]) endpoints =
   let app = app () in
   endpoints |> List.iter ~f:(build app);
-  let middlewares = extra_middlewares @ [Middleware_pack.Router.m app.routes] in
+  let middlewares = (Middleware_pack.Router.m app.routes)::extra_middlewares in
   let middlewares =
-    if debug
-    then Middleware_pack.Debug.m::middlewares
-    else middlewares
+    middlewares @ (if debug then [Middleware_pack.Debug.m] else [])
   in
   if verbose then
     Log.Global.info "Running on port: %d%s" port (if debug then " (debug)" else "");
