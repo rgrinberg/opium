@@ -30,8 +30,8 @@ module Response = struct
     { code;
       headers=Option.value ~default:(Header.init ()) headers;
       body= (match body with
-          | None -> Pipe_extra.singleton ""
-          | Some b -> b); }
+        | None -> Pipe_extra.singleton ""
+        | Some b -> b); }
   let string_body ?headers ?(code=`OK) body =
     { code; headers=default_header headers; body=(Pipe_extra.singleton body) }
 end
@@ -42,8 +42,9 @@ module Handler = struct
 
   let default _ = return @@ Response.string_body "route failed (404)"
   let not_found _ =
-    return @@ Response.string_body ~code:`Not_found
-      "<html><body><h1>404 - Not found</h1></body></html>"
+    return @@ Response.string_body
+                ~code:`Not_found
+                "<html><body><h1>404 - Not found</h1></body></html>"
 end
 
 module Middleware = struct
@@ -64,7 +65,8 @@ module App = struct
   let run { handler; middlewares } ~port =
     let module Server = Cohttp_async.Server in
     let middlewares = List.rev middlewares in
-    Server.create ~on_handler_error:`Raise (Tcp.on_port port)
+    Server.create
+      ~on_handler_error:`Raise (Tcp.on_port port)
       begin fun ~body sock req ->
         let req = Request.create req in
         let handler = Middleware.apply_middlewares middlewares handler in
