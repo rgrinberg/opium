@@ -78,11 +78,15 @@ let param req param =
   let params = Univ_map.find_exn (Request.env req) Env.key in
   List.Assoc.find_exn params param
 
+(* takes a list of endpoints and a default handler. calls an endpoint
+   if a match is found. otherwise calls the handler *)
 let m endpoints default req =
   let url = req |> Request.uri |> Uri.to_string in
   match matching_endpoint endpoints (Request.meth req) url with
   | None -> Handler.call default req
   | Some (endpoint, params) -> begin
-      Request.set_env req @@ Univ_map.add_exn (Request.env req) Env.key params;
+      let env_with_params = Univ_map.add_exn (Request.env req) Env.key params in
+      Request.set_env req env_with_params;
       Handler.call endpoint.action req
+      (* Handler.call endpoint.action ({req with Request.env=env_with_params}) *)
     end
