@@ -51,7 +51,25 @@ module Middleware = struct
   type t = Handler.t -> Handler.t
 
   let apply_middlewares middlewares handler =
-    List.fold_left middlewares ~init:handler ~f:(fun h m -> m h)
+    List.fold_left middlewares ~init:handler ~f:(|>)
+
+  let wrap_debug handler ({ Request.env ; request } as req) =
+    let env = Univ_map.sexp_of_t env in
+    let req' = request
+               |> Co.Request.headers
+               |> Co.Header.to_lines in
+    printf "Env:\n%s\n" (Sexp.to_string_hum env);
+    printf "%s\n" (String.concat req');
+    let resp = handler req in
+    resp >>| (fun ({Response.headers; _} as resp) ->
+      printf "%s\n" (String.concat @@
+                     (headers |> Co.Header.to_lines)
+                    );
+      resp)
+
+  let apply_middlewares_debug (middlewares : t list) handler =
+    List.fold_left middlewares ~init:handler ~f:(fun h m ->
+      wrap_debug (m h))
 end
 
 module App = struct
