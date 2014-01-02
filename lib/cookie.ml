@@ -12,7 +12,7 @@ module Env = struct
 end
 
 let current_cookies req =
-  Option.value ~default:[] (Univ_map.find (Rock.Request.env req) Env.key) 
+  Option.value ~default:[] (Univ_map.find (Rock.Request.env req) Env.key)
 
 let cookies_raw req = req
                       |> Rock.Request.request
@@ -22,8 +22,8 @@ let cookies_raw req = req
 let cookies req = req
                   |> cookies_raw
                   |> List.filter_map ~f:(fun (k,v) ->
-                      (* ignore bad cookies *)
-                      Option.try_with @@ fun () -> (decode k, decode v))
+                    (* ignore bad cookies *)
+                    Option.try_with @@ fun () -> (keyc#decode k, valc#decode v))
 
 let get req ~key =
   let cookies = cookies_raw req in
@@ -48,7 +48,7 @@ let m handler req =             (* TODO: "optimize" *)
     in current_cookies req |> List.map ~f in
   let old_headers = Rock.Response.headers response in
   { response with Rock.Response.headers=(
-       List.fold_left cookie_headers ~init:old_headers
-         ~f:(fun headers (k,v) -> Co.Header.add headers k v))
+     List.fold_left cookie_headers ~init:old_headers
+       ~f:(fun headers (k,v) -> Co.Header.add headers k v))
   }
 
