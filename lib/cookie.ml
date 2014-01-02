@@ -1,9 +1,16 @@
 open Core.Std
 open Async.Std
 module Co = Cohttp
+module B64 = Co.Base64
 
-let encode = Fn.compose Uri.pct_encode Co.Base64.encode
-let decode = Fn.compose Co.Base64.decode Uri.pct_decode 
+let keyc =
+  object
+    method encode = Fn.compose (Uri.pct_encode ~component:`Query_key) B64.encode
+    method decode = Fn.compose B64.decode Uri.pct_decode
+  end
+
+(* work around since cohttp doesn't support = in values *)
+let valc = keyc
 
 module Env = struct
   type cookie = (string * string) list
@@ -29,7 +36,8 @@ let get req ~key =
   let cookies = cookies_raw req in
   let encoded_key = encode key in
   cookies |> List.find_map ~f:(fun (k,v) ->
-      if k = encoded_key then Some (decode v) else None)
+    let encoded_key = keyc#encode key in
+           if k = encoded_key then Some (valc#decode v) else None)
 
 let set_cookies req cookies =
   let env = Rock.Request.env req in
@@ -44,7 +52,7 @@ let m handler req =             (* TODO: "optimize" *)
   let cookie_headers =
     let module Cookie = Co.Cookie.Set_cookie_hdr in
     let f (k,v) =
-      (encode k, encode v) |> Cookie.make ~path:"/" |> Cookie.serialize
+      (keyc#encode k, valc#encode v) |> Cookie.make ~path:"/" |> Cookie.serialize
     in current_cookies req |> List.map ~f in
   let old_headers = Rock.Response.headers response in
   { response with Rock.Response.headers=(
