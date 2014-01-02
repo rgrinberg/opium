@@ -33,10 +33,19 @@ let cookies req = req
                     Option.try_with @@ fun () -> (keyc#decode k, valc#decode v))
 
 let get req ~key =
-  let cookies = cookies_raw req in
-  let encoded_key = encode key in
-  cookies |> List.find_map ~f:(fun (k,v) ->
+  let cookie1 =
+    req
+    |> current_cookies
+    |> List.find_map ~f:(fun (k,v) -> if k = key then Some v else None)
+  in
+  match cookie1 with
+  | Some cookie -> Some cookie
+  | None ->
+    let cookies = cookies_raw req in
     let encoded_key = keyc#encode key in
+    cookies
+    |> List.find_map
+         ~f:(fun (k,v) ->
            if k = encoded_key then Some (valc#decode v) else None)
 
 let set_cookies req cookies =
