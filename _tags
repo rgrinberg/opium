@@ -1,4 +1,5 @@
 true: thread,debug
 true: syntax(camlp4o)
+true: bin_annot
 true: package(core,async,cohttp.async,fieldslib,fieldslib.syntax,sexplib,sexplib.syntax,pcre,omd,cow,cow.syntax,oUnit)
 <lib> or <lib_test> or <examples> : include
