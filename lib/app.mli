@@ -10,7 +10,7 @@ val respond : ?headers:Cohttp.Header.t -> ?code:Cohttp.Code.status_code ->
   [< `Html of Cow.Html.t
   | `Json of Cow.Json.t
   | `String of string
-  | `Xml of Cow.Xml.t ] -> Response.t Deferred.t
+  | `Xml of Cow.Xml.t ] -> Response.t
 
 val get : string -> 'a -> 'a builder
 val post : string -> 'a -> 'a builder
