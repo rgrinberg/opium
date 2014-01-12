@@ -18,8 +18,11 @@ module Env = struct
     Univ_map.Key.create "cookie" sexp_of_opaque
 end
 
-let current_cookies req =
-  Option.value ~default:[] (Univ_map.find (Rock.Request.env req) Env.key)
+(* let current_cookies req = *)
+(*   Option.value ~default:[] (Univ_map.find (Rock.Request.env req) Env.key) *)
+
+let current_cookies env record =
+  Option.value ~default:[] (Univ_map.find (Field.get env record) Env.key)
 
 let cookies_raw req = req
                       |> Rock.Request.request
@@ -34,9 +37,8 @@ let cookies req = req
 
 let get req ~key =
   let cookie1 =
-    req
-    |> current_cookies
-    |> List.find_map ~f:(fun (k,v) -> if k = key then Some v else None)
+    let env = current_cookies Rock.Request.Fields.env req in
+    List.find_map env ~f:(fun (k,v) -> if k = key then Some v else None)
   in
   match cookie1 with
   | Some cookie -> Some cookie
@@ -48,13 +50,13 @@ let get req ~key =
          ~f:(fun (k,v) ->
            if k = encoded_key then Some (valc#decode v) else None)
 
-let set_cookies req cookies =
-  let env = Rock.Request.env req in
-  let current_cookies = current_cookies req in
+let set_cookies resp cookies =
+  let env = Rock.Response.env resp in
+  let current_cookies = current_cookies Rock.Response.Fields.env resp in
   let all_cookies = current_cookies @ cookies in (* TODO: wrong *)
-  Rock.Request.set_env req (Univ_map.set env Env.key all_cookies)
+  { resp with env=(Univ_map.set env Env.key all_cookies) }
 
-let set req ~key ~data = set_cookies req [(key, data)]
+let set resp ~key ~data = set_cookies resp [(key, data)]
 
 let m handler req =             (* TODO: "optimize" *)
   Rock.Handler.call handler req >>| fun response ->
@@ -62,7 +64,7 @@ let m handler req =             (* TODO: "optimize" *)
     let module Cookie = Co.Cookie.Set_cookie_hdr in
     let f (k,v) =
       (keyc#encode k, valc#encode v) |> Cookie.make ~path:"/" |> Cookie.serialize
-    in current_cookies req |> List.map ~f in
+    in current_cookies Rock.Request.Fields.env req |> List.map ~f in
   let old_headers = Rock.Response.headers response in
   { response with Rock.Response.headers=(
      List.fold_left cookie_headers ~init:old_headers
