@@ -61,7 +61,7 @@ let put route action =
   register ~meth:`PUT ~route:(Router.Route.create route) ~action
 
 let start ?(verbose=true) ?(debug=true) ?(port=3000)
-          ?(extra_middlewares=[]) endpoints =
+      ?(extra_middlewares=[]) endpoints =
   let app = app () in
   endpoints |> List.iter ~f:(build app);
   let middlewares = (Middleware_pack.Router.m app.routes)::extra_middlewares in
