@@ -14,13 +14,13 @@ module Response_helpers = struct
   let respond_with_string = Rock.Response.string_body
 
   let respond ?headers ?(code=`OK) = function
-    | `String s -> return @@ respond_with_string ?headers ~code s
+    | `String s -> respond_with_string ?headers ~code s
     | `Json s ->
-       return @@ respond_with_string ~headers:json_header (Json.to_string s)
+      respond_with_string ~headers:json_header (Json.to_string s)
     | `Html s ->
-       return @@ respond_with_string ~headers:html_header (Html.to_string s)
+      respond_with_string ~headers:html_header (Html.to_string s)
     | `Xml s ->
-       return @@ respond_with_string ~headers:xml_header (Xml.to_string s)
+      respond_with_string ~headers:xml_header (Xml.to_string s)
 end
 
 type 'a t = {
