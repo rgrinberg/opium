@@ -9,7 +9,7 @@ module Co = Cohttp
 module Request = struct
   type t = {
     request: Cohttp.Request.t;
-    mutable env: Univ_map.t;
+    env: Univ_map.t;
   } with fields
 
   let create ?(env=Univ_map.empty) request = { request; env }
@@ -22,18 +22,19 @@ module Response = struct
     code: Code.status_code;
     headers: Header.t;
     body: string Pipe.Reader.t;
+    env: Univ_map.t
   } with fields
 
   let default_header = Option.value ~default:(Header.init ())
 
-  let create ?body ?headers ?(code=`OK) () =
-    { code;
+  let create ?(env=Univ_map.empty) ?body ?headers ?(code=`OK) () =
+    { code; env;
       headers=Option.value ~default:(Header.init ()) headers;
       body= (match body with
         | None -> Pipe_extra.singleton ""
         | Some b -> b); }
-  let string_body ?headers ?(code=`OK) body =
-    { code; headers=default_header headers; body=(Pipe_extra.singleton body) }
+  let string_body ?(env=Univ_map.empty) ?headers ?(code=`OK) body =
+    { env; code; headers=default_header headers; body=(Pipe_extra.singleton body) }
 end
 
 module Handler = struct

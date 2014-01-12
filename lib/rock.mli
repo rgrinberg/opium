@@ -4,7 +4,7 @@ open Async.Std
 module Request : sig
   type t = {
     request : Cohttp.Request.t;
-    mutable env : Univ_map.t;
+    env : Univ_map.t;
   } with fields
   val create : ?env:Univ_map.t -> Cohttp.Request.t -> t
   val uri : t -> Uri.t
@@ -16,12 +16,15 @@ module Response : sig
     code : Cohttp.Code.status_code;
     headers : Cohttp.Header.t;
     body : string Pipe.Reader.t;
+    env: Univ_map.t
   } with fields
   val default_header : Cohttp.Header.t Option.t -> Cohttp.Header.t
   val create :
+    ?env: Univ_map.t ->
     ?body:string Pipe.Reader.t ->
     ?headers:Cohttp.Header.t -> ?code:Cohttp.Code.status_code -> unit -> t
   val string_body :
+    ?env: Univ_map.t ->
     ?headers:Cohttp.Header.t ->
     ?code:Cohttp.Code.status_code -> string -> t
 end
