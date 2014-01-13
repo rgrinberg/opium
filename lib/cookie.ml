@@ -18,9 +18,6 @@ module Env = struct
     Univ_map.Key.create "cookie" sexp_of_opaque
 end
 
-(* let current_cookies req = *)
-(*   Option.value ~default:[] (Univ_map.find (Rock.Request.env req) Env.key) *)
-
 let current_cookies env record =
   Option.value ~default:[] (Univ_map.find (Field.get env record) Env.key)
 
