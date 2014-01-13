@@ -34,13 +34,13 @@ module Route = struct
     let all_names = Pcre.names rex in
     let subs = Pcre.exec ~rex s in
     all_names |> Array.to_list |> List.map ~f:(fun name ->
-        (name, Pcre.get_named_substring rex name subs))
+      (name, Pcre.get_named_substring rex name subs))
 
   let pcre_of_route route =
     let compile_to_pcre s =
       Pcre.substitute ~pat:":\\w+" ~subst:(fun s ->
-          Printf.sprintf "(?<%s>[^/]+)" 
-            (String.chop_prefix_exn s ~prefix:":")) s
+        Printf.sprintf "(?<%s>[^/]+)" 
+          (String.chop_prefix_exn s ~prefix:":")) s
     in compile_to_pcre (route ^ "$")
 
   let create path = path |> pcre_of_route |> Pcre.regexp
@@ -64,7 +64,7 @@ type 'action endpoint = {
 let matching_endpoint endpoints meth uri =
   let endpoints = Method_bin.get endpoints meth in
   endpoints |> Queue.find_map ~f:(fun ep -> 
-      uri |> Route.match_url ep.route |> Option.map ~f:(fun p -> (ep, p)))
+    uri |> Route.match_url ep.route |> Option.map ~f:(fun p -> (ep, p)))
 
 module Env = struct
   type path_params = (string * string) list
