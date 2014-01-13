@@ -86,6 +86,6 @@ let m endpoints default req =
   | None -> Handler.call default req
   | Some (endpoint, params) -> begin
       let env_with_params = Univ_map.add_exn (Request.env req) Env.key params in
-      Handler.call endpoint.action { req with env=env_with_params }
+      Handler.call endpoint.action { req with Request.env=env_with_params }
       (* Handler.call endpoint.action ({req with Request.env=env_with_params}) *)
     end

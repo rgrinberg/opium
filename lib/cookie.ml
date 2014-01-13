@@ -51,7 +51,7 @@ let set_cookies resp cookies =
   let env = Rock.Response.env resp in
   let current_cookies = current_cookies Rock.Response.Fields.env resp in
   let all_cookies = current_cookies @ cookies in (* TODO: wrong *)
-  { resp with env=(Univ_map.set env Env.key all_cookies) }
+  { resp with Rock.Response.env=(Univ_map.set env Env.key all_cookies) }
 
 let set resp ~key ~data = set_cookies resp [(key, data)]
 
