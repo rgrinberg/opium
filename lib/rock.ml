@@ -80,7 +80,7 @@ module App = struct
   } with fields
 
   let create ?(middlewares=[]) ~handler = { middlewares; handler }
-                                          
+
   let run { handler; middlewares } ~port =
     let module Server = Cohttp_async.Server in
     Server.create
