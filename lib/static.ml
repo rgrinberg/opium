@@ -27,10 +27,11 @@ let pipe_of_file ?error_body filename =
 
 let legal_path {prefix;local_path} requested = 
   let open Option in
-  (String.chop_prefix requested ~prefix >>= fun p ->
-   let requested_path = Filename.concat local_path p
-   in Option.some_if 
-        (String.is_prefix requested_path ~prefix:local_path) requested_path)
+  String.chop_prefix requested ~prefix >>= fun p ->
+  let requested_path = Filename.concat local_path p
+  in Option.some_if
+       (String.is_prefix requested_path ~prefix:local_path)
+       requested_path
 
 let public_serve t ~requested =
   match legal_path t requested with
