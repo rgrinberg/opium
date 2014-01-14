@@ -63,6 +63,13 @@ let delete route action =
 let put route action =
   register ~meth:`PUT ~route:(Router.Route.create route) ~action
 
+let patch route action =
+  register ~meth:`PATCH ~route:(Router.Route.create route) ~action
+let head route action =
+  register ~meth:`HEAD ~route:(Router.Route.create route) ~action
+let options route action =
+  register ~meth:`OPTIONS ~route:(Router.Route.create route) ~action
+
 let start ?(verbose=true) ?(debug=true) ?(port=3000)
       ?(extra_middlewares=[]) endpoints =
   let app = app () in

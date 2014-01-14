@@ -26,6 +26,10 @@ val post : route
 val delete : route
 val put : route
 
+val patch : route
+val options : route
+val head : route
+
 val start : ?verbose:bool -> ?debug:bool -> ?port:int
   -> ?extra_middlewares:(Rock.Middleware.t list)
   -> builder list -> never_returns
