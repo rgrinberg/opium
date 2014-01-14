@@ -52,6 +52,11 @@ let throws = get "/yyy" (fun req ->
   failwith "expected failure!")
 
 let _ = start ~extra_middlewares:[Cookie.m]
+let _ = start
+          ~extra_middlewares:[
+            Cookie.m;
+            Static.m ~local_path:"./" ~uri_prefix:"/public"
+          ]
           ([ e1
            ; e2
            ; e3
