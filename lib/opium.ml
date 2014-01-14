@@ -6,5 +6,6 @@ module Std = struct
   module Request = Rock.Request
   module Rock = Rock
   module Cookie = Cookie
+  module Static = Static
   include App
 end
