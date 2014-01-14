@@ -51,6 +51,9 @@ let param = Middleware_pack.Router.param
 let respond = Response_helpers.respond
 let respond' = Response_helpers.respond'
 
+let action meth route action =
+  register ~meth ~route:(Router.Route.create route) ~action
+
 let get route action =
   register ~meth:`GET ~route:(Router.Route.create route) ~action
 let post route action =

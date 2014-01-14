@@ -19,6 +19,8 @@ val respond' : ?headers:Cohttp.Header.t -> ?code:Cohttp.Code.status_code ->
 
 type route = string -> Handler.t -> builder
 
+val action : Router.meth -> route
+
 val get : route
 val post : route
 val delete : route
