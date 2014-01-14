@@ -44,9 +44,12 @@ let public_serve t ~requested =
     | `Not_found body -> Response.create ~body ~code:`Not_found ()
 
 let m ~local_path ~uri_prefix handler req =
-  let local_map = {prefix=uri_prefix; local_path} in
-  let local_path = req |> Request.request |> Co.Request.uri |> Uri.path in
-  if local_path |> String.is_prefix ~prefix:uri_prefix then
-    public_serve local_map ~requested:local_path
+  if Request.meth req = `GET then
+    let local_map = {prefix=uri_prefix; local_path} in
+    let local_path = req  |> Request.uri |> Uri.path in
+    if local_path |> String.is_prefix ~prefix:uri_prefix then
+      public_serve local_map ~requested:local_path
+    else
+      handler req
   else
     handler req
