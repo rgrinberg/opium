@@ -60,7 +60,8 @@ type 'action endpoint = {
   action: 'action;
 } with fields
 
-(** finds matching endpoint and returns it with the parsed list of parameters *)
+(** finds matching endpoint and returns it with the parsed list of
+    parameters *)
 let matching_endpoint endpoints meth uri =
   let endpoints = Method_bin.get endpoints meth in
   endpoints |> Queue.find_map ~f:(fun ep -> 
@@ -72,8 +73,9 @@ module Env = struct
     Univ_map.Key.create "path_params" sexp_of_opaque
 end
 
-(* not param_exn since if the endpoint was selected it's likely that the parameter
-   is already there unless the user has done some strange re fidgeting *)
+(* not param_exn since if the endpoint was selected it's likely that
+   the parameter is already there unless the user has done some
+   strange re fidgeting *)
 let param req param =
   let params = Univ_map.find_exn (Request.env req) Env.key in
   List.Assoc.find_exn params param
@@ -83,9 +85,8 @@ let param req param =
 let m endpoints default req =
   let url = req |> Request.uri |> Uri.to_string in
   match matching_endpoint endpoints (Request.meth req) url with
-  | None -> Handler.call default req
+  | None -> default req
   | Some (endpoint, params) -> begin
       let env_with_params = Univ_map.add_exn (Request.env req) Env.key params in
-      Handler.call endpoint.action { req with Request.env=env_with_params }
-      (* Handler.call endpoint.action ({req with Request.env=env_with_params}) *)
+      endpoint.action { req with Request.env=env_with_params }
     end

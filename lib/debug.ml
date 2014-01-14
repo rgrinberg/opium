@@ -6,7 +6,7 @@ open Rock
 let exn_ e = Log.Global.error "%s" (Exn.to_string e)
 
 let m handler req =
-  try_with (fun () -> Handler.call handler req) >>= function
+  try_with (fun () -> handler req) >>= function
   | Ok v -> return v
   | Error _exn ->
     exn_ _exn;

@@ -39,9 +39,9 @@ end
 
 module Handler = struct
   type t = Request.t -> Response.t Deferred.t
-  let call app req = app req
 
   let default _ = return @@ Response.string_body "route failed (404)"
+
   let not_found _ =
     return @@ Response.string_body
                 ~code:`Not_found
@@ -88,7 +88,7 @@ module App = struct
       begin fun ~body sock req ->
         let req = Request.create req in
         let handler = Middleware.apply_middlewares middlewares handler in
-        Handler.call handler req >>| fun {Response.code; headers; body} ->
+        handler req >>| fun {Response.code; headers; body} ->
         Server.respond ~headers ~body code
       end
 end

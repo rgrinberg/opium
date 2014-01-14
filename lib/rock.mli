@@ -6,6 +6,7 @@ module Request : sig
     request : Cohttp.Request.t;
     env : Univ_map.t;
   } with fields
+
   val create : ?env:Univ_map.t -> Cohttp.Request.t -> t
   val uri : t -> Uri.t
   val meth : t -> Cohttp.Code.meth
@@ -18,11 +19,12 @@ module Response : sig
     body : string Pipe.Reader.t;
     env: Univ_map.t
   } with fields
-  val default_header : Cohttp.Header.t Option.t -> Cohttp.Header.t
+
   val create :
     ?env: Univ_map.t ->
     ?body:string Pipe.Reader.t ->
     ?headers:Cohttp.Header.t -> ?code:Cohttp.Code.status_code -> unit -> t
+
   val string_body :
     ?env: Univ_map.t ->
     ?headers:Cohttp.Header.t ->
@@ -31,7 +33,6 @@ end
 
 module Handler : sig
   type t = Request.t -> Response.t Deferred.t
-  val call : t -> Request.t -> Response.t Deferred.t
   val default : t
   val not_found : t
 end

@@ -56,7 +56,7 @@ let set_cookies resp cookies =
 let set resp ~key ~data = set_cookies resp [(key, data)]
 
 let m handler req =             (* TODO: "optimize" *)
-  Rock.Handler.call handler req >>| fun response ->
+  handler req >>| fun response ->
   let cookie_headers =
     let module Cookie = Co.Cookie.Set_cookie_hdr in
     let f (k,v) =
