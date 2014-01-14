@@ -9,10 +9,6 @@ TARGETS = routes.native sample.native
 
 default: all
 
-debug:
-	@export OCAMLRUNPARAM=b
-	@make build
-
 build:
 	$(OCAMLBUILD) $(INSTALL_TARGETS)
 	$(OCAMLBUILD) $(TARGETS)
