@@ -9,6 +9,10 @@ TARGETS = routes.native sample.native
 
 default: all
 
+debug:
+	@export OCAMLRUNPARAM=b
+	@make build
+
 build:
 	$(OCAMLBUILD) $(INSTALL_TARGETS)
 	$(OCAMLBUILD) $(TARGETS)
@@ -30,4 +34,4 @@ install:
 uninstall:
 	ocamlfind remove $(NAME)
 
-.PHONY: build all build default install uninstall tags
+.PHONY: build all build default install uninstall debug
