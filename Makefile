@@ -1,17 +1,18 @@
 NAME = opium
+
 OCAMLBUILD = ocamlbuild -use-ocamlfind
 
 INSTALL_TARGETS = opium.cma opium.cmxa opium.cmi opium.a
 
 INSTALL = $(addprefix _build/lib/, $(INSTALL_TARGETS))
 
-TARGETS = routes.native sample.native
+BIN_TARGETS = routes.native sample.native
 
 default: all
 
 build:
 	$(OCAMLBUILD) $(INSTALL_TARGETS)
-	$(OCAMLBUILD) $(TARGETS)
+	$(OCAMLBUILD) $(BIN_TARGETS)
 
 all: build test
 
