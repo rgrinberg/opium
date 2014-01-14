@@ -51,7 +51,10 @@ let throws = get "/yyy" (fun req ->
   Log.Global.info "Crashing...";
   failwith "expected failure!")
 
-let _ = start ~extra_middlewares:[Cookie.m]
+(* TODO: a static path will not be overriden. bug? *)
+let override_static = get "/public/_tags" (fun req ->
+  (`String "overriding path") |> respond |> return)
+
 let _ = start
           ~extra_middlewares:[
             Cookie.m;
