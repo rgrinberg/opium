@@ -1,0 +1,3 @@
+#!/bin/sh
+
+opam install core async cohttp pcre-ocaml ounit cow fieldslib sexplib
