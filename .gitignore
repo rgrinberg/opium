@@ -10,3 +10,4 @@ setup.log
 setup.ml
 *.mllib
 META
+_tags
