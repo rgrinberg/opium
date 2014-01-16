@@ -1,34 +1,27 @@
-NAME = opium
-
-OCAMLBUILD = ocamlbuild -use-ocamlfind
-
-INSTALL_TARGETS = opium.cma opium.cmxa opium.cmi opium.a
-
-INSTALL = $(addprefix _build/lib/, $(INSTALL_TARGETS))
-
-BIN_TARGETS = routes.native sample.native
-
 default: all
 
 build:
-	$(OCAMLBUILD) $(INSTALL_TARGETS)
-	$(OCAMLBUILD) $(BIN_TARGETS)
+	ocaml setup.ml -build
 
-all: build test
+all:
+	ocaml setup.ml -all
 
 test:
-	./routes.native
+	ocaml setup.ml -test
 
 doc:
-	$(OCAMLBUILD) oopium.docdir/index.html
+	ocaml setup.ml -doc
 
 clean:
-	$(OCAMLBUILD) -clean
+	ocaml setup.ml -clean
 
 install:
-	ocamlfind install $(NAME) META $(INSTALL)
+	ocaml setup.ml -install
 
 uninstall:
-	ocamlfind remove $(NAME)
+	ocaml setup.ml -uninstall
 
-.PHONY: build all build default install uninstall debug
+reinstall:
+	ocaml setup.ml -reinstall
+
+.PHONY: build all build default install uninstall

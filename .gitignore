@@ -4,3 +4,8 @@
 _build/**
 *.native
 *.sh
+myocamlbuild.ml
+setup.data
+setup.log
+setup.ml
+*.mllib
