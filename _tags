@@ -1,5 +1,0 @@
-true: thread
-true: syntax(camlp4o)
-true: package(core,async,cohttp.async,fieldslib,fieldslib.syntax,sexplib,sexplib.syntax,pcre,cow,cow.syntax)
-<lib_test>: package(oUnit)
-<lib> or <lib_test> or <examples> : include
