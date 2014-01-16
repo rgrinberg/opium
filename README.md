@@ -3,8 +3,7 @@ Opium
 
 ## Executive Summary
 
-Sinatra like web toolkit for OCaml based on `cohttp`, `core`, &
-`async`
+Sinatra like web toolkit for OCaml based on [cohttp](https://github.com/avsm/ocaml-cohttp/), [core](https://github.com/janestreet/core), & [async](https://github.com/janestreet/async)
 
 ## Design Goals
 
@@ -16,7 +15,7 @@ plugins. This is a _Rack_ inspired mechanism borrowed from Ruby. The
 middleware mechanism in Opium is called `Rock`.
 
 * It should maximize use of creature comforts people are used to in
-other languages. Such as `sexplib`, `fieldslib`, `cow`, a decent
+other languages. Such as [sexplib](https://github.com/janestreet/sexplib), [fieldslib](https://github.com/janestreet/fieldslib), [cow](https://github.com/mirage/ocaml-cow), a decent
 standard library.
 
 ## Installation
