@@ -4,6 +4,7 @@ Version:     0.1
 Synopsis:    Sinatra like web toolkit for OCaml
 Authors:     Rudi Grinberg
 License:     WTFPL
+BuildTools: ocamlbuild
 Plugins:     META (0.4)
 
 Library opium
@@ -12,3 +13,33 @@ Library opium
   Modules:    Opium
   InternalModules: Pipe_extra,Cookie,Rock,Middleware_pack,Router,Static,Debug,App
   BuildDepends: threads,cohttp.async,core,fieldslib,fieldslib.syntax,cow,cow.syntax,pcre,sexplib,sexplib.syntax
+
+Executable test_runner
+  Path:               lib_test
+  MainIs:             routes.ml
+  Build$:             flag(tests)
+  Custom:             true
+  CompiledObject:     best
+  Install:            false
+  BuildDepends:       opium,oUnit (>= 1.0.2)
+
+Test test_routes
+  Run$:               flag(tests)
+  Command:            $test_runner
+  WorkingDirectory:   lib_test
+
+Executable ex1
+  Path: examples
+  MainIs: sample.ml
+  Custom: true
+  CompiledObject: best
+  Install: false
+  BuildDepends: opium
+
+Executable ex_hello_world
+  Path: examples
+  MainIs: hello_world.ml
+  Custom: true
+  CompiledObject: best
+  Install: false
+  BuildDepends: opium
