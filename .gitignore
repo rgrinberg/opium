@@ -2,6 +2,7 @@
 *.cmx
 *.cmxi
 _build/**
+examples/_build/**
 *.native
 *.sh
 myocamlbuild.ml
