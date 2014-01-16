@@ -2,7 +2,7 @@ open Core.Std
 open Async.Std
 open Opium.Std
 
-let e1 = get "/version" (fun req -> return @@ respond (`String "testing"))
+let e1 = get "/version" (fun req -> (`String "testing") |> respond')
 
 let e2 = get "/hello/:name" (fun req -> 
   let name = param req "name" in
