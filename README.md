@@ -51,4 +51,4 @@ let _ = start ~port:3000 [print_param]
 compile with:
 ```
 $ corebuild -pkg opium hello_world.native
-```x
+```
