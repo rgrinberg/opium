@@ -9,6 +9,6 @@ Plugins:     META (0.4)
 Library opium
   Path:       ./lib
   BuildTools: ocamlbuild
-  Modules:    Opium,Rock
+  Modules:    Opium
   InternalModules: Pipe_extra,Cookie,Rock,Middleware_pack,Router,Static,Debug,App
   BuildDepends: threads,cohttp.async,core,fieldslib,fieldslib.syntax,cow,cow.syntax,pcre,sexplib,sexplib.syntax
