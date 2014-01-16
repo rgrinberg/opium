@@ -6,7 +6,7 @@ build:
 all:
 	ocaml setup.ml -all
 
-test:
+test: build
 	ocaml setup.ml -test
 
 doc:
