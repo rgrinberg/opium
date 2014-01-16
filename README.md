@@ -50,7 +50,7 @@ module Person = struct
     age: int; } with json
 end
 
-let print_param = get "/hello/:name" begin fun req ->
+let print_param = put "/hello/:name" begin fun req ->
   `String ("Hello " ^ param req "name") |> respond'
 end
 
