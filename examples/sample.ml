@@ -6,13 +6,13 @@ let e1 = get "/version" (fun req -> (`String "testing") |> respond')
 
 let e2 = get "/hello/:name" (fun req -> 
   let name = param req "name" in
-  return @@ respond @@ `String ("hello " ^ name))
+  `String ("hello " ^ name) |> respond')
 
 let e3 = get "/xxx/:x/:y/?" begin fun req ->
   let x = "x" |> param req |> Int.of_string in
   let y = "y" |> param req |> Int.of_string in
   let sum = Float.of_int (x + y) in
-  return @@ respond @@ `Json (Cow.Json.Float sum)
+  `Json (Cow.Json.Float sum) |> respond'
 end
 
 let e4 = put "/hello/:x/from/:y" begin fun req ->
