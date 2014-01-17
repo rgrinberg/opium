@@ -4,6 +4,7 @@
 open Core.Std
 open Async.Std
 open Cohttp
+open Crack
 module Co = Cohttp
 
 module Request = struct
@@ -38,7 +39,7 @@ module Response = struct
 end
 
 module Handler = struct
-  type t = Request.t -> Response.t Deferred.t
+  type t = (Request.t, Response.t) Service.t
 
   let default _ = return @@ Response.string_body "route failed (404)"
 
@@ -49,7 +50,7 @@ module Handler = struct
 end
 
 module Middleware = struct
-  type t = Handler.t -> Handler.t
+  type t = (Request.t, Response.t) Filter.simple
 
   let apply_middlewares middlewares handler =
     List.fold_left middlewares ~init:handler ~f:(|>)
