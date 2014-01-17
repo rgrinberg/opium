@@ -1,6 +1,7 @@
-(** A tiny clone of ruby's Rack protocol in OCaml. It's not imperative
-    to have this to for such a tiny framework but it makes extensions
-    a lot more straightforward *)
+(** A tiny clone of ruby's Rack protocol in OCaml based on "Crack"
+    which is slightly more general and inspired by Finagle. It's not
+    imperative to have this to for such a tiny framework but it makes
+    extensions a lot more straightforward *)
 open Core.Std
 open Async.Std
 open Cohttp

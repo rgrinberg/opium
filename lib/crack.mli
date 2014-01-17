@@ -1,3 +1,4 @@
+(** Finagle inspired type definitions *)
 open Core.Std
 open Async.Std
 
