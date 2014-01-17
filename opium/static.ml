@@ -23,7 +23,7 @@ let pipe_of_file ?error_body filename =
   | Ok res -> res
   | Error exn ->
     let body = Option.value ~default:error_body_default error_body in
-    `Not_found (Pipe_extra.singleton body)
+    `Not_found (Pipe.of_list [body])
 
 let legal_path {prefix;local_path} requested = 
   let open Option in
@@ -36,7 +36,7 @@ let legal_path {prefix;local_path} requested =
 let public_serve t ~requested =
   match legal_path t requested with
   | None ->
-    let body = Pipe_extra.singleton error_body_default in
+    let body = Pipe.of_list [error_body_default] in
     return @@ Response.create ~body ~code:`Not_found ()
   | Some legal_path ->
     pipe_of_file legal_path

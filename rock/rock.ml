@@ -49,10 +49,10 @@ module Response = struct
     { code; env;
       headers=Option.value ~default:(Header.init ()) headers;
       body= (match body with
-        | None -> Pipe_extra.singleton ""
+        | None -> Pipe.of_list [""]
         | Some b -> b); }
   let string_body ?(env=Univ_map.empty) ?headers ?(code=`OK) body =
-    { env; code; headers=default_header headers; body=(Pipe_extra.singleton body) }
+    { env; code; headers=default_header headers; body=(Pipe.of_list [body]) }
 end
 
 module Handler = struct
