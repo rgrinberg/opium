@@ -8,12 +8,21 @@ License:     WTFPL
 BuildTools: ocamlbuild
 Plugins:     META (0.4)
 
-Library opium
-  Path:       ./lib
+Library rock
+  Path:       rock
   BuildTools: ocamlbuild
-  Modules:    Opium, Rock
-  InternalModules: Pipe_extra,Cookie,Rock,Middleware_pack,Router,Static,Debug,App
-  BuildDepends: threads,cohttp.async,core,fieldslib,fieldslib.syntax,cow,cow.syntax,pcre,sexplib,sexplib.syntax
+  Findlibname: opium_rock
+  Modules:    Rock
+  BuildDepends: threads,core,async,cohttp.async
+                ,fieldslib,fieldslib.syntax,sexplib,sexplib.syntax
+
+Library opium
+  Path:       opium
+  BuildTools: ocamlbuild
+  Findlibname: opium
+  Modules:    Opium
+  InternalModules: Cookie,Middleware_pack,Router,Static,Debug,App
+  BuildDepends: opium_rock,cow,cow.syntax,pcre
 
 Executable test_runner
   Path:               lib_test
