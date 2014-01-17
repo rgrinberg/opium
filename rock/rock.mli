@@ -37,6 +37,7 @@ module Request : sig
   val create : ?env:Univ_map.t -> Cohttp.Request.t -> t
   val uri : t -> Uri.t
   val meth : t -> Cohttp.Code.meth
+  val headers : t -> Cohttp.Header.t
 end
 
 module Response : sig

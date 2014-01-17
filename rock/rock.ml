@@ -33,6 +33,7 @@ module Request = struct
   let create ?(env=Univ_map.empty) request = { request; env }
   let uri { request; _ } = Co.Request.uri request
   let meth { request; _ } = Co.Request.meth request
+  let headers { request; _ } = Co.Request.headers request
 end
 
 module Response = struct
