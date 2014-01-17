@@ -19,6 +19,13 @@ doc:
 clean:
 	ocaml setup.ml -clean
 
+scrub: clean
+	ocaml setup.ml -distclean
+	rm -rf _tags
+	rm -rf myocamlbuild.ml
+	rm -rf META
+	rm -rf setup.ml
+
 install:
 	ocaml setup.ml -install
 
