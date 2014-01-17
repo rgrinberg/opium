@@ -1,7 +1,0 @@
-name = "opium"
-version = "0.1"
-description = "Sinatra like micro web framework based on Cohttp/Async"
-archive(byte) = "opium.cma"
-archive(native) = "opium.cmxa"
-exists_if = "opium.cma"
-requires = "cohttp.async cow cow.syntax pcre core async sexplib sexplib.syntax fieldslib fieldslib.syntax"
