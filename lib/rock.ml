@@ -53,9 +53,8 @@ end
 module Middleware = struct
   type t = (Request.t, Response.t) Filter.simple
 
-  let apply_middlewares middlewares handler =
-    List.fold_left middlewares ~init:handler ~f:(|>)
-
+  (* wrap_debug/apply_middlewares_debug are used for debugging when
+     middlewares are stepping over each other *)
   let wrap_debug handler ({ Request.env ; request } as req) =
     let env = Univ_map.sexp_of_t env in
     let req' = request
@@ -85,11 +84,12 @@ module App = struct
 
   let run { handler; middlewares } ~port =
     let module Server = Cohttp_async.Server in
+    let middlewares = Array.of_list middlewares in
     Server.create
       ~on_handler_error:`Raise (Tcp.on_port port)
       begin fun ~body sock req ->
         let req = Request.create req in
-        let handler = Middleware.apply_middlewares middlewares handler in
+        let handler = Filter.apply_all' middlewares handler in
         handler req >>| fun {Response.code; headers; body} ->
         Server.respond ~headers ~body code
       end

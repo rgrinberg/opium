@@ -1,5 +1,6 @@
 open Core.Std
 open Async.Std
+open Crack
 
 module Request : sig
   type t = {
@@ -32,14 +33,13 @@ module Response : sig
 end
 
 module Handler : sig
-  type t = Request.t -> Response.t Deferred.t
+  type t = (Request.t, Response.t) Service.t
   val default : t
   val not_found : t
 end
 
 module Middleware : sig
-  type t = Handler.t -> Handler.t
-  val apply_middlewares : t list -> t
+  type t = (Request.t, Response.t) Filter.simple
 end
 
 module App : sig
