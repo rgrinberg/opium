@@ -14,9 +14,17 @@ module Filter : sig
 
   type ('req, 'rep) simple = ('req, 'rep, 'req, 'rep) t
 
+  val id : ('req, 'rep) simple
+
   val (>>>) : ('q1, 'p1, 'q2, 'p2) t
     -> ('q2, 'p2, 'q3, 'p3) t
     -> ('q1, 'p1, 'q3, 'p3) t
 
-  val id : ('req, 'rep) simple
+  val apply_all : ('req, 'rep) simple List.t
+    -> ('req, 'rep) Service.t
+    -> ('req, 'rep) Service.t
+
+  val apply_all' : ('req, 'rep) simple Array.t
+    -> ('req, 'rep) Service.t
+    -> ('req, 'rep) Service.t
 end
