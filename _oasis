@@ -53,3 +53,11 @@ Executable ex_hello_world
   CompiledObject: best
   Install: false
   BuildDepends: opium
+
+Executable middleware_usa
+  Path: examples
+  MainIs: middleware_ua.ml
+  Custom: true
+  CompiledObject: best
+  Install: false
+  BuildDepends: opium
