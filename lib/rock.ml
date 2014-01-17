@@ -5,7 +5,6 @@
 open Core.Std
 open Async.Std
 open Cohttp
-open Crack
 module Co = Cohttp
 
 module Service = struct
