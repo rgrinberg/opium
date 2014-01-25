@@ -2,7 +2,7 @@ open Core.Std
 open Async.Std
 
 module Service : sig
-  type ('req, 'rep) t = 'req -> 'rep Deferred.t
+  type ('req, 'rep) t = 'req -> 'rep Deferred.t with sexp
 
   val id : ('a, 'a) t
 end
@@ -10,8 +10,10 @@ end
 module Filter : sig
   type ('req, 'rep, 'req', 'rep') t =
     ('req, 'rep) Service.t -> ('req', 'rep') Service.t
+  with sexp
 
   type ('req, 'rep) simple = ('req, 'rep, 'req, 'rep) t
+  with sexp
 
   val id : ('req, 'rep) simple
 
@@ -32,7 +34,7 @@ module Request : sig
   type t = {
     request : Cohttp.Request.t;
     env : Univ_map.t;
-  } with fields
+  } with fields, sexp_of
 
   val create : ?env:Univ_map.t -> Cohttp.Request.t -> t
   val uri : t -> Uri.t
@@ -46,7 +48,7 @@ module Response : sig
     headers : Cohttp.Header.t;
     body : string Pipe.Reader.t;
     env: Univ_map.t
-  } with fields
+  } with fields, sexp_of
 
   val create :
     ?env: Univ_map.t ->
@@ -60,20 +62,20 @@ module Response : sig
 end
 
 module Handler : sig
-  type t = (Request.t, Response.t) Service.t
+  type t = (Request.t, Response.t) Service.t with sexp_of
   val default : t
   val not_found : t
 end
 
 module Middleware : sig
-  type t = (Request.t, Response.t) Filter.simple
+  type t = (Request.t, Response.t) Filter.simple with sexp_of
 end
 
 module App : sig
   type t = {
     middlewares : Middleware.t list;
     handler : Handler.t;
-  } with fields
+  } with fields, sexp_of
 
   val create : ?middlewares:Middleware.t list -> handler:Handler.t -> t
   val run : t -> port:int ->

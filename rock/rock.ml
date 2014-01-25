@@ -8,14 +8,16 @@ open Cohttp
 module Co = Cohttp
 
 module Service = struct
-  type ('req, 'rep) t = 'req -> 'rep Deferred.t
+  type ('req, 'rep) t = 'req -> 'rep Deferred.t with sexp
   let id req = return req
 end
 
 module Filter = struct
   type ('req, 'rep, 'req_, 'rep_) t =
     ('req, 'rep) Service.t -> ('req_, 'rep_) Service.t
+  with sexp
   type ('req, 'rep) simple = ('req, 'rep, 'req, 'rep) t
+  with sexp
   let id s = s
   let (>>>) f1 f2 s = s |> f1 |> f2
   let apply_all filters service =
@@ -28,7 +30,7 @@ module Request = struct
   type t = {
     request: Cohttp.Request.t;
     env: Univ_map.t;
-  } with fields
+  } with fields, sexp_of
 
   let create ?(env=Univ_map.empty) request = { request; env }
   let uri { request; _ } = Co.Request.uri request
@@ -42,7 +44,7 @@ module Response = struct
     headers: Header.t;
     body: string Pipe.Reader.t;
     env: Univ_map.t
-  } with fields
+  } with fields, sexp_of
 
   let default_header = Option.value ~default:(Header.init ())
 
@@ -57,7 +59,7 @@ module Response = struct
 end
 
 module Handler = struct
-  type t = (Request.t, Response.t) Service.t
+  type t = (Request.t, Response.t) Service.t with sexp_of
 
   let default _ = return @@ Response.string_body "route failed (404)"
 
@@ -68,7 +70,7 @@ module Handler = struct
 end
 
 module Middleware = struct
-  type t = (Request.t, Response.t) Filter.simple
+  type t = (Request.t, Response.t) Filter.simple with sexp_of
 
   (* wrap_debug/apply_middlewares_debug are used for debugging when
      middlewares are stepping over each other *)
@@ -95,7 +97,7 @@ module App = struct
   type t = {
     middlewares: Middleware.t list;
     handler: Handler.t
-  } with fields
+  } with fields, sexp_of
 
   let create ?(middlewares=[]) ~handler = { middlewares; handler }
 
