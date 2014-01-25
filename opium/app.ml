@@ -30,11 +30,11 @@ end
 type 'a t = {
   routes : 'a Router.endpoint Router.Method_bin.t;
   not_found : Handler.t;
-} with fields
+} with fields, sexp_of
 
-type builder = Handler.t t -> unit
+type builder = Handler.t t -> unit with sexp
 
-type route = string -> Handler.t -> builder
+type route = string -> Handler.t -> builder with sexp
 
 let register app ~meth ~route ~action =
   Router.Method_bin.add app.routes meth {Router.meth; route; action}

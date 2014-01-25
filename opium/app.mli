@@ -2,7 +2,7 @@ open Core.Std
 open Async.Std
 open Rock
 
-type builder
+type builder with sexp_of
 
 val param : Request.t -> string -> string
 val respond : ?headers:Cohttp.Header.t -> ?code:Cohttp.Code.status_code ->
@@ -17,7 +17,7 @@ val respond' : ?headers:Cohttp.Header.t -> ?code:Cohttp.Code.status_code ->
   | `String of string
   | `Xml of Cow.Xml.t ] -> Response.t Deferred.t
 
-type route = string -> Handler.t -> builder
+type route = string -> Handler.t -> builder with sexp
 
 val action : Router.meth -> route
 
