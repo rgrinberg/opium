@@ -3,7 +3,7 @@ open Core.Std
 type meth = Cohttp.Code.meth
               
 module Method_bin : sig
-  type 'a t = 'a Queue.t array
+  type 'a t = 'a Queue.t array with sexp
   val create : unit -> 'a Queue.t Array.t
   val int_of_meth : meth -> int
   val add : 'a Queue.t Array.t -> meth -> 'a -> unit
@@ -25,7 +25,7 @@ type 'action endpoint = {
   meth : meth;
   route : Route.t;
   action : 'action;
-} with fields
+} with fields, sexp
 
 val matching_endpoint :
   'a endpoint Queue.t Array.t -> meth ->

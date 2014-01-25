@@ -6,7 +6,7 @@ module Co = Cohttp
 type meth = Cohttp.Code.meth
 
 module Method_bin = struct
-  type 'a t = 'a Queue.t array
+  type 'a t = 'a Queue.t array with sexp
   let create () = Array.init 7 ~f:(fun _ -> Queue.create ())
   let int_of_meth = function
     | `GET     -> 0
@@ -56,9 +56,9 @@ end
    specifying to an http method *)
 type 'action endpoint = {
   meth: Co.Code.meth;
-  route: Route.t;
+  route: Route.t sexp_opaque;
   action: 'action;
-} with fields
+} with fields, sexp
 
 (** finds matching endpoint and returns it with the parsed list of
     parameters *)
