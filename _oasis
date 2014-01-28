@@ -21,7 +21,7 @@ Library opium
   BuildTools: ocamlbuild
   Findlibname: opium
   Modules:    Opium
-  InternalModules: Cookie,Middleware_pack,Router,Static,Debug,App
+  InternalModules: Cookie,Middleware_pack,Router,Static,Debug,App,Phys_map
   BuildDepends: opium_rock,cow,cow.syntax,pcre
 
 Executable test_routes
@@ -33,10 +33,24 @@ Executable test_routes
   Install:            false
   BuildDepends:       opium,oUnit
 
+Executable test_phys_map
+  Path:               lib_test
+  MainIs:             test_phys_map.ml
+  Build$:             flag(tests)
+  Custom:             true
+  CompiledObject:     best
+  Install:            false
+  BuildDepends:       opium,oUnit
+
 Test test_routes
   Run$:               flag(tests)
   Command:            $test_routes
   WorkingDirectory:   lib_test
+
+Test test_phys_map
+  Run$: flag(tests)
+  Command: $test_phys_map
+  WorkingDirectory: lib_test
 
 Executable ex1
   Path: examples
