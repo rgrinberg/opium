@@ -5,6 +5,7 @@ open Rock
 type builder with sexp_of
 
 val param : Request.t -> string -> string
+
 val respond : ?headers:Cohttp.Header.t -> ?code:Cohttp.Code.status_code ->
   [< `Html of Cow.Html.t
   | `Json of Cow.Json.t
