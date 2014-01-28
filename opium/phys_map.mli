@@ -1,6 +1,7 @@
-type t
-val empty : t
-val mem : t -> _ -> t
-val remove : t -> _ -> t
-val add : t -> _ -> t
-val find : t -> 'a -> 'a option
+(** A polymorphic set module that uses physical equality *)
+type 'a t
+val empty : _ t
+val mem : _ t -> key:_ -> bool
+val remove : 'a t -> key:_ -> 'a t
+val add : 'a t -> key:_ -> data:'a -> 'a t
+val find : 'a t -> key:_ -> 'a option
