@@ -24,7 +24,7 @@ Library opium
   InternalModules: Cookie,Middleware_pack,Router,Static,Debug,App
   BuildDepends: opium_rock,cow,cow.syntax,pcre
 
-Executable test_runner
+Executable test_routes
   Path:               lib_test
   MainIs:             routes.ml
   Build$:             flag(tests)
@@ -35,7 +35,7 @@ Executable test_runner
 
 Test test_routes
   Run$:               flag(tests)
-  Command:            $test_runner
+  Command:            $test_routes
   WorkingDirectory:   lib_test
 
 Executable ex1
