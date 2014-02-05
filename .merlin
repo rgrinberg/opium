@@ -12,6 +12,7 @@ PKG async
 PKG cohttp.async
 PKG pcre
 PKG oUnit
+PKG cow
 PKG cow.syntax
 PKG sexplib.syntax
 PKG fieldslib.syntax
