@@ -5,10 +5,18 @@ open Rock
 
 let exn_ e = Log.Global.error "%s" (Exn.to_string e)
 
+let format_error req _exn = sprintf "
+<html>
+  <body>
+  <div id=\"request\"><pre>%s</pre></div>
+  <div id=\"error\"><pre>%s</pre></div>
+  </body>
+</html>" (req |> Request.sexp_of_t |> Sexp.to_string_hum) (Exn.to_string _exn)
+
 let m handler req =
   try_with (fun () -> handler req) >>= function
   | Ok v -> return v
   | Error _exn ->
-    exn_ _exn;
-    let body = sprintf "<pre>%s</pre>" (Exn.to_string _exn) in
+    exn_ _exn;                  (* log exception *)
+    let body = format_error req _exn in
     return @@ Response.string_body ~code:`Internal_server_error body
