@@ -42,20 +42,21 @@ module Response = struct
   type t = {
     code: Code.status_code;
     headers: Header.t;
-    body: string Pipe.Reader.t;
+    body: Cohttp_async.Body.t;
     env: Univ_map.t
   } with fields, sexp_of
 
+  module B = Cohttp_async.Body
+
   let default_header = Option.value ~default:(Header.init ())
 
-  let create ?(env=Univ_map.empty) ?body ?headers ?(code=`OK) () =
+  let create ?(env=Univ_map.empty) ?(body=B.empty)
+        ?headers ?(code=`OK) () =
     { code; env;
       headers=Option.value ~default:(Header.init ()) headers;
-      body= (match body with
-        | None -> Pipe.of_list [""]
-        | Some b -> b); }
+      body; }
   let string_body ?(env=Univ_map.empty) ?headers ?(code=`OK) body =
-    { env; code; headers=default_header headers; body=(Pipe.of_list [body]) }
+    { env; code; headers=default_header headers; body=(B.string body) }
 end
 
 module Handler = struct
@@ -109,7 +110,7 @@ module App = struct
       begin fun ~body sock req ->
         let req = Request.create req in
         let handler = Filter.apply_all' middlewares handler in
-        handler req >>| fun {Response.code; headers; body} ->
+        handler req >>= fun {Response.code; headers; body} ->
         Server.respond ~headers ~body code
       end
 end

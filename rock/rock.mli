@@ -46,13 +46,13 @@ module Response : sig
   type t = {
     code : Cohttp.Code.status_code;
     headers : Cohttp.Header.t;
-    body : string Pipe.Reader.t;
+    body : Cohttp_async.Body.t;
     env: Univ_map.t
   } with fields, sexp_of
 
   val create :
     ?env: Univ_map.t ->
-    ?body:string Pipe.Reader.t ->
+    ?body:Cohttp_async.Body.t ->
     ?headers:Cohttp.Header.t -> ?code:Cohttp.Code.status_code -> unit -> t
 
   val string_body :
