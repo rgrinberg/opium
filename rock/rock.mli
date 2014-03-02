@@ -68,7 +68,12 @@ module Handler : sig
 end
 
 module Middleware : sig
-  type t = (Request.t, Response.t) Filter.simple with sexp_of
+  type t = {
+    filter: (Request.t, Response.t) Filter.simple;
+    name: Info.t;
+  } with fields, sexp_of
+
+  val create : filter:(Request.t, Response.t) Filter.simple -> name:Info.t -> t
 end
 
 module App : sig

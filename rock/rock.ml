@@ -55,6 +55,7 @@ module Response = struct
     { code; env;
       headers=Option.value ~default:(Header.init ()) headers;
       body; }
+
   let string_body ?(env=Univ_map.empty) ?headers ?(code=`OK) body =
     { env; code; headers=default_header headers; body=(B.of_string body) }
 end
@@ -71,7 +72,14 @@ module Handler = struct
 end
 
 module Middleware = struct
-  type t = (Request.t, Response.t) Filter.simple with sexp_of
+  type t = {
+    filter: (Request.t, Response.t) Filter.simple;
+    name: Info.t;
+  } with fields, sexp_of
+
+  let create ~filter ~name = { filter ; name }
+
+  let apply { filter; _ } handler = filter handler
 
   (* wrap_debug/apply_middlewares_debug are used for debugging when
      middlewares are stepping over each other *)
@@ -84,27 +92,28 @@ module Middleware = struct
     printf "%s\n" (String.concat req');
     let resp = handler req in
     resp >>| (fun ({Response.headers; _} as resp) ->
-      printf "%s\n" (String.concat @@
-                     (headers |> Co.Header.to_lines)
-                    );
+      printf "%s\n" (headers |> Co.Header.to_lines |> String.concat);
       resp)
 
   let apply_middlewares_debug (middlewares : t list) handler =
     List.fold_left middlewares ~init:handler ~f:(fun h m ->
-      wrap_debug (m h))
+      wrap_debug (apply m h))
 end
 
 module App = struct
   type t = {
     middlewares: Middleware.t list;
-    handler: Handler.t
+    handler: Handler.t;
   } with fields, sexp_of
 
   let create ?(middlewares=[]) ~handler = { middlewares; handler }
 
   let run { handler; middlewares } ~port =
     let module Server = Cohttp_async.Server in
-    let middlewares = Array.of_list middlewares in
+    let middlewares = middlewares
+                    |> List.map ~f:Middleware.filter
+                    |> Array.of_list
+    in
     Server.create
       ~on_handler_error:`Raise (Tcp.on_port port)
       begin fun ~body sock req ->
