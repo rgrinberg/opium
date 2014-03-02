@@ -13,8 +13,14 @@ Library rock
   BuildTools: ocamlbuild
   Findlibname: opium_rock
   Modules:    Rock
-  BuildDepends: threads,core,async,cohttp.async
-                ,fieldslib,fieldslib.syntax,sexplib,sexplib.syntax
+  BuildDepends: threads,
+                core,
+                async,
+                cohttp.async,
+                fieldslib,
+                fieldslib.syntax,
+                sexplib,
+                sexplib.syntax
 
 Library opium
   Path:       opium
@@ -22,7 +28,10 @@ Library opium
   Findlibname: opium
   Modules:    Opium
   InternalModules: Cookie,Middleware_pack,Router,Static,Debug,App,Phys_map
-  BuildDepends: opium_rock,cow,cow.syntax,pcre
+  BuildDepends: opium_rock,
+                cow,
+                cow.syntax,
+                pcre
 
 Executable test_routes
   Path:               lib_test
