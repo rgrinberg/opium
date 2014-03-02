@@ -56,7 +56,7 @@ module Response = struct
       headers=Option.value ~default:(Header.init ()) headers;
       body; }
   let string_body ?(env=Univ_map.empty) ?headers ?(code=`OK) body =
-    { env; code; headers=default_header headers; body=(B.string body) }
+    { env; code; headers=default_header headers; body=(B.of_string body) }
 end
 
 module Handler = struct

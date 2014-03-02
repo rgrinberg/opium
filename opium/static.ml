@@ -36,13 +36,13 @@ let legal_path {prefix;local_path} requested =
 let public_serve t ~requested =
   match legal_path t requested with
   | None ->
-    let body = Cohttp_async.Body.string error_body_default in
+    let body = Cohttp_async.Body.of_string error_body_default in
     return @@ Response.create ~body ~code:`Not_found ()
   | Some legal_path ->
     pipe_of_file legal_path
     >>| function
-    | `Ok body -> Response.create ~body:(Cohttp_async.Body.pipe body) ()
-    | `Not_found body -> Response.create ~body:(Cohttp_async.Body.pipe body)
+    | `Ok body -> Response.create ~body:(Cohttp_async.Body.of_pipe body) ()
+    | `Not_found body -> Response.create ~body:(Cohttp_async.Body.of_pipe body)
                            ~code:`Not_found ()
 
 let m ~local_path ~uri_prefix handler req =
