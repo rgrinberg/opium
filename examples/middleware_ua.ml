@@ -17,6 +17,7 @@ let reject_ua ~f =
   Rock.Middleware.create ~filter ~name:(Info.of_string "reject_ua")
 
 let _ =
-  start ~port:3000
-    ~extra_middlewares:[reject_ua ~f:(is_substring ~substring:"MSIE")]
-    [get "/.*" @@ fun req -> `String ("Hello World") |> respond']
+  let app = create [
+    get "/.*" @@ fun req -> `String ("Hello World") |> respond';
+  ] [reject_ua ~f:(is_substring ~substring:"MSIE")] in
+  Command.run (App.command ~name:"Reject UA" app)
