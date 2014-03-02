@@ -1,6 +1,6 @@
 OASISFormat: 0.4
 Name:        Rudi Grinberg
-Version:     0.1
+Version:     0.2.0
 Synopsis:    Sinatra like web toolkit for OCaml
 Authors:     Rudi Grinberg
 Homepage:    https://github.com/rgrinberg/opium
