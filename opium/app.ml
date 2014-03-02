@@ -100,14 +100,16 @@ let command ?(name="Opium App") app =
           ~doc:"port number to listen"
      +> flag "-h" (optional_with_default "0.0.0.0" string)
           ~doc:"interface to listen"
-     +> flag "-c" (optional string)
-          ~doc:"configuration file to load configuration"
-     +> flag "-m" (optional bool)
+     +> flag "-m" no_arg
           ~doc:"print middleware stack"
-     +> flag "-d" (optional_with_default true bool)
+     +> flag "-d" no_arg
           ~doc:"enable debug information"
-    ) (fun port host cfg print_middleware debug () ->
+    ) (fun port host print_middleware debug () ->
       (if debug then
          Log.Global.info "%s -- %s:%s" name host (Int.to_string port));
+      let app =
+        if debug then
+          Rock.App.append_middleware app Middleware_pack.Debug.m
+        else app in
       app |> Rock.App.run ~port >>| ignore >>= never
     )

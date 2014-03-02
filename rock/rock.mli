@@ -82,6 +82,8 @@ module App : sig
     handler : Handler.t;
   } with fields, sexp_of
 
+  val append_middleware : t -> Middleware.t -> t
+
   val create : ?middlewares:Middleware.t list -> handler:Handler.t -> t
   val run : t -> port:int ->
     (Socket.Address.Inet.t, int) Cohttp_async.Server.t

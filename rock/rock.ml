@@ -106,6 +106,9 @@ module App = struct
     handler: Handler.t;
   } with fields, sexp_of
 
+  let append_middleware t m =
+    { t with middlewares=(t.middlewares @ [m]) }
+
   let create ?(middlewares=[]) ~handler = { middlewares; handler }
 
   let run { handler; middlewares } ~port =
