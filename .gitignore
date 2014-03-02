@@ -12,3 +12,4 @@ setup.ml
 META
 _tags
 TAGS
+*.mldylib
