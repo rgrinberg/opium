@@ -27,12 +27,12 @@ module Response_helpers = struct
     s |> respond ?headers ?code |> return
 end
 
-type 'a t = {
-  routes : 'a Router.endpoint Router.Method_bin.t;
+type t = {
+  routes : Handler.t Router.endpoint Router.Method_bin.t;
   not_found : Handler.t;
 } with fields, sexp_of
 
-type builder = Handler.t t -> unit with sexp
+type builder = t -> unit with sexp
 
 type route = string -> Handler.t -> builder with sexp
 
