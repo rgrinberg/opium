@@ -70,6 +70,12 @@ let head route action =
 let options route action =
   register ~meth:`OPTIONS ~route:(Router.Route.create route) ~action
 
+let create endpoints middlewares =
+  let app = app () in
+  endpoints |> List.iter ~f:(fun build -> build app);
+  let middlewares = (Middleware_pack.Router.m app.routes)::middlewares in
+  Rock.App.create ~middlewares ~handler:Handler.default
+
 let start ?(verbose=true) ?(debug=true) ?(port=3000)
       ?(extra_middlewares=[]) endpoints =
   let app = app () in
@@ -79,7 +85,29 @@ let start ?(verbose=true) ?(debug=true) ?(port=3000)
     middlewares @ (if debug then [Middleware_pack.Debug.m] else [])
   in
   if verbose then
-    Log.Global.info "Running on port: %d%s" port (if debug then " (debug)" else "");
+    Log.Global.info "Running on port: %d%s" port
+      (if debug then " (debug)" else "");
   let app = Rock.App.create ~middlewares ~handler:Handler.default in
   app |> Rock.App.run ~port >>| ignore |> don't_wait_for;
   Scheduler.go ()
+
+let command ?(name="Opium App") app =
+  let open Command.Spec in
+  Command.async_basic
+    ~summary:name
+    (empty
+     +> flag "-p" (optional_with_default 3000 int)
+          ~doc:"port number to listen"
+     +> flag "-h" (optional_with_default "0.0.0.0" string)
+          ~doc:"interface to listen"
+     +> flag "-c" (optional string)
+          ~doc:"configuration file to load configuration"
+     +> flag "-m" (optional bool)
+          ~doc:"print middleware stack"
+     +> flag "-d" (optional_with_default true bool)
+          ~doc:"enable debug information"
+    ) (fun port host cfg print_middleware debug () ->
+      (if debug then
+         Log.Global.info "%s -- %s:%s" name host (Int.to_string port));
+      app |> Rock.App.run ~port >>| ignore >>= never
+    )
