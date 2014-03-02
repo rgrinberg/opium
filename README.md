@@ -104,8 +104,8 @@ let _ =
 ```
 
 Here we also use the ability of Opium to generate a core command to
-run your applications. Run your executable with the `-h` to see the
-options that are available to you. For example:
+run your app. Run your executable with the `-h` to see the options
+that are available to you. For example:
 
 ```
 # run in debug mode on port 9000
