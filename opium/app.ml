@@ -105,6 +105,16 @@ let command ?(name="Opium App") app =
      +> flag "-d" no_arg
           ~doc:"enable debug information"
     ) (fun port host print_middleware debug () ->
+      (if print_middleware then begin
+         print_endline "Active middleware:";
+         app
+         |> Rock.App.middlewares
+         |> List.map ~f:(Fn.compose Info.to_string_hum Rock.Middleware.name)
+         |> List.iter ~f:(fun name ->
+           printf "> %s \n" name);
+         don't_wait_for @@ Shutdown.exit 0;
+       end
+      );
       (if debug then
          Log.Global.info "%s -- %s:%s" name host (Int.to_string port));
       let app =
