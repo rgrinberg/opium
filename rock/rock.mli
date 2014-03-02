@@ -84,6 +84,6 @@ module App : sig
 
   val create : ?middlewares:Middleware.t list -> handler:Handler.t -> t
   val run : t -> port:int ->
-    (Async_extra.Import.Socket.Address.Inet.t, int) Cohttp_async.Server.t
+    (Socket.Address.Inet.t, int) Cohttp_async.Server.t
       Deferred.t
 end
