@@ -87,12 +87,14 @@ module Co = Cohttp
 
 let is_substring ~substring s = Pcre.pmatch ~pat:(".*" ^ substring ^ ".*") s
 
-let reject_ua ~f handler req =
-  match Co.Header.get (Request.headers req) "user-agent" with
-  | Some ua when f ua ->
-     Log.Global.info "Rejecting %s" ua;
-     `String ("Please upgrade your browser") |> respond'
-  | _ -> handler req
+let reject_ua ~f =
+  let filter handler req =
+    match Co.Header.get (Request.headers req) "user-agent" with
+    | Some ua when f ua ->
+      Log.Global.info "Rejecting %s" ua;
+      `String ("Please upgrade your browser") |> respond'
+    | _ -> handler req in
+  Rock.Middleware.create ~filter ~name:(Info.of_string "reject_ua")
 
 let _ =
   start ~port:3000
