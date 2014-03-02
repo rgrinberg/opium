@@ -13,10 +13,12 @@ let format_error req _exn = sprintf "
   </body>
 </html>" (req |> Request.sexp_of_t |> Sexp.to_string_hum) (Exn.to_string _exn)
 
-let m handler req =
-  try_with (fun () -> handler req) >>= function
-  | Ok v -> return v
-  | Error _exn ->
-    exn_ _exn;                  (* log exception *)
-    let body = format_error req _exn in
-    return @@ Response.string_body ~code:`Internal_server_error body
+let m =
+  let filter handler req =
+    try_with (fun () -> handler req) >>= function
+    | Ok v -> return v
+    | Error _exn ->
+      exn_ _exn;                  (* log exception *)
+      let body = format_error req _exn in
+      return @@ Response.string_body ~code:`Internal_server_error body
+  in { Rock.Middleware.name=Info.of_string "Debug"; filter }

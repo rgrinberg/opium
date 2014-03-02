@@ -45,13 +45,15 @@ let public_serve t ~requested =
     | `Not_found body -> Response.create ~body:(Cohttp_async.Body.of_pipe body)
                            ~code:`Not_found ()
 
-let m ~local_path ~uri_prefix handler req =
-  if Request.meth req = `GET then
-    let local_map = {prefix=uri_prefix; local_path} in
-    let local_path = req  |> Request.uri |> Uri.path in
-    if local_path |> String.is_prefix ~prefix:uri_prefix then
-      public_serve local_map ~requested:local_path
+let m ~local_path ~uri_prefix =
+  let filter handler req =
+    if Request.meth req = `GET then
+      let local_map = { prefix=uri_prefix; local_path } in
+      let local_path = req  |> Request.uri |> Uri.path in
+      if local_path |> String.is_prefix ~prefix:uri_prefix then
+        public_serve local_map ~requested:local_path
+      else
+        handler req
     else
       handler req
-  else
-    handler req
+  in { Rock.Middleware.name = Info.of_string "Static Pages"; filter }
