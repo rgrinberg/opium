@@ -6,6 +6,7 @@ configure:
 
 configure-no-tests:
 	oasis setup
+	ocaml setup.ml -configure
 
 build:
 	ocaml setup.ml -build
