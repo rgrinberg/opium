@@ -27,7 +27,7 @@ Library opium
   BuildTools: ocamlbuild
   Findlibname: opium
   Modules:    Opium
-  InternalModules: Cookie,Middleware_pack,Router,Static,Debug,App,Phys_map
+  InternalModules: Cookie,Middleware_pack,Router,Static,Debug,App
   BuildDepends: opium_rock,
                 cow,
                 cow.syntax,
