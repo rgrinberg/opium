@@ -10,7 +10,6 @@ Plugins:     META (0.4)
 
 Library rock
   Path:       rock
-  BuildTools: ocamlbuild
   Findlibname: opium_rock
   Modules:    Rock
   BuildDepends: threads,
@@ -24,7 +23,6 @@ Library rock
 
 Library opium
   Path:       opium
-  BuildTools: ocamlbuild
   Findlibname: opium
   Modules:    Opium
   InternalModules: Cookie,Middleware_pack,Router,Static,Debug,App
