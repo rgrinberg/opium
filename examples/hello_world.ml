@@ -24,4 +24,4 @@ let print_person = get "/person/:name/:age" begin fun req ->
   `Json (Person.json_of_t person) |> respond'
 end
 
-let _ = start ~port:3000 [print_param; print_person]
+let _ = App.start ~port:3000 [print_param; print_person]

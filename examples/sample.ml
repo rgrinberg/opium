@@ -56,7 +56,7 @@ let override_static = get "/public/_tags" (fun req ->
   (`String "overriding path") |> respond |> return)
 
 let () =
-  let app = create [
+  let app = App.create [
     e1
   ; e2
   ; e3
