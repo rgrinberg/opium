@@ -3,20 +3,22 @@ open Async.Std
 open Rock
 module Co = Cohttp
 
-module Method_bin = struct
-  type 'a t = 'a Queue.t array with sexp
-  let create () = Array.init 7 ~f:(fun _ -> Queue.create ())
-  let int_of_meth = function
-    | `GET     -> 0
-    | `POST    -> 1
-    | `PUT     -> 2
-    | `DELETE  -> 3
-    | `HEAD    -> 4
-    | `PATCH   -> 5
-    | `OPTIONS -> 6
-  let add t meth value = Queue.enqueue t.(int_of_meth meth) value
-  let get t meth = t.(int_of_meth meth)
-end
+type 'a t = 'a Queue.t array with sexp
+
+let create () = Array.init 7 ~f:(fun _ -> Queue.create ())
+
+let int_of_meth = function
+  | `GET     -> 0
+  | `POST    -> 1
+  | `PUT     -> 2
+  | `DELETE  -> 3
+  | `HEAD    -> 4
+  | `PATCH   -> 5
+  | `OPTIONS -> 6
+
+let get t meth = t.(int_of_meth meth)
+
+let add t meth value = Queue.enqueue t.(int_of_meth meth) value
 
 (** Provides sinatra like param bindings *)
 module Route = struct
@@ -58,10 +60,12 @@ type 'action endpoint = {
   action: 'action;
 } with fields, sexp
 
+let endpoint ~meth ~route ~action = { meth ; route ; action }
+
 (** finds matching endpoint and returns it with the parsed list of
     parameters *)
 let matching_endpoint endpoints meth uri =
-  let endpoints = Method_bin.get endpoints meth in
+  let endpoints = get endpoints meth in
   endpoints |> Queue.find_map ~f:(fun ep -> 
     uri |> Route.match_url ep.route |> Option.map ~f:(fun p -> (ep, p)))
 
