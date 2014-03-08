@@ -63,7 +63,7 @@ module Response : sig
     ?code:Cohttp.Code.status_code ->
     unit -> t
 
-  val string_body :
+  val of_string_body :
     ?env: Univ_map.t ->
     ?headers:Cohttp.Header.t ->
     ?code:Cohttp.Code.status_code ->

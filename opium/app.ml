@@ -12,7 +12,7 @@ module Response_helpers = struct
   let xml_header = content_type "application/xml"
   let html_header = content_type "text/html"
 
-  let respond_with_string = Response.string_body
+  let respond_with_string = Response.of_string_body
 
   let respond ?headers ?(code=`OK) = function
     | `String s -> respond_with_string ?headers ~code s

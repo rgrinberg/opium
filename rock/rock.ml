@@ -52,17 +52,17 @@ module Response = struct
       headers=Option.value ~default:(Header.init ()) headers;
       body; }
 
-  let string_body ?(env=Univ_map.empty) ?headers ?(code=`OK) body =
+  let of_string_body ?(env=Univ_map.empty) ?headers ?(code=`OK) body =
     { env; code; headers=default_header headers; body=(B.of_string body) }
 end
 
 module Handler = struct
   type t = (Request.t, Response.t) Service.t with sexp_of
 
-  let default _ = return @@ Response.string_body "route failed (404)"
+  let default _ = return @@ Response.of_string_body "route failed (404)"
 
   let not_found _ =
-    return @@ Response.string_body
+    return @@ Response.of_string_body
                 ~code:`Not_found
                 "<html><body><h1>404 - Not found</h1></body></html>"
 end
