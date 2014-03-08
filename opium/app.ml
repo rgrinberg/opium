@@ -48,7 +48,7 @@ let public_path root requested =
   let asked_path = Filename.concat root requested in
   Option.some_if (String.is_prefix asked_path ~prefix:root) asked_path
 
-let param = Middleware_pack.Router.param
+let param = Router.param
 let respond = Response_helpers.respond
 let respond' = Response_helpers.respond'
 
@@ -74,16 +74,16 @@ let options route action =
 let create endpoints middlewares =
   let app = app () in
   endpoints |> List.iter ~f:(fun build -> build app);
-  let middlewares = (Middleware_pack.Router.m app.routes)::middlewares in
+  let middlewares = (Router.m app.routes)::middlewares in
   Rock.App.create ~middlewares ~handler:Handler.default
 
 let start ?(verbose=true) ?(debug=true) ?(port=3000)
       ?(extra_middlewares=[]) endpoints =
   let app = app () in
   endpoints |> List.iter ~f:(fun build -> build app);
-  let middlewares = (Middleware_pack.Router.m app.routes)::extra_middlewares in
+  let middlewares = (Router.m app.routes)::extra_middlewares in
   let middlewares =
-    middlewares @ (if debug then [Middleware_pack.Debug.m] else [])
+    middlewares @ (if debug then [Middleware_pack.debug] else [])
   in
   if verbose then
     Log.Global.info "Running on port: %d%s" port
@@ -120,7 +120,7 @@ let command ?(name="Opium App") app =
          Log.Global.info "%s -- %s:%s" name host (Int.to_string port));
       let app =
         if debug then
-          Rock.App.append_middleware app Middleware_pack.Debug.m
+          Rock.App.append_middleware app Middleware_pack.debug
         else app in
       app |> Rock.App.run ~port >>| ignore >>= never
     )
