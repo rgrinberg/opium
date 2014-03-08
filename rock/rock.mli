@@ -2,6 +2,7 @@
     more general and inspired by Finagle. It's not imperative to have
     this to for such a tiny framework but it makes extensions a lot
     more straightforward *)
+
 open Core.Std
 open Async.Std
 
@@ -41,6 +42,7 @@ module Request : sig
   } with fields, sexp_of
 
   val create : ?env:Univ_map.t -> Cohttp.Request.t -> t
+  (** Convenenice accessors on the request field  *)
   val uri : t -> Uri.t
   val meth : t -> Cohttp.Code.meth
   val headers : t -> Cohttp.Header.t
@@ -57,12 +59,15 @@ module Response : sig
   val create :
     ?env: Univ_map.t ->
     ?body:Cohttp_async.Body.t ->
-    ?headers:Cohttp.Header.t -> ?code:Cohttp.Code.status_code -> unit -> t
+    ?headers:Cohttp.Header.t ->
+    ?code:Cohttp.Code.status_code ->
+    unit -> t
 
   val string_body :
     ?env: Univ_map.t ->
     ?headers:Cohttp.Header.t ->
-    ?code:Cohttp.Code.status_code -> string -> t
+    ?code:Cohttp.Code.status_code ->
+    string -> t
 end
 
 module Handler : sig
