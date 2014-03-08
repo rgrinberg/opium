@@ -2,7 +2,8 @@ module Response = Rock.Response
 module Request = Rock.Request
 module Rock = Rock
 module Cookie = Cookie
-module Static = Static
+module Router = Router
+module Middleware_pack = Middleware_pack
 module App = App
 
 (** Open this module where you define your application's
@@ -13,7 +14,8 @@ module Std = struct
   module Request = Rock.Request
   module Rock = Rock
   module Cookie = Cookie
-  module Static = Static
+  module Router = Router
+  module Middleware_pack = Middleware_pack
   module App = App
   (* selectively export the most useful parts of App *)
   let param = App.param
