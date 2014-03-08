@@ -3,8 +3,6 @@ open Async.Std
 open Rock
 module Co = Cohttp
 
-type meth = Cohttp.Code.meth
-
 module Method_bin = struct
   type 'a t = 'a Queue.t array with sexp
   let create () = Array.init 7 ~f:(fun _ -> Queue.create ())

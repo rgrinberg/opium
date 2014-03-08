@@ -29,7 +29,7 @@ val patch : route
 val options : route
 val head : route
 
-val action : Router.meth -> route
+val action : Cohttp.Code.meth -> route
 
 val create : builder list -> Rock.Middleware.t list -> Rock.App.t
 

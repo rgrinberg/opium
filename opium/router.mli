@@ -1,13 +1,11 @@
 open Core.Std
 
-type meth = Cohttp.Code.meth
-
 module Method_bin : sig
   type 'a t = 'a Queue.t array with sexp
   val create : unit -> 'a Queue.t Array.t
-  val int_of_meth : meth -> int
-  val add : 'a Queue.t Array.t -> meth -> 'a -> unit
-  val get : 'a Array.t -> meth -> 'a
+  val int_of_meth : Cohttp.Code.meth -> int
+  val add : 'a Queue.t Array.t -> Cohttp.Code.meth -> 'a -> unit
+  val get : 'a Array.t -> Cohttp.Code.meth -> 'a
 end
 
 module Route : sig
@@ -22,13 +20,13 @@ module Route : sig
 end
 
 type 'action endpoint = {
-  meth : meth;
+  meth : Cohttp.Code.meth;
   route : Route.t;
   action : 'action;
 } with fields, sexp
 
 val matching_endpoint :
-  'a endpoint Queue.t Array.t -> meth ->
+  'a endpoint Queue.t Array.t -> Cohttp.Code.meth ->
   string -> ('a endpoint * (string * string) List.t) option
 
 val param : Rock.Request.t -> string -> string
