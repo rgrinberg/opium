@@ -1,7 +1,7 @@
 open Core.Std
-       
+
 type meth = Cohttp.Code.meth
-              
+
 module Method_bin : sig
   type 'a t = 'a Queue.t array with sexp
   val create : unit -> 'a Queue.t Array.t
@@ -30,11 +30,6 @@ type 'action endpoint = {
 val matching_endpoint :
   'a endpoint Queue.t Array.t -> meth ->
   string -> ('a endpoint * (string * string) List.t) option
-
-module Env : sig
-  type path_params = (string * string) list
-  val key : path_params Univ_map.Key.t
-end
 
 val param : Rock.Request.t -> string -> string
 val m : (Rock.Handler.t endpoint) Method_bin.t -> Rock.Middleware.t
