@@ -1,4 +1,4 @@
-(* Simple cookie module.  Cookies are base64'd and percent encoded
+(** Simple cookie module.  Cookies are base64'd and percent encoded.
 *)
 val cookies : Rock.Request.t -> Cohttp.Cookie.cookie list
 val get : Rock.Request.t -> key:string -> string option
