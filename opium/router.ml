@@ -90,7 +90,8 @@ let m endpoints =
     match matching_endpoint endpoints (Request.meth req) url with
     | None -> default req
     | Some (endpoint, params) -> begin
-        let env_with_params = Univ_map.add_exn (Request.env req) Env.key params in
+        let env_with_params =
+          Univ_map.add_exn (Request.env req) Env.key params in
         endpoint.action { req with Request.env=env_with_params }
       end
   in { Rock.Middleware.name=Info.of_string "PCRE Router"; filter }

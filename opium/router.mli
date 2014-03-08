@@ -12,8 +12,7 @@ module Route : sig
   val match_url : t -> string -> (string * string) list option
 
   (** Exported for testing only *)
-  val get_named_matches : ?rex:t
-    -> ?pat:string
+  val get_named_matches : ?rex:t -> ?pat:string
     -> string -> (string * string) list
 end
 
