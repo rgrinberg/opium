@@ -8,7 +8,8 @@ module App = App
 
 (** Open this module where you define your application's
     routes. Opening this module's namespace is NOT necessary to use
-    this library. The main point is convenience in common operations *)
+    this library. The main point is convenience in common
+    operations *)
 module Std = struct
   module Response = Rock.Response
   module Request = Rock.Request
