@@ -3,23 +3,6 @@ open Async.Std
 open Rock
 module Co = Cohttp
 
-type 'a t = 'a Queue.t array with sexp
-
-let create () = Array.init 7 ~f:(fun _ -> Queue.create ())
-
-let int_of_meth = function
-  | `GET     -> 0
-  | `POST    -> 1
-  | `PUT     -> 2
-  | `DELETE  -> 3
-  | `HEAD    -> 4
-  | `PATCH   -> 5
-  | `OPTIONS -> 6
-
-let get t meth = t.(int_of_meth meth)
-
-let add t meth value = Queue.enqueue t.(int_of_meth meth) value
-
 (** Provides sinatra like param bindings *)
 module Route = struct
   type t = Pcre.regexp
@@ -55,23 +38,32 @@ module Route = struct
   let t_of_sexp s = s |> String.t_of_sexp |> create
 end
 
-(* an endpoint is simply an action tied to the way it's dispatched.
-   like a Handler.t but also has user specified params and is
-   specifying to an http method *)
-type 'action endpoint = {
-  meth: Co.Code.meth;
-  route: Route.t sexp_opaque;
-  action: 'action;
-} with fields, sexp
+type 'a t = (Route.t * 'a) Queue.t array with sexp
 
-let endpoint ~meth ~route ~action = { meth ; route ; action }
+let create () = Array.init 7 ~f:(fun _ -> Queue.create ())
+
+let int_of_meth = function
+  | `GET     -> 0
+  | `POST    -> 1
+  | `PUT     -> 2
+  | `DELETE  -> 3
+  | `HEAD    -> 4
+  | `PATCH   -> 5
+  | `OPTIONS -> 6
+
+let get t meth = t.(int_of_meth meth)
+
+
+
+let add t ~route ~meth ~action =
+  Queue.enqueue t.(int_of_meth meth) (route, action)
 
 (** finds matching endpoint and returns it with the parsed list of
     parameters *)
 let matching_endpoint endpoints meth uri =
   let endpoints = get endpoints meth in
   endpoints |> Queue.find_map ~f:(fun ep -> 
-    uri |> Route.match_url ep.route |> Option.map ~f:(fun p -> (ep, p)))
+    uri |> Route.match_url (fst ep) |> Option.map ~f:(fun p -> (ep, p)))
 
 module Env = struct
   type path_params = (string * string) list
@@ -96,6 +88,6 @@ let m endpoints =
     | Some (endpoint, params) -> begin
         let env_with_params =
           Univ_map.add_exn (Request.env req) Env.key params in
-        endpoint.action { req with Request.env=env_with_params }
+        (snd endpoint) { req with Request.env=env_with_params }
       end
   in { Rock.Middleware.name=Info.of_string "PCRE Router"; filter }

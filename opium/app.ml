@@ -28,7 +28,7 @@ module Response_helpers = struct
 end
 
 type t = {
-  routes : (Handler.t Router.endpoint) Router.t;
+  routes : Handler.t Router.t;
   not_found : Handler.t;
 } with fields, sexp_of
 
@@ -37,8 +37,7 @@ type builder = t -> unit with sexp
 type route = string -> Handler.t -> builder with sexp
 
 let register app ~meth ~route ~action =
-  let endpoint = Router.endpoint ~meth ~route ~action in
-  Router.add app.routes meth endpoint
+  Router.add app.routes ~meth ~route ~action
 
 let app () =
   { routes=Router.create ();

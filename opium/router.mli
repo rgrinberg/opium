@@ -1,13 +1,11 @@
 open Core.Std
 
-type 'a t with sexp
+type 'action t with sexp
 
 val create : unit -> _ t
 
-val add : 'a t -> Cohttp.Code.meth -> 'a -> unit
-
 module Route : sig
-  type t
+  type t with sexp
   val create : string -> t
   val match_url : t -> string -> (string * string) list option
 
@@ -16,13 +14,11 @@ module Route : sig
     -> string -> (string * string) list
 end
 
-type 'action endpoint with sexp
-
-val endpoint : meth:Cohttp.Code.meth
+val add : 'a t
   -> route:Route.t
-  -> action:'action
-  -> 'action endpoint
+  -> meth:Cohttp.Code.meth
+  -> action:'a -> unit
 
 val param : Rock.Request.t -> string -> string
 
-val m : (Rock.Handler.t endpoint) t -> Rock.Middleware.t
+val m : Rock.Handler.t t -> Rock.Middleware.t
