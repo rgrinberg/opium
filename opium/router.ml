@@ -49,6 +49,10 @@ module Route = struct
     let rex = t in
     if not (Pcre.pmatch ~rex s) then None
     else Some (get_named_matches ~rex s)
+
+  (* TODO: this is dumb and buggy *)
+  let sexp_of_t t = Sexp.of_string "<pcre>"
+  let t_of_sexp s = s |> String.t_of_sexp |> create
 end
 
 (* an endpoint is simply an action tied to the way it's dispatched.
