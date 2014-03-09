@@ -14,11 +14,24 @@ val respond : ?headers:Cohttp.Header.t -> ?code:Cohttp.Code.status_code ->
 
 val respond' : ?headers:Cohttp.Header.t -> ?code:Cohttp.Code.status_code ->
   [< `Html of Cow.Html.t
+type body = [
+  | `Html of Cow.Html.t
   | `Json of Cow.Json.t
   | `String of string
-  | `Xml of Cow.Xml.t ] -> Response.t Deferred.t
+  | `Xml of Cow.Xml.t ]
+
 
 type route = string -> Handler.t -> builder with sexp
+val respond : ?headers:Cohttp.Header.t
+  -> ?code:Cohttp.Code.status_code
+  -> body
+  -> Response.t
+
+val respond' : ?headers:Cohttp.Header.t
+  -> ?code:Cohttp.Code.status_code
+  -> body
+  -> Response.t Deferred.t
+
 
 val get : route
 val post : route

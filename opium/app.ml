@@ -4,6 +4,12 @@ open Rock
 
 module Co = Cohttp
 
+type body = [
+  | `Html of Cow.Html.t
+  | `Json of Cow.Json.t
+  | `String of string
+  | `Xml of Cow.Xml.t ]
+
 module Response_helpers = struct
   open Cow
 
