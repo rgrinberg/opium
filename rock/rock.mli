@@ -31,11 +31,11 @@ module Filter : sig
     -> ('q2, 'p2, 'q3, 'p3) t
     -> ('q1, 'p1, 'q3, 'p3) t
 
-  val apply_all : ('req, 'rep) simple List.t
+  val apply_all : ('req, 'rep) simple list
     -> ('req, 'rep) Service.t
     -> ('req, 'rep) Service.t
 
-  val apply_all' : ('req, 'rep) simple Array.t
+  val apply_all' : ('req, 'rep) simple array
     -> ('req, 'rep) Service.t
     -> ('req, 'rep) Service.t
 end
