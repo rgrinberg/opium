@@ -6,17 +6,22 @@
 open Core.Std
 open Async.Std
 
+(** A service is simply a function that returns it's result
+    asynchronously *)
 module Service : sig
   type ('req, 'rep) t = 'req -> 'rep Deferred.t with sexp
 
   val id : ('a, 'a) t
 end
 
+(** A filter is a higher order function that transforms a service into
+    another service. *)
 module Filter : sig
   type ('req, 'rep, 'req', 'rep') t =
     ('req, 'rep) Service.t -> ('req', 'rep') Service.t
   with sexp
 
+  (** A filter is simple when it preserves the type of a service *)
   type ('req, 'rep) simple = ('req, 'rep, 'req, 'rep) t
   with sexp
 
@@ -70,12 +75,15 @@ module Response : sig
     string -> t
 end
 
+(** A handler is a rock specific service *)
 module Handler : sig
   type t = (Request.t, Response.t) Service.t with sexp_of
   val default : t
   val not_found : t
 end
 
+(** Middleware is a named, simple filter, that only works on rock
+    requests/response *)
 module Middleware : sig
   type t = {
     filter: (Request.t, Response.t) Filter.simple;
