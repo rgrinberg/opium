@@ -1,3 +1,2 @@
 #!/bin/sh
-
 opam install -y oasis core async cohttp pcre-ocaml ounit cow fieldslib sexplib
