@@ -27,8 +27,3 @@ module Std = struct
   let put = App.put
   let delete = App.delete
 end
-
-(** Exported for testing only *)
-module Raw = struct
-  module Pcre_route_raw = Pcre_route_raw
-end

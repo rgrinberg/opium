@@ -3,7 +3,7 @@ open OUnit2
 (* TODO switch to ounit 2.0 *)
 
 module O = Opium.Router
-module Route = Opium.Raw.Pcre_route_raw
+module Route = Pcre_route_raw
 
 let string_of_match = function
   | None -> "None"

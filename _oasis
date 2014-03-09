@@ -27,6 +27,7 @@ Library opium
   Modules:    Opium
   InternalModules: Cookie,
                    Middleware_pack,
+                   Pcre_route_raw,
                    Router,
                    Static,
                    Debug,
