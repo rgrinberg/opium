@@ -35,6 +35,8 @@ $ make install
 
 ## Examples
 
+### Hello World
+
 Here's a simple hello world example to get your feet wet:
 
 `$ cat hello_world.ml`
@@ -74,8 +76,20 @@ compile with:
 $ corebuild -pkg opium,cow,cow.syntax hello_world.native
 ```
 
-And here's how you'd create a simple middleware turning away
-everyone's favourite browser.
+### Middleware
+
+The two fundamental building blocks of opium are:
+
+* Handlers: `Rock.Request.t -> Rock.Response.t Deferred.t`
+* Middleware: `Rock.Handler.t -> Rock.Handler.t`
+
+Almost every all of opium's functionality is assembled through various
+middleware. For example: debugging, routing, serving static files,
+etc. Creating middleware is usually the most natural way to extend an
+opium app.
+
+Here's how you'd create a simple middleware turning away everyone's
+favourite browser.
 
 ```
 open Core.Std
