@@ -27,4 +27,6 @@ module Std = struct
   let post   = App.post
   let put    = App.put
   let delete = App.delete
+
+  let middleware = App.middleware
 end
