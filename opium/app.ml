@@ -34,20 +34,27 @@ module Response_helpers = struct
 end
 
 type t = {
-  routes : Handler.t Router.t;
+  routes : (Co.Code.meth * Router.Route.t * Handler.t) list;
+  middlewares: Middleware.t list;
+  name: string;
   not_found : Handler.t;
 } with fields, sexp_of
 
-type builder = t -> unit with sexp
+type builder = t -> t with sexp_of
 
-type route = string -> Handler.t -> builder with sexp
+type route = string -> Handler.t -> builder with sexp_of
 
 let register app ~meth ~route ~action =
-  Router.add app.routes ~meth ~route ~action
+  { app with routes=(meth, route, action)::app.routes }
 
-let app () =
-  { routes=Router.create ();
+let app =
+  { name="Opium Default Name";
+    routes=[];
+    middlewares=[];
     not_found=Handler.not_found }
+
+let middleware m app =
+  { app with middlewares=m::app.middlewares }
 
 let public_path root requested =
   let asked_path = Filename.concat root requested in
@@ -76,17 +83,26 @@ let head route action =
 let options route action =
   register ~meth:`OPTIONS ~route:(Router.Route.create route) ~action
 
-let create endpoints middlewares =
-  let app = app () in
-  endpoints |> List.iter ~f:(fun build -> build app);
-  let middlewares = (Router.m app.routes)::middlewares in
-  Rock.App.create ~middlewares ~handler:Handler.default
+let compose_builders builders t =
+  builders |> List.fold_left ~f:(fun app f -> f app) ~init:t
+
+let create_router routes =
+  let router = Router.create () in
+  routes
+  |> List.iter ~f:(fun (meth, route, action) ->
+    Router.add router ~meth ~route ~action);
+  router
+
+let create { routes ; middlewares ; not_found ; _ } =
+  let router = create_router routes in
+  let middlewares = (Router.m router)::middlewares in
+  Rock.App.create ~middlewares ~handler:not_found
 
 let start ?(verbose=true) ?(debug=true) ?(port=3000)
       ?(extra_middlewares=[]) endpoints =
-  let app = app () in
-  endpoints |> List.iter ~f:(fun build -> build app);
-  let middlewares = (Router.m app.routes)::extra_middlewares in
+  let app = compose_builders endpoints app in
+  let router = create_router app.routes in
+  let middlewares = (Router.m router)::extra_middlewares in
   let middlewares =
     middlewares @ (if debug then [Middleware_pack.debug] else [])
   in

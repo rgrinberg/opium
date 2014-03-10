@@ -2,26 +2,22 @@ open Core.Std
 open Async.Std
 open Rock
 
-type builder with sexp_of
+(** An opium app is a simple builder wrapper around a rock app *)
+type t with sexp_of
 
-val param : Request.t -> string -> string
+(** empty app skeleton *)
+val app : t
 
-val respond : ?headers:Cohttp.Header.t -> ?code:Cohttp.Code.status_code ->
-  [< `Html of Cow.Html.t
-  | `Json of Cow.Json.t
-  | `String of string
-  | `Xml of Cow.Xml.t ] -> Response.t
+type builder = t -> t with sexp_of
 
-val respond' : ?headers:Cohttp.Header.t -> ?code:Cohttp.Code.status_code ->
-  [< `Html of Cow.Html.t
 type body = [
   | `Html of Cow.Html.t
   | `Json of Cow.Json.t
   | `String of string
   | `Xml of Cow.Xml.t ]
 
+val param : Request.t -> string -> string
 
-type route = string -> Handler.t -> builder with sexp
 val respond : ?headers:Cohttp.Header.t
   -> ?code:Cohttp.Code.status_code
   -> body
@@ -32,6 +28,7 @@ val respond' : ?headers:Cohttp.Header.t
   -> body
   -> Response.t Deferred.t
 
+type route = string -> Handler.t -> builder with sexp_of
 
 val get : route
 val post : route
@@ -44,7 +41,9 @@ val head : route
 
 val action : Cohttp.Code.meth -> route
 
-val create : builder list -> Rock.Middleware.t list -> Rock.App.t
+val create : t -> Rock.App.t
+
+val middleware : Middleware.t -> builder
 
 val start : ?verbose:bool -> ?debug:bool -> ?port:int
   -> ?extra_middlewares:(Rock.Middleware.t list)
