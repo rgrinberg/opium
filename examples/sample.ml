@@ -55,18 +55,19 @@ let throws = get "/yyy" (fun req ->
 let override_static = get "/public/_tags" (fun req ->
   (`String "overriding path") |> respond |> return)
 
+let app =
+  App.app
+  |> e1
+  |> e2
+  |> e3
+  |> e4
+  |> get_cookie
+  |> set_cookie
+  |> all_cookies
+  |> throws
+  |> middleware Cookie.m
+  |> middleware (Middleware_pack.static ~local_path:"./" ~uri_prefix:"/public")
+
 let () =
-  let app = App.create [
-    e1
-  ; e2
-  ; e3
-  ; e4
-  ; get_cookie
-  ; set_cookie
-  ; all_cookies
-  ; throws
-  ] [
-    Cookie.m;
-    Static.m ~local_path:"./" ~uri_prefix:"/public"
-  ] in
+  let app = App.create app in
   Command.run (App.command ~name:"Sample" app)
