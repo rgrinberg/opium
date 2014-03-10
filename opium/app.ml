@@ -104,18 +104,17 @@ let create { routes ; middlewares ; not_found ; _ } =
   let middlewares = (Router.m router)::middlewares in
   Rock.App.create ~middlewares ~handler:not_found
 
-let start ?(verbose=true) ?(debug=true) ?(port=3000)
-      ?(extra_middlewares=[]) endpoints =
-  let app = compose_builders endpoints app in
+let start app =
   let router = create_router app.routes in
-  let middlewares = (Router.m router)::extra_middlewares in
+  let middlewares = (Router.m router)::app.middlewares in
   let middlewares =
-    middlewares @ (if debug then [Middleware_pack.debug] else [])
+    middlewares @ (if app.debug then [Middleware_pack.debug] else [])
   in
-  if verbose then
-    Log.Global.info "Running on port: %d%s" port
-      (if debug then " (debug)" else "");
-  let app = Rock.App.create ~middlewares ~handler:Handler.default in
+  if app.verbose then
+    Log.Global.info "Running on port: %d%s" app.port
+      (if app.debug then " (debug)" else "");
+  let port = app.port in
+  let app = Rock.App.create ~middlewares ~handler:app.not_found in
   app |> Rock.App.run ~port >>| ignore |> don't_wait_for;
   Scheduler.go ()
 

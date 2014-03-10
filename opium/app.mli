@@ -45,8 +45,6 @@ val create : t -> Rock.App.t
 
 val middleware : Middleware.t -> builder
 
-val start : ?verbose:bool -> ?debug:bool -> ?port:int
-  -> ?extra_middlewares:(Rock.Middleware.t list)
-  -> builder list -> never_returns
+val start : t -> never_returns
 
 val command : ?name:string -> Rock.App.t -> Command.t
