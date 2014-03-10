@@ -59,6 +59,8 @@ let app =
     middlewares=[];
     not_found=Handler.not_found }
 
+let port port t = { t with port }
+
 let middleware m app =
   { app with middlewares=m::app.middlewares }
 

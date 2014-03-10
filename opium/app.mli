@@ -10,6 +10,8 @@ val app : t
 
 type builder = t -> t with sexp_of
 
+val port : int -> builder
+
 type body = [
   | `Html of Cow.Html.t
   | `Json of Cow.Json.t
