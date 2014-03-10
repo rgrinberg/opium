@@ -4,35 +4,6 @@ open Rock
 
 module Co = Cohttp
 
-type body = [
-  | `Html of Cow.Html.t
-  | `Json of Cow.Json.t
-  | `String of string
-  | `Xml of Cow.Xml.t ]
-
-module Response_helpers = struct
-  open Cow
-
-  let content_type ct = Cohttp.Header.init_with "Content-Type" ct
-  let json_header = content_type "application/json"
-  let xml_header = content_type "application/xml"
-  let html_header = content_type "text/html"
-
-  let respond_with_string = Response.of_string_body
-
-  let respond ?headers ?(code=`OK) = function
-    | `String s -> respond_with_string ?headers ~code s
-    | `Json s ->
-      respond_with_string ~headers:json_header (Json.to_string s)
-    | `Html s ->
-      respond_with_string ~headers:html_header (Html.to_string s)
-    | `Xml s ->
-      respond_with_string ~headers:xml_header (Xml.to_string s)
-
-  let respond' ?headers ?code s =
-    s |> respond ?headers ?code |> return
-end
-
 type t = {
   port: int;
   debug: bool;
@@ -67,10 +38,6 @@ let middleware m app =
 let public_path root requested =
   let asked_path = Filename.concat root requested in
   Option.some_if (String.is_prefix asked_path ~prefix:root) asked_path
-
-let param = Router.param
-let respond = Response_helpers.respond
-let respond' = Response_helpers.respond'
 
 let action meth route action =
   register ~meth ~route:(Router.Route.create route) ~action
@@ -120,7 +87,7 @@ let start app =
   app |> Rock.App.run ~port >>| ignore |> don't_wait_for;
   Scheduler.go ()
 
-let command ?(name="Opium App") app =
+let command ?(name="Opium Default App") app =
   let open Command.Spec in
   Command.async_basic
     ~summary:name
@@ -152,3 +119,36 @@ let command ?(name="Opium App") app =
         else app in
       app |> Rock.App.run ~port >>| ignore >>= never
     )
+
+type body = [
+  | `Html of Cow.Html.t
+  | `Json of Cow.Json.t
+  | `Xml of Cow.Xml.t
+  | `String of string ]
+
+module Response_helpers = struct
+  open Cow
+
+  let content_type ct = Cohttp.Header.init_with "Content-Type" ct
+  let json_header = content_type "application/json"
+  let xml_header = content_type "application/xml"
+  let html_header = content_type "text/html"
+
+  let respond_with_string = Response.of_string_body
+
+  let respond ?headers ?(code=`OK) = function
+    | `String s -> respond_with_string ?headers ~code s
+    | `Json s ->
+      respond_with_string ~headers:json_header (Json.to_string s)
+    | `Html s ->
+      respond_with_string ~headers:html_header (Html.to_string s)
+    | `Xml s ->
+      respond_with_string ~headers:xml_header (Xml.to_string s)
+
+  let respond' ?headers ?code s =
+    s |> respond ?headers ?code |> return
+end
+
+let param = Router.param
+let respond = Response_helpers.respond
+let respond' = Response_helpers.respond'

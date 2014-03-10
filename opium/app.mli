@@ -38,8 +38,8 @@ val command : ?name:string -> Rock.App.t -> Command.t
 type body = [
   | `Html of Cow.Html.t
   | `Json of Cow.Json.t
-  | `String of string
-  | `Xml of Cow.Xml.t ]
+  | `Xml of Cow.Xml.t
+  | `String of string ]
 
 val param : Request.t -> string -> string
 
