@@ -34,6 +34,9 @@ module Response_helpers = struct
 end
 
 type t = {
+  port: int;
+  debug: bool;
+  verbose: bool;
   routes : (Co.Code.meth * Router.Route.t * Handler.t) list;
   middlewares: Middleware.t list;
   name: string;
@@ -49,6 +52,9 @@ let register app ~meth ~route ~action =
 
 let app =
   { name="Opium Default Name";
+    port=3000;
+    debug=false;
+    verbose=false;
     routes=[];
     middlewares=[];
     not_found=Handler.not_found }
