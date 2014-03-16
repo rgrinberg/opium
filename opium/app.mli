@@ -22,13 +22,17 @@ type builder = t -> t with sexp_of
 
 val port : int -> builder
 
+(** A route is a function that returns a buidler that hooks up a
+    handler to a url mapping *)
 type route = string -> Handler.t -> builder with sexp_of
 
+(** Method specific routes *)
 val get : route
 val post : route
 val delete : route
 val put : route
 
+(** Less common method specific routes  *)
 val patch : route
 val options : route
 val head : route
