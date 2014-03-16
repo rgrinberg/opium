@@ -68,7 +68,12 @@ let print_person = get "/person/:name/:age" begin fun req ->
   `Json (Person.json_of_t person) |> respond'
 end
 
-let _ = start ~port:3000 [print_param; print_person]
+let _ =
+  App.app
+  |> print_param
+  |> print_person
+  |> App.port 3000
+  |> App.start
 ```
 
 compile with:
@@ -110,10 +115,12 @@ let reject_ua ~f =
     | _ -> handler req in
   Rock.Middleware.create ~filter ~name:(Info.of_string "reject_ua")
 
+let app = App.app
+          |> get "/.*" (fun req -> `String ("Hello World") |> respond')
+          |> middleware @@ reject_ua ~f:(is_substring ~substring:"MSIE")
+
 let _ =
-  let app = App.create [
-    get "/.*" @@ fun req -> `String ("Hello World") |> respond';
-  ] [reject_ua ~f:(is_substring ~substring:"MSIE")] in
+  let app = App.create app in
   Command.run (App.command ~summary:"Reject UA" app)
 ```
 
