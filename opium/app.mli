@@ -32,7 +32,8 @@ val middleware : Middleware.t -> builder
 
 val start : t -> never_returns
 
-val command : ?name:string -> Rock.App.t -> Command.t
+(** Create a core command from a rock app *)
+val command : ?summary:string -> Rock.App.t -> Command.t
 
 (** Convenience functions for a running opium app *)
 type body = [

@@ -87,10 +87,10 @@ let start app =
   app |> Rock.App.run ~port >>| ignore |> don't_wait_for;
   Scheduler.go ()
 
-let command ?(name="Opium Default App") app =
+let command ?(summary="Opium Default App") app =
   let open Command.Spec in
   Command.async_basic
-    ~summary:name
+    ~summary
     (empty
      +> flag "-p" (optional_with_default 3000 int)
           ~doc:"port number to listen"
