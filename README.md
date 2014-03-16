@@ -114,7 +114,7 @@ let _ =
   let app = App.create [
     get "/.*" @@ fun req -> `String ("Hello World") |> respond';
   ] [reject_ua ~f:(is_substring ~substring:"MSIE")] in
-  Command.run (App.command ~name:"Reject UA" app)
+  Command.run (App.command ~summary:"Reject UA" app)
 ```
 
 Here we also use the ability of Opium to generate a core command to

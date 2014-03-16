@@ -22,4 +22,4 @@ let app = App.app
 
 let _ =
   let app = App.create app in
-  Command.run (App.command ~name:"Reject UA" app)
+  Command.run (App.command ~summary:"Reject UA" app)
