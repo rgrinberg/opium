@@ -7,6 +7,7 @@
 ** TODO Improve output of exceptions
 ** TODO Add more tests
 
+** TODO Generate todo examples out of code to remove duplication
 * Wish list
 ** Support a dependency graph for middleware to make ordering less confusing
 ** Experiment with different ways for middleware to communicate
