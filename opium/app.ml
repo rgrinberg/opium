@@ -112,7 +112,7 @@ let command ?(summary="Opium Default App") app =
        end
       );
       (if debug then
-         Log.Global.info "%s -- %s:%s" name host (Int.to_string port));
+         Log.Global.info "Listening on %s:%s" host (Int.to_string port));
       let app =
         if debug then
           Rock.App.append_middleware app Middleware_pack.debug
