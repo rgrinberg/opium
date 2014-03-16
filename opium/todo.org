@@ -1,0 +1,20 @@
+* Janitorial tasks
+** TODO Document every module
+** TODO Use oasis2opam instead of doing this stuff manually
+
+* Todo
+** TODO Get rid of pcre (or at least make it optional)
+** TODO Improve output of exceptions
+** TODO Add more tests
+
+* Wish list
+** Support a dependency graph for middleware to make ordering less confusing
+** Experiment with different ways for middleware to communicate
+   pipes, event bus
+** Experiment with different methods of constructing an app
+** Lwt support
+
+* Performance
+** TODO Make parsing lazy where possible
+*** router params
+*** cookies
