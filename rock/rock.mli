@@ -80,6 +80,7 @@ module Handler : sig
   type t = (Request.t, Response.t) Service.t with sexp_of
   val default : t
   val not_found : t
+  val const : Response.t -> t
 end
 
 (** Middleware is a named, simple filter, that only works on rock

@@ -61,6 +61,8 @@ module Handler = struct
 
   let default _ = return @@ Response.of_string_body "route failed (404)"
 
+  let const resp = Fn.compose return (Fn.const resp)
+
   let not_found _ =
     return @@ Response.of_string_body
                 ~code:`Not_found
