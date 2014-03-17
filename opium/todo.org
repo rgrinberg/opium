@@ -7,7 +7,8 @@
    encourages bad practices
 ** TODO Improve output of exceptions
 ** TODO Add more tests
-** TODO Generate todo examples out of code to remove duplication
+** DONE Generate todo examples out of code to remove duplication
+   CLOSED: [2014-03-16 Sun 23:29]
 * Wish list
 ** Support a dependency graph for middleware to make ordering less confusing
 ** Experiment with different ways for middleware to communicate
