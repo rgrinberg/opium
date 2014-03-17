@@ -39,7 +39,7 @@ uninstall:
 reinstall:
 	ocaml setup.ml -reinstall
 
-README.md:
-	cppo -n -o README.md < README.cpp.md
+%.md: %.cpp.md
+	cppo -n -o $@ < $<
 
 .PHONY: build all build default install uninstall
