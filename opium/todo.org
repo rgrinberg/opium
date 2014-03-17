@@ -3,6 +3,8 @@
 ** TODO Use oasis2opam instead of doing this stuff manually
 * Todo
 ** TODO Get rid of pcre (or at least make it optional)
+   in fact, routing should not use regular expressions at all as it
+   encourages bad practices
 ** TODO Improve output of exceptions
 ** TODO Add more tests
 ** TODO Generate todo examples out of code to remove duplication
