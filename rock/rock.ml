@@ -6,6 +6,7 @@ module Co = Cohttp
 module Service = struct
   type ('req, 'rep) t = 'req -> 'rep Deferred.t with sexp
   let id req = return req
+  let const resp = Fn.compose return (Fn.const resp)
 end
 
 module Filter = struct
@@ -60,8 +61,6 @@ module Handler = struct
   type t = (Request.t, Response.t) Service.t with sexp_of
 
   let default _ = return @@ Response.of_string_body "route failed (404)"
-
-  let const resp = Fn.compose return (Fn.const resp)
 
   let not_found _ =
     return @@ Response.of_string_body

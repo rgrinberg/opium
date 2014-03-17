@@ -12,6 +12,7 @@ module Service : sig
   type ('req, 'rep) t = 'req -> 'rep Deferred.t with sexp
 
   val id : ('a, 'a) t
+  val const : 'rep -> (_, 'rep) t
 end
 
 (** A filter is a higher order function that transforms a service into
@@ -80,7 +81,6 @@ module Handler : sig
   type t = (Request.t, Response.t) Service.t with sexp_of
   val default : t
   val not_found : t
-  val const : Response.t -> t
 end
 
 (** Middleware is a named, simple filter, that only works on rock
