@@ -11,7 +11,7 @@ configure-no-tests:
 build:
 	ocaml setup.ml -build
 
-all:
+all: README.md
 	ocaml setup.ml -all
 
 test: build
