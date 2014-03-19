@@ -4,7 +4,7 @@ val create : unit -> _ t
 
 module Route : sig
   type t with sexp
-  val create : string -> t
+  val of_string : string -> t
   val match_url : t -> string -> (string * string) list option
 end
 

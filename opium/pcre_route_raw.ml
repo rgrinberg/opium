@@ -20,7 +20,7 @@ let pcre_of_route route =
         (String.chop_prefix_exn s ~prefix:":")) s
   in compile_to_pcre (route ^ "$")
 
-let create path = path |> pcre_of_route |> Pcre.regexp
+let of_string path = path |> pcre_of_route |> Pcre.regexp
 
 let match_url t s = 
   let rex = t in
@@ -29,4 +29,4 @@ let match_url t s =
 
 (* TODO: this is dumb and buggy *)
 let sexp_of_t t = Sexp.of_string "<pcre>"
-let t_of_sexp s = s |> String.t_of_sexp |> create
+let t_of_sexp s = s |> String.t_of_sexp |> of_string

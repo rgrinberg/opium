@@ -20,13 +20,13 @@ let test_named_matches _ =
   assert_equal (List.Assoc.find_exn matches "bar") "123"
 
 let pcre_route _ =
-  let r = O.Route.create "/test/:id" in
+  let r = O.Route.of_string "/test/:id" in
   assert_equal ~printer:string_of_match None
     (O.Route.match_url r "/test/blerg/123");
   assert_equal (O.Route.match_url r "/test/123") (Some [("id","123")])
 
 let pcre_route2 _ =
-  let r = O.Route.create "/test/:format/:name" in
+  let r = O.Route.of_string "/test/:format/:name" in
   let m = O.Route.match_url r "/test/json/bar" in
   match m with
   | None -> assert_failure "no matches"
@@ -36,14 +36,14 @@ let pcre_route2 _ =
     end
 
 let pcre_route3 _ =
-  let r = O.Route.create "/test/:format/:name" in
+  let r = O.Route.of_string "/test/:format/:name" in
   let m = O.Route.match_url r "/test/bar" in
   match m with
   | None -> ()
   | Some _ -> assert_failure "unexpected matches"
 
 let test_match_2_params _ =
-  let r = O.Route.create "/xxx/:x/:y" in
+  let r = O.Route.of_string "/xxx/:x/:y" in
   let m = O.Route.match_url r "/xxx/123/456" in
   match m with
   | None -> assert_failure "no match found"

@@ -40,23 +40,23 @@ let public_path root requested =
   Option.some_if (String.is_prefix asked_path ~prefix:root) asked_path
 
 let action meth route action =
-  register ~meth ~route:(Router.Route.create route) ~action
+  register ~meth ~route:(Router.Route.of_string route) ~action
 
 let get route action =
-  register ~meth:`GET ~route:(Router.Route.create route) ~action
+  register ~meth:`GET ~route:(Router.Route.of_string route) ~action
 let post route action =
-  register ~meth:`POST ~route:(Router.Route.create route) ~action
+  register ~meth:`POST ~route:(Router.Route.of_string route) ~action
 let delete route action =
-  register ~meth:`DELETE ~route:(Router.Route.create route) ~action
+  register ~meth:`DELETE ~route:(Router.Route.of_string route) ~action
 let put route action =
-  register ~meth:`PUT ~route:(Router.Route.create route) ~action
+  register ~meth:`PUT ~route:(Router.Route.of_string route) ~action
 
 let patch route action =
-  register ~meth:`PATCH ~route:(Router.Route.create route) ~action
+  register ~meth:`PATCH ~route:(Router.Route.of_string route) ~action
 let head route action =
-  register ~meth:`HEAD ~route:(Router.Route.create route) ~action
+  register ~meth:`HEAD ~route:(Router.Route.of_string route) ~action
 let options route action =
-  register ~meth:`OPTIONS ~route:(Router.Route.create route) ~action
+  register ~meth:`OPTIONS ~route:(Router.Route.of_string route) ~action
 
 let compose_builders builders t =
   builders |> List.fold_left ~f:(fun app f -> f app) ~init:t
