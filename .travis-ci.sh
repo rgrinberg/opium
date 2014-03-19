@@ -20,6 +20,6 @@ opam init
 sh ./deps
 
 eval `opam config env`
-make configure
+make configure-all
 make all
 make test
