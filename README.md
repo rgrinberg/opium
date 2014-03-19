@@ -78,7 +78,7 @@ let _ =
 
 compile with:
 ```
-$ corebuild -pkg opium,cow,cow.syntax hello_world.native
+$ corebuild -pkg opium hello_world.native
 ```
 
 ### Middleware
@@ -122,6 +122,12 @@ let app = App.app
 let _ =
   let app = App.create app in
   Command.run (App.command ~summary:"Reject UA" app)
+```
+
+Compile with:
+
+```
+$ corebuild -pkg opium,pcre middleware_ua.native
 ```
 
 Here we also use the ability of Opium to generate a core command to
