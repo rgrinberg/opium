@@ -1,6 +1,5 @@
 open Core.Std
 open OUnit2
-(* TODO switch to ounit 2.0 *)
 
 module O = Opium.Router
 module Route = O.Route
