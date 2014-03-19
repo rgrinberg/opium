@@ -8,6 +8,8 @@
    encourages bad practices
 ** TODO Improve output of exceptions
 ** TODO Add more tests
+** TODO revive the pcre only tests
+** TODO make other routers not second class
 ** DONE Generate todo examples out of code to remove duplication
    CLOSED: [2014-03-16 Sun 23:29]
 * Wish list
