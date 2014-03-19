@@ -47,7 +47,7 @@ Here's a simple hello world example to get your feet wet:
 
 compile with:
 ```
-$ corebuild -pkg opium,cow,cow.syntax hello_world.native
+$ corebuild -pkg opium hello_world.native
 ```
 
 ### Middleware
