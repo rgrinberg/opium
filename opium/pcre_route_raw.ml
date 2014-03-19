@@ -1,3 +1,9 @@
+(* NOTE: You should not use this module at all because it's probably
+   slow and the sexp support is buggy. The library also discourages
+   using comlpex routing mechanisms such as regexp as they will surely
+   lead to bugs. At this point it's just an example of how you'd
+   create your own routing mechanism *)
+
 open Core.Std
 type t = Pcre.regexp
 

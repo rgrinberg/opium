@@ -3,7 +3,7 @@ open Async.Std
 open Rock
 module Co = Cohttp
 
-module Route = Pcre_route_raw
+module Route = Simple_route_raw
 
 type 'a t = (Route.t * 'a) Queue.t array with sexp
 
