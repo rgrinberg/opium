@@ -1,8 +1,13 @@
 default: all
 
-configure:
+oasis-setup:
 	oasis setup
+
+configure: oasis-setup
 	ocaml setup.ml -configure --enable-tests
+
+configure-all: oasis-setup
+	ocaml setup.ml -configure --enable-tests --enable-pcre
 
 configure-no-tests:
 	oasis setup
