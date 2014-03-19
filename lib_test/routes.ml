@@ -3,7 +3,7 @@ open OUnit2
 (* TODO switch to ounit 2.0 *)
 
 module O = Opium.Router
-module Route = Pcre_route_raw
+module Route = O.Route
 
 let string_of_match = function
   | None -> "None"
@@ -14,7 +14,7 @@ let string_of_match = function
 
 let test_named_matches _ =
   let pat = "/test/(?<foo>\\w+)/baz/(?<bar>\\d+)/" in
-  let matches = Route.get_named_matches ~pat "/test/TEST/baz/123/" in
+  let matches = Pcre_route_raw.get_named_matches ~pat "/test/TEST/baz/123/" in
   assert_bool "2 matches" (List.length matches = 2);
   assert_equal (List.Assoc.find_exn matches "foo") "TEST";
   assert_equal (List.Assoc.find_exn matches "bar") "123"
