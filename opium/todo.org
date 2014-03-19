@@ -2,7 +2,8 @@
 ** TODO Document every module
 ** TODO Use oasis2opam instead of doing this stuff manually
 * Todo
-** TODO Get rid of pcre (or at least make it optional)
+** DONE Get rid of pcre (or at least make it optional)
+   CLOSED: [2014-03-18 Tue 20:54]
    in fact, routing should not use regular expressions at all as it
    encourages bad practices
 ** TODO Improve output of exceptions
