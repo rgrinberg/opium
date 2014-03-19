@@ -8,6 +8,10 @@ License:     WTFPL
 BuildTools: ocamlbuild
 Plugins:     META (0.4)
 
+Flag pcre
+  Description: enable pcre routing lib
+  Default: false
+
 Library rock
   Path:       rock
   Findlibname: opium_rock
@@ -27,15 +31,23 @@ Library opium
   Modules:    Opium
   InternalModules: Cookie,
                    Middleware_pack,
-                   Pcre_route_raw,
+                   Simple_route,
                    Router,
                    Static,
                    Debug,
                    App
   BuildDepends: opium_rock,
                 cow,
-                cow.syntax,
-                pcre
+                cow.syntax
+
+Library opium_pcre_route
+  Build$: flag(pcre)
+  Install$: flag(pcre)
+  Path:       opium
+  FindlibParent: opium
+  Findlibname: pcre_route
+  Modules: Pcre_route
+  BuildDepends: core, pcre
 
 Executable test_routes
   Path:               lib_test
@@ -68,9 +80,10 @@ Executable ex_hello_world
   BuildDepends: opium
 
 Executable middleware_usa
+  Build$: flag(pcre)
   Path: examples
   MainIs: middleware_ua.ml
   Custom: true
   CompiledObject: best
   Install: false
-  BuildDepends: opium
+  BuildDepends: opium, pcre
