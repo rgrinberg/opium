@@ -12,12 +12,12 @@ let string_of_match = function
       (List.sexp_of_t 
          (Tuple.T2.sexp_of_t String.sexp_of_t String.sexp_of_t) m)
 
-let test_named_matches _ =
-  let pat = "/test/(?<foo>\\w+)/baz/(?<bar>\\d+)/" in
-  let matches = Pcre_route.get_named_matches ~pat "/test/TEST/baz/123/" in
-  assert_bool "2 matches" (List.length matches = 2);
-  assert_equal (List.Assoc.find_exn matches "foo") "TEST";
-  assert_equal (List.Assoc.find_exn matches "bar") "123"
+(* let test_named_matches _ = *)
+(*   let pat = "/test/(?<foo>\\w+)/baz/(?<bar>\\d+)/" in *)
+(*   let matches = Pcre_route.get_named_matches ~pat "/test/TEST/baz/123/" in *)
+(*   assert_bool "2 matches" (List.length matches = 2); *)
+(*   assert_equal (List.Assoc.find_exn matches "foo") "TEST"; *)
+(*   assert_equal (List.Assoc.find_exn matches "bar") "123" *)
 
 let pcre_route _ =
   let r = O.Route.of_string "/test/:id" in
@@ -55,7 +55,7 @@ let test_match_2_params _ =
 let test_fixtures =
   "test routes" >:::
   [
-    "test named" >:: test_named_matches;
+    (* "test named" >:: test_named_matches; *)
     "test match 1" >:: pcre_route;
     "test match 2" >:: pcre_route2;
     "test match 3" >:: pcre_route3;
