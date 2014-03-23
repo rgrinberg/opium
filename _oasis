@@ -35,7 +35,8 @@ Library opium
                    Router,
                    Static,
                    Debug,
-                   App
+                   App,
+                   App_intf
   BuildDepends: opium_rock,
                 cow,
                 cow.syntax
