@@ -79,7 +79,7 @@ Executable ex_hello_world
   Install: false
   BuildDepends: opium
 
-Executable middleware_usa
+Executable middleware_ua
   Build$: flag(pcre)
   Path: examples
   MainIs: middleware_ua.ml
