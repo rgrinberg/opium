@@ -9,6 +9,8 @@ open Core.Std
 open Async.Std
 open Rock
 
+(** You may provide your own router by implementing the following
+    signature. The default app is instantiated with [Opium.Router] *)
 module type Router = sig
   module Route : sig
     type t with sexp
