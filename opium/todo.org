@@ -1,6 +1,8 @@
 * Janitorial tasks
 ** TODO Document every module
 ** TODO Use oasis2opam instead of doing this stuff manually
+** DONE don't duplicate code in opium.ml
+   CLOSED: [2014-03-23 Sun 05:47]
 * Todo
 ** DONE Get rid of pcre (or at least make it optional)
    CLOSED: [2014-03-18 Tue 20:54]
@@ -9,11 +11,13 @@
 ** TODO Improve output of exceptions
 ** TODO Add more tests
 ** TODO revive the pcre only tests
-** TODO make other routers not second class
+** DONE make other routers not second class
+   CLOSED: [2014-03-23 Sun 05:45]
 ** DONE Generate todo examples out of code to remove duplication
    CLOSED: [2014-03-16 Sun 23:29]
 * Wish list
 ** Support a dependency graph for middleware to make ordering less confusing
+** type safe url parsing
 ** Experiment with different ways for middleware to communicate
    pipes, event bus
 ** Experiment with different methods of constructing an app
@@ -22,3 +26,5 @@
 ** TODO Make parsing lazy where possible
 *** router params
 *** cookies
+** TODO make routing fast
+    
