@@ -16,7 +16,8 @@ module type Router = sig
     type t with sexp
     val of_string : string -> t
   end
-  type 'a t with sexp
+  (* TODO: remove this extraneous type variable *)
+  type 'action t with sexp
   val create : unit -> _ t
   val add : 'a t
     -> route:Route.t
