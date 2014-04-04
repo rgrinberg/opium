@@ -78,7 +78,7 @@ let _ =
 
 compile with:
 ```
-$ corebuild -pkg opium hello_world.native
+$ corebuild -pkg opium,cow.syntax hello_world.native
 ```
 
 ### Middleware
