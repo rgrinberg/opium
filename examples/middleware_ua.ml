@@ -17,7 +17,7 @@ let reject_ua ~f =
   Rock.Middleware.create ~filter ~name:(Info.of_string "reject_ua")
 
 let app = App.app
-          |> get "/.*" (fun req -> `String ("Hello World") |> respond')
+          |> get "/" (fun req -> `String ("Hello World") |> respond')
           |> middleware @@ reject_ua ~f:(is_substring ~substring:"MSIE")
 
 let _ =
