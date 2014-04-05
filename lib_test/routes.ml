@@ -18,13 +18,13 @@ let string_of_match = function
 (*   assert_equal (List.Assoc.find_exn matches "foo") "TEST"; *)
 (*   assert_equal (List.Assoc.find_exn matches "bar") "123" *)
 
-let pcre_route _ =
+let simple_route1 _ =
   let r = O.Route.of_string "/test/:id" in
   assert_equal ~printer:string_of_match None
     (O.Route.match_url r "/test/blerg/123");
   assert_equal (O.Route.match_url r "/test/123") (Some [("id","123")])
 
-let pcre_route2 _ =
+let simple_route2 _ =
   let r = O.Route.of_string "/test/:format/:name" in
   let m = O.Route.match_url r "/test/json/bar" in
   match m with
@@ -34,7 +34,7 @@ let pcre_route2 _ =
       assert_equal (List.Assoc.find_exn s "name") "bar"
     end
 
-let pcre_route3 _ =
+let simple_route3 _ =
   let r = O.Route.of_string "/test/:format/:name" in
   let m = O.Route.match_url r "/test/bar" in
   match m with
@@ -62,10 +62,10 @@ let test_fixtures =
   "test routes" >:::
   [
     (* "test named" >:: test_named_matches; *)
-    "test match 1" >:: pcre_route;
-    "test match 2" >:: pcre_route2;
-    "test match 3" >:: pcre_route3;
     "test match no param" >:: test_match_no_param;
+    "test match 1" >:: simple_route1;
+    "test match 2" >:: simple_route2;
+    "test match 3" >:: simple_route3;
     "test match 2 params" >:: test_match_2_params;
   ]
 
