@@ -46,7 +46,7 @@ let param req param =
    if a match is found. otherwise calls the handler *)
 let m endpoints =
   let filter default req =
-    let url = req |> Request.uri |> Uri.to_string in
+    let url = req |> Request.uri |> Uri.path in
     match matching_endpoint endpoints (Request.meth req) url with
     | None -> default req
     | Some (endpoint, params) -> begin
