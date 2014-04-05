@@ -23,8 +23,8 @@ module type Router = sig
     -> route:Route.t
     -> meth:Cohttp.Code.meth
     -> action:'a -> unit
-  val param : Rock.Request.t -> string -> string
-  val m : Rock.Handler.t t -> Rock.Middleware.t
+  val param : Request.t -> string -> string
+  val m : Handler.t t -> Middleware.t
 end
 
 module type S = sig
