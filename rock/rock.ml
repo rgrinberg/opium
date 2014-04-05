@@ -111,8 +111,8 @@ module App = struct
   let run { handler; middlewares } ~port =
     let module Server = Cohttp_async.Server in
     let middlewares = middlewares
-                    |> List.map ~f:Middleware.filter
-                    |> Array.of_list
+                      |> List.map ~f:Middleware.filter
+                      |> Array.of_list
     in
     Server.create
       ~on_handler_error:`Raise (Tcp.on_port port)
