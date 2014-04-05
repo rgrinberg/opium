@@ -37,8 +37,7 @@ module Env = struct
 end
 
 (* not param_exn since if the endpoint was selected it's likely that
-   the parameter is already there unless the user has done some
-   strange re fidgeting *)
+   the parameter is already there *)
 let param req param =
   let params = Univ_map.find_exn (Request.env req) Env.key in
   List.Assoc.find_exn params param
