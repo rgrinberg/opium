@@ -51,6 +51,13 @@ let test_match_2_params _ =
       assert_equal (List.Assoc.find_exn m "y") "456"
     end
 
+let test_match_no_param _ =
+  let r = O.Route.of_string "/version" in
+  let (m1, m2) = O.Route.(match_url r "/version", match_url r "/tt") in
+  match (m1, m2) with
+  | Some _, None -> ()
+  | x, y -> assert_failure "bad match"
+
 let test_fixtures =
   "test routes" >:::
   [
@@ -58,6 +65,7 @@ let test_fixtures =
     "test match 1" >:: pcre_route;
     "test match 2" >:: pcre_route2;
     "test match 3" >:: pcre_route3;
+    "test match no param" >:: test_match_no_param;
     "test match 2 params" >:: test_match_2_params;
   ]
 
