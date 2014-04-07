@@ -37,6 +37,11 @@ let get_cookie = get "/get/:key" begin fun req ->
   `String (sprintf "Cookie %s is: %s" key value) |> respond |> return
 end
 
+let splat_route = get "/testing/*/:p" begin fun req ->
+  let p = param req "p" in
+  `String (sprintf "__ %s __" p) |> respond'
+end
+
 let all_cookies = get "/cookies" begin fun req ->
   let cookies = req
                 |> Cookie.cookies
@@ -67,6 +72,7 @@ let app =
   |> throws
   |> middleware Cookie.m
   |> middleware (Middleware_pack.static ~local_path:"./" ~uri_prefix:"/public")
+  |> splat_route
 
 let () =
   let app = App.create app in
