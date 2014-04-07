@@ -103,6 +103,11 @@ module App = struct
     handler: Handler.t;
   } with fields, sexp_of
 
+  type error_handler = [
+    | `Call of Socket.Address.Inet.t -> exn -> unit
+    | `Ignore
+    | `Raise ] with sexp_of
+
   let append_middleware t m =
     { t with middlewares=(t.middlewares @ [m]) }
 
