@@ -4,6 +4,7 @@ type path_segment =
   | Match of string
   | Param of string
   | Splat
+  | FullSplat
   | Slash
 with sexp
 
@@ -25,15 +26,21 @@ let of_string path =
   |> List.map ~f:(fun x -> if x = "" then "/" else x)
   |> of_list
 
+let rec match_url t url params =
+  match t, url with
+  | [], [] -> Some params
+  | FullSplat::[], _ -> Some params
+  | FullSplat::_, _ -> invalid_arg "** cannot occur outside last spot"
+  | (Match x)::t, y::url when x = y -> match_url t url params
+  | Slash::t, ""::url
+  | Splat::t, _::url -> match_url t url params
+  | (Match _)::_, _
+  | Slash::_, _ -> None
+  | (Param name)::t, value::url -> match_url t url ((name, value)::params)
+  | _::_, []
+  | [], _::_ -> None
+
 let match_url t url =
   (* assert (url.[0] = '/'); *)
   let path = url |> String.split ~on:'/' in
-  let open Option.Monad_infix in
-  try
-    List.zip t path |> Option.map ~f:(fun l ->
-      l |> List.filter_map ~f:(function
-        | (Match x), y when x = y -> None
-        | Slash, "" | Splat, _ -> None
-        | (Match _), _ | Slash, _ -> raise Exit
-        | (Param name), value -> Some (name, value)))
-  with Exit -> None
+  match_url t path []
