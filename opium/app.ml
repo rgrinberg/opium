@@ -118,7 +118,10 @@ module Make (Router : App_intf.Router) = struct
           if debug then
             Rock.App.append_middleware app Middleware_pack.debug
           else app in
-        app |> Rock.App.run ~port >>| ignore >>= never
+        (* for now we will ignore errors in the on_handler_error because
+           they are revealed using the debug middleware anyway *)
+        app |> Rock.App.run ~port ~on_handler_error:`Ignore 
+        >>| ignore >>= never
       )
 
   type body = [
