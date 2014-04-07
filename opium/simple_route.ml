@@ -13,12 +13,18 @@ type t = path_segment list with sexp
 let parse_param s =
   if s = "/" then Slash
   else if s = "*" then Splat
+  else if s = "**" then FullSplat
   else
     match String.chop_prefix s ~prefix:":" with
     | Some s -> Param s
     | None -> Match s
 
-let of_list = List.map ~f:parse_param
+let of_list l = 
+  let last_i = List.length l - 1 in
+  l |> List.mapi ~f:(fun i s -> 
+    match parse_param s with
+    | FullSplat when i = last_i -> invalid_arg "** is only allowed at the end"
+    | x -> x)
 
 let of_string path =
   path
