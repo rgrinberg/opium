@@ -18,7 +18,7 @@
 ** DONE splat params
    CLOSED: [2014-04-06 Sun 13:00]
 ** TODO full splat params
-** TODO more crash control
+** DONE more crash control
 * Wish list
 ** Support a dependency graph for middleware to make ordering less confusing
 ** type safe url parsing
