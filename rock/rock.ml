@@ -108,14 +108,14 @@ module App = struct
 
   let create ?(middlewares=[]) ~handler = { middlewares; handler }
 
-  let run { handler; middlewares } ~port =
+  let run ?on_handler_error { handler; middlewares } ~port =
     let module Server = Cohttp_async.Server in
     let middlewares = middlewares
                       |> List.map ~f:Middleware.filter
                       |> Array.of_list
     in
     Server.create
-      ~on_handler_error:`Raise (Tcp.on_port port)
+      ?on_handler_error (Tcp.on_port port)
       begin fun ~body sock req ->
         let req = Request.create req in
         let handler = Filter.apply_all' middlewares handler in

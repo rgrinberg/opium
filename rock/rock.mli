@@ -103,7 +103,11 @@ module App : sig
   val append_middleware : t -> Middleware.t -> t
 
   val create : ?middlewares:Middleware.t list -> handler:Handler.t -> t
-  val run : t -> port:int ->
+  val run :
+    ?on_handler_error:[ `Call of Socket.Address.Inet.t -> exn -> unit
+                      | `Ignore
+                      | `Raise ] ->
+      t -> port:int ->
     (Socket.Address.Inet.t, int) Cohttp_async.Server.t
       Deferred.t
 end
