@@ -36,7 +36,7 @@ let rec match_url t url params =
   match t, url with
   | [], [] -> Some params
   | FullSplat::[], _ -> Some params
-  | FullSplat::_, _ -> invalid_arg "** cannot occur outside last spot"
+  | FullSplat::_, _ -> assert false
   | (Match x)::t, y::url when x = y -> match_url t url params
   | Slash::t, ""::url
   | Splat::t, _::url -> match_url t url params
