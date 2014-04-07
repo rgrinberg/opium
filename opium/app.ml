@@ -74,7 +74,7 @@ module Make (Router : App_intf.Router) = struct
     let middlewares = (Router.m router)::middlewares in
     Rock.App.create ~middlewares ~handler:not_found
 
-  let start app =
+  let start ?(on_handler_error=`Ignore) app =
     let router = create_router app.routes in
     let middlewares = (Router.m router)::app.middlewares in
     let middlewares =
@@ -85,10 +85,10 @@ module Make (Router : App_intf.Router) = struct
         (if app.debug then " (debug)" else "");
     let port = app.port in
     let app = Rock.App.create ~middlewares ~handler:app.not_found in
-    app |> Rock.App.run ~port >>| ignore |> don't_wait_for;
+    app |> Rock.App.run ~port ~on_handler_error >>| ignore |> don't_wait_for;
     Scheduler.go ()
 
-  let command ?(summary="Opium Default App") app =
+  let command ?(on_handler_error=`Ignore) ?(summary="Opium Default App") app =
     let open Command.Spec in
     Command.async_basic
       ~summary
@@ -120,7 +120,7 @@ module Make (Router : App_intf.Router) = struct
           else app in
         (* for now we will ignore errors in the on_handler_error because
            they are revealed using the debug middleware anyway *)
-        app |> Rock.App.run ~port ~on_handler_error:`Ignore 
+        app |> Rock.App.run ~port ~on_handler_error
         >>| ignore >>= never
       )
 

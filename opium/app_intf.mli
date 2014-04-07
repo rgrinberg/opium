@@ -63,10 +63,11 @@ module type S = sig
   (** Convert an opium app to a rock app *)
   val create : t -> Rock.App.t
 
-  val start : t -> never_returns
+  val start : ?on_handler_error:Rock.App.error_handler -> t -> never_returns
 
   (** Create a core command from a rock app *)
-  val command : ?summary:string -> Rock.App.t -> Command.t
+  val command : ?on_handler_error:Rock.App.error_handler
+    -> ?summary:string -> Rock.App.t -> Command.t
 
   (** Convenience functions for a running opium app *)
   type body = [
