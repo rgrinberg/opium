@@ -34,15 +34,15 @@ let of_string path =
 
 let rec match_url t url params =
   match t, url with
-  | [], [] -> Some params
+  | [], []
   | FullSplat::[], _ -> Some params
   | FullSplat::_, _ -> assert false
   | (Match x)::t, y::url when x = y -> match_url t url params
   | Slash::t, ""::url
   | Splat::t, _::url -> match_url t url params
-  | (Match _)::_, _
-  | Slash::_, _ -> None
   | (Param name)::t, value::url -> match_url t url ((name, value)::params)
+  | (Match _)::_, _
+  | Slash::_, _
   | _::_, []
   | [], _::_ -> None
 
