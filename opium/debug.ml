@@ -21,4 +21,4 @@ let m =
       exn_ _exn;                  (* log exception *)
       let body = format_error req _exn in
       return @@ Response.of_string_body ~code:`Internal_server_error body
-  in { Rock.Middleware.name=Info.of_string "Debug"; filter }
+  in Rock.Middleware.create ~name:(Info.of_string "Debug") ~filter
