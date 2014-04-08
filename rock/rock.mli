@@ -44,10 +44,11 @@ end
 module Request : sig
   type t = {
     request : Cohttp.Request.t;
+    body: Cohttp_async.Body.t;
     env : Univ_map.t;
   } with fields, sexp_of
 
-  val create : ?env:Univ_map.t -> Cohttp.Request.t -> t
+  val create : ?body:Cohttp_async.Body.t -> ?env:Univ_map.t -> Cohttp.Request.t -> t
   (** Convenenice accessors on the request field  *)
   val uri : t -> Uri.t
   val meth : t -> Cohttp.Code.meth

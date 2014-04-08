@@ -26,10 +26,12 @@ end
 module Request = struct
   type t = {
     request: Cohttp.Request.t;
+    body: Cohttp_async.Body.t;
     env: Univ_map.t;
   } with fields, sexp_of
 
-  let create ?(env=Univ_map.empty) request = { request; env }
+  let create ?(body=Cohttp_async.Body.empty) ?(env=Univ_map.empty) request =
+    { request; env ; body }
   let uri { request; _ } = Co.Request.uri request
   let meth { request; _ } = Co.Request.meth request
   let headers { request; _ } = Co.Request.headers request
