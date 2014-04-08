@@ -88,3 +88,11 @@ Executable middleware_ua
   CompiledObject: best
   Install: false
   BuildDepends: opium, pcre
+
+Executable read_json_body
+  Path: examples
+  MainIs: read_json_body.ml
+  Custom: true
+  CompiledObject: best
+  Install: false
+  BuildDepends: opium
