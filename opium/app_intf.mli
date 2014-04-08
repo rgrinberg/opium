@@ -76,6 +76,8 @@ module type S = sig
     | `Xml of Cow.Xml.t
     | `String of string ]
 
+  val json_of_body_exn : Request.t -> Cow.Json.t Deferred.t
+
   val param : Request.t -> string -> string
 
   val respond : ?headers:Cohttp.Header.t

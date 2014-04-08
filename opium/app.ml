@@ -153,6 +153,13 @@ module Make (Router : App_intf.Router) = struct
       s |> respond ?headers ?code |> return
   end
 
+  module Request_helpers = struct
+    open Cow
+    let json_exn req =
+      req |> Request.body |> Cohttp_async.Body.to_string >>| Json.of_string
+  end
+
+  let json_of_body_exn = Request_helpers.json_exn
   let param = Router.param
   let respond = Response_helpers.respond
   let respond' = Response_helpers.respond'
