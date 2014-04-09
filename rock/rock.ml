@@ -124,7 +124,7 @@ module App = struct
     Server.create
       ?on_handler_error (Tcp.on_port port)
       begin fun ~body sock req ->
-        let req = Request.create req in
+        let req = Request.create ~body req in
         let handler = Filter.apply_all' middlewares handler in
         handler req >>= fun {Response.code; headers; body} ->
         Server.respond ~headers ~body code
