@@ -33,7 +33,7 @@ Library opium
                    Middleware_pack,
                    Simple_route,
                    Router,
-                   Static,
+                   Static_serve,
                    Debug,
                    App,
                    App_intf
