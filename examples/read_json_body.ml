@@ -1,7 +1,6 @@
 open Core.Std
 open Async.Std
 open Cow
-module Co = Cohttp
 open Opium.Std
 
 let print_json req =
