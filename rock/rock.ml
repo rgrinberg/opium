@@ -126,7 +126,7 @@ module App = struct
       begin fun ~body sock req ->
         let req = Request.create ~body req in
         let handler = Filter.apply_all' middlewares handler in
-        handler req >>= fun {Response.code; headers; body} ->
+        handler req >>= fun { Response.code; headers; body } ->
         Server.respond ~headers ~body code
       end
 end
