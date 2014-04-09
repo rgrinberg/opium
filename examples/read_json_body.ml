@@ -6,10 +6,8 @@ open Opium.Std
 
 let print_json req =
   App.json_of_body_exn req >>| fun json ->
-    let response_body =
-      sprintf "Your json right back at you:\n%s\n" (Json.to_string json)
-    in
-    respond (`String response_body)
+    Log.Global.info "Received: %s" (Json.to_string json);
+    respond (`String "Received response")
 
 let _ =
   App.app
