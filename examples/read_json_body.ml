@@ -13,8 +13,8 @@ let print_json req =
 
 let _ =
   App.app
-  |> put "/" print_json
   |> post "/" print_json
-  |> App.port 3000
-  |> App.start
+  |> App.create
+  |> App.command ~summary:"Read json body"
+  |> Command.run
 
