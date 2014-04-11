@@ -143,11 +143,11 @@ module Make (Router : App_intf.Router) = struct
     let respond ?headers ?(code=`OK) = function
       | `String s -> respond_with_string ?headers ~code s
       | `Json s ->
-        respond_with_string ~headers:json_header (Json.to_string s)
+        respond_with_string ~code ~headers:json_header (Json.to_string s)
       | `Html s ->
-        respond_with_string ~headers:html_header (Html.to_string s)
+        respond_with_string ~code ~headers:html_header (Html.to_string s)
       | `Xml s ->
-        respond_with_string ~headers:xml_header (Xml.to_string s)
+        respond_with_string ~code ~headers:xml_header (Xml.to_string s)
 
     let respond' ?headers ?code s =
       s |> respond ?headers ?code |> return
