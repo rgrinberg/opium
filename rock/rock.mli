@@ -101,6 +101,8 @@ module App : sig
     handler : Handler.t;
   } with fields, sexp_of
 
+  (* This is a type from core that is only here because we need to refer
+     to it in a couple of places *)
   type error_handler = [
     | `Call of Socket.Address.Inet.t -> exn -> unit
     | `Ignore
