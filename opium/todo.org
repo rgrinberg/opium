@@ -20,6 +20,7 @@
 ** TODO full splat params
 ** DONE more crash control
 * Wish list
+** Allow opting out of default middleware
 ** Support a dependency graph for middleware to make ordering less confusing
 ** type safe url parsing
 ** Experiment with different ways for middleware to communicate
