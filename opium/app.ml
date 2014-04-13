@@ -32,6 +32,7 @@ module Make (Router : App_intf.Router) = struct
       not_found=Handler.not_found }
 
   let port port t = { t with port }
+  let cmd_name name t = { t with name }
 
   let middleware m app =
     { app with middlewares=m::app.middlewares }

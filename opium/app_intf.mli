@@ -27,6 +27,8 @@ module type S = sig
 
   val port : int -> builder
 
+  val cmd_name : string -> builder
+
   (** A route is a function that returns a buidler that hooks up a
       handler to a url mapping *)
   type route = string -> Handler.t -> builder with sexp_of
