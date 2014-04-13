@@ -61,7 +61,9 @@ let m =             (* TODO: "optimize" *)
     let cookie_headers =
       let module Cookie = Co.Cookie.Set_cookie_hdr in
       let f (k,v) =
-        (keyc#encode k, valc#encode v) |> Cookie.make ~path:"/" |> Cookie.serialize
+        (keyc#encode k, valc#encode v)
+        |> Cookie.make ~path:"/" 
+        |> Cookie.serialize
       in current_cookies Rock.Response.Fields.env response |> List.map ~f in
     let old_headers = Rock.Response.headers response in
     { response with Rock.Response.headers=(
