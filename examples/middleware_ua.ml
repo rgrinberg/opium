@@ -15,10 +15,10 @@ let reject_ua ~f =
     | _ -> handler req in
   Rock.Middleware.create ~filter ~name:(Info.of_string "reject_ua")
 
-let app = App.app
-          |> get "/" (fun req -> `String ("Hello World") |> respond')
-          |> middleware @@ reject_ua ~f:(is_substring ~substring:"MSIE")
+let _ = App.app
+        |> get "/" (fun req -> `String ("Hello World") |> respond')
+        |> middleware @@ reject_ua ~f:(is_substring ~substring:"MSIE")
+        |> App.cmd_name "Reject UA"
+        |> App.command
+        |> Command.run
 
-let _ =
-  let app = App.create app in
-  Command.run (App.command ~summary:"Reject UA" app)
