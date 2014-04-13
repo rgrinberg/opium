@@ -96,12 +96,11 @@ module Middleware : sig
 end
 
 module App : sig
-  type t = {
-    middlewares : Middleware.t list;
-    handler : Handler.t;
-  } with fields, sexp_of
+  type t with sexp_of
 
-  (* This is a type from core that is only here because we need to refer
+  val middlewares : t -> Middleware.t list
+
+  (** This is a type from core that is only here because we need to refer
      to it in a couple of places *)
   type error_handler = [
     | `Call of Socket.Address.Inet.t -> exn -> unit
