@@ -70,7 +70,7 @@ module Make (Router : App_intf.Router) = struct
       Router.add router ~meth ~route ~action);
     router
 
-  let create { routes ; middlewares ; not_found ; _ } =
+  let to_rock { routes ; middlewares ; not_found ; _ } =
     let router = create_router routes in
     let middlewares = (Router.m router)::middlewares in
     Rock.App.create ~middlewares ~handler:not_found
@@ -90,7 +90,7 @@ module Make (Router : App_intf.Router) = struct
     Scheduler.go ()
 
   let command ?(on_handler_error=`Ignore) app' =
-    let app = create app' in
+    let app = to_rock app' in
     let summary = name app' in
     let open Command.Spec in
     Command.async_basic

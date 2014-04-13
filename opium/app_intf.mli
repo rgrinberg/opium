@@ -49,7 +49,7 @@ module type S = sig
   val middleware : Middleware.t -> builder
 
   (** Convert an opium app to a rock app *)
-  val create : t -> Rock.App.t
+  val to_rock : t -> Rock.App.t
 
   val start : ?on_handler_error:Rock.App.error_handler -> t -> never_returns
 
