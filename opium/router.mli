@@ -14,6 +14,8 @@ val add : 'a t
   -> meth:Cohttp.Code.meth
   -> action:'a -> unit
 
+val routes : _ t -> Route.t list
+
 val param : Rock.Request.t -> string -> string
 
 val m : Rock.Handler.t t -> Rock.Middleware.t
