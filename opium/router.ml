@@ -54,4 +54,4 @@ let m endpoints =
           Univ_map.add_exn (Request.env req) Env.key params in
         (snd endpoint) { req with Request.env=env_with_params }
       end
-  in { Rock.Middleware.name=Info.of_string "Router"; filter }
+  in Rock.Middleware.create ~name:(Info.of_string "Router") ~filter
