@@ -15,7 +15,7 @@ let valc = keyc
 module Env = struct
   type cookie = (string * string) list
   let key : cookie Univ_map.Key.t =
-    Univ_map.Key.create "cookie" sexp_of_opaque
+    Univ_map.Key.create "cookie" <:sexp_of<(string * string) list>>
 end
 
 let current_cookies env record =
