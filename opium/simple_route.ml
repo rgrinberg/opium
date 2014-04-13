@@ -32,6 +32,15 @@ let of_string path =
   |> List.map ~f:(fun x -> if x = "" then "/" else x)
   |> of_list
 
+let to_string l =
+  l |> List.map ~f:(function
+    | Match s -> s
+    | Param s -> ":" ^ s
+    | Splat -> "*"
+    | FullSplat -> "**"
+    | Slash -> "/")
+  |> String.concat ~sep:"/"
+
 let rec match_url t url params =
   match t, url with
   | [], []

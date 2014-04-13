@@ -15,6 +15,7 @@ module type Router = sig
   module Route : sig
     type t with sexp
     val of_string : string -> t
+    val to_string : t -> string
   end
   (* TODO: remove this extraneous type variable *)
   type 'action t with sexp
