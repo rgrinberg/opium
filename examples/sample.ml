@@ -75,5 +75,4 @@ let app =
   |> splat_route
 
 let () =
-  let app = App.create app in
-  Command.run (App.command ~summary:"Sample" app)
+  app |> App.command |> Command.run

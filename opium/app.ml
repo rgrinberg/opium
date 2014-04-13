@@ -88,7 +88,9 @@ module Make (Router : App_intf.Router) = struct
     app |> Rock.App.run ~port ~on_handler_error >>| ignore |> don't_wait_for;
     Scheduler.go ()
 
-  let command ?(on_handler_error=`Ignore) ?(summary="Opium Default App") app =
+  let command ?(on_handler_error=`Ignore) app' =
+    let app = create app' in
+    let summary = name app' in
     let open Command.Spec in
     Command.async_basic
       ~summary
@@ -97,12 +99,24 @@ module Make (Router : App_intf.Router) = struct
             ~doc:"port number to listen"
        +> flag "-h" (optional_with_default "0.0.0.0" string)
             ~doc:"interface to listen"
-       +> flag "-m" no_arg
-            ~doc:"print middleware stack"
+       +> flag "-r" no_arg ~doc: "print routes"
+       +> flag "-m" no_arg ~doc:"print middleware stack"
        +> flag "-d" no_arg
             ~doc:"enable debug information"
-      ) (fun port host print_middleware debug () ->
-        (if print_middleware then begin
+      ) (fun port host print_routes print_middleware debug () ->
+        ( if print_routes then begin
+           let routes_string = 
+             app'
+             |> routes
+             |> List.map ~f:(fun (_, x, _) -> x)
+             |> List.stable_dedup
+             |> List.map ~f:Router.Route.to_string
+             |> List.map ~f:(fun s -> "> " ^ s)
+             |> String.concat ~sep:"\n"
+           in print_endline routes_string;
+           don't_wait_for @@ Shutdown.exit 0;
+         end;
+          if print_middleware then begin
            print_endline "Active middleware:";
            app
            |> Rock.App.middlewares

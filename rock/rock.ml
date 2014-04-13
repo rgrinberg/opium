@@ -129,4 +129,35 @@ module App = struct
         handler req >>= fun { Response.code; headers; body } ->
         Server.respond ~headers ~body code
       end
+
+  let command ?(on_handler_error=`Ignore) ?(summary="Opium Default App") app =
+    let open Command.Spec in
+    Command.async_basic
+      ~summary
+      (empty
+       +> flag "-p" (optional_with_default 3000 int)
+            ~doc:"port number to listen"
+       +> flag "-h" (optional_with_default "0.0.0.0" string)
+            ~doc:"interface to listen"
+       +> flag "-m" no_arg ~doc:"print middleware stack"
+       +> flag "-d" no_arg
+            ~doc:"enable debug information"
+      ) begin fun port host print_middleware debug () ->
+      (if print_middleware then begin
+         print_endline "Active middleware:";
+         app
+         |> middlewares
+         |> List.map ~f:(Fn.compose Info.to_string_hum Middleware.name)
+         |> List.iter ~f:(fun name ->
+           printf "> %s \n" name);
+         don't_wait_for @@ Shutdown.exit 0;
+       end
+      );
+      (if debug then
+         Log.Global.info "Listening on %s:%s" host (Int.to_string port));
+      (* for now we will ignore errors in the on_handler_error because
+         they are revealed using the debug middleware anyway *)
+      app |> run ~port ~on_handler_error
+      >>| ignore >>= never
+    end
 end

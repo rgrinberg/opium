@@ -11,22 +11,7 @@ open Rock
 
 (** You may provide your own router by implementing the following
     signature. The default app is instantiated with [Opium.Router] *)
-module type Router = sig
-  module Route : sig
-    type t with sexp
-    val of_string : string -> t
-    val to_string : t -> string
-  end
-  (* TODO: remove this extraneous type variable *)
-  type 'action t with sexp
-  val create : unit -> _ t
-  val add : 'a t
-    -> route:Route.t
-    -> meth:Cohttp.Code.meth
-    -> action:'a -> unit
-  val param : Request.t -> string -> string
-  val m : Handler.t t -> Middleware.t
-end
+module type Router = module type of Router
 
 module type S = sig
   (** An opium app is a simple builder wrapper around a rock app *)
@@ -66,9 +51,9 @@ module type S = sig
 
   val start : ?on_handler_error:Rock.App.error_handler -> t -> never_returns
 
-  (** Create a core command from a rock app *)
+  (** Create a core command from an opp *)
   val command : ?on_handler_error:Rock.App.error_handler
-    -> ?summary:string -> Rock.App.t -> Command.t
+    -> t -> Command.t
 
   (** Convenience functions for a running opium app *)
   type body = [
