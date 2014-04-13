@@ -67,6 +67,5 @@ let m =             (* TODO: "optimize" *)
     { response with Rock.Response.headers=(
        List.fold_left cookie_headers ~init:old_headers
          ~f:(fun headers (k,v) -> Co.Header.add headers k v))
-    }
-  in { Rock.Middleware.name=(Info.of_string "Cookie"); filter }
-
+    } 
+  in Rock.Middleware.create ~filter ~name:(Info.of_string "Cookie")
