@@ -48,7 +48,9 @@ module Request : sig
     env : Univ_map.t;
   } with fields, sexp_of
 
-  val create : ?body:Cohttp_async.Body.t -> ?env:Univ_map.t -> Cohttp.Request.t -> t
+  val create : ?body:Cohttp_async.Body.t
+    -> ?env:Univ_map.t
+    -> Cohttp.Request.t -> t
   (** Convenenice accessors on the request field  *)
   val uri : t -> Uri.t
   val meth : t -> Cohttp.Code.meth
@@ -93,7 +95,8 @@ module Middleware : sig
 
   val name : t -> Info.t
 
-  val create : filter:(Request.t, Response.t) Filter.simple -> name:Info.t -> t
+  val create : filter:(Request.t, Response.t) Filter.simple
+    -> name:Info.t -> t
 end
 
 module App : sig
