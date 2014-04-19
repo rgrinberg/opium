@@ -13,7 +13,7 @@ let format_error req _exn = sprintf "
   </body>
 </html>" (req |> Request.sexp_of_t |> Sexp.to_string_hum) (Exn.to_string _exn)
 
-let m =
+let debug =
   let filter handler req =
     try_with (fun () -> handler req) >>= function
     | Ok v -> return v
@@ -22,3 +22,11 @@ let m =
       let body = format_error req _exn in
       return @@ Response.of_string_body ~code:`Internal_server_error body
   in Rock.Middleware.create ~name:(Info.of_string "Debug") ~filter
+
+let trace =
+  let filter handler req =
+    handler req >>| fun response ->
+    let code = response |> Response.code |> Cohttp.Code.code_of_status in
+    Log.Global.info "Responded with %d" code;
+    response
+  in Rock.Middleware.create ~name:(Info.of_string "Trace") ~filter
