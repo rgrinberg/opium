@@ -22,7 +22,7 @@ module Make (Router : App_intf.Router) = struct
   let register app ~meth ~route ~action =
     { app with routes=(meth, route, action)::app.routes }
 
-  let app =
+  let empty =
     { name="Opium Default Name";
       port=3000;
       debug=false;
@@ -30,6 +30,19 @@ module Make (Router : App_intf.Router) = struct
       routes=[];
       middlewares=[];
       not_found=Handler.not_found }
+
+  let create_router routes =
+    let router = Router.create () in
+    routes
+    |> List.iter ~f:(fun (meth, route, action) ->
+      Router.add router ~meth ~route ~action);
+    router
+
+  let attach_middleware { verbose ; debug ; routes ; _ } = [
+    Some (routes |> create_router |> Router.m);
+    (if verbose then Some Middleware_pack.trace else None);
+    (if debug then Some Middleware_pack.debug else None);
+  ] |> List.filter_opt
 
   let port port t = { t with port }
   let cmd_name name t = { t with name }
@@ -60,27 +73,12 @@ module Make (Router : App_intf.Router) = struct
   let options route action =
     register ~meth:`OPTIONS ~route:(Router.Route.of_string route) ~action
 
-  let compose_builders builders t =
-    builders |> List.fold_left ~f:(fun app f -> f app) ~init:t
-
-  let create_router routes =
-    let router = Router.create () in
-    routes
-    |> List.iter ~f:(fun (meth, route, action) ->
-      Router.add router ~meth ~route ~action);
-    router
-
-  let to_rock { routes ; middlewares ; not_found ; _ } =
-    let router = create_router routes in
-    let middlewares = (Router.m router)::middlewares in
-    Rock.App.create ~middlewares ~handler:not_found
+  let to_rock app =
+    Rock.App.create ~middlewares:(attach_middleware app)
+      ~handler:(app.not_found)
 
   let start ?(on_handler_error=`Ignore) app =
-    let router = create_router app.routes in
-    let middlewares = (Router.m router)::app.middlewares in
-    let middlewares =
-      middlewares @ (if app.debug then [Middleware_pack.debug] else [])
-    in
+    let middlewares = attach_middleware app in
     if app.verbose then
       Log.Global.info "Running on port: %d%s" app.port
         (if app.debug then " (debug)" else "");
@@ -90,7 +88,6 @@ module Make (Router : App_intf.Router) = struct
     Scheduler.go ()
 
   let command ?(on_handler_error=`Ignore) app' =
-    let app = to_rock app' in
     let summary = name app' in
     let open Command.Spec in
     Command.async_basic
@@ -102,42 +99,56 @@ module Make (Router : App_intf.Router) = struct
             ~doc:"interface to listen"
        +> flag "-r" no_arg ~doc: "print routes"
        +> flag "-m" no_arg ~doc:"print middleware stack"
-       +> flag "-d" no_arg
-            ~doc:"enable debug information"
-      ) (fun port host print_routes print_middleware debug () ->
-        ( if print_routes then begin
-           let routes_string = 
-             app'
-             |> routes
-             |> List.map ~f:(fun (_, x, _) -> x)
-             |> List.stable_dedup
-             |> List.map ~f:Router.Route.to_string
-             |> List.map ~f:(fun s -> "> " ^ s)
-             |> String.concat ~sep:"\n"
-           in print_endline routes_string;
-           don't_wait_for @@ Shutdown.exit 0;
-         end;
-          if print_middleware then begin
-           print_endline "Active middleware:";
-           app
-           |> Rock.App.middlewares
-           |> List.map ~f:(Fn.compose Info.to_string_hum Rock.Middleware.name)
-           |> List.iter ~f:(fun name ->
-             printf "> %s \n" name);
-           don't_wait_for @@ Shutdown.exit 0;
-         end
-        );
-        (if debug then
-           Log.Global.info "Listening on %s:%s" host (Int.to_string port));
-        let app =
-          if debug then
-            Rock.App.append_middleware app Middleware_pack.debug
-          else app in
-        (* for now we will ignore errors in the on_handler_error because
-           they are revealed using the debug middleware anyway *)
-        app |> Rock.App.run ~port ~on_handler_error
-        >>| ignore >>= never
-      )
+       +> flag "-d" no_arg ~doc:"enable debug information"
+       +> flag "-v" no_arg ~doc:"enable verbose mode"
+       +> flag "-xi" no_arg ~doc:"Ignore errors (conflicts with -xr and -d)"
+       +> flag "-xr" no_arg ~doc:"Raise on errors (conflicts with -xi)"
+      ) (fun port host print_routes print_middleware debug verbose
+          ignore_e raise_e () ->
+          let app' = { app' with debug ; verbose } in
+          let app = to_rock app' in
+          let err s =
+            print_endline s;
+            Shutdown.exit 1
+          in
+          let on_handler_error =
+            match ignore_e, raise_e with
+            | true, true -> err "cannot provide both ignore and raise"
+            | true, false -> return `Ignore
+            | false, true -> return `Raise
+            | false, false -> return on_handler_error in
+          on_handler_error >>= fun on_handler_error ->
+          (if print_routes then begin
+             let routes = app'
+                          |> routes
+                          |> List.map ~f:(fun (_, x, _) -> x)
+                          |> List.stable_dedup in
+             printf "%d Routes:\n" (List.length routes);
+             let routes_string = 
+               routes
+               |> List.map ~f:Router.Route.to_string
+               |> List.map ~f:(fun s -> "> " ^ s)
+               |> String.concat ~sep:"\n"
+             in print_endline routes_string;
+             don't_wait_for @@ Shutdown.exit 0;
+           end;
+           if print_middleware then begin
+             print_endline "Active middleware:";
+             app
+             |> Rock.App.middlewares
+             |> List.map ~f:(Fn.compose Info.to_string_hum Rock.Middleware.name)
+             |> List.iter ~f:(fun name ->
+               printf "> %s \n" name);
+             don't_wait_for @@ Shutdown.exit 0;
+           end
+          );
+          (if debug || verbose then
+             Log.Global.info "Listening on %s:%s" host (Int.to_string port));
+          (* for now we will ignore errors in the on_handler_error because
+             they are revealed using the debug middleware anyway *)
+          app |> Rock.App.run ~port ~on_handler_error
+          >>| ignore >>= never
+        )
 
   type body = [
     | `Html of Cow.Html.t
