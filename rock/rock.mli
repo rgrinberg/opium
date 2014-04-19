@@ -87,10 +87,11 @@ end
 (** Middleware is a named, simple filter, that only works on rock
     requests/response *)
 module Middleware : sig
-  type t = {
-    filter: (Request.t, Response.t) Filter.simple;
-    name: Info.t;
-  } with fields, sexp_of
+  type t with sexp_of
+
+  val filter : t -> (Request.t, Response.t) Filter.simple
+
+  val name : t -> Info.t
 
   val create : filter:(Request.t, Response.t) Filter.simple -> name:Info.t -> t
 end

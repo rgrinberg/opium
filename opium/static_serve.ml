@@ -56,4 +56,4 @@ let m ~local_path ~uri_prefix =
         handler req
     else
       handler req
-  in { Rock.Middleware.name = Info.of_string "Static Pages"; filter }
+  in Rock.Middleware.create ~name:(Info.of_string "Static Pages") ~filter
