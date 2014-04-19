@@ -18,7 +18,7 @@ module type S = sig
   type t with sexp_of
 
   (** A basic empty app *)
-  val app : t
+  val empty : t
 
   (** A builder is a function that transforms an [app] by adding some
       functionality. Builders are usuallys composed with a base app

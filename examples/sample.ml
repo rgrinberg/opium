@@ -61,7 +61,7 @@ let override_static = get "/public/_tags" (fun req ->
   (`String "overriding path") |> respond |> return)
 
 let app =
-  App.app
+  App.empty
   |> e1
   |> e2
   |> e3

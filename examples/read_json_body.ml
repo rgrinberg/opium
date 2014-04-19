@@ -9,7 +9,7 @@ let print_json req =
   respond (`String "Received response")
 
 let _ =
-  App.app
+  App.empty
   |> post "/" print_json
   |> App.command
   |> Command.run

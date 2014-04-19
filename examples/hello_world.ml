@@ -25,8 +25,8 @@ let print_person = get "/person/:name/:age" begin fun req ->
 end
 
 let _ =
-  App.app
+  App.empty
   |> print_param
   |> print_person
-  |> App.port 3000
-  |> App.start
+  |> App.command
+  |> Command.run
