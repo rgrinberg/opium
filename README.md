@@ -69,11 +69,11 @@ let print_person = get "/person/:name/:age" begin fun req ->
 end
 
 let _ =
-  App.app
+  App.empty
   |> print_param
   |> print_person
-  |> App.port 3000
-  |> App.start
+  |> App.command
+  |> Command.run
 ```
 
 compile with:
@@ -114,7 +114,7 @@ let reject_ua ~f =
     | _ -> handler req in
   Rock.Middleware.create ~filter ~name:(Info.of_string "reject_ua")
 
-let _ = App.app
+let _ = App.empty
         |> get "/" (fun req -> `String ("Hello World") |> respond')
         |> middleware @@ reject_ua ~f:(is_substring ~substring:"MSIE")
         |> App.cmd_name "Reject UA"
