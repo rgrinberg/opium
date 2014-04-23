@@ -25,5 +25,8 @@ module Std = struct
   let put    = App.put
   let delete = App.delete
 
+  let all = App.all
+  let any = App.any
+
   let middleware = App.middleware
 end
