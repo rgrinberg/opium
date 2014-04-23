@@ -44,6 +44,13 @@ module type S = sig
   val options : route
   val head : route
 
+  (** any [methods] will bind a route to any http method inside of
+      [methods] *)
+  val any : Cohttp.Code.meth list -> route
+  (** all [methods] will bind a route to a URL regardless of the http method.
+      You may espcape the actual method used from the request passed. *)
+  val all : route
+
   val action : Cohttp.Code.meth -> route
 
   val middleware : Middleware.t -> builder

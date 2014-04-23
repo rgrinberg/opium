@@ -73,6 +73,18 @@ module Make (Router : App_intf.Router) = struct
   let options route action =
     register ~meth:`OPTIONS ~route:(Router.Route.of_string route) ~action
 
+  let any methods route action t =
+    (if List.is_empty methods then
+       Log.Global.debug 
+         "Warning: you're using [any] attempting to bind to '%s' but your list
+        of http methods is empty route"
+         route);
+    let route = Router.Route.of_string route in
+    methods |> List.fold_left ~init:t
+                 ~f:(fun app meth -> app |> register ~meth ~route ~action)
+
+  let all = any [`GET;`POST;`DELETE;`PUT;`PATCH;`HEAD;`OPTIONS]
+
   let to_rock app =
     Rock.App.create ~middlewares:(attach_middleware app)
       ~handler:(app.not_found)
