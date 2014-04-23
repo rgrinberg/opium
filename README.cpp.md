@@ -7,8 +7,8 @@ Sinatra like web toolkit for OCaml based on [cohttp](https://github.com/avsm/oca
 
 ## Design Goals
 
-* Opium should be very small easily learnable. A programmer should be
-instantly productive when starting out.
+* Opium should be very small and easily learnable. A programmer should
+be instantly productive when starting out.
 
 * Opium should be extendable using indepedently developed
 plugins. This is a _Rack_ inspired mechanism borrowed from Ruby. The
