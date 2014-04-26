@@ -131,17 +131,16 @@ module Make (Router : App_intf.Router) = struct
             | false, false -> return on_handler_error in
           on_handler_error >>= fun on_handler_error ->
           (if print_routes then begin
-             let routes = app'
-                          |> routes
-                          |> List.map ~f:(fun (_, x, _) -> x)
-                          |> List.stable_dedup in
-             printf "%d Routes:\n" (List.length routes);
-             let routes_string = 
-               routes
-               |> List.map ~f:Router.Route.to_string
-               |> List.map ~f:(fun s -> "> " ^ s)
-               |> String.concat ~sep:"\n"
-             in print_endline routes_string;
+             let routes_tbl = Hashtbl.Poly.create () in
+             app' |> routes |> List.iter ~f:(fun (meth, route, _) ->
+               Hashtbl.add_multi routes_tbl ~key:route ~data:meth);
+             printf "%d Routes:\n" (Hashtbl.length routes_tbl);
+             Hashtbl.iter routes_tbl ~f:(fun ~key ~data ->
+               printf "> %s (%s)\n" (Router.Route.to_string key)
+                 (data 
+                  |> List.map ~f:Cohttp.Code.string_of_method
+                  |> String.concat ~sep:" ")
+             );
              don't_wait_for @@ Shutdown.exit 0;
            end;
            if print_middleware then begin
