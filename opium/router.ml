@@ -36,13 +36,6 @@ module Env = struct
     Univ_map.Key.create "path_params" <:sexp_of<(string * string) list>>
 end
 
-let routes endpoints =
-  let routes = Hash_set.Poly.create () in
-  endpoints |> Array.iter ~f:(fun q ->
-    q |> Queue.iter ~f:(fun (route, _) ->
-      Hash_set.add routes route));
-  Hash_set.to_list routes
-
 (* not param_exn since if the endpoint was selected it's likely that
    the parameter is already there *)
 let param req param =
