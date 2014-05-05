@@ -89,6 +89,14 @@ Executable middleware_ua
   Install: false
   BuildDepends: opium, pcre
 
+Executable uppercase_middleware
+  Path: examples
+  MainIs: uppercase_middleware.ml
+  Custom: true
+  CompiledObject: best
+  Install: false
+  BuildDepends: opium
+
 Executable read_json_body
   Path: examples
   MainIs: read_json_body.ml
