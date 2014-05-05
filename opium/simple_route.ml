@@ -27,12 +27,11 @@ let of_list l =
     | x -> x)
 
 let of_string path =
-  let tokens = path |> String.split ~on:'/' in
-  if tokens = ["";""]
-  then [Slash]
-  else tokens
-       |> List.map ~f:(fun x -> if x = "" then "/" else x)
-       |> of_list
+  let re = Humane_re.Str.regexp "/" in
+  let tokens = Humane_re.Str.split_delim re path in
+  tokens
+  |> List.map ~f:(function | `Text s | `Delim s -> s)
+  |> of_list
 
 let to_string l =
   l |> List.map ~f:(function
@@ -58,6 +57,6 @@ let rec match_url t url params =
   | [], _::_ -> None
 
 let match_url t url =
-  (* assert (url.[0] = '/'); *)
+  assert (url.[0] = '/');
   let path = url |> String.split ~on:'/' in
   match_url t path []
