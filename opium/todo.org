@@ -1,3 +1,7 @@
+* TODO humane_re dependency in opam
+* TODO upperbound for cow
+* TODO upgrade to latest cow in 0.8.2
+
 * DONE printing routes is still a little janky
 * DONE use String.substr_index from core instead of relying on PCRE
 
