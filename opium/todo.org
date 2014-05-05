@@ -1,8 +1,13 @@
+* DONE printing routes is still a little janky
+* DONE use String.substr_index from core instead of relying on PCRE
+
+
 * Janitorial tasks
 ** TODO Document every module
 ** TODO Use oasis2opam instead of doing this stuff manually
 ** DONE don't duplicate code in opium.ml
    CLOSED: [2014-03-23 Sun 05:47]
+
 * Todo
 ** DONE Get rid of pcre (or at least make it optional)
    CLOSED: [2014-03-18 Tue 20:54]
@@ -19,6 +24,7 @@
    CLOSED: [2014-04-06 Sun 13:00]
 ** TODO full splat params
 ** DONE more crash control
+
 * Wish list
 ** Allow opting out of default middleware
 ** Support a dependency graph for middleware to make ordering less confusing
