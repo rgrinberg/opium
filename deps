@@ -1,2 +1,2 @@
 #!/bin/sh
-opam install -y oasis core async cohttp pcre-ocaml ounit cow fieldslib sexplib
+opam install -y oasis core async cohttp pcre-ocaml ounit cow<0.10.0 fieldslib sexplib
