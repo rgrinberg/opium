@@ -58,6 +58,18 @@ let test_match_no_param _ =
   | Some _, None -> ()
   | x, y -> assert_failure "bad match"
 
+let test_empty_route _ =
+  let r = O.Route.of_string "/" in
+  let m s = 
+    match O.Route.match_url r s with
+    | None -> false
+    | Some _ -> true
+  in
+  let (m1, m2, m3) = O.Route.(m "/", m "", m "/testing") in 
+  assert_bool "match '/'" m1;
+  assert_bool "not match ''" (not m2);
+  assert_bool "not match '/testing'" (not m3)
+
 let test_fixtures =
   "test routes" >:::
   [
@@ -67,6 +79,7 @@ let test_fixtures =
     "test match 2" >:: simple_route2;
     "test match 3" >:: simple_route3;
     "test match 2 params" >:: test_match_2_params;
+    "test empty route" >:: test_empty_route;
   ]
 
 let _ = run_test_tt_main test_fixtures
