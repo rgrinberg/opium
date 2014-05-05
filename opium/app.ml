@@ -38,7 +38,9 @@ module Make (Router : App_intf.Router) = struct
       Router.add router ~meth ~route ~action);
     router
 
-  let attach_middleware { verbose ; debug ; routes ; _ } = [
+  let attach_middleware { verbose ; debug ; routes ; middlewares ; _  } = 
+  (List.map ~f:Option.some middlewares) @
+  [
     Some (routes |> create_router |> Router.m);
     (if verbose then Some Middleware_pack.trace else None);
     (if debug then Some Middleware_pack.debug else None);
