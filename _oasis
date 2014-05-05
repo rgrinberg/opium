@@ -12,6 +12,10 @@ Flag pcre
   Description: enable pcre routing lib
   Default: false
 
+Flag examples
+  Description: enable compiling the examples
+  Default: false
+
 Library rock
   Path:       rock
   Findlibname: opium_rock
@@ -65,6 +69,7 @@ Test test_routes
   WorkingDirectory:   lib_test
 
 Executable ex1
+  Build$: flag(examples)
   Path: examples
   MainIs: sample.ml
   Custom: true
@@ -73,6 +78,7 @@ Executable ex1
   BuildDepends: opium
 
 Executable ex_hello_world
+  Build$: flag(examples)
   Path: examples
   MainIs: hello_world.ml
   Custom: true
@@ -81,7 +87,7 @@ Executable ex_hello_world
   BuildDepends: opium
 
 Executable middleware_ua
-  Build$: flag(pcre)
+  Build$: flag(examples)
   Path: examples
   MainIs: middleware_ua.ml
   Custom: true
@@ -90,6 +96,7 @@ Executable middleware_ua
   BuildDepends: opium, pcre
 
 Executable uppercase_middleware
+  Build$: flag(examples)
   Path: examples
   MainIs: uppercase_middleware.ml
   Custom: true
@@ -98,6 +105,7 @@ Executable uppercase_middleware
   BuildDepends: opium
 
 Executable read_json_body
+  Build$: flag(examples)
   Path: examples
   MainIs: read_json_body.ml
   Custom: true

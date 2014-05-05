@@ -7,7 +7,7 @@ configure: oasis-setup
 	ocaml setup.ml -configure --enable-tests
 
 configure-all: oasis-setup
-	ocaml setup.ml -configure --enable-tests --enable-pcre
+	ocaml setup.ml -configure --enable-tests --enable-pcre --enable-examples
 
 configure-no-tests:
 	oasis setup
