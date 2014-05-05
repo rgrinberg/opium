@@ -58,10 +58,9 @@ let test_empty_route _ =
     | None -> false
     | Some _ -> true
   in
-  let (m1, m2, m3) = O.Route.(m "/", m "", m "/testing") in 
+  let (m1, m2) = O.Route.(m "/", m "/testing") in 
   assert_bool "match '/'" m1;
-  assert_bool "not match ''" (not m2);
-  assert_bool "not match '/testing'" (not m3)
+  assert_bool "not match '/testing'" (not m2)
 
 let test_fixtures =
   "test routes" >:::
