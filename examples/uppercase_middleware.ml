@@ -4,9 +4,7 @@ open Opium.Std
 
 let uppercase =
   let filter handler req =
-    Log.Global.info "entering uppercaser";
     handler req >>| fun response ->
-    Log.Global.debug "%s" (response |> Response.sexp_of_t |> Sexp.to_string_hum);
     response
     |> Response.body
     |> Cohttp_async.Body.to_pipe
