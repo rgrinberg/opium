@@ -26,12 +26,21 @@ let of_list l =
     | FullSplat when i = last_i -> invalid_arg "** is only allowed at the end"
     | x -> x)
 
-let of_string path =
+let split_slash_delim =
   let re = Humane_re.Str.regexp "/" in
-  let tokens = Humane_re.Str.split_delim re path in
-  tokens
+  fun path -> Humane_re.Str.split_delim re path
+
+let split_slash path =
+  path 
+  |> split_slash_delim 
   |> List.map ~f:(function | `Text s | `Delim s -> s)
-  |> of_list
+
+let of_string path = path |> split_slash |> of_list
+
+let of_string_url path =
+  path |> split_slash_delim |> List.map ~f:(function
+    | `Text s -> Match s
+    | `Delim _ -> Slash)
 
 let to_string l =
   l |> List.map ~f:(function
@@ -56,7 +65,22 @@ let rec match_url t url params =
   | _::_, []
   | [], _::_ -> None
 
+let rec match_url t url params =
+  match t, url with
+  | [], []
+  | FullSplat::[], _ -> Some params
+  | FullSplat::_, _ -> assert false (* splat can't be last *)
+  | (Match x)::t, (Match y)::url when x = y -> match_url t url params
+  | Slash::t, Slash::url
+  | Splat::t, _::url -> match_url t url params
+  | (Param name)::t, (Match value)::url ->
+    match_url t url ((name, value)::params)
+  | (Match _)::_, _
+  | Slash::_, _
+  | _::_, []
+  | [], _::_ -> None
+
 let match_url t url =
   assert (url.[0] = '/');
-  let path = url |> String.split ~on:'/' in
+  let path = url |> of_string in
   match_url t path []
