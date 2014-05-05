@@ -37,10 +37,7 @@ let split_slash path =
 
 let of_string path = path |> split_slash |> of_list
 
-let of_string_url path =
-  path |> split_slash_delim |> List.map ~f:(function
-    | `Text s -> Match s
-    | `Delim _ -> Slash)
+let of_string_url path = path |> split_slash_delim
 
 let to_string l =
   l |> List.map ~f:(function
@@ -55,26 +52,12 @@ let rec match_url t url params =
   match t, url with
   | [], []
   | FullSplat::[], _ -> Some params
-  | FullSplat::_, _ -> assert false
-  | (Match x)::t, y::url when x = y -> match_url t url params
-  | Slash::t, ""::url
-  | Splat::t, _::url -> match_url t url params
-  | (Param name)::t, value::url -> match_url t url ((name, value)::params)
-  | (Match _)::_, _
-  | Slash::_, _
-  | _::_, []
-  | [], _::_ -> None
-
-let rec match_url t url params =
-  match t, url with
-  | [], []
-  | FullSplat::[], _ -> Some params
   | FullSplat::_, _ -> assert false (* splat can't be last *)
-  | (Match x)::t, (Match y)::url when x = y -> match_url t url params
-  | Slash::t, Slash::url
+  | (Match x)::t, (`Text y)::url when x = y -> match_url t url params
+  | Slash::t, (`Delim _)::url
   | Splat::t, _::url -> match_url t url params
-  | (Param name)::t, (Match value)::url ->
-    match_url t url ((name, value)::params)
+  | (Param name)::t, (`Text p)::url -> match_url t url ((name, p)::params)
+  | Param _::_, `Delim _::_
   | (Match _)::_, _
   | Slash::_, _
   | _::_, []
@@ -82,5 +65,5 @@ let rec match_url t url params =
 
 let match_url t url =
   assert (url.[0] = '/');
-  let path = url |> of_string in
+  let path = url |> of_string_url in
   match_url t path []
