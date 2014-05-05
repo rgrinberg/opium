@@ -4,7 +4,8 @@ open Opium.Std
 (* don't open cohttp and opium since they both define
    request/response modules*)
 
-let is_substring ~substring s = Pcre.pmatch ~pat:(".*" ^ substring ^ ".*") s
+let is_substring ~substring s =
+  Option.is_some @@ String.substr_index s ~pattern:substring
 
 let reject_ua ~f =
   let filter handler req =
