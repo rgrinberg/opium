@@ -21,6 +21,7 @@ Library rock
   Findlibname: opium_rock
   Modules:    Rock
   BuildDepends: threads,
+                humane_re,
                 core,
                 async,
                 cohttp.async,

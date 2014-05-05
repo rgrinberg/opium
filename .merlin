@@ -16,3 +16,4 @@ PKG cow
 PKG cow.syntax
 PKG sexplib.syntax
 PKG fieldslib.syntax
+PKG humane_re
