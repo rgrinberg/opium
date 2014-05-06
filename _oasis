@@ -94,7 +94,7 @@ Executable middleware_ua
   Custom: true
   CompiledObject: best
   Install: false
-  BuildDepends: opium, pcre
+  BuildDepends: opium
 
 Executable uppercase_middleware
   Build$: flag(examples)

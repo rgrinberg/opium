@@ -72,7 +72,7 @@ favourite browser.
 Compile with:
 
 ```
-$ corebuild -pkg opium,pcre middleware_ua.native
+$ corebuild -pkg opium middleware_ua.native
 ```
 
 Here we also use the ability of Opium to generate a core command to
