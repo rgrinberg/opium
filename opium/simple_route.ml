@@ -8,6 +8,11 @@ type path_segment =
   | Slash
 with sexp
 
+type matches = {
+  params: (string * string) list;
+  splat: string list;
+} with fields, sexp
+
 type t = path_segment list with sexp
 
 let parse_param s =
@@ -48,15 +53,16 @@ let to_string l =
     | Slash -> "")
   |> String.concat ~sep:"/"
 
-let rec match_url t url params =
+let rec match_url t url ({params; splat} as matches) =
   match t, url with
   | [], []
-  | FullSplat::[], _ -> Some params
+  | FullSplat::[], _ -> Some matches
   | FullSplat::_, _ -> assert false (* splat can't be last *)
-  | (Match x)::t, (`Text y)::url when x = y -> match_url t url params
-  | Slash::t, (`Delim _)::url
-  | Splat::t, _::url -> match_url t url params
-  | (Param name)::t, (`Text p)::url -> match_url t url ((name, p)::params)
+  | (Match x)::t, (`Text y)::url when x = y -> match_url t url matches
+  | Slash::t, (`Delim _)::url -> match_url t url matches
+  | Splat::t, (`Text s)::url -> match_url t url { matches with splat=(s::splat) }
+  | (Param name)::t, (`Text p)::url -> match_url t url {matches with params=(name, p)::params}
+  | Splat::_, (`Delim _)::_
   | Param _::_, `Delim _::_
   | (Match _)::_, _
   | Slash::_, _
@@ -66,4 +72,4 @@ let rec match_url t url params =
 let match_url t url =
   assert (url.[0] = '/');
   let path = url |> of_string_url in
-  match_url t path []
+  match_url t path {params=[]; splat=[]}

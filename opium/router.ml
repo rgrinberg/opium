@@ -31,16 +31,21 @@ let matching_endpoint endpoints meth uri =
     uri |> Route.match_url (fst ep) |> Option.map ~f:(fun p -> (ep, p)))
 
 module Env = struct
-  type path_params = (string * string) list
-  let key : path_params Univ_map.Key.t =
-    Univ_map.Key.create "path_params" <:sexp_of<(string * string) list>>
+  let key : Simple_route.matches Univ_map.Key.t =
+    Univ_map.Key.create "path_params" <:sexp_of<Simple_route.matches>>
 end
 
 (* not param_exn since if the endpoint was selected it's likely that
    the parameter is already there *)
 let param req param =
-  let params = Univ_map.find_exn (Request.env req) Env.key in
+  let { Simple_route.params;  _ } =
+    Univ_map.find_exn (Request.env req) Env.key in
   List.Assoc.find_exn params param
+
+let splat req = 
+  Env.key
+  |> Univ_map.find_exn (Request.env req)
+  |> Route.splat
 
 (* takes a list of endpoints and a default handler. calls an endpoint
    if a match is found. otherwise calls the handler *)
