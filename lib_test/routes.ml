@@ -34,6 +34,11 @@ let simple_route3 _ =
   | None -> ()
   | Some _ -> assert_failure "unexpected matches"
 
+let splat_route1 _ =
+  let r = O.Route.of_string "/test/*/:id" in
+  assert_equal (O.Route.match_url r "/test/splat/123") (Some [("id","123")])
+
+
 let test_match_2_params _ =
   let r = O.Route.of_string "/xxx/:x/:y" in
   let m = O.Route.match_url r "/xxx/123/456" in
@@ -70,6 +75,7 @@ let test_fixtures =
     "test match 1" >:: simple_route1;
     "test match 2" >:: simple_route2;
     "test match 3" >:: simple_route3;
+    "splat match 1" >:: splat_route1;
     "test match 2 params" >:: test_match_2_params;
     "test empty route" >:: test_empty_route;
   ]
