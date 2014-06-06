@@ -200,6 +200,7 @@ module Make (Router : App_intf.Router) = struct
 
   let json_of_body_exn = Request_helpers.json_exn
   let param = Router.param
+  let splat = Router.splat
   let respond = Response_helpers.respond
   let respond' = Response_helpers.respond'
 end

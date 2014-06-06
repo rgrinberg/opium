@@ -75,6 +75,8 @@ module type S = sig
 
   val param : Request.t -> string -> string
 
+  val splat : Request.t -> string list
+
   val respond : ?headers:Cohttp.Header.t
     -> ?code:Cohttp.Code.status_code
     -> body
