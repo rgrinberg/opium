@@ -39,7 +39,7 @@ end
 
 let splat_route = get "/testing/*/:p" begin fun req ->
   let p = param req "p" in
-  `String (sprintf "__ %s __" p) |> respond'
+  `String (sprintf "__ %s __" p ^ (splat req |> String.concat ~sep:":")) |> respond'
 end
 
 let all_cookies = get "/cookies" begin fun req ->

@@ -17,6 +17,7 @@ module Std = struct
   include Opium_raw
   (* selectively export the most useful parts of App *)
   let param    = App.param
+  let splat    = App.splat
   let respond  = App.respond
   let respond' = App.respond'
 
