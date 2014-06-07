@@ -4,6 +4,9 @@ open OUnit2
 module O = Opium.Router
 module Route = O.Route
 
+let match_get_params route url =
+  url |> O.Route.match_url route |> Option.map ~f:Route.params
+
 let string_of_match = function
   | None -> "None"
   | Some m ->
@@ -14,12 +17,12 @@ let string_of_match = function
 let simple_route1 _ =
   let r = O.Route.of_string "/test/:id" in
   assert_equal ~printer:string_of_match None
-    (O.Route.match_url r "/test/blerg/123");
-  assert_equal (O.Route.match_url r "/test/123") (Some [("id","123")])
+    (match_get_params r "/test/blerg/123");
+  assert_equal (match_get_params r "/test/123") (Some [("id","123")])
 
 let simple_route2 _ =
   let r = O.Route.of_string "/test/:format/:name" in
-  let m = O.Route.match_url r "/test/json/bar" in
+  let m = match_get_params r "/test/json/bar" in
   match m with
   | None -> assert_failure "no matches"
   | Some s -> begin
@@ -36,12 +39,17 @@ let simple_route3 _ =
 
 let splat_route1 _ =
   let r = O.Route.of_string "/test/*/:id" in
-  assert_equal (O.Route.match_url r "/test/splat/123") (Some [("id","123")])
+  let matches = Route.match_url r "/test/splat/123" in
+  match matches with
+  | Some matches ->
+    assert_equal (Route.params matches) [("id","123")];
+    assert_equal (Route.splat matches) ["splat"]
+  | None -> assert_failure "No matches for splat"
 
 
 let test_match_2_params _ =
   let r = O.Route.of_string "/xxx/:x/:y" in
-  let m = O.Route.match_url r "/xxx/123/456" in
+  let m = match_get_params r "/xxx/123/456" in
   match m with
   | None -> assert_failure "no match found"
   | Some m -> begin
