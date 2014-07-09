@@ -113,3 +113,12 @@ Executable read_json_body
   CompiledObject: best
   Install: false
   BuildDepends: opium
+
+Executable hello_world_basic
+  Build$: flag(examples)
+  Path: examples
+  MainIs: hello_world_basic.ml
+  Custom: true
+  CompiledObject: best
+  Install: false
+  BuildDepends: opium
