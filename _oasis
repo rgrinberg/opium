@@ -5,21 +5,21 @@ Synopsis:    Sinatra like web toolkit for OCaml
 Authors:     Rudi Grinberg
 Homepage:    https://github.com/rgrinberg/opium
 License:     MIT
-BuildTools: ocamlbuild
+BuildTools:  ocamlbuild
 Plugins:     META (0.4)
 
 Flag pcre
   Description: enable pcre routing lib
-  Default: false
+  Default:     false
 
 Flag examples
   Description: enable compiling the examples
-  Default: false
+  Default:     false
 
 Library rock
-  Path:       rock
-  Findlibname: opium_rock
-  Modules:    Rock
+  Path:         rock
+  Findlibname:  opium_rock
+  Modules:      Rock
   BuildDepends: threads,
                 humane_re,
                 core,
@@ -31,9 +31,9 @@ Library rock
                 sexplib.syntax
 
 Library opium
-  Path:       opium
-  Findlibname: opium
-  Modules:    Opium
+  Path:            opium
+  Findlibname:     opium
+  Modules:         Opium
   InternalModules: Cookie,
                    Middleware_pack,
                    Simple_route,
@@ -47,78 +47,78 @@ Library opium
                 cow.syntax
 
 Library opium_pcre_route
-  Build$: flag(pcre)
-  Install$: flag(pcre)
-  Path:       opium
+  Build$:        flag(pcre)
+  Install$:      flag(pcre)
+  Path:          opium
   FindlibParent: opium
-  Findlibname: pcre_route
-  Modules: Pcre_route
-  BuildDepends: core, pcre
+  Findlibname:   pcre_route
+  Modules:       Pcre_route
+  BuildDepends:  core, pcre
 
 Executable test_routes
-  Path:               lib_test
-  MainIs:             routes.ml
-  Build$:             flag(tests)
-  Custom:             true
-  CompiledObject:     best
-  Install:            false
-  BuildDepends:       opium,oUnit
+  Path:           lib_test
+  MainIs:         routes.ml
+  Build$:         flag(tests)
+  Custom:         true
+  CompiledObject: best
+  Install:        false
+  BuildDepends:   opium,oUnit
 
 Test test_routes
-  Run$:               flag(tests)
-  Command:            $test_routes
-  WorkingDirectory:   lib_test
+  Run$:             flag(tests)
+  Command:          $test_routes
+  WorkingDirectory: lib_test
 
 Executable ex1
-  Build$: flag(examples)
-  Path: examples
-  MainIs: sample.ml
-  Custom: true
+  Build$:         flag(examples)
+  Path:           examples
+  MainIs:         sample.ml
+  Custom:         true
   CompiledObject: best
-  Install: false
-  BuildDepends: opium
+  Install:        false
+  BuildDepends:   opium
 
 Executable ex_hello_world
-  Build$: flag(examples)
-  Path: examples
-  MainIs: hello_world.ml
-  Custom: true
+  Build$:         flag(examples)
+  Path:           examples
+  MainIs:         hello_world.ml
+  Custom:         true
   CompiledObject: best
-  Install: false
-  BuildDepends: opium
+  Install:        false
+  BuildDepends:   opium
 
 Executable middleware_ua
-  Build$: flag(examples)
-  Path: examples
-  MainIs: middleware_ua.ml
-  Custom: true
+  Build$:         flag(examples)
+  Path:           examples
+  MainIs:         middleware_ua.ml
+  Custom:         true
   CompiledObject: best
-  Install: false
-  BuildDepends: opium
+  Install:        false
+  BuildDepends:   opium
 
 Executable uppercase_middleware
-  Build$: flag(examples)
-  Path: examples
-  MainIs: uppercase_middleware.ml
-  Custom: true
+  Build$:         flag(examples)
+  Path:           examples
+  MainIs:         uppercase_middleware.ml
+  Custom:         true
   CompiledObject: best
-  Install: false
-  BuildDepends: opium
+  Install:        false
+  BuildDepends:   opium
 
 Executable read_json_body
-  Build$: flag(examples)
-  Path: examples
-  MainIs: read_json_body.ml
-  Custom: true
+  Build$:         flag(examples)
+  Path:           examples
+  MainIs:         read_json_body.ml
+  Custom:         true
   CompiledObject: best
-  Install: false
-  BuildDepends: opium
+  Install:        false
+  BuildDepends:   opium
 
 Executable hello_world_basic
-  Build$: flag(examples)
-  Path: examples
-  MainIs: hello_world_basic.ml
-  Custom: true
+  Build$:         flag(examples)
+  Path:           examples
+  MainIs:         hello_world_basic.ml
+  Custom:         true
   CompiledObject: best
-  Install: false
-  BuildDepends: opium
+  Install:        false
+  BuildDepends:   opium
