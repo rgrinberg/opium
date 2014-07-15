@@ -38,7 +38,7 @@ module Make (Router : App_intf.Router) = struct
       Router.add router ~meth ~route ~action);
     router
 
-  let attach_middleware { verbose ; debug ; routes ; middlewares ; _  } = 
+  let attach_middleware { verbose ; debug ; routes ; middlewares ; _  } =
   [ Some (routes |> create_router |> Router.m) ] @
   (List.map ~f:Option.some middlewares) @
   [
@@ -77,7 +77,7 @@ module Make (Router : App_intf.Router) = struct
 
   let any methods route action t =
     (if List.is_empty methods then
-       Log.Global.debug 
+       Log.Global.debug
          "Warning: you're using [any] attempting to bind to '%s' but your list
         of http methods is empty route"
          route);
@@ -139,7 +139,7 @@ module Make (Router : App_intf.Router) = struct
              printf "%d Routes:\n" (Hashtbl.length routes_tbl);
              Hashtbl.iter routes_tbl ~f:(fun ~key ~data ->
                printf "> %s (%s)\n" (Router.Route.to_string key)
-                 (data 
+                 (data
                   |> List.map ~f:Cohttp.Code.string_of_method
                   |> String.concat ~sep:" ")
              );
