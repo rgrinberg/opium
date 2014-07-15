@@ -7,7 +7,7 @@
 *)
 open Core.Std
 open Async.Std
-open Rock
+open Opium_rock
 
 (** You may provide your own router by implementing the following
     signature. The default app is instantiated with [Opium.Router] *)
@@ -56,12 +56,12 @@ module type S = sig
   val middleware : Middleware.t -> builder
 
   (** Convert an opium app to a rock app *)
-  val to_rock : t -> Rock.App.t
+  val to_rock : t -> Opium_rock.App.t
 
-  val start : ?on_handler_error:Rock.App.error_handler -> t -> never_returns
+  val start : ?on_handler_error:Opium_rock.App.error_handler -> t -> never_returns
 
   (** Create a core command from an opp *)
-  val command : ?on_handler_error:Rock.App.error_handler
+  val command : ?on_handler_error:Opium_rock.App.error_handler
     -> t -> Command.t
 
   (** Convenience functions for a running opium app *)

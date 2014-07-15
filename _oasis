@@ -19,7 +19,7 @@ Flag examples
 Library rock
   Path:         rock
   Findlibname:  opium_rock
-  Modules:      Rock
+  Modules:      Opium_rock
   BuildDepends: threads,
                 humane_re,
                 core,

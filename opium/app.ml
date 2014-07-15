@@ -1,7 +1,8 @@
 open Core.Std
 open Async.Std
-open Rock
 
+module Rock = Opium_rock
+open Rock
 module Co = Cohttp
 
 module Make (Router : App_intf.Router) = struct

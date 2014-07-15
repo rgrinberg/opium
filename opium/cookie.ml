@@ -2,6 +2,7 @@ open Core.Std
 open Async.Std
 module Co = Cohttp
 module B64 = Co.Base64
+module Rock = Opium_rock
 
 let keyc =
   object

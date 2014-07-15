@@ -1,7 +1,7 @@
 module Opium_raw = struct
+  module Rock            = Opium_rock
   module Response        = Rock.Response
   module Request         = Rock.Request
-  module Rock            = Rock
   module Cookie          = Cookie
   module Router          = Router
   module Middleware_pack = Middleware_pack

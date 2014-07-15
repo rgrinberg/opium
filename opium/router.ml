@@ -1,7 +1,9 @@
 open Core.Std
 open Async.Std
-open Rock
+
 module Co = Cohttp
+module Rock = Opium_rock
+open Rock
 
 module Route = Simple_route
 
@@ -27,7 +29,7 @@ let add t ~route ~meth ~action =
     parameters *)
 let matching_endpoint endpoints meth uri =
   let endpoints = get endpoints meth in
-  endpoints |> Queue.find_map ~f:(fun ep -> 
+  endpoints |> Queue.find_map ~f:(fun ep ->
     uri |> Route.match_url (fst ep) |> Option.map ~f:(fun p -> (ep, p)))
 
 module Env = struct
@@ -42,7 +44,7 @@ let param req param =
     Univ_map.find_exn (Request.env req) Env.key in
   List.Assoc.find_exn params param
 
-let splat req = 
+let splat req =
   Env.key
   |> Univ_map.find_exn (Request.env req)
   |> Route.splat

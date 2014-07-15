@@ -1,6 +1,7 @@
 open Core.Std
 open Async.Std
 
+module Rock = Opium_rock
 open Rock
 
 let exn_ e = Log.Global.error "%s" (Exn.to_string e)

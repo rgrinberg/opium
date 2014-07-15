@@ -19,8 +19,8 @@ val add : 'a t
   -> meth:Cohttp.Code.meth
   -> action:'a -> unit
 
-val param : Rock.Request.t -> string -> string
+val param : Opium_rock.Request.t -> string -> string
 
-val splat : Rock.Request.t -> string list
+val splat : Opium_rock.Request.t -> string list
 
-val m : Rock.Handler.t t -> Rock.Middleware.t
+val m : Opium_rock.Handler.t t -> Opium_rock.Middleware.t
