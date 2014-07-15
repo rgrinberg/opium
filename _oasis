@@ -122,3 +122,21 @@ Executable hello_world_basic
   CompiledObject: best
   Install:        false
   BuildDepends:   opium
+
+Document opium_rock
+  Title:                Opium rock docs
+  Type:                 ocamlbuild (0.4)
+  BuildTools+:          ocamldoc
+  Install:              true
+  XOCamlbuildPath:      rock
+  XOCamlbuildLibraries: opium_rock
+
+
+Document opium
+  Title:                Opium docs
+  Type:                 ocamlbuild (0.4)
+  BuildTools+:          ocamldoc
+  Install:              true
+  XOCamlbuildPath:      opium
+  XOCamlbuildLibraries: opium
+

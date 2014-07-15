@@ -13,3 +13,7 @@ META
 _tags
 TAGS
 *.mldylib
+*.odocl
+*.odocdir
+*.docl
+*.docdir
