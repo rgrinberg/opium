@@ -7,13 +7,13 @@ module Co = Cohttp
 
 module Make (Router : App_intf.Router) = struct
   type t = {
-    port: int;
-    debug: bool;
-    verbose: bool;
-    routes : (Co.Code.meth * Router.Route.t * Handler.t) list;
+    port:        int;
+    debug:       bool;
+    verbose:     bool;
+    routes :     (Co.Code.meth * Router.Route.t * Handler.t) list;
     middlewares: Middleware.t list;
-    name: string;
-    not_found : Handler.t;
+    name:        string;
+    not_found :  Handler.t;
   } with fields, sexp_of
 
   type builder = t -> t with sexp_of
@@ -24,13 +24,13 @@ module Make (Router : App_intf.Router) = struct
     { app with routes=(meth, route, action)::app.routes }
 
   let empty =
-    { name="Opium Default Name";
-      port=3000;
-      debug=false;
-      verbose=false;
-      routes=[];
-      middlewares=[];
-      not_found=Handler.not_found }
+    { name        = "Opium Default Name";
+      port        = 3000;
+      debug       = false;
+      verbose     = false;
+      routes      = [];
+      middlewares = [];
+      not_found   = Handler.not_found }
 
   let create_router routes =
     let router = Router.create () in
@@ -128,9 +128,9 @@ module Make (Router : App_intf.Router) = struct
           in
           let on_handler_error =
             match ignore_e, raise_e with
-            | true, true -> err "cannot provide both ignore and raise"
-            | true, false -> return `Ignore
-            | false, true -> return `Raise
+            | true, true   -> err "cannot provide both ignore and raise"
+            | true, false  -> return `Ignore
+            | false, true  -> return `Raise
             | false, false -> return on_handler_error in
           on_handler_error >>= fun on_handler_error ->
           (if print_routes then begin
@@ -174,9 +174,9 @@ module Make (Router : App_intf.Router) = struct
     open Cow
 
     let content_type ct = Cohttp.Header.init_with "Content-Type" ct
-    let json_header = content_type "application/json"
-    let xml_header = content_type "application/xml"
-    let html_header = content_type "text/html"
+    let json_header     = content_type "application/json"
+    let xml_header      = content_type "application/xml"
+    let html_header     = content_type "text/html"
 
     let respond_with_string = Response.of_string_body
 
@@ -200,10 +200,10 @@ module Make (Router : App_intf.Router) = struct
   end
 
   let json_of_body_exn = Request_helpers.json_exn
-  let param = Router.param
-  let splat = Router.splat
-  let respond = Response_helpers.respond
-  let respond' = Response_helpers.respond'
+  let param            = Router.param
+  let splat            = Router.splat
+  let respond          = Response_helpers.respond
+  let respond'         = Response_helpers.respond'
 end
 
 include Make(Router)
