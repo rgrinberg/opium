@@ -102,23 +102,32 @@ module Make (Router : App_intf.Router) = struct
     app |> Rock.App.run ~port ~on_handler_error >>| ignore |> don't_wait_for;
     Scheduler.go ()
 
-  let command ?(on_handler_error=`Ignore) app' =
+  type 'a action = int -> string -> bool -> bool -> bool -> bool ->
+    bool -> bool -> unit -> 'a Deferred.t
+
+  type 'a spec = (int -> string -> bool -> bool -> bool -> bool -> bool -> bool -> 'a, 'a) Command.Spec.t
+
+  let spec ?(on_handler_error=`Ignore) app' =
     let summary = name app' in
     let open Command.Spec in
-    Command.async_basic
-      ~summary
-      (empty
-       +> flag "-p" (optional_with_default 3000 int)
-            ~doc:"port number to listen"
-       +> flag "-h" (optional_with_default "0.0.0.0" string)
-            ~doc:"interface to listen"
-       +> flag "-r" no_arg ~doc: "print routes"
-       +> flag "-m" no_arg ~doc:"print middleware stack"
-       +> flag "-d" no_arg ~doc:"enable debug information"
-       +> flag "-v" no_arg ~doc:"enable verbose mode"
-       +> flag "-xi" no_arg ~doc:"Ignore errors (conflicts with -xr and -d)"
-       +> flag "-xr" no_arg ~doc:"Raise on errors (conflicts with -xi)"
-      ) (fun port host print_routes print_middleware debug verbose
+    object
+      method summary = summary
+
+      method spec =
+        empty
+        +> flag "-p" (optional_with_default 3000 int)
+             ~doc:"port number to listen"
+        +> flag "-h" (optional_with_default "0.0.0.0" string)
+             ~doc:"interface to listen"
+        +> flag "-r" no_arg ~doc: "print routes"
+        +> flag "-m" no_arg ~doc:"print middleware stack"
+        +> flag "-d" no_arg ~doc:"enable debug information"
+        +> flag "-v" no_arg ~doc:"enable verbose mode"
+        +> flag "-xi" no_arg ~doc:"Ignore errors (conflicts with -xr and -d)"
+        +> flag "-xr" no_arg ~doc:"Raise on errors (conflicts with -xi)"
+
+      method action =
+        (fun port host print_routes print_middleware debug verbose
           ignore_e raise_e () ->
           let app' = { app' with debug ; verbose } in
           let app = to_rock app' in
@@ -163,6 +172,13 @@ module Make (Router : App_intf.Router) = struct
           app |> Rock.App.run ~port ~on_handler_error
           >>| ignore >>= never
         )
+    end
+
+  let command ?on_handler_error app =
+    let spec = spec ?on_handler_error app in
+    Command.async_basic
+      ~summary:spec#summary
+      spec#spec spec#action
 
   type body = [
     | `Html of Cow.Html.t

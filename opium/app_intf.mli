@@ -64,6 +64,20 @@ module type S = sig
   val command : ?on_handler_error:Opium_rock.App.error_handler
     -> t -> Command.t
 
+  type 'a action =  int -> string -> bool -> bool -> bool -> bool ->
+    bool -> bool -> unit -> 'a Deferred.t
+
+  type 'a spec = (int -> string -> bool -> bool -> bool -> bool -> bool -> bool -> 'a, 'a) Command.Spec.t
+
+  (** Returns the command spec for the opium and the original runner. Used for
+   * customizing own command line options*)
+  val spec: ?on_handler_error:Opium_rock.App.error_handler
+    -> t -> <
+      summary: string;
+      spec: 'a Deferred.t spec;
+      action: 'a action;
+    >
+
   (** Convenience functions for a running opium app *)
   type body = [
     | `Html of Cow.Html.t
