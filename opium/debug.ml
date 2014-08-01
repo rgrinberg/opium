@@ -16,7 +16,7 @@ let format_error req _exn = sprintf "
 
 let debug =
   let filter handler req =
-    try_with (fun () -> handler req) >>= function
+    Monitor.try_with ~run:`Now (fun () -> handler req) >>= function
     | Ok v -> return v
     | Error _exn ->
       exn_ _exn;                  (* log exception *)
