@@ -102,10 +102,9 @@ module Make (Router : App_intf.Router) = struct
     app |> Rock.App.run ~port ~on_handler_error >>| ignore |> don't_wait_for;
     Scheduler.go ()
 
-  type 'a action = int -> string -> bool -> bool -> bool -> bool ->
-    bool -> bool -> unit -> 'a Deferred.t
-
-  type 'a spec = (int -> string -> bool -> bool -> bool -> bool -> bool -> bool -> 'a, 'a) Command.Spec.t
+  type 'a runner = int -> string -> bool -> bool -> bool -> bool -> bool -> bool -> 'a
+  type 'a action = (unit -> 'a Deferred.t) runner
+  type 'a spec = ('a runner, 'a) Command.Spec.t
 
   let spec ?(on_handler_error=`Ignore) app' =
     let summary = name app' in

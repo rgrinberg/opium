@@ -64,10 +64,9 @@ module type S = sig
   val command : ?on_handler_error:Opium_rock.App.error_handler
     -> t -> Command.t
 
-  type 'a action =  int -> string -> bool -> bool -> bool -> bool ->
-    bool -> bool -> unit -> 'a Deferred.t
-
-  type 'a spec = (int -> string -> bool -> bool -> bool -> bool -> bool -> bool -> 'a, 'a) Command.Spec.t
+  type 'a runner = int -> string -> bool -> bool -> bool -> bool -> bool -> bool -> 'a
+  type 'a action = (unit -> 'a Deferred.t) runner
+  type 'a spec = ('a runner, 'a) Command.Spec.t
 
   (** Returns the command spec for the opium and the original runner. Used for
    * customizing own command line options*)
