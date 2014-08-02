@@ -10,7 +10,7 @@ with sexp
 
 type matches = {
   params: (string * string) list;
-  splat: string list;
+  splat:  string list;
 } with fields, sexp
 
 type t = path_segment list with sexp
@@ -47,11 +47,11 @@ let of_string_url path = path |> split_slash_delim
 let to_string l =
   let r =
     l |> List.filter_map ~f:(function
-      | Match s -> Some s
-      | Param s -> Some (":" ^ s)
-      | Splat -> Some "*"
+      | Match s   -> Some s
+      | Param s   -> Some (":" ^ s)
+      | Splat     -> Some "*"
       | FullSplat -> Some "**"
-      | Slash -> None)
+      | Slash     -> None)
     |> String.concat ~sep:"/" in
   "/" ^ r
 
@@ -62,8 +62,10 @@ let rec match_url t url ({params; splat} as matches) =
   | FullSplat::_, _ -> assert false (* splat can't be last *)
   | (Match x)::t, (`Text y)::url when x = y -> match_url t url matches
   | Slash::t, (`Delim _)::url -> match_url t url matches
-  | Splat::t, (`Text s)::url -> match_url t url { matches with splat=(s::splat) }
-  | (Param name)::t, (`Text p)::url -> match_url t url {matches with params=(name, p)::params}
+  | Splat::t, (`Text s)::url ->
+    match_url t url { matches with splat=(s::splat) }
+  | (Param name)::t, (`Text p)::url ->
+    match_url t url {matches with params=(name, p)::params}
   | Splat::_, (`Delim _)::_
   | Param _::_, `Delim _::_
   | (Match _)::_, _
