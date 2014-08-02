@@ -45,13 +45,15 @@ let of_string path = path |> split_slash |> of_list
 let of_string_url path = path |> split_slash_delim
 
 let to_string l =
-  l |> List.map ~f:(function
-    | Match s -> s
-    | Param s -> ":" ^ s
-    | Splat -> "*"
-    | FullSplat -> "**"
-    | Slash -> "")
-  |> String.concat ~sep:"/"
+  let r =
+    l |> List.filter_map ~f:(function
+      | Match s -> Some s
+      | Param s -> Some (":" ^ s)
+      | Splat -> Some "*"
+      | FullSplat -> Some "**"
+      | Slash -> None)
+    |> String.concat ~sep:"/" in
+  "/" ^ r
 
 let rec match_url t url ({params; splat} as matches) =
   match t, url with
