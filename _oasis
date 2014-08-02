@@ -21,7 +21,6 @@ Library opium_rock
   Findlibname:  opium_rock
   Modules:      Opium_rock
   BuildDepends: threads,
-                humane_re,
                 core,
                 async,
                 cohttp.async,
@@ -32,9 +31,10 @@ Library opium_rock
 
 Library opium
   Path:            opium
+  Pack:            true
   Findlibname:     opium
-  Modules:         Opium
-  InternalModules: Cookie,
+  Modules:         Std,
+                   Cookie,
                    Middleware_pack,
                    Simple_route,
                    Router,
@@ -43,6 +43,7 @@ Library opium
                    App,
                    App_intf
   BuildDepends: opium_rock,
+                humane_re,
                 cow,
                 cow.syntax
 
