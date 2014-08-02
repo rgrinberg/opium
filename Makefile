@@ -39,7 +39,8 @@ install:
 	ocaml setup.ml -install
 
 uninstall:
-	ocaml setup.ml -uninstall
+	ocamlfind remove opium_rock
+	ocamlfind remove opium
 
 reinstall:
 	ocaml setup.ml -reinstall
