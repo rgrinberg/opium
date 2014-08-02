@@ -43,9 +43,9 @@ end
 
 module Request : sig
   type t = {
-    request : Cohttp.Request.t;
-    body: Cohttp_async.Body.t;
-    env : Univ_map.t;
+    request: Cohttp.Request.t;
+    body:    Cohttp_async.Body.t;
+    env:     Univ_map.t;
   } with fields, sexp_of
 
   val create : ?body:Cohttp_async.Body.t
@@ -59,10 +59,10 @@ end
 
 module Response : sig
   type t = {
-    code : Cohttp.Code.status_code;
-    headers : Cohttp.Header.t;
-    body : Cohttp_async.Body.t;
-    env: Univ_map.t
+    code:    Cohttp.Code.status_code;
+    headers: Cohttp.Header.t;
+    body:    Cohttp_async.Body.t;
+    env:     Univ_map.t
   } with fields, sexp_of
 
   val create :
