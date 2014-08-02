@@ -75,6 +75,19 @@ let test_empty_route _ =
   assert_bool "match '/'" m1;
   assert_bool "not match '/testing'" (not m2)
 
+let printer x = x
+
+let str_t s = s |> Route.of_string |> Route.to_string
+
+let string_convert_1 _ =
+  assert_equal ~printer "/" (str_t "/")
+
+let string_convert_2 _ =
+  assert_equal ~printer "/one/:two" (str_t "/one/:two")
+
+let string_convert_3 _ =
+  assert_equal ~printer "/one/two/*/three" (str_t "/one/two/*/three")
+
 let test_fixtures =
   "test routes" >:::
   [
@@ -86,6 +99,9 @@ let test_fixtures =
     "splat match 1" >:: splat_route1;
     "test match 2 params" >:: test_match_2_params;
     "test empty route" >:: test_empty_route;
+    "test string conversion 1" >:: string_convert_1;
+    "test string conversion 2" >:: string_convert_2;
+    "test string conversion 3" >:: string_convert_3;
   ]
 
 let _ = run_test_tt_main test_fixtures
