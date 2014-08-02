@@ -16,7 +16,7 @@ Flag examples
   Description: enable compiling the examples
   Default:     false
 
-Library rock
+Library opium_rock
   Path:         rock
   Findlibname:  opium_rock
   Modules:      Opium_rock
