@@ -7,10 +7,12 @@ module Middleware_pack = Middleware_pack
 module App             = App
 
 (* selectively export the most useful parts of App *)
-let param    = App.param
-let splat    = App.splat
-let respond  = App.respond
-let respond' = App.respond'
+let param     = App.param
+let splat     = App.splat
+let respond   = App.respond
+let respond'  = App.respond'
+let redirect  = App.redirect
+let redirect' = App.redirect'
 
 let get    = App.get
 let post   = App.post
