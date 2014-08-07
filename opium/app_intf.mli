@@ -100,4 +100,13 @@ module type S = sig
     -> ?code:Cohttp.Code.status_code
     -> body
     -> Response.t Deferred.t
+
+  val redirect : ?headers:Cohttp.Header.t
+    -> Uri.t
+    -> Response.t
+
+  (* Same as return (redirect ...) *)
+  val redirect' : ?headers:Cohttp.Header.t
+    -> Uri.t
+    -> Response.t Deferred.t
 end

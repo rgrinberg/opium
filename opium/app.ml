@@ -206,6 +206,13 @@ module Make (Router : App_intf.Router) = struct
 
     let respond' ?headers ?code s =
       s |> respond ?headers ?code |> return
+
+    let redirect ?headers uri =
+      let headers = Cohttp.Header.add_opt headers "Location" (Uri.to_string uri) in
+      Response.create ~headers ~code:`Found ()
+
+    let redirect' ?headers uri =
+      uri |> redirect ?headers |> return
   end
 
   module Request_helpers = struct
@@ -219,6 +226,8 @@ module Make (Router : App_intf.Router) = struct
   let splat            = Router.splat
   let respond          = Response_helpers.respond
   let respond'         = Response_helpers.respond'
+  let redirect         = Response_helpers.redirect
+  let redirect'        = Response_helpers.redirect'
 end
 
 include Make(Router)
