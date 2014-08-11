@@ -100,16 +100,16 @@ module App : sig
 
   val middlewares : t -> Middleware.t list
 
+  val append_middleware : t -> Middleware.t -> t
+
+  val create : ?middlewares:Middleware.t list -> handler:Handler.t -> t
+
   (** This is a type from core that is only here because we need to refer
      to it in a couple of places *)
   type error_handler = [
     | `Call of Socket.Address.Inet.t -> exn -> unit
     | `Ignore
     | `Raise ] with sexp_of
-
-  val append_middleware : t -> Middleware.t -> t
-
-  val create : ?middlewares:Middleware.t list -> handler:Handler.t -> t
 
   val run :
     ?on_handler_error:error_handler ->
