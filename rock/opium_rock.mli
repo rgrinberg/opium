@@ -35,10 +35,6 @@ module Filter : sig
   val apply_all : ('req, 'rep) simple list
     -> ('req, 'rep) Service.t
     -> ('req, 'rep) Service.t
-
-  val apply_all' : ('req, 'rep) simple array
-    -> ('req, 'rep) Service.t
-    -> ('req, 'rep) Service.t
 end
 
 module Request : sig

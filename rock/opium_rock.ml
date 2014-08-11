@@ -19,8 +19,6 @@ module Filter = struct
   let (>>>) f1 f2 s = s |> f1 |> f2
   let apply_all filters service =
     List.fold_left filters ~init:service ~f:(|>)
-  let apply_all' filters service =
-    Array.fold filters ~init:service ~f:(|>)
 end
 
 module Request = struct
@@ -119,13 +117,12 @@ module App = struct
     let module Server = Cohttp_async.Server in
     let middlewares = middlewares
                       |> List.map ~f:Middleware.filter
-                      |> Array.of_list
     in
     Server.create
       ?on_handler_error (Tcp.on_port port)
       begin fun ~body sock req ->
         let req = Request.create ~body req in
-        let handler = Filter.apply_all' middlewares handler in
+        let handler = Filter.apply_all middlewares handler in
         handler req >>= fun { Response.code; headers; body } ->
         Server.respond ~headers ~body code
       end
