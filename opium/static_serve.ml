@@ -1,7 +1,6 @@
 open Core.Std
 open Async.Std
 
-module Co = Cohttp_async
 module Rock = Opium_rock
 open Rock
 
