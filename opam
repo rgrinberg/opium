@@ -1,0 +1,29 @@
+opam-version: "1"
+maintainer: "rudi.grinberg@gmail.com"
+authors: ["Rudi Grinberg"]
+license: "MIT"
+
+build: [
+  [make "configure-no-tests"]
+  [make "build"]
+  [make "install"]
+]
+
+remove: [
+  ["ocamlfind" "remove" "opium_rock"]
+  ["ocamlfind" "remove" "opium"]
+]
+
+depends: [
+  "ocamlfind"
+  "cohttp" {>= "0.12.0"}
+  "oasis"
+  "async"
+  "core"
+  "fieldslib"
+  "sexplib"
+  "humane-re"
+  "cow" {>= "0.10.0"}
+]
+
+ocaml-version: [>="4.01.0"]
