@@ -19,7 +19,7 @@ let int_of_meth = function
   | `HEAD    -> 4
   | `PATCH   -> 5
   | `OPTIONS -> 6
-  | _ -> failwith("non standard http verbs not supported")
+  | _        -> failwith "non standard http verbs not supported"
 
 let get t meth = t.(int_of_meth meth)
 
