@@ -30,7 +30,7 @@ let m auth =
     | None ->
       (* could redirect here, but we return user as an option type *)
       handler req
-    | Some (Cohttp.Auth.Basic (username, password)) ->
+    | Some (`Basic (username, password)) ->
       match auth ~username ~password with
       | None -> failwith "TODO: bad username/password pair"
       | Some user -> (* we have a user. let's add him to req *)
