@@ -124,6 +124,15 @@ Executable hello_world_basic
   Install:        false
   BuildDepends:   opium
 
+Executable hello_world_html
+  Build$:         flag(examples)
+  Path:           examples
+  MainIs:         hello_world_html.ml
+  Custom:         true
+  CompiledObject: best
+  Install:        false
+  BuildDepends:   opium, cow, cow.syntax, sexplib, sexplib.syntax
+
 Document opium_rock
   Title:                Opium rock docs
   Type:                 ocamlbuild (0.4)
