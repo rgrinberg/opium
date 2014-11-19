@@ -219,9 +219,15 @@ module Make (Router : App_intf.Router) = struct
     open Cow
     let json_exn req =
       req |> Request.body |> Cohttp_async.Body.to_string >>| Json.of_string
+    let string_exn req = 
+      req |> Request.body |> Cohttp_async.Body.to_string
+    let list_exn req = 
+      req |> Request.body |> Cohttp_async.Body.to_string >>| Uri.query_of_encoded
   end
 
   let json_of_body_exn = Request_helpers.json_exn
+  let string_of_body_exn = Request_helpers.string_exn
+  let list_of_body_exn = Request_helpers.list_exn
   let param            = Router.param
   let splat            = Router.splat
   let respond          = Response_helpers.respond

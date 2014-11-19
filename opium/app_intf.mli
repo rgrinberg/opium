@@ -86,6 +86,10 @@ module type S = sig
 
   val json_of_body_exn : Request.t -> Cow.Json.t Deferred.t
 
+  val string_of_body_exn : Request.t -> string Deferred.t
+
+  val list_of_body_exn : Request.t -> (string * string list) list Async_kernel.Deferred.t
+
   val param : Request.t -> string -> string
 
   val splat : Request.t -> string list
