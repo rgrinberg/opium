@@ -221,13 +221,13 @@ module Make (Router : App_intf.Router) = struct
       req |> Request.body |> Cohttp_async.Body.to_string >>| Json.of_string
     let string_exn req = 
       req |> Request.body |> Cohttp_async.Body.to_string
-    let list_exn req = 
+    let pairs_exn req = 
       req |> Request.body |> Cohttp_async.Body.to_string >>| Uri.query_of_encoded
   end
 
   let json_of_body_exn = Request_helpers.json_exn
   let string_of_body_exn = Request_helpers.string_exn
-  let list_of_body_exn = Request_helpers.list_exn
+  let urlencoded_pairs_of_body = Request_helpers.pairs_exn
   let param            = Router.param
   let splat            = Router.splat
   let respond          = Response_helpers.respond

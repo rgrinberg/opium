@@ -88,7 +88,7 @@ module type S = sig
 
   val string_of_body_exn : Request.t -> string Deferred.t
 
-  val list_of_body_exn : Request.t -> (string * string list) list Async_kernel.Deferred.t
+  val urlencoded_pairs_of_body : Request.t -> (string * string list) list Async_kernel.Deferred.t
 
   val param : Request.t -> string -> string
 
