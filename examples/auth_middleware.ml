@@ -30,6 +30,9 @@ let m auth =
     | None ->
       (* could redirect here, but we return user as an option type *)
       handler req
+    | Some `Other _ ->
+      (* handle other, non-basic authentication mechanisms *)
+      handler req
     | Some (`Basic (username, password)) ->
       match auth ~username ~password with
       | None -> failwith "TODO: bad username/password pair"
