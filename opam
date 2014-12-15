@@ -18,7 +18,7 @@ depends: [
   "ocamlfind"
   "cohttp" {>= "0.12.0"}
   "oasis"
-  "async"
+  "lwt"
   "core"
   "fieldslib"
   "sexplib"

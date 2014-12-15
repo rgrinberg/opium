@@ -1,2 +1,2 @@
 #!/bin/sh
-opam install -y oasis core async cohttp pcre-ocaml ounit fieldslib sexplib humane-re cow
+opam install -y oasis core lwt cohttp pcre-ocaml ounit fieldslib sexplib humane-re cow
