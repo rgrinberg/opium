@@ -1,7 +1,6 @@
 open Core.Std
 open Cohttp
 module Co = Cohttp
-module Server = Cohttp_lwt_unix.Server
 
 open Opium_misc
 

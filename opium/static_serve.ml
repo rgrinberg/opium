@@ -1,6 +1,5 @@
 open Core.Std
 open Opium_misc
-module Server = Cohttp_lwt_unix.Server
 
 module Rock = Opium_rock
 open Rock
