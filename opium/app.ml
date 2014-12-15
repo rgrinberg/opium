@@ -77,9 +77,9 @@ module Make (Router : App_intf.Router) = struct
 
   let any methods route action t =
     (if List.is_empty methods then
-       Lwt_log.warning_f
+       Lwt_log.ign_warning_f
          "Warning: you're using [any] attempting to bind to '%s' but your list
-        of http methods is empty route" route |> Lwt.ignore_result);
+        of http methods is empty route" route);
     let route = Router.Route.of_string route in
     methods |> List.fold_left ~init:t
                  ~f:(fun app meth -> app |> register ~meth ~route ~action)
@@ -93,8 +93,8 @@ module Make (Router : App_intf.Router) = struct
   let start app =
     let middlewares = attach_middleware app in
     if app.verbose then
-      Lwt_log.info_f "Running on port: %d%s" app.port
-        (if app.debug then " (debug)" else "") |> Lwt.ignore_result;
+      Lwt_log.ign_info_f "Running on port: %d%s" app.port
+        (if app.debug then " (debug)" else "");
     let port = app.port in
     let app = Rock.App.create ~middlewares ~handler:app.not_found in
     app |> Rock.App.run ~port |> Lwt_unix.run
@@ -151,7 +151,7 @@ module Make (Router : App_intf.Router) = struct
            end
           );
           (if debug || verbose then
-             Lwt_log.info_f "Listening on %s:%d" host port |> Lwt.ignore_result);
+             Lwt_log.ign_info_f "Listening on %s:%d" host port);
           app |> Rock.App.run ~port |> Lwt_main.run
         )
     end
