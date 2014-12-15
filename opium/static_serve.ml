@@ -24,7 +24,7 @@ let legal_path {prefix;local_path} requested =
 let public_serve t ~requested =
   match legal_path t requested with
   | None ->
-    let body = Cohttp_lwt_body.of_string error_body_default in
+    let body = Body.of_string error_body_default in
     return @@ Response.create ~body ~code:`Not_found ()
   | Some legal_path ->
     Server.respond_file ~fname:legal_path () >>| Response.of_response_body

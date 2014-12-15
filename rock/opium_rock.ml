@@ -24,11 +24,11 @@ end
 module Request = struct
   type t = {
     request: Cohttp.Request.t;
-    body: Cohttp_lwt_body.t;
+    body: Body.t;
     env: Univ_map.t;
   } with fields, sexp_of
 
-  let create ?(body=Cohttp_lwt_body.empty) ?(env=Univ_map.empty) request =
+  let create ?(body=Body.empty) ?(env=Univ_map.empty) request =
     { request; env ; body }
   let uri     { request; _ } = Co.Request.uri request
   let meth    { request; _ } = Co.Request.meth request
@@ -39,22 +39,20 @@ module Response = struct
   type t = {
     code: Code.status_code;
     headers: Header.t;
-    body: Cohttp_lwt_body.t;
+    body: Body.t;
     env: Univ_map.t
   } with fields, sexp_of
 
-  module B = Cohttp_lwt_body
-
   let default_header = Option.value ~default:(Header.init ())
 
-  let create ?(env=Univ_map.empty) ?(body=B.empty)
+  let create ?(env=Univ_map.empty) ?(body=Body.empty)
         ?headers ?(code=`OK) () =
     { code; env;
       headers=Option.value ~default:(Header.init ()) headers;
       body; }
 
   let of_string_body ?(env=Univ_map.empty) ?headers ?(code=`OK) body =
-    { env; code; headers=default_header headers; body=(B.of_string body) }
+    { env; code; headers=default_header headers; body=(Body.of_string body) }
 
   let of_response_body (resp, body) =
     let code = Response.status resp in

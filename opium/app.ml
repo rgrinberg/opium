@@ -3,7 +3,6 @@ open Opium_misc
 
 module Rock = Opium_rock
 open Rock
-module Co = Cohttp
 
 module Make (Router : App_intf.Router) = struct
   type t = {
@@ -200,11 +199,11 @@ module Make (Router : App_intf.Router) = struct
   module Request_helpers = struct
     open Cow
     let json_exn req =
-      req |> Request.body |> Cohttp_lwt_body.to_string >>| Json.of_string
-    let string_exn req = 
-      req |> Request.body |> Cohttp_lwt_body.to_string
+      req |> Request.body |> Body.to_string >>| Json.of_string
+    let string_exn req =
+      req |> Request.body |> Body.to_string
     let pairs_exn req =
-      req |> Request.body |> Cohttp_lwt_body.to_string >>| Uri.query_of_encoded
+      req |> Request.body |> Body.to_string >>| Uri.query_of_encoded
   end
 
   let json_of_body_exn         = Request_helpers.json_exn
