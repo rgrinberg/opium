@@ -1,5 +1,4 @@
 open Core.Std
-open Async.Std
 open Cow
 open Opium.Std
 

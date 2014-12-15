@@ -1,5 +1,5 @@
 open Core.Std
-open Async.Std
+open Opium_misc
 
 module Rock = Opium_rock
 open Rock
@@ -78,10 +78,9 @@ module Make (Router : App_intf.Router) = struct
 
   let any methods route action t =
     (if List.is_empty methods then
-       Log.Global.debug
+       Lwt_log.warning_f
          "Warning: you're using [any] attempting to bind to '%s' but your list
-        of http methods is empty route"
-         route);
+        of http methods is empty route" route |> Lwt.ignore_result);
     let route = Router.Route.of_string route in
     methods |> List.fold_left ~init:t
                  ~f:(fun app meth -> app |> register ~meth ~route ~action)
@@ -92,21 +91,20 @@ module Make (Router : App_intf.Router) = struct
     Rock.App.create ~middlewares:(attach_middleware app)
       ~handler:(app.not_found)
 
-  let start ?(on_handler_error=`Ignore) app =
+  let start app =
     let middlewares = attach_middleware app in
     if app.verbose then
-      Log.Global.info "Running on port: %d%s" app.port
-        (if app.debug then " (debug)" else "");
+      Lwt_log.info_f "Running on port: %d%s" app.port
+        (if app.debug then " (debug)" else "") |> Lwt.ignore_result;
     let port = app.port in
     let app = Rock.App.create ~middlewares ~handler:app.not_found in
-    app |> Rock.App.run ~port ~on_handler_error >>| ignore |> don't_wait_for;
-    Scheduler.go ()
+    app |> Rock.App.run ~port |> Lwt_unix.run
 
   type 'a runner = int -> string -> bool -> bool -> bool -> bool -> bool -> bool -> 'a
-  type 'a action = (unit -> 'a Deferred.t) runner
+  type 'a action = (unit -> unit) runner
   type 'a spec = ('a runner, 'a) Command.Spec.t
 
-  let spec ?(on_handler_error=`Ignore) app' =
+  let spec app' =
     let summary = name app' in
     let open Command.Spec in
     object
@@ -130,17 +128,6 @@ module Make (Router : App_intf.Router) = struct
           ignore_e raise_e () ->
           let app' = { app' with debug ; verbose } in
           let app = to_rock app' in
-          let err s =
-            print_endline s;
-            Shutdown.exit 1
-          in
-          let on_handler_error =
-            match ignore_e, raise_e with
-            | true, true   -> err "cannot provide both ignore and raise"
-            | true, false  -> return `Ignore
-            | false, true  -> return `Raise
-            | false, false -> return on_handler_error in
-          on_handler_error >>= fun on_handler_error ->
           (if print_routes then begin
              let routes_tbl = Hashtbl.Poly.create () in
              app' |> routes |> List.iter ~f:(fun (meth, route, _) ->
@@ -152,7 +139,7 @@ module Make (Router : App_intf.Router) = struct
                   |> List.map ~f:Cohttp.Code.string_of_method
                   |> String.concat ~sep:" ")
              );
-             don't_wait_for @@ Shutdown.exit 0;
+             Unix.exit_immediately 0;
            end;
            if print_middleware then begin
              print_endline "Active middleware:";
@@ -161,23 +148,18 @@ module Make (Router : App_intf.Router) = struct
              |> List.map ~f:(Fn.compose Info.to_string_hum Rock.Middleware.name)
              |> List.iter ~f:(fun name ->
                printf "> %s \n" name);
-             don't_wait_for @@ Shutdown.exit 0;
+             Unix.exit_immediately 0
            end
           );
           (if debug || verbose then
-             Log.Global.info "Listening on %s:%s" host (Int.to_string port));
-          (* for now we will ignore errors in the on_handler_error because
-             they are revealed using the debug middleware anyway *)
-          app |> Rock.App.run ~port ~on_handler_error
-          >>| ignore >>= never
+             Lwt_log.info_f "Listening on %s:%d" host port |> Lwt.ignore_result);
+          app |> Rock.App.run ~port |> Lwt_main.run
         )
     end
 
-  let command ?on_handler_error app =
-    let spec = spec ?on_handler_error app in
-    Command.async_basic
-      ~summary:spec#summary
-      spec#spec spec#action
+  let command app =
+    let spec = spec app in
+    Command.basic ~summary:spec#summary spec#spec spec#action
 
   type body = [
     | `Html of Cow.Html.t
@@ -218,11 +200,11 @@ module Make (Router : App_intf.Router) = struct
   module Request_helpers = struct
     open Cow
     let json_exn req =
-      req |> Request.body |> Cohttp_async.Body.to_string >>| Json.of_string
+      req |> Request.body |> Cohttp_lwt_body.to_string >>| Json.of_string
     let string_exn req = 
-      req |> Request.body |> Cohttp_async.Body.to_string
+      req |> Request.body |> Cohttp_lwt_body.to_string
     let pairs_exn req =
-      req |> Request.body |> Cohttp_async.Body.to_string >>| Uri.query_of_encoded
+      req |> Request.body |> Cohttp_lwt_body.to_string >>| Uri.query_of_encoded
   end
 
   let json_of_body_exn         = Request_helpers.json_exn

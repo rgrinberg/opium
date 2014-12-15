@@ -1,10 +1,12 @@
 open Core.Std
-open Async.Std
 open Cohttp
 module Co = Cohttp
+module Server = Cohttp_lwt_unix.Server
+
+open Opium_misc
 
 module Service = struct
-  type ('req, 'rep) t = 'req -> 'rep Deferred.t with sexp
+  type ('req, 'rep) t = 'req -> 'rep Lwt.t with sexp
   let id req = return req
   let const resp = Fn.compose return (Fn.const resp)
 end
@@ -22,11 +24,11 @@ end
 module Request = struct
   type t = {
     request: Cohttp.Request.t;
-    body: Cohttp_async.Body.t;
+    body: Cohttp_lwt_body.t;
     env: Univ_map.t;
   } with fields, sexp_of
 
-  let create ?(body=Cohttp_async.Body.empty) ?(env=Univ_map.empty) request =
+  let create ?(body=Cohttp_lwt_body.empty) ?(env=Univ_map.empty) request =
     { request; env ; body }
   let uri     { request; _ } = Co.Request.uri request
   let meth    { request; _ } = Co.Request.meth request
@@ -37,11 +39,11 @@ module Response = struct
   type t = {
     code: Code.status_code;
     headers: Header.t;
-    body: Cohttp_async.Body.t;
+    body: Cohttp_lwt_body.t;
     env: Univ_map.t
   } with fields, sexp_of
 
-  module B = Cohttp_async.Body
+  module B = Cohttp_lwt_body
 
   let default_header = Option.value ~default:(Header.init ())
 
@@ -53,6 +55,11 @@ module Response = struct
 
   let of_string_body ?(env=Univ_map.empty) ?headers ?(code=`OK) body =
     { env; code; headers=default_header headers; body=(B.of_string body) }
+
+  let of_response_body (resp, body) =
+    let code = Response.status resp in
+    let headers = Response.headers resp in
+    create ~code ~headers ~body ()
 end
 
 module Handler = struct
@@ -101,27 +108,20 @@ module App = struct
     handler: Handler.t;
   } with fields, sexp_of
 
-  type error_handler = [
-    | `Call of Socket.Address.Inet.t -> exn -> unit
-    | `Ignore
-    | `Raise ] with sexp_of
-
   let append_middleware t m =
     { t with middlewares=(t.middlewares @ [m]) }
 
   let create ?(middlewares=[]) ~handler = { middlewares; handler }
 
-  let run ?on_handler_error { handler; middlewares } ~port =
-    let module Server = Cohttp_async.Server in
-    let middlewares = middlewares
-                      |> List.map ~f:Middleware.filter
-    in
-    Server.create
-      ?on_handler_error (Tcp.on_port port)
-      begin fun ~body sock req ->
+  let run { handler; middlewares } ~port =
+    let middlewares = middlewares |> List.map ~f:Middleware.filter in
+    Server.create ~mode:(`TCP (`Port port)) {
+      Server.callback=(fun _ req body ->
         let req = Request.create ~body req in
         let handler = Filter.apply_all middlewares handler in
         handler req >>= fun { Response.code; headers; body } ->
-        Server.respond ~headers ~body code
-      end
+        Server.respond ~headers ~body ~status:code ()
+      );
+      conn_closed=(fun _ () -> ());
+    }
 end

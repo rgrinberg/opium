@@ -1,5 +1,6 @@
 open Core.Std
-open Async.Std
+open Opium_misc
+module Server = Cohttp_lwt_unix.Server
 
 module Rock = Opium_rock
 open Rock
@@ -12,18 +13,6 @@ type t = {
 let error_body_default =
   "<html><body><h1>404 Not Found</h1></body></html>"
 
-let pipe_of_file ?error_body filename =
-  Monitor.try_with ~run:`Now
-    (fun () ->
-       Reader.open_file filename
-       >>| fun rd ->
-       `Ok (Reader.pipe rd))
-  >>| function
-  | Ok res -> res
-  | Error exn ->
-    let body = Option.value ~default:error_body_default error_body in
-    `Not_found (Pipe.of_list [body])
-
 let legal_path {prefix;local_path} requested = 
   let open Option in
   String.chop_prefix requested ~prefix >>= fun p ->
@@ -35,14 +24,10 @@ let legal_path {prefix;local_path} requested =
 let public_serve t ~requested =
   match legal_path t requested with
   | None ->
-    let body = Cohttp_async.Body.of_string error_body_default in
+    let body = Cohttp_lwt_body.of_string error_body_default in
     return @@ Response.create ~body ~code:`Not_found ()
   | Some legal_path ->
-    pipe_of_file legal_path
-    >>| function
-    | `Ok body -> Response.create ~body:(Cohttp_async.Body.of_pipe body) ()
-    | `Not_found body -> Response.create ~body:(Cohttp_async.Body.of_pipe body)
-                           ~code:`Not_found ()
+    Server.respond_file ~fname:legal_path () >>| Response.of_response_body
 
 let m ~local_path ~uri_prefix =
   let filter handler req =

@@ -4,12 +4,11 @@
     more straightforward *)
 
 open Core.Std
-open Async.Std
 
 (** A service is simply a function that returns it's result
     asynchronously *)
 module Service : sig
-  type ('req, 'rep) t = 'req -> 'rep Deferred.t with sexp
+  type ('req, 'rep) t = 'req -> 'rep Lwt.t with sexp
 
   val id : ('a, 'a) t
   val const : 'rep -> (_, 'rep) t
@@ -40,14 +39,14 @@ end
 module Request : sig
   type t = {
     request: Cohttp.Request.t;
-    body:    Cohttp_async.Body.t;
+    body:    Cohttp_lwt_body.t;
     env:     Univ_map.t;
   } with fields, sexp_of
 
-  val create : ?body:Cohttp_async.Body.t
+  val create : ?body:Cohttp_lwt_body.t
     -> ?env:Univ_map.t
     -> Cohttp.Request.t -> t
-  (** Convenenice accessors on the request field  *)
+  (** Convenience accessors on the request field  *)
   val uri : t -> Uri.t
   val meth : t -> Cohttp.Code.meth
   val headers : t -> Cohttp.Header.t
@@ -57,13 +56,13 @@ module Response : sig
   type t = {
     code:    Cohttp.Code.status_code;
     headers: Cohttp.Header.t;
-    body:    Cohttp_async.Body.t;
+    body:    Cohttp_lwt_body.t;
     env:     Univ_map.t
   } with fields, sexp_of
 
   val create :
     ?env: Univ_map.t ->
-    ?body:Cohttp_async.Body.t ->
+    ?body:Cohttp_lwt_body.t ->
     ?headers:Cohttp.Header.t ->
     ?code:Cohttp.Code.status_code ->
     unit -> t
@@ -73,6 +72,8 @@ module Response : sig
     ?headers:Cohttp.Header.t ->
     ?code:Cohttp.Code.status_code ->
     string -> t
+
+  val of_response_body : Cohttp.Response.t * Cohttp_lwt_body.t -> t
 end
 
 (** A handler is a rock specific service *)
@@ -104,16 +105,5 @@ module App : sig
 
   val create : ?middlewares:Middleware.t list -> handler:Handler.t -> t
 
-  (** This is a type from core that is only here because we need to refer
-     to it in a couple of places *)
-  type error_handler = [
-    | `Call of Socket.Address.Inet.t -> exn -> unit
-    | `Ignore
-    | `Raise ] with sexp_of
-
-  val run :
-    ?on_handler_error:error_handler ->
-    t -> port:int ->
-    (Socket.Address.Inet.t, int) Cohttp_async.Server.t
-      Deferred.t
+  val run : t -> port:int -> unit Lwt.t
 end

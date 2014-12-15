@@ -19,11 +19,12 @@ Flag examples
 Library opium_rock
   Path:         rock
   Findlibname:  opium_rock
-  Modules:      Opium_rock
+  Modules:      Opium_rock, Opium_misc
   BuildDepends: threads,
                 core,
-                async,
-                cohttp.async,
+                lwt,
+                lwt.unix,
+                cohttp.lwt,
                 fieldslib,
                 fieldslib.syntax,
                 sexplib,
@@ -42,7 +43,8 @@ Library opium
                    Debug,
                    App,
                    App_intf
-  BuildDepends: opium_rock,
+  BuildDepends: threads,
+                opium_rock,
                 humane_re,
                 cow,
                 cow.syntax

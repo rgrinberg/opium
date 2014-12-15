@@ -1,5 +1,4 @@
 open Core.Std
-open Async.Std
 open Opium.Std
 
 let e1 = get "/version" (fun req -> (`String "testing") |> respond')
@@ -30,7 +29,7 @@ let set_cookie = get "/set/:key/:value" begin fun req ->
 end
 
 let get_cookie = get "/get/:key" begin fun req ->
-  Log.Global.info "Getting cookie";
+  Lwt_log.info "Getting cookie" |> Lwt.ignore_result;
   let key = param req "key" in
   let message = sprintf "Cookie %s doesn't exist" key in
   let value = Option.value_exn ~message (Cookie.get req ~key) in
@@ -53,7 +52,7 @@ end
 
 (* exceptions should be nicely formatted *)
 let throws = get "/yyy" (fun req ->
-  Log.Global.info "Crashing...";
+  Lwt_log.info "Crashing..." |> Lwt.ignore_result;
   failwith "expected failure!")
 
 (* TODO: a static path will not be overriden. bug? *)

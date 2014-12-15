@@ -1,5 +1,4 @@
 open Core.Std
-open Async.Std
 open Opium.Std
 
 let uppercase =
@@ -7,9 +6,7 @@ let uppercase =
     handler req >>| fun response ->
     response
     |> Response.body
-    |> Cohttp_async.Body.to_pipe
-    |> Pipe.map ~f:String.uppercase
-    |> Cohttp_async.Body.of_pipe
+    |> Cohttp_lwt_body.map ~f:String.uppercase
     |> Field.fset Response.Fields.body response
   in
   Rock.Middleware.create ~name:(Info.of_string "uppercaser") ~filter

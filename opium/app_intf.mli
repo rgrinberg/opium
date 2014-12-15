@@ -6,7 +6,6 @@
     - Automatic generation of a command line app
 *)
 open Core.Std
-open Async.Std
 open Opium_rock
 
 (** You may provide your own router by implementing the following
@@ -48,7 +47,7 @@ module type S = sig
       [methods] *)
   val any : Cohttp.Code.meth list -> route
   (** all [methods] will bind a route to a URL regardless of the http method.
-      You may espcape the actual method used from the request passed. *)
+      You may escape the actual method used from the request passed. *)
   val all : route
 
   val action : Cohttp.Code.meth -> route
@@ -58,24 +57,18 @@ module type S = sig
   (** Convert an opium app to a rock app *)
   val to_rock : t -> Opium_rock.App.t
 
-  val start : ?on_handler_error:Opium_rock.App.error_handler -> t -> never_returns
+  val start : t -> unit
 
   (** Create a core command from an opp *)
-  val command : ?on_handler_error:Opium_rock.App.error_handler
-    -> t -> Command.t
+  val command : t -> Command.t
 
   type 'a runner = int -> string -> bool -> bool -> bool -> bool -> bool -> bool -> 'a
-  type 'a action = (unit -> 'a Deferred.t) runner
+  type 'a action = (unit -> unit) runner
   type 'a spec = ('a runner, 'a) Command.Spec.t
 
   (** Returns the command spec for the opium and the original runner. Used for
    * customizing own command line options*)
-  val spec: ?on_handler_error:Opium_rock.App.error_handler
-    -> t -> <
-      summary: string;
-      spec: 'a Deferred.t spec;
-      action: 'a action;
-    >
+  val spec: t -> < summary: string; spec: 'a Lwt.t spec; action: 'a action; >
 
   (** Convenience functions for a running opium app *)
   type body = [
@@ -84,11 +77,11 @@ module type S = sig
     | `Xml of Cow.Xml.t
     | `String of string ]
 
-  val json_of_body_exn : Request.t -> Cow.Json.t Deferred.t
+  val json_of_body_exn : Request.t -> Cow.Json.t Lwt.t
 
-  val string_of_body_exn : Request.t -> string Deferred.t
+  val string_of_body_exn : Request.t -> string Lwt.t
 
-  val urlencoded_pairs_of_body : Request.t -> (string * string list) list Async_kernel.Deferred.t
+  val urlencoded_pairs_of_body : Request.t -> (string * string list) list Lwt.t
 
   val param : Request.t -> string -> string
 
@@ -103,7 +96,7 @@ module type S = sig
   val respond' : ?headers:Cohttp.Header.t
     -> ?code:Cohttp.Code.status_code
     -> body
-    -> Response.t Deferred.t
+    -> Response.t Lwt.t
 
   val redirect : ?headers:Cohttp.Header.t
     -> Uri.t
@@ -112,5 +105,5 @@ module type S = sig
   (* Same as return (redirect ...) *)
   val redirect' : ?headers:Cohttp.Header.t
     -> Uri.t
-    -> Response.t Deferred.t
+    -> Response.t Lwt.t
 end

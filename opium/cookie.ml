@@ -1,5 +1,5 @@
 open Core.Std
-open Async.Std
+let (>>|) = Lwt.(>|=)
 module Co = Cohttp
 module B64 = Co.Base64
 module Rock = Opium_rock

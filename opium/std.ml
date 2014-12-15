@@ -23,3 +23,5 @@ let all = App.all
 let any = App.any
 
 let middleware = App.middleware
+
+include Opium_misc
