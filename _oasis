@@ -31,18 +31,18 @@ Library opium_rock
                 sexplib.syntax
 
 Library opium
-  Path:            opium
-  Pack:            true
-  Findlibname:     opium
-  Modules:         Std,
-                   Cookie,
-                   Middleware_pack,
-                   Simple_route,
-                   Router,
-                   Static_serve,
-                   Debug,
-                   App,
-                   App_intf
+  Path:        opium
+  Pack:        true
+  Findlibname: opium
+  Modules:     Std,
+               Cookie,
+               Middleware_pack,
+               Simple_route,
+               Router,
+               Static_serve,
+               Debug,
+               App,
+               App_intf
   BuildDepends: threads,
                 opium_rock,
                 humane_re,
