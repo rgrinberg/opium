@@ -38,7 +38,8 @@ end
 
 let splat_route = get "/testing/*/:p" begin fun req ->
   let p = param req "p" in
-  `String (sprintf "__ %s __" p ^ (splat req |> String.concat ~sep:":")) |> respond'
+  `String (sprintf "__ %s __" p ^ (req |> splat |> String.concat ~sep:":"))
+  |> respond'
 end
 
 let all_cookies = get "/cookies" begin fun req ->
@@ -52,7 +53,7 @@ end
 
 (* exceptions should be nicely formatted *)
 let throws = get "/yyy" (fun req ->
-  Lwt_log.info "Crashing..." |> Lwt.ignore_result;
+  Lwt_log.warning "Crashing..." |> Lwt.ignore_result;
   failwith "expected failure!")
 
 (* TODO: a static path will not be overriden. bug? *)
