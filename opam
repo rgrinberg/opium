@@ -1,29 +1,44 @@
-opam-version: "1"
+opam-version: "1.2"
 maintainer: "rudi.grinberg@gmail.com"
 authors: ["Rudi Grinberg"]
 license: "MIT"
 
+homepage: "https://github.com/rgrinberg/opium"
+bug-reports: "https://github.com/rgrinberg/opium/issues"
+dev-repo: "https://github.com/rgrinberg/opium.git"
+
 build: [
-  [make "configure-no-tests"]
-  [make "build"]
-  [make "install"]
+  ["oasis" "setup"]
+  ["ocaml" "setup.ml" "-configure"]
+  ["ocaml" "setup.ml" "-build"]
 ]
+
+install: ["ocaml" "setup.ml" "-install"]
 
 remove: [
   ["ocamlfind" "remove" "opium_rock"]
   ["ocamlfind" "remove" "opium"]
 ]
 
+build-doc: ["ocaml" "setup.ml" "-doc"]
+build-test: [
+  ["oasis" "setup"]
+  ["ocaml" "setup.ml" "-configure" "--enable-tests"]
+  ["ocaml" "setup.ml" "-build"]
+  ["ocaml" "setup.ml" "-test"]
+]
+
 depends: [
-  "ocamlfind"
+  "ocamlfind" {build}
   "cohttp" {>= "0.12.0"}
-  "oasis"
+  "oasis" {build}
   "lwt"
   "core"
   "fieldslib"
   "sexplib"
   "humane-re"
+  "ounit" {test}
   "cow" {>= "0.10.0"}
 ]
 
-ocaml-version: [>="4.01.0"]
+available: [ocaml-version >= "4.01.0"]
