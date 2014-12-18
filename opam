@@ -38,7 +38,7 @@ depends: [
   "sexplib"
   "humane-re"
   "ounit" {test}
-  "cow" {>= "0.10.0"}
+  "cow" {test}
 ]
 
 available: [ocaml-version >= "4.01.0"]

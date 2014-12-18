@@ -1,7 +1,7 @@
 open Core.Std
 let (>>|) = Lwt.(>|=)
 module Co = Cohttp
-module B64 = Co.Base64
+module B64 = Base64
 module Rock = Opium_rock
 
 let keyc =

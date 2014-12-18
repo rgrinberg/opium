@@ -72,12 +72,12 @@ module type S = sig
 
   (** Convenience functions for a running opium app *)
   type body = [
-    | `Html of Cow.Html.t
-    | `Json of Cow.Json.t
-    | `Xml of Cow.Xml.t
+    | `Html of string
+    | `Json of Ezjsonm.t
+    | `Xml of string
     | `String of string ]
 
-  val json_of_body_exn : Request.t -> Cow.Json.t Lwt.t
+  val json_of_body_exn : Request.t -> Ezjsonm.t Lwt.t
 
   val string_of_body_exn : Request.t -> string Lwt.t
 

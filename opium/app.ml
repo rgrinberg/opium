@@ -161,13 +161,12 @@ module Make (Router : App_intf.Router) = struct
     Command.basic ~summary:spec#summary spec#spec spec#action
 
   type body = [
-    | `Html of Cow.Html.t
-    | `Json of Cow.Json.t
-    | `Xml of Cow.Xml.t
+    | `Html of string
+    | `Json of Ezjsonm.t
+    | `Xml of string
     | `String of string ]
 
   module Response_helpers = struct
-    open Cow
 
     let content_type ct = Cohttp.Header.init_with "Content-Type" ct
     let json_header     = content_type "application/json"
@@ -179,11 +178,11 @@ module Make (Router : App_intf.Router) = struct
     let respond ?headers ?(code=`OK) = function
       | `String s -> respond_with_string ?headers ~code s
       | `Json s ->
-        respond_with_string ~code ~headers:json_header (Json.to_string s)
+        respond_with_string ~code ~headers:json_header (Ezjsonm.to_string s)
       | `Html s ->
-        respond_with_string ~code ~headers:html_header (Html.to_string s)
+        respond_with_string ~code ~headers:html_header s
       | `Xml s ->
-        respond_with_string ~code ~headers:xml_header (Xml.to_string s)
+        respond_with_string ~code ~headers:xml_header s
 
     let respond' ?headers ?code s =
       s |> respond ?headers ?code |> return
@@ -197,9 +196,8 @@ module Make (Router : App_intf.Router) = struct
   end
 
   module Request_helpers = struct
-    open Cow
     let json_exn req =
-      req |> Request.body |> Body.to_string >>| Json.of_string
+      req |> Request.body |> Body.to_string >>| Ezjsonm.from_string
     let string_exn req =
       req |> Request.body |> Body.to_string
     let pairs_exn req =

@@ -8,14 +8,16 @@ B _build/opium
 B _build/lib_test
 B _build/examples
 
+PKG base64
 PKG core
 PKG lwt
 PKG lwt.unix
 PKG cohttp.lwt
 PKG pcre
 PKG oUnit
-PKG cow
-PKG cow.syntax
+PKG ezjsonm
+# PKG cow
+# PKG cow.syntax
 PKG sexplib.syntax
 PKG fieldslib.syntax
 PKG humane_re

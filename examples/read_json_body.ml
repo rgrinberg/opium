@@ -1,5 +1,4 @@
 open Core.Std
-open Cow
 open Opium.Std
 
 let print_json req =

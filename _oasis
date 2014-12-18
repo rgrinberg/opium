@@ -46,8 +46,8 @@ Library opium
   BuildDepends: threads,
                 opium_rock,
                 humane_re,
-                cow,
-                cow.syntax
+                ezjsonm,
+                base64
 
 Library opium_pcre_route
   Build$:        flag(pcre)
@@ -133,7 +133,7 @@ Executable hello_world_html
   Custom:         true
   CompiledObject: best
   Install:        false
-  BuildDepends:   opium, cow, cow.syntax, sexplib, sexplib.syntax
+  BuildDepends:   opium, sexplib, sexplib.syntax
 
 Document opium_rock
   Title:                Opium rock docs
