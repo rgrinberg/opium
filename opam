@@ -30,8 +30,10 @@ build-test: [
 
 depends: [
   "ocamlfind" {build}
-  "cohttp" {>= "0.12.0"}
   "oasis" {build}
+  "cohttp" {>= "0.14.0"}
+  "ezjsonm" {>= "0.4.0"}
+  "base64"
   "lwt"
   "core"
   "fieldslib"
