@@ -1,12 +1,13 @@
-PRJ opium
 S rock
 S opium
 S lib_test
 S examples
+
 B _build/rock
 B _build/opium
 B _build/lib_test
 B _build/examples
+
 PKG core
 PKG lwt
 PKG lwt.unix
