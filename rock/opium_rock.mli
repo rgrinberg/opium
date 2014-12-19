@@ -3,7 +3,7 @@
     this to for such a tiny framework but it makes extensions a lot
     more straightforward *)
 
-open Core.Std
+open Core_kernel.Std
 
 (** A service is simply a function that returns it's result
     asynchronously *)

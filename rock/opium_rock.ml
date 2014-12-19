@@ -1,7 +1,5 @@
-open Core.Std
+open Core_kernel.Std
 open Cohttp
-module Co = Cohttp
-
 open Opium_misc
 
 module Service = struct
@@ -22,7 +20,7 @@ end
 
 module Request = struct
   type t = {
-    request: Cohttp.Request.t;
+    request: Co.Request.t;
     body: Body.t;
     env: Univ_map.t;
   } with fields, sexp_of
