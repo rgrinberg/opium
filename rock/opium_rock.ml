@@ -118,6 +118,6 @@ module App = struct
         let handler = Filter.apply_all middlewares handler in
         handler req >>= fun { Response.code; headers; body } ->
         Server.respond ~headers ~body ~status:code ()
-      ) ?conn_closed:None
+      ) ()
     )
 end
