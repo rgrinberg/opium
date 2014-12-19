@@ -143,7 +143,6 @@ Document opium_rock
   XOCamlbuildPath:      rock
   XOCamlbuildLibraries: opium_rock
 
-
 Document opium
   Title:                Opium docs
   Type:                 ocamlbuild (0.4)
