@@ -17,18 +17,17 @@ Flag examples
   Default:     false
 
 Library opium_rock
-  Path:         rock
-  Findlibname:  opium_rock
-  Modules:      Opium_rock, Opium_misc
-  BuildDepends: threads,
-                core,
-                lwt,
-                lwt.unix,
-                cohttp.lwt,
-                fieldslib,
-                fieldslib.syntax,
-                sexplib,
-                sexplib.syntax
+  Path:          rock
+  Findlibname:   opium_rock
+  Modules:       Opium_rock, Opium_misc
+  XMETARequires: core_kernel, lwt, cohttp.lwt, fieldslib, sexplib
+  BuildDepends:  core_kernel,
+                 lwt,
+                 cohttp.lwt,
+                 fieldslib,
+                 fieldslib.syntax,
+                 sexplib,
+                 sexplib.syntax
 
 Library opium
   Path:        opium
@@ -44,6 +43,7 @@ Library opium
                App,
                App_intf
   BuildDepends: threads,
+                core,
                 opium_rock,
                 humane_re,
                 ezjsonm,
@@ -65,7 +65,7 @@ Executable test_routes
   Custom:         true
   CompiledObject: best
   Install:        false
-  BuildDepends:   opium,oUnit
+  BuildDepends:   opium, core, oUnit
 
 Test test_routes
   Run$:             flag(tests)
