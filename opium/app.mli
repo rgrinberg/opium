@@ -8,6 +8,10 @@
 open Core.Std
 open Opium_rock
 
+(** You may provide your own router by implementing the following
+    signature. The default app is instantiated with [Opium.Router] *)
+module type Router = module type of Router
+
 (** An opium app is a simple builder wrapper around a rock app *)
 type t with sexp_of
 
