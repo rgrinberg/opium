@@ -102,12 +102,40 @@ type 'a runner = int -> string -> bool -> bool -> bool -> bool -> bool -> bool -
 type 'a action = (unit -> unit) runner
 type 'a spec = ('a runner, 'a) Command.Spec.t
 
+let cmd_run app' port host print_routes print_middleware debug verbose ignore_e raise_e () =
+  let app' = { app' with debug ; verbose } in
+  let app = to_rock app' in
+  (if print_routes then begin
+     let routes_tbl = Hashtbl.Poly.create () in
+     app' |> routes |> List.iter ~f:(fun (meth, route, _) ->
+       Hashtbl.add_multi routes_tbl ~key:route ~data:meth);
+     printf "%d Routes:\n" (Hashtbl.length routes_tbl);
+     Hashtbl.iter routes_tbl ~f:(fun ~key ~data ->
+       printf "> %s (%s)\n" (Router.Route.to_string key)
+         (data
+          |> List.map ~f:Cohttp.Code.string_of_method
+          |> String.concat ~sep:" ")
+     );
+     Unix.exit_immediately 0;
+   end;
+   if print_middleware then begin
+     print_endline "Active middleware:";
+     app
+     |> Rock.App.middlewares
+     |> List.map ~f:(Fn.compose Info.to_string_hum Rock.Middleware.name)
+     |> List.iter ~f:(printf "> %s \n");
+     Unix.exit_immediately 0
+   end
+  );
+  (if debug || verbose then
+     Lwt_log.ign_info_f "Listening on %s:%d" host port);
+  app |> Rock.App.run ~port |> Lwt_main.run
+
 let spec app' =
   let summary = name app' in
   let open Command.Spec in
   object
     method summary = summary
-
     method spec =
       empty
       +> flag "-p" (optional_with_default 3000 int)
@@ -120,39 +148,7 @@ let spec app' =
       +> flag "-v" no_arg ~doc:"enable verbose mode"
       +> flag "-xi" no_arg ~doc:"Ignore errors (conflicts with -xr and -d)"
       +> flag "-xr" no_arg ~doc:"Raise on errors (conflicts with -xi)"
-
-    method action =
-      (fun port host print_routes print_middleware debug verbose
-        ignore_e raise_e () ->
-        let app' = { app' with debug ; verbose } in
-        let app = to_rock app' in
-        (if print_routes then begin
-           let routes_tbl = Hashtbl.Poly.create () in
-           app' |> routes |> List.iter ~f:(fun (meth, route, _) ->
-             Hashtbl.add_multi routes_tbl ~key:route ~data:meth);
-           printf "%d Routes:\n" (Hashtbl.length routes_tbl);
-           Hashtbl.iter routes_tbl ~f:(fun ~key ~data ->
-             printf "> %s (%s)\n" (Router.Route.to_string key)
-               (data
-                |> List.map ~f:Cohttp.Code.string_of_method
-                |> String.concat ~sep:" ")
-           );
-           Unix.exit_immediately 0;
-         end;
-         if print_middleware then begin
-           print_endline "Active middleware:";
-           app
-           |> Rock.App.middlewares
-           |> List.map ~f:(Fn.compose Info.to_string_hum Rock.Middleware.name)
-           |> List.iter ~f:(fun name ->
-             printf "> %s \n" name);
-           Unix.exit_immediately 0
-         end
-        );
-        (if debug || verbose then
-           Lwt_log.ign_info_f "Listening on %s:%d" host port);
-        app |> Rock.App.run ~port |> Lwt_main.run
-      )
+    method action = cmd_run app'
   end
 
 let command app =
