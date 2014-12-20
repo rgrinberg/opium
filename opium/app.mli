@@ -54,16 +54,8 @@ val to_rock : t -> Opium_rock.App.t
 
 val start : t -> unit
 
-(** Create a core command from an opp *)
-val command : t -> Command.t
-
-type 'a runner = int -> string -> bool -> bool -> bool -> bool -> bool -> bool -> 'a
-type 'a action = (unit -> unit) runner
-type 'a spec = ('a runner, 'a) Command.Spec.t
-
-(** Returns the command spec for the opium and the original runner. Used for
- * customizing own command line options*)
-val spec: t -> < summary: string; spec: 'a Lwt.t spec; action: 'a action; >
+(** Create a cmdliner command from an opp *)
+val run_command : t -> unit Cmdliner.Term.t
 
 (** Convenience functions for a running opium app *)
 type body = [

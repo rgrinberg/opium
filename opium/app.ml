@@ -1,4 +1,4 @@
-open Core.Std
+open Core_kernel.Std
 open Opium_misc
 
 module Rock = Opium_rock
@@ -98,11 +98,7 @@ let start app =
   let app = Rock.App.create ~middlewares ~handler:app.not_found in
   app |> Rock.App.run ~port |> Lwt_unix.run
 
-type 'a runner = int -> string -> bool -> bool -> bool -> bool -> bool -> bool -> 'a
-type 'a action = (unit -> unit) runner
-type 'a spec = ('a runner, 'a) Command.Spec.t
-
-let cmd_run app' port host print_routes print_middleware debug verbose ignore_e raise_e () =
+let cmd_run app' port host print_routes print_middleware debug verbose (errors : bool) =
   let app' = { app' with debug ; verbose } in
   let app = to_rock app' in
   (if print_routes then begin
@@ -116,7 +112,7 @@ let cmd_run app' port host print_routes print_middleware debug verbose ignore_e 
           |> List.map ~f:Cohttp.Code.string_of_method
           |> String.concat ~sep:" ")
      );
-     Unix.exit_immediately 0;
+     exit 0;
    end;
    if print_middleware then begin
      print_endline "Active middleware:";
@@ -124,36 +120,51 @@ let cmd_run app' port host print_routes print_middleware debug verbose ignore_e 
      |> Rock.App.middlewares
      |> List.map ~f:(Fn.compose Info.to_string_hum Rock.Middleware.name)
      |> List.iter ~f:(printf "> %s \n");
-     Unix.exit_immediately 0
+     exit 0
    end
   );
   (if debug || verbose then
      Lwt_log.ign_info_f "Listening on %s:%d" host port);
   app |> Rock.App.run ~port |> Lwt_main.run
 
-let spec app' =
-  let summary = name app' in
-  let open Command.Spec in
-  object
-    method summary = summary
-    method spec =
-      empty
-      +> flag "-p" (optional_with_default 3000 int)
-           ~doc:"port number to listen"
-      +> flag "-h" (optional_with_default "0.0.0.0" string)
-           ~doc:"interface to listen"
-      +> flag "-r" no_arg ~doc: "print routes"
-      +> flag "-m" no_arg ~doc:"print middleware stack"
-      +> flag "-d" no_arg ~doc:"enable debug information"
-      +> flag "-v" no_arg ~doc:"enable verbose mode"
-      +> flag "-xi" no_arg ~doc:"Ignore errors (conflicts with -xr and -d)"
-      +> flag "-xr" no_arg ~doc:"Raise on errors (conflicts with -xi)"
-    method action = cmd_run app'
-  end
+module Cmds = struct
+  open Cmdliner
 
-let command app =
-  let spec = spec app in
-  Command.basic ~summary:spec#summary spec#spec spec#action
+  let routes =
+    let doc = "print routes" in
+    Arg.(value & flag & info ["r"; "routes"] ~doc)
+  let middleware =
+    let doc = "print middleware stack" in
+    Arg.(value & flag & info ["m"; "middlware"] ~doc)
+  let port =
+    let doc = "port" in
+    Arg.(value & opt int 8080 & info ["m"; "middleware"] ~doc)
+  let interface =
+    let doc = "interface" in
+    Arg.(value & opt string "0.0.0.0" & info ["i"; "interface"] ~doc)
+  let debug =
+    let doc = "enable debug information" in
+    Arg.(value & flag & info ["d"; "debug"] ~doc)
+  let verbose =
+    let doc = "enable verbose mode" in
+    Arg.(value & flag & info ["v"; "verbose"] ~doc)
+  let errors =
+    let doc = "raise on errors. default is print" in
+    Arg.(value & flag & info ["f"; "fatal"] ~doc)
+end
+
+let run_command =
+  let open Cmds in
+  let open Cmdliner.Term in
+  fun app -> pure cmd_run
+             $ (pure app)
+             $ port
+             $ interface
+             $ routes
+             $ middleware
+             $ debug
+             $ verbose
+             $ errors
 
 type body = [
   | `Html of string

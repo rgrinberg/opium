@@ -15,6 +15,5 @@ let _ = App.empty
         |> middleware uppercase
         |> get "/hello" (fun req -> `String ("Hello World") |> respond')
         |> App.cmd_name "Uppercaser"
-        |> App.command
-        |> Command.run
+        |> App.run_command
 

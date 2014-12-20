@@ -1,4 +1,4 @@
-open Core.Std
+open Core_kernel.Std
 open Opium.Std
 
 let e1 = get "/version" (fun req -> (`String "testing") |> respond')
@@ -74,5 +74,5 @@ let app =
   |> middleware (Middleware_pack.static ~local_path:"./" ~uri_prefix:"/public")
   |> splat_route
 
-let () =
-  app |> App.command |> Command.run
+let _ =
+  app |> App.run_command

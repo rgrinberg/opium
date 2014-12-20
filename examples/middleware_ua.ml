@@ -1,4 +1,4 @@
-open Core.Std
+open Core_kernel.Std
 open Opium.Std
 (* don't open cohttp and opium since they both define
    request/response modules*)
@@ -18,6 +18,5 @@ let _ = App.empty
         |> get "/" (fun req -> `String ("Hello World") |> respond')
         |> middleware @@ reject_ua ~f:(is_substring ~substring:"MSIE")
         |> App.cmd_name "Reject UA"
-        |> App.command
-        |> Command.run
+        |> App.run_command
 

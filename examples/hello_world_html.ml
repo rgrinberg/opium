@@ -21,5 +21,5 @@ open Opium.Std
 (* let () = *)
 (*   App.empty *)
 (*   |> hello *)
-(*   |> App.command *)
+(*   |> App.run_command *)
 (*   |> Command.run *)

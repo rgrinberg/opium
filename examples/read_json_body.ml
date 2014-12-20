@@ -8,6 +8,5 @@ let print_json req =
 let _ =
   App.empty
   |> post "/" print_json
-  |> App.command
-  |> Command.run
+  |> App.run_command
 

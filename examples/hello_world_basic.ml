@@ -5,5 +5,5 @@ let hello = get "/" (fun req -> `String "Hello World" |> respond')
 
 let () = App.empty
          |> hello
-         |> App.command
-         |> Command.run
+         |> App.run_command
+         |> ignore

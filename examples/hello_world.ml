@@ -1,4 +1,4 @@
-open Core.Std
+open Core_kernel.Std
 open Opium.Std
 
 type person = {
@@ -27,5 +27,4 @@ let _ =
   App.empty
   |> print_param
   |> print_person
-  |> App.command
-  |> Command.run
+  |> App.run_command
