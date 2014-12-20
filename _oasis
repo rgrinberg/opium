@@ -8,10 +8,6 @@ License:     MIT
 BuildTools:  ocamlbuild
 Plugins:     META (0.4)
 
-Flag pcre
-  Description: enable pcre routing lib
-  Default:     false
-
 Flag examples
   Description: enable compiling the examples
   Default:     false
@@ -40,23 +36,14 @@ Library opium
                Router,
                Static_serve,
                Debug,
-               App,
-               App_intf
-  BuildDepends: threads,
-                core,
+               App
+  BuildDepends: core,
+                threads,
                 opium_rock,
                 humane_re,
                 ezjsonm,
-                base64
-
-Library opium_pcre_route
-  Build$:        flag(pcre)
-  Install$:      flag(pcre)
-  Path:          opium
-  FindlibParent: opium
-  Findlibname:   pcre_route
-  Modules:       Pcre_route
-  BuildDepends:  core, pcre
+                base64,
+                cmdliner
 
 Executable test_routes
   Path:           lib_test
@@ -65,7 +52,7 @@ Executable test_routes
   Custom:         true
   CompiledObject: best
   Install:        false
-  BuildDepends:   opium, core, oUnit
+  BuildDepends:   opium, oUnit
 
 Test test_routes
   Run$:             flag(tests)
