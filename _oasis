@@ -37,7 +37,7 @@ Library opium
                Static_serve,
                Debug,
                App
-  BuildDepends: core,
+  BuildDepends: core_kernel,
                 threads,
                 opium_rock,
                 humane_re,
