@@ -96,7 +96,7 @@ let start app =
       (if app.debug then " (debug)" else "");
   let port = app.port in
   let app = Rock.App.create ~middlewares ~handler:app.not_found in
-  app |> Rock.App.run ~port |> Lwt_unix.run
+  app |> Rock.App.run ~port |> Lwt_main.run
 
 let cmd_run app' port host print_routes print_middleware debug verbose (errors : bool) =
   let app' = { app' with debug ; verbose } in
