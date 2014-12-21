@@ -66,7 +66,7 @@ Executable ex1
   Custom:         true
   CompiledObject: best
   Install:        false
-  BuildDepends:   opium
+  BuildDepends:   opium, cow
 
 Executable ex_hello_world
   Build$:         flag(examples)
@@ -120,7 +120,7 @@ Executable hello_world_html
   Custom:         true
   CompiledObject: best
   Install:        false
-  BuildDepends:   opium, cow, cow.syntax sexplib, sexplib.syntax
+  BuildDepends:   opium, cow, cow.syntax, sexplib, sexplib.syntax
 
 Document opium_rock
   Title:                Opium rock docs
