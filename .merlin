@@ -9,15 +9,15 @@ B _build/lib_test
 B _build/examples
 
 PKG base64
-PKG core
+PKG core_kernel
 PKG lwt
 PKG lwt.unix
 PKG cohttp.lwt
 PKG cmdliner
 PKG oUnit
 PKG ezjsonm
-# PKG cow
-# PKG cow.syntax
+PKG cow
+PKG cow.syntax
 PKG sexplib.syntax
 PKG fieldslib.syntax
 PKG humane_re
