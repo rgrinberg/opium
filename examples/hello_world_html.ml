@@ -14,7 +14,7 @@ let html_msg msg = <:html<
 >>
 
 let hello = get "/" (fun req ->
-  `Html (html_msg "Hello World" |> Cow.Html.to_string) 
+  `Html ("Hello World" |> html_msg |> Html.to_string)
   |> respond')
 
 let _ =
