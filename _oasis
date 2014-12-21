@@ -38,7 +38,6 @@ Library opium
                Debug,
                App
   BuildDepends: core_kernel,
-                threads,
                 opium_rock,
                 humane_re,
                 ezjsonm,
