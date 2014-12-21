@@ -1,4 +1,4 @@
-open Core.Std
+open Core_kernel.Std
 open Opium_misc
 open Opium_rock
 module Rock = Opium_rock

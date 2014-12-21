@@ -5,7 +5,7 @@
     - Easy handling of routes and bodies
     - Automatic generation of a command line app
 *)
-open Core.Std
+open Core_kernel.Std
 open Opium_rock
 
 (** An opium app is a simple builder wrapper around a rock app *)

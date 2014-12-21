@@ -1,4 +1,4 @@
-open Core.Std
+open Core_kernel.Std
 
 type path_segment =
   | Match of string

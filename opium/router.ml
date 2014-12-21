@@ -1,4 +1,4 @@
-open Core.Std
+open Core_kernel.Std
 
 module Co = Cohttp
 module Rock = Opium_rock

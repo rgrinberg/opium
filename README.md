@@ -42,7 +42,7 @@ Here's a simple hello world example to get your feet wet:
 `$ cat hello_world.ml`
 
 ```
-open Core.Std
+open Core_kernel.Std
 open Opium.Std
 
 type person = {
@@ -96,7 +96,7 @@ Here's how you'd create a simple middleware turning away everyone's
 favourite browser.
 
 ```
-open Core.Std
+open Core_kernel.Std
 open Opium.Std
 (* don't open cohttp and opium since they both define
    request/response modules*)

@@ -120,7 +120,7 @@ Executable hello_world_html
   Custom:         true
   CompiledObject: best
   Install:        false
-  BuildDepends:   opium, sexplib, sexplib.syntax
+  BuildDepends:   opium, cow, cow.syntax, sexplib, sexplib.syntax
 
 Document opium_rock
   Title:                Opium rock docs
