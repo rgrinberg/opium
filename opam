@@ -35,7 +35,8 @@ depends: [
   "ezjsonm" {>= "0.4.0"}
   "base64"
   "lwt"
-  "core"
+  "core_kernel"
+  "cmdliner"
   "fieldslib"
   "sexplib"
   "humane-re"
