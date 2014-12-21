@@ -155,16 +155,18 @@ end
 
 let run_command =
   let open Cmds in
+  let open Cmdliner in
   let open Cmdliner.Term in
-  fun app -> pure cmd_run
-             $ (pure app)
-             $ port
-             $ interface
-             $ routes
-             $ middleware
-             $ debug
-             $ verbose
-             $ errors
+  fun app ->
+    let cmd = pure cmd_run $ (pure app) $ port $ interface $ routes
+              $ middleware $ debug $ verbose $ errors in
+    let info =
+      let doc = "Opium Web App (TODO: name)" in
+      let man = [] in
+      Term.info "TODO: name" ~version:"1.6.1" ~doc ~man in
+    match Term.eval (cmd, info) with
+    | `Error _ -> exit 1
+    | _ -> exit 0
 
 type body = [
   | `Html of string
