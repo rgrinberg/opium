@@ -110,6 +110,12 @@ let print_routes_f routes =
        |> String.concat ~sep:" ")
   )
 
+let print_middleware_f middlewares =
+   print_endline "Active middleware:";
+   middlewares
+   |> List.map ~f:(Fn.compose Info.to_string_hum Rock.Middleware.name)
+   |> List.iter ~f:(printf "> %s \n")
+
 let cmd_run app' port host print_routes print_middleware debug verbose (errors : bool) =
   let app' = { app' with debug ; verbose } in
   let app = to_rock app' in
@@ -118,17 +124,13 @@ let cmd_run app' port host print_routes print_middleware debug verbose (errors :
      exit 0;
    end;
    if print_middleware then begin
-     print_endline "Active middleware:";
-     app
-     |> Rock.App.middlewares
-     |> List.map ~f:(Fn.compose Info.to_string_hum Rock.Middleware.name)
-     |> List.iter ~f:(printf "> %s \n");
+     app |> Rock.App.middlewares |> print_middleware_f;
      exit 0
    end
   );
   (if debug || verbose then
      Lwt_log.ign_info_f "Listening on %s:%d" host port);
-  app |> Rock.App.run ~port |> Lwt_main.run
+  app' |> start
 
 module Cmds = struct
   open Cmdliner
