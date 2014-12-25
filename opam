@@ -33,7 +33,7 @@ depends: [
   "oasis" {build}
   "cohttp" {>= "0.14.0"}
   "ezjsonm" {>= "0.4.0"}
-  "base64"
+  "base64" {>= "2.0.0"}
   "lwt"
   "core_kernel"
   "cmdliner"
