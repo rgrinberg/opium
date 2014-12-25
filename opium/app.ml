@@ -116,21 +116,21 @@ let print_middleware_f middlewares =
    |> List.map ~f:(Fn.compose Info.to_string_hum Rock.Middleware.name)
    |> List.iter ~f:(printf "> %s \n")
 
-let cmd_run app' port host print_routes print_middleware debug verbose (errors : bool) =
-  let app' = { app' with debug ; verbose } in
-  let app = to_rock app' in
+let cmd_run app port host print_routes print_middleware debug verbose (errors : bool) =
+  let app = { app with debug ; verbose ; port } in
+  let rock_app = to_rock app in
   (if print_routes then begin
-     app' |> routes |> print_routes_f;
+     app |> routes |> print_routes_f;
      exit 0;
    end;
    if print_middleware then begin
-     app |> Rock.App.middlewares |> print_middleware_f;
+     rock_app |> Rock.App.middlewares |> print_middleware_f;
      exit 0
    end
   );
   (if debug || verbose then
      Lwt_log.ign_info_f "Listening on %s:%d" host port);
-  app' |> start
+  app |> start
 
 module Cmds = struct
   open Cmdliner
@@ -143,7 +143,7 @@ module Cmds = struct
     Arg.(value & flag & info ["m"; "middlware"] ~doc)
   let port =
     let doc = "port" in
-    Arg.(value & opt int 8080 & info ["p"; "port"] ~doc)
+    Arg.(value & opt int empty.port & info ["p"; "port"] ~doc)
   let interface =
     let doc = "interface" in
     Arg.(value & opt string "0.0.0.0" & info ["i"; "interface"] ~doc)
