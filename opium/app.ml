@@ -41,8 +41,8 @@ let attach_middleware { verbose ; debug ; routes ; middlewares ; _  } =
   [ Some (routes |> create_router |> Router.m) ] @
   (List.map ~f:Option.some middlewares) @
   [
-    (if verbose then Some Middleware_pack.trace else None);
-    (if debug then Some Middleware_pack.debug else None);
+    (if verbose then Some Debug.trace else None);
+    (if debug then Some Debug.debug else None);
   ] |> List.filter_opt
 
 let port port t = { t with port }
