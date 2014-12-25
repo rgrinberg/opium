@@ -3,8 +3,15 @@ module Response        = Rock.Response
 module Request         = Rock.Request
 module Cookie          = Cookie
 module Router          = Router
-module Middleware_pack = Middleware_pack
 module App             = App
+
+module Middleware = struct
+  (** Re-exports simple middleware that doesn't have auxiliary
+      functions *)
+  let static = Static_serve.m
+  let debug = Debug.debug
+  let trace = Debug.trace
+end
 
 (* selectively export the most useful parts of App *)
 let param     = App.param

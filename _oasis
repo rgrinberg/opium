@@ -31,7 +31,6 @@ Library opium
   Findlibname: opium
   Modules:     Std,
                Cookie,
-               Middleware_pack,
                Simple_route,
                Router,
                Static_serve,
