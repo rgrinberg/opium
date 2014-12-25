@@ -143,7 +143,7 @@ module Cmds = struct
     Arg.(value & flag & info ["m"; "middlware"] ~doc)
   let port =
     let doc = "port" in
-    Arg.(value & opt int 8080 & info ["m"; "middleware"] ~doc)
+    Arg.(value & opt int 8080 & info ["p"; "port"] ~doc)
   let interface =
     let doc = "interface" in
     Arg.(value & opt string "0.0.0.0" & info ["i"; "interface"] ~doc)
