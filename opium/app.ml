@@ -87,7 +87,7 @@ let all = any [`GET;`POST;`DELETE;`PUT;`PATCH;`HEAD;`OPTIONS]
 
 let to_rock app =
   Rock.App.create ~middlewares:(attach_middleware app)
-    ~handler:(app.not_found)
+    ~handler:app.not_found
 
 let start app =
   let middlewares = attach_middleware app in
@@ -98,20 +98,23 @@ let start app =
   let app = Rock.App.create ~middlewares ~handler:app.not_found in
   app |> Rock.App.run ~port |> Lwt_main.run
 
+let print_routes_f routes =
+  let routes_tbl = Hashtbl.Poly.create () in
+  routes |> List.iter ~f:(fun (meth, route, _) ->
+    Hashtbl.add_multi routes_tbl ~key:route ~data:meth);
+  printf "%d Routes:\n" (Hashtbl.length routes_tbl);
+  Hashtbl.iter routes_tbl ~f:(fun ~key ~data ->
+    printf "> %s (%s)\n" (Router.Route.to_string key)
+      (data
+       |> List.map ~f:Cohttp.Code.string_of_method
+       |> String.concat ~sep:" ")
+  )
+
 let cmd_run app' port host print_routes print_middleware debug verbose (errors : bool) =
   let app' = { app' with debug ; verbose } in
   let app = to_rock app' in
   (if print_routes then begin
-     let routes_tbl = Hashtbl.Poly.create () in
-     app' |> routes |> List.iter ~f:(fun (meth, route, _) ->
-       Hashtbl.add_multi routes_tbl ~key:route ~data:meth);
-     printf "%d Routes:\n" (Hashtbl.length routes_tbl);
-     Hashtbl.iter routes_tbl ~f:(fun ~key ~data ->
-       printf "> %s (%s)\n" (Router.Route.to_string key)
-         (data
-          |> List.map ~f:Cohttp.Code.string_of_method
-          |> String.concat ~sep:" ")
-     );
+     app' |> routes |> print_routes_f;
      exit 0;
    end;
    if print_middleware then begin
