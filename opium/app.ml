@@ -96,7 +96,7 @@ let start app =
       (if app.debug then " (debug)" else "");
   let port = app.port in
   let app = Rock.App.create ~middlewares ~handler:app.not_found in
-  app |> Rock.App.run ~port |> Lwt_main.run
+  app |> Rock.App.run ~port
 
 let print_routes_f routes =
   let routes_tbl = Hashtbl.Poly.create () in
@@ -170,8 +170,9 @@ let run_command =
       let man = [] in
       Term.info "TODO: name" ~version:"1.6.1" ~doc ~man in
     match Term.eval (cmd, info) with
+    | `Ok a    -> Lwt_main.run a
     | `Error _ -> exit 1
-    | _ -> exit 0
+    | _        -> exit 0
 
 type body = [
   | `Html of string

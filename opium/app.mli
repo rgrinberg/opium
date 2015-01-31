@@ -52,10 +52,10 @@ val middleware : Middleware.t -> builder
 (** Convert an opium app to a rock app *)
 val to_rock : t -> Opium_rock.App.t
 
-val start : t -> unit
+val start : t -> unit Lwt.t
 
 (** Create a cmdliner command from an opp *)
-val run_command : t -> unit Cmdliner.Term.t
+val run_command : t -> unit
 
 (** Convenience functions for a running opium app *)
 type body = [
