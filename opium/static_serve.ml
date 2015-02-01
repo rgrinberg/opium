@@ -5,12 +5,9 @@ module Rock = Opium_rock
 open Rock
 
 type t = {
-  prefix: string;
+  prefix:     string;
   local_path: string;
 } with fields, sexp
-
-let error_body_default =
-  "<html><body><h1>404 Not Found</h1></body></html>"
 
 let legal_path {prefix;local_path} requested = 
   let open Option in
@@ -22,11 +19,12 @@ let legal_path {prefix;local_path} requested =
 
 let public_serve t ~requested =
   match legal_path t requested with
-  | None ->
-    let body = Body.of_string error_body_default in
-    return @@ Response.create ~body ~code:`Not_found ()
+  | None -> return `Not_found
   | Some legal_path ->
-    Server.respond_file ~fname:legal_path () >>| Response.of_response_body
+    Server.respond_file ~fname:legal_path () >>| fun resp ->
+    if resp |> fst |> Cohttp.Response.status = `Not_found
+    then `Not_found
+    else `Ok (Response.of_response_body resp)
 
 let m ~local_path ~uri_prefix =
   let filter handler req =
@@ -34,7 +32,9 @@ let m ~local_path ~uri_prefix =
       let local_map = { prefix=uri_prefix; local_path } in
       let local_path = req  |> Request.uri |> Uri.path in
       if local_path |> String.is_prefix ~prefix:uri_prefix then
-        public_serve local_map ~requested:local_path
+        public_serve local_map ~requested:local_path >>= function
+        | `Not_found -> handler req
+        | `Ok x -> return x
       else
         handler req
     else
