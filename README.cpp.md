@@ -41,7 +41,7 @@ Here's a simple hello world example to get your feet wet:
 
 `$ cat hello_world.ml`
 
-```
+``` ocaml
 #include "examples/hello_world.ml"
 ```
 
@@ -65,7 +65,7 @@ opium app.
 Here's how you'd create a simple middleware turning away everyone's
 favourite browser.
 
-```
+``` ocaml
 #include "examples/middleware_ua.ml"
 ```
 

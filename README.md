@@ -41,7 +41,7 @@ Here's a simple hello world example to get your feet wet:
 
 `$ cat hello_world.ml`
 
-```
+``` ocaml
 open Core_kernel.Std
 open Opium.Std
 
@@ -64,7 +64,7 @@ let print_person = get "/person/:name/:age" begin fun req ->
     name = param req "name";
     age = "age" |> param req |> Int.of_string;
   } in
-  `Json (person |> json_of_person |> Ezjsonm.wrap ) |> respond'
+  `Json (person |> json_of_person |> Ezjsonm.wrap) |> respond'
 end
 
 let _ =
@@ -72,7 +72,6 @@ let _ =
   |> print_param
   |> print_person
   |> App.run_command
-  |> Command.run
 ```
 
 compile with:
@@ -95,7 +94,7 @@ opium app.
 Here's how you'd create a simple middleware turning away everyone's
 favourite browser.
 
-```
+``` ocaml
 open Core_kernel.Std
 open Opium.Std
 (* don't open cohttp and opium since they both define
@@ -117,7 +116,6 @@ let _ = App.empty
         |> middleware @@ reject_ua ~f:(is_substring ~substring:"MSIE")
         |> App.cmd_name "Reject UA"
         |> App.run_command
-        |> Command.run
 
 ```
 
