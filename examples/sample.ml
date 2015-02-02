@@ -1,6 +1,5 @@
 open Core_kernel.Std
 open Opium.Std
-
 let e1 = get "/version" (fun req -> (`String "testing") |> respond')
 
 let e2 = get "/hello/:name" (fun req -> 
@@ -65,7 +64,7 @@ let app =
   App.empty
   |> e1
   |> e2
-  (* |> e3 *)
+  |> e3
   |> e4
   |> get_cookie
   |> set_cookie
