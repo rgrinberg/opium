@@ -50,7 +50,7 @@ let get req ~key =
 let set_cookies resp cookies =
   let env = Rock.Response.env resp in
   let current_cookies = current_cookies Rock.Response.Fields.env resp in
-  (* WRONG cookies not be just concatenated *)
+  (* WRONG cookies cannot just be concatenated *)
   let all_cookies = current_cookies @ cookies in
   { resp with Rock.Response.env=(Univ_map.set env Env.key all_cookies) }
 
