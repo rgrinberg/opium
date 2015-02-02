@@ -125,7 +125,7 @@ Compile with:
 $ corebuild -pkg opium middleware_ua.native
 ```
 
-Here we also use the ability of Opium to generate a core command to
+Here we also use the ability of Opium to generate a cmdliner command to
 run your app. Run your executable with the `-h` to see the options
 that are available to you. For example:
 
