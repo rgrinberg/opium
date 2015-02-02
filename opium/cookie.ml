@@ -1,5 +1,5 @@
 open Core_kernel.Std
-let (>>|) = Lwt.(>|=)
+open Opium_misc
 module Co = Cohttp
 module Rock = Opium_rock
 
