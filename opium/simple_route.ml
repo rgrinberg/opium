@@ -63,9 +63,9 @@ let rec match_url t url ({params; splat} as matches) =
   | (Match x)::t, (`Text y)::url when x = y -> match_url t url matches
   | Slash::t, (`Delim _)::url -> match_url t url matches
   | Splat::t, (`Text s)::url ->
-    match_url t url { matches with splat=(s::splat) }
+    match_url t url { matches with splat=((Uri.pct_decode s)::splat) }
   | (Param name)::t, (`Text p)::url ->
-    match_url t url {matches with params=(name, p)::params}
+    match_url t url { matches with params=(name, (Uri.pct_decode p))::params }
   | Splat::_, (`Delim _)::_
   | Param _::_, `Delim _::_
   | (Match _)::_, _
