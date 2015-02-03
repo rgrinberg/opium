@@ -88,6 +88,16 @@ let string_convert_2 _ =
 let string_convert_3 _ =
   assert_equal ~printer "/one/two/*/three" (str_t "/one/two/*/three")
 
+let escape_param_1 _ =
+  let r = O.Route.of_string "/:pp/*" in
+  match O.Route.match_url r "/%23/%23a" with
+  | None -> assert_failure "should match route"
+  | Some p ->
+    begin
+      assert_equal (O.Route.params p) [("pp", "#")];
+      assert_equal (O.Route.splat p) ["#a"]
+    end
+
 let test_fixtures =
   "test routes" >:::
   [
@@ -102,6 +112,7 @@ let test_fixtures =
     "test string conversion 1" >:: string_convert_1;
     "test string conversion 2" >:: string_convert_2;
     "test string conversion 3" >:: string_convert_3;
+    "test escape param" >:: escape_param_1;
   ]
 
 let _ = run_test_tt_main test_fixtures
