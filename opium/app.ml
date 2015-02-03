@@ -181,21 +181,21 @@ type body = [
 
 module Response_helpers = struct
 
-  let content_type ct = Cohttp.Header.init_with "Content-Type" ct
-  let json_header     = content_type "application/json"
-  let xml_header      = content_type "application/xml"
-  let html_header     = content_type "text/html"
+  let content_type ct h = Cohttp.Header.add_opt h "Content-Type" ct
+  let json_header       = content_type "application/json"
+  let xml_header        = content_type "application/xml"
+  let html_header       = content_type "text/html"
 
   let respond_with_string = Response.of_string_body
 
   let respond ?headers ?(code=`OK) = function
     | `String s -> respond_with_string ?headers ~code s
     | `Json s ->
-      respond_with_string ~code ~headers:json_header (Ezjsonm.to_string s)
+      respond_with_string ~code ~headers:(json_header headers) (Ezjsonm.to_string s)
     | `Html s ->
-      respond_with_string ~code ~headers:html_header s
+      respond_with_string ~code ~headers:(html_header headers) s
     | `Xml s ->
-      respond_with_string ~code ~headers:xml_header s
+      respond_with_string ~code ~headers:(xml_header headers) s
 
   let respond' ?headers ?code s =
     s |> respond ?headers ?code |> return
