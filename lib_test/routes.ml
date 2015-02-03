@@ -46,6 +46,11 @@ let splat_route1 _ =
     assert_equal (Route.splat matches) ["splat"]
   | None -> assert_failure "No matches for splat"
 
+let splat_route2 _ =
+  let r = O.Route.of_string "/*" in
+  match O.Route.match_url r "/abc/123" with
+  | None -> ()
+  | Some _ -> assert_failure "splat matches an extra path"
 
 let test_match_2_params _ =
   let r = O.Route.of_string "/xxx/:x/:y" in
@@ -107,6 +112,7 @@ let test_fixtures =
     "test match 2" >:: simple_route2;
     "test match 3" >:: simple_route3;
     "splat match 1" >:: splat_route1;
+    "splat match 2" >:: splat_route2;
     "test match 2 params" >:: test_match_2_params;
     "test empty route" >:: test_empty_route;
     "test string conversion 1" >:: string_convert_1;
