@@ -111,10 +111,10 @@ let print_routes_f routes =
   )
 
 let print_middleware_f middlewares =
-   print_endline "Active middleware:";
-   middlewares
-   |> List.map ~f:(Fn.compose Info.to_string_hum Rock.Middleware.name)
-   |> List.iter ~f:(printf "> %s \n")
+  print_endline "Active middleware:";
+  middlewares
+  |> List.map ~f:(Fn.compose Info.to_string_hum Rock.Middleware.name)
+  |> List.iter ~f:(printf "> %s \n")
 
 let cmd_run app port host print_routes print_middleware debug verbose (errors : bool) =
   let app = { app with debug ; verbose ; port } in
