@@ -128,8 +128,6 @@ let cmd_run app port host print_routes print_middleware debug verbose (errors : 
      exit 0
    end
   );
-  (if debug || verbose then
-     Lwt_log.ign_info_f "Listening on %s:%d" host port);
   app |> start
 
 module Cmds = struct
