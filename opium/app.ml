@@ -92,8 +92,9 @@ let to_rock app =
 let start app =
   let middlewares = attach_middleware app in
   if app.verbose then
-    Lwt_log.ign_info_f "Running on port: %d%s" app.port
-      (if app.debug then " (debug)" else "");
+    Lwt_log.(add_rule "*" Info);
+  Lwt_log.ign_info_f "Running on port: %d%s" app.port
+    (if app.debug then " (debug)" else "");
   let port = app.port in
   let app = Rock.App.create ~middlewares ~handler:app.not_found in
   app |> Rock.App.run ~port
