@@ -165,9 +165,9 @@ let run_command =
     let cmd = pure cmd_run $ (pure app) $ port $ interface $ routes
               $ middleware $ debug $ verbose $ errors in
     let info =
-      let doc = "Opium Web App (TODO: name)" in
+      let doc = sprintf "%s (Opium App)" app.name in
       let man = [] in
-      Term.info "TODO: name" ~version:"1.6.1" ~doc ~man in
+      Term.info app.name ~doc ~man in
     match Term.eval (cmd, info) with
     | `Ok a    -> Lwt_main.run a
     | `Error _ -> exit 1
