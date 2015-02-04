@@ -24,13 +24,21 @@ __NOTE__: At this point there's a good chance this library will only
 work against cohttp master. Once cohttp 1.0 is released then this
 library will always be developed against OPAM version.
 
-Make sure you have OPAM. Then clone this repo:
+### Stable
+
+The latest stable version is available on opam
 
 ```
-$ ./deps
-$ oasis setup
-$ make
-$ make install
+$ opam install opium
+```
+
+### Master
+
+If you'd like to live on the bleeding edge (which is sometimes more stable than
+stable)
+
+```
+$ opam pin add opium --dev-repo
 ```
 
 ## Examples
