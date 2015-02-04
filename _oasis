@@ -120,6 +120,15 @@ Executable hello_world_html
   Install:        false
   BuildDepends:   opium, cow, cow.syntax, sexplib, sexplib.syntax
 
+Executable auth_middleware
+  Build$:         flag(examples)
+  Path:           examples
+  MainIs:         auth_middleware.ml
+  Custom:         true
+  CompiledObject: best
+  Install:        false
+  BuildDepends:   opium
+
 Document opium_rock
   Title:                Opium rock docs
   Type:                 ocamlbuild (0.4)
