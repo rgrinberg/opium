@@ -18,7 +18,7 @@ let debug =
     Lwt.catch (fun () -> handler req) (fun _exn ->
       exn_ _exn;
       let body = format_error req _exn in
-      return @@ Response.of_string_body ~code:`Internal_server_error body)
+      Response.of_string_body ~code:`Internal_server_error body |> return)
   in Rock.Middleware.create ~name:(Info.of_string "Debug") ~filter
 
 let trace =

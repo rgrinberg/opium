@@ -60,12 +60,12 @@ end
 module Handler = struct
   type t = (Request.t, Response.t) Service.t with sexp_of
 
-  let default _ = return @@ Response.of_string_body "route failed (404)"
+  let default _ = return (Response.of_string_body "route failed (404)")
 
   let not_found _ =
-    return @@ Response.of_string_body
-                ~code:`Not_found
-                "<html><body><h1>404 - Not found</h1></body></html>"
+    return (Response.of_string_body
+              ~code:`Not_found
+              "<html><body><h1>404 - Not found</h1></body></html>")
 end
 
 module Middleware = struct
