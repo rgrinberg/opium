@@ -41,7 +41,8 @@ Library opium
                 humane_re,
                 ezjsonm,
                 base64,
-                cmdliner
+                cmdliner,
+                magic-mime
 
 Executable test_routes
   Path:           lib_test
