@@ -4,8 +4,6 @@ module Co = Cohttp
 module Rock = Opium_rock
 open Rock
 
-module Route = Simple_route
-
 type 'a t = (Route.t * 'a) Queue.t array with sexp
 
 let create () = Array.init 7 ~f:(fun _ -> Queue.create ())
@@ -33,14 +31,14 @@ let matching_endpoint endpoints meth uri =
     uri |> Route.match_url (fst ep) |> Option.map ~f:(fun p -> (ep, p)))
 
 module Env = struct
-  let key : Simple_route.matches Univ_map.Key.t =
-    Univ_map.Key.create "path_params" <:sexp_of<Simple_route.matches>>
+  let key : Route.matches Univ_map.Key.t =
+    Univ_map.Key.create "path_params" <:sexp_of<Route.matches>>
 end
 
 (* not param_exn since if the endpoint was selected it's likely that
    the parameter is already there *)
 let param req param =
-  let { Simple_route.params;  _ } =
+  let { Route.params;  _ } =
     Univ_map.find_exn (Request.env req) Env.key in
   List.Assoc.find_exn params param
 

@@ -8,7 +8,7 @@ type t = {
   port:        int;
   debug:       bool;
   verbose:     bool;
-  routes :     (Co.Code.meth * Router.Route.t * Handler.t) list;
+  routes :     (Co.Code.meth * Route.t * Handler.t) list;
   middlewares: Middleware.t list;
   name:        string;
   not_found :  Handler.t;
@@ -56,30 +56,30 @@ let public_path root requested =
   Option.some_if (String.is_prefix asked_path ~prefix:root) asked_path
 
 let action meth route action =
-  register ~meth ~route:(Router.Route.of_string route) ~action
+  register ~meth ~route:(Route.of_string route) ~action
 
 let get route action =
-  register ~meth:`GET ~route:(Router.Route.of_string route) ~action
+  register ~meth:`GET ~route:(Route.of_string route) ~action
 let post route action =
-  register ~meth:`POST ~route:(Router.Route.of_string route) ~action
+  register ~meth:`POST ~route:(Route.of_string route) ~action
 let delete route action =
-  register ~meth:`DELETE ~route:(Router.Route.of_string route) ~action
+  register ~meth:`DELETE ~route:(Route.of_string route) ~action
 let put route action =
-  register ~meth:`PUT ~route:(Router.Route.of_string route) ~action
+  register ~meth:`PUT ~route:(Route.of_string route) ~action
 
 let patch route action =
-  register ~meth:`PATCH ~route:(Router.Route.of_string route) ~action
+  register ~meth:`PATCH ~route:(Route.of_string route) ~action
 let head route action =
-  register ~meth:`HEAD ~route:(Router.Route.of_string route) ~action
+  register ~meth:`HEAD ~route:(Route.of_string route) ~action
 let options route action =
-  register ~meth:`OPTIONS ~route:(Router.Route.of_string route) ~action
+  register ~meth:`OPTIONS ~route:(Route.of_string route) ~action
 
 let any methods route action t =
   (if List.is_empty methods then
      Lwt_log.ign_warning_f
        "Warning: you're using [any] attempting to bind to '%s' but your list
         of http methods is empty route" route);
-  let route = Router.Route.of_string route in
+  let route = Route.of_string route in
   methods |> List.fold_left ~init:t
                ~f:(fun app meth -> app |> register ~meth ~route ~action)
 
@@ -105,7 +105,7 @@ let print_routes_f routes =
     Hashtbl.add_multi routes_tbl ~key:route ~data:meth);
   printf "%d Routes:\n" (Hashtbl.length routes_tbl);
   Hashtbl.iter routes_tbl ~f:(fun ~key ~data ->
-    printf "> %s (%s)\n" (Router.Route.to_string key)
+    printf "> %s (%s)\n" (Route.to_string key)
       (data
        |> List.map ~f:Cohttp.Code.string_of_method
        |> String.concat ~sep:" ")

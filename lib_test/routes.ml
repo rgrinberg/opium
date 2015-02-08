@@ -2,10 +2,10 @@ open Core_kernel.Std
 open OUnit
 
 module O = Opium.Router
-module Route = O.Route
+module Route = Opium.Route
 
 let match_get_params route url =
-  url |> O.Route.match_url route |> Option.map ~f:Route.params
+  url |> Route.match_url route |> Option.map ~f:Route.params
 
 let string_of_match = function
   | None -> "None"
@@ -15,13 +15,13 @@ let string_of_match = function
          (Tuple.T2.sexp_of_t String.sexp_of_t String.sexp_of_t) m)
 
 let simple_route1 _ =
-  let r = O.Route.of_string "/test/:id" in
+  let r = Route.of_string "/test/:id" in
   assert_equal ~printer:string_of_match None
     (match_get_params r "/test/blerg/123");
   assert_equal (match_get_params r "/test/123") (Some [("id","123")])
 
 let simple_route2 _ =
-  let r = O.Route.of_string "/test/:format/:name" in
+  let r = Route.of_string "/test/:format/:name" in
   let m = match_get_params r "/test/json/bar" in
   match m with
   | None -> assert_failure "no matches"
@@ -31,14 +31,14 @@ let simple_route2 _ =
     end
 
 let simple_route3 _ =
-  let r = O.Route.of_string "/test/:format/:name" in
-  let m = O.Route.match_url r "/test/bar" in
+  let r = Route.of_string "/test/:format/:name" in
+  let m = Route.match_url r "/test/bar" in
   match m with
   | None -> ()
   | Some _ -> assert_failure "unexpected matches"
 
 let splat_route1 _ =
-  let r = O.Route.of_string "/test/*/:id" in
+  let r = Route.of_string "/test/*/:id" in
   let matches = Route.match_url r "/test/splat/123" in
   match matches with
   | Some matches ->
@@ -47,13 +47,13 @@ let splat_route1 _ =
   | None -> assert_failure "No matches for splat"
 
 let splat_route2 _ =
-  let r = O.Route.of_string "/*" in
-  match O.Route.match_url r "/abc/123" with
+  let r = Route.of_string "/*" in
+  match Route.match_url r "/abc/123" with
   | None -> ()
   | Some _ -> assert_failure "splat matches an extra path"
 
 let test_match_2_params _ =
-  let r = O.Route.of_string "/xxx/:x/:y" in
+  let r = Route.of_string "/xxx/:x/:y" in
   let m = match_get_params r "/xxx/123/456" in
   match m with
   | None -> assert_failure "no match found"
@@ -63,20 +63,20 @@ let test_match_2_params _ =
     end
 
 let test_match_no_param _ =
-  let r = O.Route.of_string "/version" in
-  let (m1, m2) = O.Route.(match_url r "/version", match_url r "/tt") in
+  let r = Route.of_string "/version" in
+  let (m1, m2) = Route.(match_url r "/version", match_url r "/tt") in
   match (m1, m2) with
   | Some _, None -> ()
   | x, y -> assert_failure "bad match"
 
 let test_empty_route _ =
-  let r = O.Route.of_string "/" in
+  let r = Route.of_string "/" in
   let m s = 
-    match O.Route.match_url r s with
+    match Route.match_url r s with
     | None -> false
     | Some _ -> true
   in
-  let (m1, m2) = O.Route.(m "/", m "/testing") in 
+  let (m1, m2) = Route.(m "/", m "/testing") in 
   assert_bool "match '/'" m1;
   assert_bool "not match '/testing'" (not m2)
 
@@ -94,13 +94,13 @@ let string_convert_3 _ =
   assert_equal ~printer "/one/two/*/three" (str_t "/one/two/*/three")
 
 let escape_param_1 _ =
-  let r = O.Route.of_string "/:pp/*" in
-  match O.Route.match_url r "/%23/%23a" with
+  let r = Route.of_string "/:pp/*" in
+  match Route.match_url r "/%23/%23a" with
   | None -> assert_failure "should match route"
   | Some p ->
     begin
-      assert_equal (O.Route.params p) [("pp", "#")];
-      assert_equal (O.Route.splat p) ["#a"]
+      assert_equal (Route.params p) [("pp", "#")];
+      assert_equal (Route.splat p) ["#a"]
     end
 
 let test_fixtures =
