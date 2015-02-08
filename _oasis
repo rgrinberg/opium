@@ -130,6 +130,15 @@ Executable auth_middleware
   Install:        false
   BuildDepends:   opium
 
+Executable static_serve_override
+  Build$:         flag(examples)
+  Path:           examples
+  MainIs:         static_serve_override.ml
+  Custom:         true
+  CompiledObject: best
+  Install:        false
+  BuildDepends:   opium
+
 Document opium_rock
   Title:                Opium rock docs
   Type:                 ocamlbuild (0.4)
