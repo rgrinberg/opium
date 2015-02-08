@@ -117,7 +117,7 @@ let print_middleware_f middlewares =
   |> List.map ~f:(Fn.compose Info.to_string_hum Rock.Middleware.name)
   |> List.iter ~f:(printf "> %s \n")
 
-let cmd_run app port host print_routes print_middleware debug verbose (errors : bool) =
+let cmd_run app port host print_routes print_middleware debug verbose errors =
   let app = { app with debug ; verbose ; port } in
   let rock_app = to_rock app in
   (if print_routes then begin
@@ -155,23 +155,27 @@ module Cmds = struct
   let errors =
     let doc = "raise on errors. default is print" in
     Arg.(value & flag & info ["f"; "fatal"] ~doc)
+
+  let term =
+    let open Cmdliner in
+    let open Cmdliner.Term in
+    fun app ->
+      pure cmd_run $ (pure app) $ port $ interface $ routes
+      $ middleware $ debug $ verbose $ errors
+
+  let info name =
+    let doc = sprintf "%s (Opium App)" name in
+    let man = [] in
+    Term.info name ~doc ~man
 end
 
-let run_command =
-  let open Cmds in
+let run_command app =
   let open Cmdliner in
-  let open Cmdliner.Term in
-  fun app ->
-    let cmd = pure cmd_run $ (pure app) $ port $ interface $ routes
-              $ middleware $ debug $ verbose $ errors in
-    let info =
-      let doc = sprintf "%s (Opium App)" app.name in
-      let man = [] in
-      Term.info app.name ~doc ~man in
-    match Term.eval (cmd, info) with
-    | `Ok a    -> Lwt_main.run a
-    | `Error _ -> exit 1
-    | _        -> exit 0
+  let cmd = Cmds.term app in
+  match Term.eval (cmd, Cmds.info app.name) with
+  | `Ok a    -> Lwt_main.run a
+  | `Error _ -> exit 1
+  | _        -> exit 0
 
 type body = [
   | `Html of string
