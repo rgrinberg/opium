@@ -40,6 +40,7 @@ depends: [
   "fieldslib"
   "sexplib"
   "humane-re"
+  "magic-mime"
   "ounit" {test}
   "cow" {test & >= "0.10.0"}
 ]

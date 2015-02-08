@@ -21,7 +21,9 @@ let public_serve t ~requested =
   match legal_path t requested with
   | None -> return `Not_found
   | Some legal_path ->
-    Server.respond_file ~fname:legal_path () >>| fun resp ->
+    let mime_type = Magic_mime.lookup legal_path in
+    let headers = Cohttp.Header.init_with "content-type" mime_type in
+    Server.respond_file ~headers ~fname:legal_path () >>| fun resp ->
     if resp |> fst |> Cohttp.Response.status = `Not_found
     then `Not_found
     else `Ok (Response.of_response_body resp)
