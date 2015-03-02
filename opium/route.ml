@@ -32,17 +32,22 @@ let of_list l =
     | x -> x)
 
 let split_slash_delim =
-  let re = Humane_re.Str.regexp "/" in
-  fun path -> Humane_re.Str.split_delim re path
+  let re = '/' |> Re.char |> Re.compile in
+  fun path ->
+    path
+    |> Re.split_full re
+    |> List.map ~f:(function
+      | `Text s -> `Text s
+      | `Delim subs -> `Delim (Re.get subs 0))
 
 let split_slash path =
-  path 
-  |> split_slash_delim 
-  |> List.map ~f:(function | `Text s | `Delim s -> s)
+  path
+  |> split_slash_delim
+  |> List.map ~f:(function
+    | `Text s
+    | `Delim s -> s)
 
 let of_string path = path |> split_slash |> of_list
-
-let of_string_url path = path |> split_slash_delim
 
 let to_string l =
   let r =
@@ -75,5 +80,5 @@ let rec match_url t url ({params; splat} as matches) =
 
 let match_url t url =
   assert (url.[0] = '/');
-  let path = url |> of_string_url in
+  let path = url |> split_slash_delim in
   match_url t path {params=[]; splat=[]}
