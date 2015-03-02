@@ -1,6 +1,6 @@
 OASISFormat: 0.4
 Name:        opium
-Version:     0.13.0
+Version:     0.13.1
 Synopsis:    Sinatra like web toolkit for OCaml
 Authors:     Rudi Grinberg
 Homepage:    https://github.com/rgrinberg/opium
