@@ -4,7 +4,7 @@
    $ curl localhost:3000/examples/hello_world.ml
 
    The result will be the corresponding file in ./examples/ rather than the
-   string "hello_world.
+   string "hello_world".
 *)
 open Core_kernel.Std
 open Opium.Std
