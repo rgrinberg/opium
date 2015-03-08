@@ -103,6 +103,12 @@ let escape_param_1 _ =
       assert_equal (Route.splat p) ["#a"]
     end
 
+let empty_route _ =
+  let r = Route.of_string "" in
+  match Route.match_url r "" with
+  | None -> assert_failure "empty should match empty"
+  | Some _ -> ()
+
 let test_fixtures =
   "test routes" >:::
   [
@@ -119,6 +125,7 @@ let test_fixtures =
     "test string conversion 2" >:: string_convert_2;
     "test string conversion 3" >:: string_convert_3;
     "test escape param" >:: escape_param_1;
+    "empty route" >:: empty_route
   ]
 
 let _ = run_test_tt_main test_fixtures
