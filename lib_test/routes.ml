@@ -109,6 +109,14 @@ let empty_route _ =
   | None -> assert_failure "empty should match empty"
   | Some _ -> ()
 
+let test_double_splat _ =
+  let r = Route.of_string "/**" in
+  let matching_urls = [ "/test"; "/"; "/user/123/foo/bar" ] in
+  matching_urls |> List.iter ~f:(fun u ->
+    match Route.match_url r u with
+    | None -> assert_failure ("Failed to match " ^ u)
+    | Some _ -> ())
+
 let test_fixtures =
   "test routes" >:::
   [
@@ -125,7 +133,8 @@ let test_fixtures =
     "test string conversion 2" >:: string_convert_2;
     "test string conversion 3" >:: string_convert_3;
     "test escape param" >:: escape_param_1;
-    "empty route" >:: empty_route
+    "empty route" >:: empty_route;
+    "test double splat" >:: test_double_splat;
   ]
 
 let _ = run_test_tt_main test_fixtures
