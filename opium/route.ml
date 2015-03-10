@@ -28,7 +28,7 @@ let of_list l =
   let last_i = List.length l - 1 in
   l |> List.mapi ~f:(fun i s -> 
     match parse_param s with
-    | FullSplat when i = last_i -> invalid_arg "** is only allowed at the end"
+    | FullSplat when i <> last_i -> invalid_arg "** is only allowed at the end"
     | x -> x)
 
 let split_slash_delim =
