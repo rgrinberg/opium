@@ -119,22 +119,20 @@ let test_double_splat _ =
 
 let test_fixtures =
   "test routes" >:::
-  [
-    (* "test named" >:: test_named_matches; *)
-    "test match no param" >:: test_match_no_param;
-    "test match 1" >:: simple_route1;
-    "test match 2" >:: simple_route2;
-    "test match 3" >:: simple_route3;
-    "splat match 1" >:: splat_route1;
-    "splat match 2" >:: splat_route2;
-    "test match 2 params" >:: test_match_2_params;
-    "test empty route" >:: test_empty_route;
-    "test string conversion 1" >:: string_convert_1;
-    "test string conversion 2" >:: string_convert_2;
-    "test string conversion 3" >:: string_convert_3;
-    "test escape param" >:: escape_param_1;
-    "empty route" >:: empty_route;
-    "test double splat" >:: test_double_splat;
+  [ "test match no param"      >:: test_match_no_param
+  ; "test match 1"             >:: simple_route1
+  ; "test match 2"             >:: simple_route2
+  ; "test match 3"             >:: simple_route3
+  ; "splat match 1"            >:: splat_route1
+  ; "splat match 2"            >:: splat_route2
+  ; "test match 2 params"      >:: test_match_2_params
+  ; "test empty route"         >:: test_empty_route
+  ; "test string conversion 1" >:: string_convert_1
+  ; "test string conversion 2" >:: string_convert_2
+  ; "test string conversion 3" >:: string_convert_3
+  ; "test escape param"        >:: escape_param_1
+  ; "empty route"              >:: empty_route
+  ; "test double splat"        >:: test_double_splat
   ]
 
 let _ = run_test_tt_main test_fixtures
