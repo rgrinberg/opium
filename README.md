@@ -1,6 +1,8 @@
 Opium
 =====
 
+[![Join the chat at https://gitter.im/rgrinberg/opium](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/rgrinberg/opium?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## Executive Summary
 
 Sinatra like web toolkit for OCaml based on [cohttp](https://github.com/avsm/ocaml-cohttp/), [core](https://github.com/janestreet/core), & [lwt](https://github.com/ocsigen/lwt)
