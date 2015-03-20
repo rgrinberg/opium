@@ -138,6 +138,15 @@ Executable static_serve_override
   Install:        false
   BuildDepends:   opium
 
+Executable exit_hook_example
+  Build$:         flag(examples)
+  Path:           examples
+  MainIs:         exit_hook_example.ml
+  Custom:         true
+  CompiledObject: best
+  Install:        false
+  BuildDepends:   opium
+
 Document opium_rock
   Title:                Opium rock docs
   Type:                 ocamlbuild (0.4)
