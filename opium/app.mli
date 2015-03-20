@@ -54,7 +54,7 @@ val to_rock : t -> Opium_rock.App.t
 
 val start : t -> unit Lwt.t
 
-(** Create a cmdliner command from an opp *)
+(** Create a cmdliner command from an app *)
 val run_command : t -> unit
 
 (** Convenience functions for a running opium app *)
