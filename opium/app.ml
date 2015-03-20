@@ -169,13 +169,19 @@ module Cmds = struct
     Term.info name ~doc ~man
 end
 
-let run_command app =
+let run_command' app =
   let open Cmdliner in
   let cmd = Cmds.term app in
   match Term.eval (cmd, Cmds.info app.name) with
-  | `Ok a    -> Lwt_main.run a
-  | `Error _ -> exit 1
-  | _        -> exit 0
+  | `Ok a    -> `Ok a
+  | `Error _ -> `Error
+  | _        -> `Not_running
+
+let run_command app =
+  match app |> run_command' with
+  | `Ok a        -> Lwt_main.run a
+  | `Error       -> exit 1
+  | `Not_running -> exit 0
 
 type body = [
   | `Html of string
