@@ -108,14 +108,4 @@ module App = struct
 
   let create ?(middlewares=[]) ~handler = { middlewares; handler }
 
-  let run { handler; middlewares } ~port =
-    let middlewares = middlewares |> List.map ~f:Middleware.filter in
-    Server.create ~mode:(`TCP (`Port port)) (
-      Server.make ~callback:(fun _ req body ->
-        let req = Request.create ~body req in
-        let handler = Filter.apply_all middlewares handler in
-        handler req >>= fun { Response.code; headers; body } ->
-        Server.respond ~headers ~body ~status:code ()
-      ) ()
-    )
 end

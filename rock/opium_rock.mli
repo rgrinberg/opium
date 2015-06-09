@@ -101,9 +101,9 @@ module App : sig
 
   val middlewares : t -> Middleware.t list
 
+  val handler : t -> Handler.t
+
   val append_middleware : t -> Middleware.t -> t
 
   val create : ?middlewares:Middleware.t list -> handler:Handler.t -> t
-
-  val run : t -> port:int -> unit Lwt.t
 end

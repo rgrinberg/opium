@@ -49,21 +49,14 @@ val action : Cohttp.Code.meth -> route
 
 val middleware : Middleware.t -> builder
 
+val name : t -> string
+
 (** Convert an opium app to a rock app *)
 val to_rock : t -> Opium_rock.App.t
 
-(** Start an opium server. The thread returned can be cancelled to shutdown the
-    server *)
-val start : t -> unit Lwt.t
+val print_routes : t -> bool -> bool -> int -> unit
 
-(** Create a cmdliner command from an app and run lwt's event loop *)
-val run_command : t -> unit
-
-(* Run a cmdliner command from an app. Does not launch Lwt's event loop.
-   `Error is returned if the command line arguments are incorrect.
-   `Not_running is returned if the command was completed without the server
-   being launched *)
-val run_command' : t -> [> `Ok of unit Lwt.t | `Error | `Not_running ]
+val print_middleware : t -> bool -> bool -> int -> unit
 
 (** Convenience functions for a running opium app *)
 type body = [
