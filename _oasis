@@ -25,19 +25,46 @@ Library opium_rock
                  sexplib,
                  sexplib.syntax
 
-Library opium
-  Path:        opium
+Library opium_rock_unix
+  Path:          rock_unix
+  Findlibname:   opium_rock_unix
+  Modules:       Opium_rock_unix
+  XMETARequires: core_kernel, lwt, cohttp.lwt, fieldslib, sexplib
+  BuildDepends:  opium_rock,
+                 core_kernel,
+                 lwt,
+                 cohttp.lwt,
+                 fieldslib,
+                 fieldslib.syntax,
+                 sexplib,
+                 sexplib.syntax
+
+
+Library opium_kernel
+  Path:        opium_kernel
   Pack:        true
-  Findlibname: opium
-  Modules:     Std,
-               Cookie,
+  Findlibname: opium_kernel
+  Modules:     Cookie,
                Route,
                Router,
-               Static_serve,
                Debug,
                App
   BuildDepends: core_kernel,
                 opium_rock,
+                ezjsonm,
+                base64,
+                cmdliner,
+                magic-mime
+
+Library opium
+  Path:        opium
+  Pack:        true
+  Findlibname: opium
+  Modules:     Std, Static_serve
+  BuildDepends: opium_kernel,
+                core_kernel,
+                opium_rock,
+                opium_rock_unix,
                 ezjsonm,
                 base64,
                 cmdliner,
