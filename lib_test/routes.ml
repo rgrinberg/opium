@@ -1,8 +1,8 @@
 open Core_kernel.Std
 open OUnit
 
-module O = Opium.Router
-module Route = Opium.Route
+module O = Opium_kernel.Router
+module Route = Opium_kernel.Route
 
 let match_get_params route url =
   url |> Route.match_url route |> Option.map ~f:Route.params

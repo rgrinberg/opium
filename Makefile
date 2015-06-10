@@ -41,7 +41,7 @@ install:
 uninstall:
 	ocamlfind remove opium_rock_unix
 	ocamlfind remove opium_rock
-	ocamlfind remove opium_unix
+	ocamlfind remove opium_kernel
 	ocamlfind remove opium
 
 reinstall:

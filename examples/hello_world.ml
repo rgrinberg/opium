@@ -27,4 +27,4 @@ let _ =
   App.empty
   |> print_param
   |> print_person
-  |> Opium_unix.run_command
+  |> Runtime.run_command

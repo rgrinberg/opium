@@ -40,12 +40,11 @@ Library opium_rock_unix
                  sexplib.syntax
 
 
-Library opium
-  Path:        opium
+Library opium_kernel
+  Path:        opium_kernel
   Pack:        true
-  Findlibname: opium
-  Modules:     Std,
-               Cookie,
+  Findlibname: opium_kernel
+  Modules:     Cookie,
                Route,
                Router,
                Debug,
@@ -57,11 +56,12 @@ Library opium
                 cmdliner,
                 magic-mime
 
-Library opium_unix
-  Path:        opium_unix
-  Findlibname: opium_unix
-  Modules:     Opium_unix, Static_serve
-  BuildDepends: opium,
+Library opium
+  Path:        opium
+  Pack:        true
+  Findlibname: opium
+  Modules:     Std, Static_serve
+  BuildDepends: opium_kernel,
                 core_kernel,
                 opium_rock,
                 opium_rock_unix,
