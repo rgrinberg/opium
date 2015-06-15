@@ -1,9 +1,10 @@
 module Rock            = Opium_rock
 module Response        = Rock.Response
 module Request         = Rock.Request
-module Cookie          = Cookie
-module Router          = Router
-module App             = App
+module Cookie          = Opium_kernel.Cookie
+module Router          = Opium_kernel.Router
+module Debug           = Opium_kernel.Debug
+module App             = Opium_unix_app
 
 module Middleware = struct
   (** Re-exports simple middleware that doesn't have auxiliary

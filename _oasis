@@ -1,6 +1,6 @@
 OASISFormat: 0.4
 Name:        opium
-Version:     0.13.2
+Version:     0.14.0
 Synopsis:    Sinatra like web toolkit for OCaml
 Authors:     Rudi Grinberg
 Homepage:    https://github.com/rgrinberg/opium
@@ -25,15 +25,29 @@ Library opium_rock
                  sexplib,
                  sexplib.syntax
 
-Library opium
-  Path:        opium
+Library opium_rock_unix
+  Path:          rock_unix
+  FindlibParent: opium_rock
+  Findlibname:   unix
+  Modules:       Opium_rock_unix
+  XMETARequires: core_kernel, lwt, cohttp.lwt, fieldslib, sexplib
+  BuildDepends:  opium_rock,
+                 core_kernel,
+                 lwt,
+                 cohttp.lwt,
+                 fieldslib,
+                 fieldslib.syntax,
+                 sexplib,
+                 sexplib.syntax
+
+
+Library opium_kernel
+  Path:        opium_kernel
   Pack:        true
-  Findlibname: opium
-  Modules:     Std,
-               Cookie,
+  Findlibname: opium_kernel
+  Modules:     Cookie,
                Route,
                Router,
-               Static_serve,
                Debug,
                App
   BuildDepends: core_kernel,
@@ -42,6 +56,19 @@ Library opium
                 base64,
                 cmdliner,
                 magic-mime
+
+Library opium
+  Path:          opium_unix
+  Pack:          true
+  FindlibName:   opium
+  Modules:       Std, Static_serve
+  BuildDepends:  opium_kernel,
+                 core_kernel,
+                 opium_rock.unix,
+                 ezjsonm,
+                 base64,
+                 cmdliner,
+                 magic-mime
 
 Executable test_routes
   Path:           lib_test
@@ -146,20 +173,3 @@ Executable exit_hook_example
   CompiledObject: best
   Install:        false
   BuildDepends:   opium
-
-Document opium_rock
-  Title:                Opium rock docs
-  Type:                 ocamlbuild (0.4)
-  BuildTools+:          ocamldoc
-  Install:              true
-  XOCamlbuildPath:      rock
-  XOCamlbuildLibraries: opium_rock
-
-Document opium
-  Title:                Opium docs
-  Type:                 ocamlbuild (0.4)
-  BuildTools+:          ocamldoc
-  Install:              true
-  XOCamlbuildPath:      opium
-  XOCamlbuildLibraries: opium
-

@@ -85,19 +85,13 @@ let any methods route action t =
 
 let all = any [`GET;`POST;`DELETE;`PUT;`PATCH;`HEAD;`OPTIONS]
 
-let to_rock app =
-  Rock.App.create ~middlewares:(attach_middleware app)
-    ~handler:app.not_found
+let name app = app.name
 
-let start app =
-  let middlewares = attach_middleware app in
+let to_rock app =
   if app.verbose then
     Lwt_log.(add_rule "*" Info);
-  Lwt_log.ign_info_f "Running on port: %d%s" app.port
-    (if app.debug then " (debug)" else "");
-  let port = app.port in
-  let app = Rock.App.create ~middlewares ~handler:app.not_found in
-  app |> Rock.App.run ~port
+  Rock.App.create ~middlewares:(attach_middleware app)
+    ~handler:app.not_found
 
 let print_routes_f routes =
   let routes_tbl = Hashtbl.Poly.create () in
@@ -117,71 +111,14 @@ let print_middleware_f middlewares =
   |> List.map ~f:(Fn.compose Info.to_string_hum Rock.Middleware.name)
   |> List.iter ~f:(printf "> %s \n")
 
-let cmd_run app port host print_routes print_middleware debug verbose errors =
+let print_routes app debug verbose port =
+  let app = { app with debug ; verbose ; port } in
+  app |> routes |> print_routes_f
+
+let print_middleware app debug verbose port =
   let app = { app with debug ; verbose ; port } in
   let rock_app = to_rock app in
-  (if print_routes then begin
-     app |> routes |> print_routes_f;
-     exit 0;
-   end;
-   if print_middleware then begin
-     rock_app |> Rock.App.middlewares |> print_middleware_f;
-     exit 0
-   end
-  );
-  app |> start
-
-module Cmds = struct
-  open Cmdliner
-
-  let routes =
-    let doc = "print routes" in
-    Arg.(value & flag & info ["r"; "routes"] ~doc)
-  let middleware =
-    let doc = "print middleware stack" in
-    Arg.(value & flag & info ["m"; "middlware"] ~doc)
-  let port =
-    let doc = "port" in
-    Arg.(value & opt int empty.port & info ["p"; "port"] ~doc)
-  let interface =
-    let doc = "interface" in
-    Arg.(value & opt string "0.0.0.0" & info ["i"; "interface"] ~doc)
-  let debug =
-    let doc = "enable debug information" in
-    Arg.(value & flag & info ["d"; "debug"] ~doc)
-  let verbose =
-    let doc = "enable verbose mode" in
-    Arg.(value & flag & info ["v"; "verbose"] ~doc)
-  let errors =
-    let doc = "raise on errors. default is print" in
-    Arg.(value & flag & info ["f"; "fatal"] ~doc)
-
-  let term =
-    let open Cmdliner in
-    let open Cmdliner.Term in
-    fun app ->
-      pure cmd_run $ (pure app) $ port $ interface $ routes
-      $ middleware $ debug $ verbose $ errors
-
-  let info name =
-    let doc = sprintf "%s (Opium App)" name in
-    let man = [] in
-    Term.info name ~doc ~man
-end
-
-let run_command' app =
-  let open Cmdliner in
-  let cmd = Cmds.term app in
-  match Term.eval (cmd, Cmds.info app.name) with
-  | `Ok a    -> `Ok a
-  | `Error _ -> `Error
-  | _        -> `Not_running
-
-let run_command app =
-  match app |> run_command' with
-  | `Ok a        -> Lwt_main.run a
-  | `Error       -> exit 1
-  | `Not_running -> exit 0
+  rock_app |> Rock.App.middlewares |> print_middleware_f
 
 type body = [
   | `Html of string
