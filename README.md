@@ -81,7 +81,7 @@ let _ =
   App.empty
   |> print_param
   |> print_person
-  |> Runtime.run_command
+  |> App.run_command
 ```
 
 compile with:
@@ -125,7 +125,7 @@ let _ = App.empty
         |> get "/" (fun req -> `String ("Hello World") |> respond')
         |> middleware (reject_ua ~f:(is_substring ~substring:"MSIE"))
         |> App.cmd_name "Reject UA"
-        |> Runtime.run_command
+        |> App.run_command
 
 ```
 

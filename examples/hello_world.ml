@@ -27,4 +27,4 @@ let _ =
   App.empty
   |> print_param
   |> print_person
-  |> Runtime.run_command
+  |> App.run_command
