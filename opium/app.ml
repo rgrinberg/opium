@@ -140,9 +140,9 @@ module Cmds = struct
   let middleware =
     let doc = "print middleware stack" in
     Arg.(value & flag & info ["m"; "middlware"] ~doc)
-  let port =
+  let port default =
     let doc = "port" in
-    Arg.(value & opt int empty.port & info ["p"; "port"] ~doc)
+    Arg.(value & opt int default & info ["p"; "port"] ~doc)
   let interface =
     let doc = "interface" in
     Arg.(value & opt string "0.0.0.0" & info ["i"; "interface"] ~doc)
@@ -160,7 +160,7 @@ module Cmds = struct
     let open Cmdliner in
     let open Cmdliner.Term in
     fun app ->
-      pure cmd_run $ (pure app) $ port $ interface $ routes
+      pure cmd_run $ (pure app) $ port app.port $ interface $ routes
       $ middleware $ debug $ verbose $ errors
 
   let info name =
