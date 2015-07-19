@@ -5,7 +5,7 @@ Opium
 
 ## Executive Summary
 
-Sinatra like web toolkit for OCaml based on [cohttp](https://github.com/avsm/ocaml-cohttp/), [core](https://github.com/janestreet/core), & [lwt](https://github.com/ocsigen/lwt)
+Sinatra like web toolkit for OCaml based on [cohttp](https://github.com/avsm/ocaml-cohttp/), [core](https://github.com/janestreet/core) & [lwt](https://github.com/ocsigen/lwt)
 
 ## Design Goals
 
