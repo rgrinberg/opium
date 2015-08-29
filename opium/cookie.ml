@@ -18,8 +18,17 @@ module Env = struct
     Univ_map.Key.create "cookie" <:sexp_of<(string * string) list>>
 end
 
+module Env_resp = struct
+  type cookie = (string * string * Co.Cookie.expiration) list
+  let key : cookie Univ_map.Key.t =
+    Univ_map.Key.create "cookie_res" <:sexp_of<(string * string * Co.Cookie.expiration) list>>
+end
+
 let current_cookies env record =
   Option.value ~default:[] (Univ_map.find (Field.get env record) Env.key)
+
+let current_cookies_resp env record =
+  Option.value ~default:[] (Univ_map.find (Field.get env record) Env_resp.key)
 
 let cookies_raw req = req
                       |> Rock.Request.request
@@ -47,25 +56,27 @@ let get req ~key =
          ~f:(fun (k,v) ->
            if k = encoded_key then Some (valc#decode v) else None)
 
-let set_cookies resp cookies =
+let set_cookies ?(expiration = `Session) resp cookies =
   let env = Rock.Response.env resp in
-  let current_cookies = current_cookies Rock.Response.Fields.env resp in
+  let current_cookies = current_cookies_resp Rock.Response.Fields.env resp in
+  let cookies' = List.map cookies ~f:(fun (key, data) -> (key, data, expiration)) in
   (* WRONG cookies cannot just be concatenated *)
-  let all_cookies = current_cookies @ cookies in
-  { resp with Rock.Response.env=(Univ_map.set env Env.key all_cookies) }
+  let all_cookies = current_cookies @ cookies' in
+  { resp with Rock.Response.env=(Univ_map.set env Env_resp.key all_cookies) }
 
-let set resp ~key ~data = set_cookies resp [(key, data)]
+let set ?expiration resp ~key ~data =
+  set_cookies ?expiration resp [(key, data)]
 
 let m =             (* TODO: "optimize" *)
   let filter handler req =
     handler req >>| fun response ->
     let cookie_headers =
       let module Cookie = Co.Cookie.Set_cookie_hdr in
-      let f (k,v) =
+      let f (k,v,expiration) =
         (keyc#encode k, valc#encode v)
-        |> Cookie.make ~path:"/" 
+        |> Cookie.make ~path:"/" ~expiration
         |> Cookie.serialize
-      in current_cookies Rock.Response.Fields.env response |> List.map ~f in
+      in current_cookies_resp Rock.Response.Fields.env response |> List.map ~f in
     let old_headers = Rock.Response.headers response in
     { response with Rock.Response.headers=(
        List.fold_left cookie_headers ~init:old_headers
