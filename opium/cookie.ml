@@ -56,14 +56,14 @@ let set_cookies resp cookies =
 
 let set resp ~key ~data = set_cookies resp [(key, data)]
 
-let m =             (* TODO: "optimize" *)
+let create_m ?(name = "Cookie") ?expiration () =             (* TODO: "optimize" *)
   let filter handler req =
     handler req >>| fun response ->
     let cookie_headers =
       let module Cookie = Co.Cookie.Set_cookie_hdr in
       let f (k,v) =
         (keyc#encode k, valc#encode v)
-        |> Cookie.make ~path:"/" 
+        |> Cookie.make ~path:"/" ?expiration
         |> Cookie.serialize
       in current_cookies Rock.Response.Fields.env response |> List.map ~f in
     let old_headers = Rock.Response.headers response in
@@ -71,4 +71,18 @@ let m =             (* TODO: "optimize" *)
        List.fold_left cookie_headers ~init:old_headers
          ~f:(fun headers (k,v) -> Co.Header.add headers k v))
     } 
-  in Rock.Middleware.create ~filter ~name:(Info.of_string "Cookie")
+  in Rock.Middleware.create ~filter ~name:(Info.of_string name)
+
+let m = create_m ~name:"Session Cookie" ()
+
+let m_1d = create_m ~name:"1-day persistent Cookie"
+  ~expiration:(`Max_age 86400L) ()
+
+let m_1w = create_m ~name:"1-week persistent Cookie"
+  ~expiration:(`Max_age 604800L) ()
+
+let m_1m = create_m ~name:"1-month persistent Cookie"
+  ~expiration:(`Max_age 2592000L) ()
+
+let m_1y = create_m ~name:"1-year persistent Cookie"
+  ~expiration:(`Max_age 31536000L) ()
