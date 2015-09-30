@@ -105,5 +105,5 @@ module App : sig
 
   val create : ?middlewares:Middleware.t list -> handler:Handler.t -> t
 
-  val run : t -> port:int -> unit Lwt.t
+  val run : t -> port:int -> ssl:((string * string) option) -> unit Lwt.t
 end

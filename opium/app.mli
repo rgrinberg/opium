@@ -21,6 +21,8 @@ type builder = t -> t with sexp_of
 
 val port : int -> builder
 
+val ssl : string -> string -> builder
+
 val cmd_name : string -> builder
 
 (** A route is a function that returns a buidler that hooks up a
