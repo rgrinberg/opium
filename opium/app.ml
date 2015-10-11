@@ -6,7 +6,7 @@ open Rock
 
 type t = {
   port:        int;
-  ssl:         (string * string) option;
+  ssl:         ([ `Crt_file_path of string ] * [ `Key_file_path of string ]) option;
   debug:       bool;
   verbose:     bool;
   routes :     (Co.Code.meth * Route.t * Handler.t) list;
@@ -48,7 +48,7 @@ let attach_middleware { verbose ; debug ; routes ; middlewares ; _  } =
   ] |> List.filter_opt
 
 let port port t = { t with port }
-let ssl cert key t = { t with ssl = Some (cert, key) }
+let ssl ~cert ~key t = { t with ssl = Some (`Crt_file_path cert, `Key_file_path key) }
 let cmd_name name t = { t with name }
 
 let middleware m app =
@@ -101,7 +101,7 @@ let start app =
   let port = app.port in
   let ssl = app.ssl in
   let app = Rock.App.create ~middlewares ~handler:app.not_found in
-  app |> Rock.App.run ~port ~ssl
+  app |> Rock.App.run ~port ?ssl
 
 let print_routes_f routes =
   let routes_tbl = Hashtbl.Poly.create () in
@@ -123,7 +123,8 @@ let print_middleware_f middlewares =
 
 let cmd_run app port ssl_cert ssl_key host print_routes print_middleware
     debug verbose errors =
-  let ssl = Option.map2 ssl_cert ssl_key (fun c k -> (c, k)) in
+  let ssl = Option.map2 ssl_cert ssl_key (fun c k ->
+    (`Crt_file_path c, `Key_file_path k)) in
   let app = { app with debug ; verbose ; port ; ssl } in
   let rock_app = to_rock app in
   (if print_routes then begin

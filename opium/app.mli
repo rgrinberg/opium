@@ -21,7 +21,7 @@ type builder = t -> t with sexp_of
 
 val port : int -> builder
 
-val ssl : string -> string -> builder
+val ssl : cert:string -> key:string -> builder
 
 val cmd_name : string -> builder
 

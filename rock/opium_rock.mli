@@ -105,5 +105,5 @@ module App : sig
 
   val create : ?middlewares:Middleware.t list -> handler:Handler.t -> t
 
-  val run : t -> port:int -> ssl:((string * string) option) -> unit Lwt.t
+  val run : ?ssl:[ `Crt_file_path of string ] * [ `Key_file_path of string ] -> t -> port:int -> unit Lwt.t
 end

@@ -108,11 +108,11 @@ module App = struct
 
   let create ?(middlewares=[]) ~handler = { middlewares; handler }
 
-  let run { handler; middlewares } ~port ~ssl =
+  let run ?ssl { handler; middlewares } ~port =
     let middlewares = middlewares |> List.map ~f:Middleware.filter in
     let mode = Option.value_map ssl
       ~default:(`TCP (`Port port)) ~f:(fun (c, k) ->
-        `TLS (`Crt_file_path c, `Key_file_path k, `No_password, `Port port)) in
+        `TLS (c, k, `No_password, `Port port)) in
     Server.create ~mode (
       Server.make ~callback:(fun _ req body ->
         let req = Request.create ~body req in
