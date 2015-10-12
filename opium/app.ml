@@ -6,6 +6,7 @@ open Rock
 
 type t = {
   port:        int;
+  ssl:         ([ `Crt_file_path of string ] * [ `Key_file_path of string ]) option;
   debug:       bool;
   verbose:     bool;
   routes :     (Co.Code.meth * Route.t * Handler.t) list;
@@ -24,6 +25,7 @@ let register app ~meth ~route ~action =
 let empty =
   { name        = "Opium Default Name";
     port        = 3000;
+    ssl         = None;
     debug       = false;
     verbose     = false;
     routes      = [];
@@ -46,6 +48,7 @@ let attach_middleware { verbose ; debug ; routes ; middlewares ; _  } =
   ] |> List.filter_opt
 
 let port port t = { t with port }
+let ssl ~cert ~key t = { t with ssl = Some (`Crt_file_path cert, `Key_file_path key) }
 let cmd_name name t = { t with name }
 
 let middleware m app =
@@ -96,8 +99,9 @@ let start app =
   Lwt_log.ign_info_f "Running on port: %d%s" app.port
     (if app.debug then " (debug)" else "");
   let port = app.port in
+  let ssl = app.ssl in
   let app = Rock.App.create ~middlewares ~handler:app.not_found in
-  app |> Rock.App.run ~port
+  app |> Rock.App.run ~port ?ssl
 
 let print_routes_f routes =
   let routes_tbl = Hashtbl.Poly.create () in
@@ -117,8 +121,11 @@ let print_middleware_f middlewares =
   |> List.map ~f:(Fn.compose Info.to_string_hum Rock.Middleware.name)
   |> List.iter ~f:(printf "> %s \n")
 
-let cmd_run app port host print_routes print_middleware debug verbose errors =
-  let app = { app with debug ; verbose ; port } in
+let cmd_run app port ssl_cert ssl_key host print_routes print_middleware
+    debug verbose errors =
+  let ssl = Option.map2 ssl_cert ssl_key (fun c k ->
+    (`Crt_file_path c, `Key_file_path k)) in
+  let app = { app with debug ; verbose ; port ; ssl } in
   let rock_app = to_rock app in
   (if print_routes then begin
      app |> routes |> print_routes_f;
@@ -143,6 +150,12 @@ module Cmds = struct
   let port default =
     let doc = "port" in
     Arg.(value & opt int default & info ["p"; "port"] ~doc)
+  let ssl_cert =
+    let doc = "SSL certificate file" in
+    Arg.(value & opt (some string) None & info ["s"; "ssl-cert"] ~doc)
+  let ssl_key =
+    let doc = "SSL key file" in
+    Arg.(value & opt (some string) None & info ["k"; "ssl-key"] ~doc)
   let interface =
     let doc = "interface" in
     Arg.(value & opt string "0.0.0.0" & info ["i"; "interface"] ~doc)
@@ -160,8 +173,8 @@ module Cmds = struct
     let open Cmdliner in
     let open Cmdliner.Term in
     fun app ->
-      pure cmd_run $ (pure app) $ port app.port $ interface $ routes
-      $ middleware $ debug $ verbose $ errors
+      pure cmd_run $ (pure app) $ port app.port $ ssl_cert $ ssl_key
+      $ interface $ routes $ middleware $ debug $ verbose $ errors
 
   let info name =
     let doc = sprintf "%s (Opium App)" name in
