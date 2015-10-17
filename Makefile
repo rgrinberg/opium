@@ -1,4 +1,7 @@
-default: all
+README_NAMES = hello_world.ml middleware_ua.ml
+README_PATHS = $(addprefix examples/,$(README_NAMES))
+
+.BUILD: all
 
 oasis-setup:
 	oasis setup
@@ -45,7 +48,7 @@ uninstall:
 reinstall:
 	ocaml setup.ml -reinstall
 
-README.md: README.cpp.md
-	cppo -n -o README.md < README.cpp.md
+README.md: README.cpp.md $(README_PATHS)
+	cppo -n -o $@ < $<
 
-.PHONY: build all build default install uninstall
+.PHONY: build all build install uninstall
