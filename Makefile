@@ -5,8 +5,8 @@ build:
 
 all: build
 
-test:
-	@omake test
+check:
+	@omake check
 
 clean:
 	rm -rf _build *.omc .omakedb .omakedb.lock
@@ -17,4 +17,4 @@ install:
 uninstall:
 	@omake uninstall
 
-.PHONY: all build install uninstall clean test
+.PHONY: all build install uninstall clean check

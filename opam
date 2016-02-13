@@ -7,16 +7,16 @@ homepage: "https://github.com/rgrinberg/opium"
 bug-reports: "https://github.com/rgrinberg/opium/issues"
 dev-repo: "https://github.com/rgrinberg/opium.git"
 
-build: [ ["omake"] ]
+build: [ [make] ]
 
-install: ["omake" "install"]
+install: [make "install"]
 
 remove: [
   ["ocamlfind" "remove" "opium_rock"]
   ["ocamlfind" "remove" "opium"]
 ]
 
-build-test: [ ["omake" "check"] ]
+build-test: [ [make "check"] ]
 
 depends: [
   "ocamlfind" {build}
