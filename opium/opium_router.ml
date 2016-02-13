@@ -2,6 +2,8 @@ open Core_kernel.Std
 
 module Co = Cohttp
 module Rock = Opium_rock
+module Route = Opium_route
+
 open Rock
 
 type 'a t = (Route.t * 'a) Queue.t array with sexp

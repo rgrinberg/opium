@@ -3,7 +3,7 @@ type 'action t with sexp
 val create : unit -> _ t
 
 val add : 'a t
-  -> route:Route.t
+  -> route:Opium_route.t
   -> meth:Cohttp.Code.meth
   -> action:'a -> unit
 

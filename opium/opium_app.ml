@@ -2,6 +2,9 @@ open Core_kernel.Std
 open Opium_misc
 
 module Rock = Opium_rock
+module Router = Opium_router
+module Route = Opium_route
+module Debug = Opium_debug
 open Rock
 
 type t = {
