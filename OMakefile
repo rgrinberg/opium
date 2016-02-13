@@ -6,9 +6,19 @@ FindlibExists(packages) =
     return $(equal 0,$(shell-code ocamlfind query $(packages) > /dev/null))
 
 GenMeta() =
-    META: META.in
+    meta = $(file META)
+    $(meta): META.in
         sed -e 's/%version%/$(VERSION)/' $< > $@
-    return META
+    return $(meta)
+
+InstallTargets(p) =
+    p_root = $(BUILD_ROOT)/$p
+    exts = a o cmi cmt cmti cmx cmxa cma mli
+    ext_glob = $(addprefix -name *., $(exts))
+    # without the split find doesn't accept the args properly
+    flags = $(split \ ,$(concat \ -o , $(ext_glob)))
+    files = $(p_root)/META $(find $(p_root) $(flags))
+    return $(files)
 
 USE_OCAMLFIND = true
 
@@ -21,7 +31,7 @@ OCAMLPACKS[] = core_kernel cohttp.lwt camlp4 fieldslib.syntax sexplib.syntax
 
 BUILD_ROOT = $(dir _build)
 
-SOURCE_DIRS = rock opium lib_test examples
+SOURCE_DIRS = opium_rock opium lib_test examples
 
 EXAMPLES_DEPS = cow.syntax cow cmdliner
 TEST_DEPS = oUnit ezjsonm cmdliner
@@ -34,20 +44,30 @@ foreach(s => ...,$(SOURCE_DIRS))
 
 CREATE_SUBDIRS = true
 
+ALL_DEPS =
+
 section
     LIB = opium_rock
-    FILES = $(Modules rock)
-    .SUBDIRS: $(BUILD_ROOT)/rock
-        .DEFAULT: $(OCamlLibrary $(LIB), $(FILES)) $(GenMeta)
+    FILES = $(Modules $(LIB))
+    .SUBDIRS: $(BUILD_ROOT)/$(LIB)
+        BUILD = $(OCamlLibrary $(LIB), $(FILES)) $(GenMeta)
+        ALL_DEPS += $(BUILD)
+        export ALL_DEPS
+        .DEFAULT: $(BUILD)
+    export ALL_DEPS
 
 section
     LIB = opium
     FILES = $(Modules $(LIB))
     OCAMLPACKS += ezjsonm cmdliner
     .SUBDIRS: $(BUILD_ROOT)/$(LIB)
-        OCAMLINCLUDES += ../rock
-        OCAML_LIBS += ../rock/opium_rock
-        .DEFAULT: $(OCamlLibrary $(LIB), $(FILES)) $(GenMeta)
+        OCAMLINCLUDES += ../opium_rock
+        OCAML_LIBS += ../opium_rock/opium_rock
+        BUILD = $(OCamlLibrary $(LIB), $(FILES)) $(GenMeta)
+        ALL_DEPS += $(BUILD)
+        export ALL_DEPS
+        .DEFAULT: $(BUILD)
+    export ALL_DEPS
 
 section
     EXTRA_DEPS = cow.syntax cow cmdliner
@@ -56,10 +76,10 @@ section
         OCAMLPACKS += cow.syntax cow cmdliner
         .SUBDIRS: $(BUILD_ROOT)/examples
             OCAMLINCLUDES[] +=
-                ../rock
+                ../opium_rock
                 ../opium
             OCAML_LIBS[] +=
-                ../rock/opium_rock
+                ../opium_rock/opium_rock
                 ../opium/opium
             .DEFAULT: $(foreach i => $(OCamlProgram $i, $i), $(FILES))
 
@@ -70,21 +90,32 @@ section
         OCAMLPACKS += $(EXTRA_DEPS)
         .SUBDIRS: $(BUILD_ROOT)/lib_test
             OCAMLINCLUDES[] +=
-                ../rock
+                ../opium_rock
                 ../opium
             OCAML_LIBS[] +=
-                ../rock/opium_rock
+                ../opium_rock/opium_rock
                 ../opium/opium
             TESTS = $(foreach i => $(OCamlProgram $i, $i), $(FILES))
             .DEFAULT: $(TESTS)
-            .PHONY: test
-            test: $(TESTS)
+            .PHONY: check
+            check: $(TESTS)
                 foreach(t => $(shell-code ./$t$(EXE)),$(FILES))
 
 README_SOURCES = hello_world.ml middleware_ua.ml
 README_SOURCES = $(addprefix examples/,$(README_SOURCES))
 README.md: README.cpp.md $(README_SOURCES)
-	cppo -n -o $@ < $<
+    cppo -n -o $@ < $<
+
+FINDLIB_PACKAGES = opium opium_rock
+.PHONY: install
+install: $(ALL_DEPS)
+    foreach(p => ..., $(FINDLIB_PACKAGES))
+        ocamlfind install $p $(InstallTargets $p)
+
+.PHONY: uninstall
+uninstall:
+    foreach(p => ..., $(FINDLIB_PACKAGES))
+        ocamlfind remove $p
 
 .DEFAULT: README.md
 
