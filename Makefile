@@ -1,24 +1,20 @@
 .DEFAULT: build
 
 build:
-	omake
+	@omake
 
 all: build
 
 test:
-	omake test
+	@omake test
 
 clean:
 	rm -rf _build *.omc .omakedb .omakedb.lock
 
 install:
-	ocaml setup.ml -install
+	@omake install
 
 uninstall:
-	ocamlfind remove opium_rock
-	ocamlfind remove opium
-
-reinstall:
-	ocaml setup.ml -reinstall
+	@omake uninstall
 
 .PHONY: all build install uninstall clean test
