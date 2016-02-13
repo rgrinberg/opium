@@ -21,6 +21,7 @@ InstallTargets(p) =
     return $(files)
 
 USE_OCAMLFIND = true
+BYTE_ENABLED = true
 
 VERSION = 0.14.0
 
