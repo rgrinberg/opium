@@ -5,7 +5,14 @@ Modules(path) =
 FindlibExists(packages) =
     return $(equal 0,$(shell-code ocamlfind query $(packages) > /dev/null))
 
+GenMeta() =
+    META: META.in
+        sed -e 's/%version%/$(VERSION)/' $< > $@
+    return META
+
 USE_OCAMLFIND = true
+
+VERSION = 0.14.0
 
 OCAMLFLAGS = -g -bin-annot -thread
 
@@ -31,7 +38,7 @@ section
     LIB = opium_rock
     FILES = $(Modules rock)
     .SUBDIRS: $(BUILD_ROOT)/rock
-        .DEFAULT: $(OCamlLibrary $(LIB), $(FILES))
+        .DEFAULT: $(OCamlLibrary $(LIB), $(FILES)) $(GenMeta)
 
 section
     LIB = opium
@@ -40,7 +47,7 @@ section
     .SUBDIRS: $(BUILD_ROOT)/$(LIB)
         OCAMLINCLUDES += ../rock
         OCAML_LIBS += ../rock/opium_rock
-        .DEFAULT: $(OCamlLibrary $(LIB), $(FILES))
+        .DEFAULT: $(OCamlLibrary $(LIB), $(FILES)) $(GenMeta)
 
 section
     EXTRA_DEPS = cow.syntax cow cmdliner

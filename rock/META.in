@@ -1,0 +1,7 @@
+version = "%version%"
+description = "Sinatra like web toolkit for OCaml"
+requires = "core_kernel lwt cohttp.lwt fieldslib sexplib"
+archive(byte) = "opium_rock.cma"
+archive(byte, plugin) = "opium_rock.cma"
+archive(native) = "opium_rock.cmxa"
+exists_if = "opium_rock.cma"
