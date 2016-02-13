@@ -1,0 +1,86 @@
+Modules(path) =
+    return $(basename $(removesuffix $(find $(path) -name *.ml)))
+
+# TODO fix this check. omake throws an exception on non zero error codes
+FindlibExists(packages) =
+    return $(equal 0,$(shell-code ocamlfind query $(packages) > /dev/null))
+
+USE_OCAMLFIND = true
+
+OCAMLFLAGS = -g -bin-annot -thread
+
+OCAMLFINDFLAGS += -syntax camlp4o
+OCAMLPACKS[] = core_kernel cohttp.lwt camlp4 fieldslib.syntax sexplib.syntax
+
+BUILD_ROOT = $(dir _build)
+
+SOURCE_DIRS = rock opium lib_test examples
+
+EXAMPLES_DEPS = cow.syntax cow cmdliner
+TEST_DEPS = oUnit ezjsonm cmdliner
+
+EXAMPLES_ENABLED = true
+
+foreach(s => ...,$(SOURCE_DIRS))
+    vmount(-l, $s, $(BUILD_ROOT)/$s)
+    export
+
+CREATE_SUBDIRS = true
+
+section
+    LIB = opium_rock
+    FILES = $(Modules rock)
+    .SUBDIRS: $(BUILD_ROOT)/rock
+        .DEFAULT: $(OCamlLibrary $(LIB), $(FILES))
+
+section
+    LIB = opium
+    FILES = $(Modules $(LIB))
+    OCAMLPACKS += ezjsonm cmdliner
+    .SUBDIRS: $(BUILD_ROOT)/$(LIB)
+        OCAMLINCLUDES += ../rock
+        OCAML_LIBS += ../rock/opium_rock
+        .DEFAULT: $(OCamlLibrary $(LIB), $(FILES))
+
+section
+    EXTRA_DEPS = cow.syntax cow cmdliner
+    if $(FindlibExists $(EXTRA_DEPS))
+        FILES = $(Modules examples)
+        OCAMLPACKS += cow.syntax cow cmdliner
+        .SUBDIRS: $(BUILD_ROOT)/examples
+            OCAMLINCLUDES[] +=
+                ../rock
+                ../opium
+            OCAML_LIBS[] +=
+                ../rock/opium_rock
+                ../opium/opium
+            .DEFAULT: $(foreach i => $(OCamlProgram $i, $i), $(FILES))
+
+section
+    EXTRA_DEPS = oUnit ezjsonm cmdliner
+    if $(FindlibExists $(EXTRA_DEPS))
+        FILES = $(Modules lib_test)
+        OCAMLPACKS += $(EXTRA_DEPS)
+        .SUBDIRS: $(BUILD_ROOT)/lib_test
+            OCAMLINCLUDES[] +=
+                ../rock
+                ../opium
+            OCAML_LIBS[] +=
+                ../rock/opium_rock
+                ../opium/opium
+            TESTS = $(foreach i => $(OCamlProgram $i, $i), $(FILES))
+            .DEFAULT: $(TESTS)
+            .PHONY: test
+            test: $(TESTS)
+                foreach(t => $(shell-code ./$t$(EXE)),$(FILES))
+
+README_SOURCES = hello_world.ml middleware_ua.ml
+README_SOURCES = $(addprefix examples/,$(README_SOURCES))
+README.md: README.cpp.md $(README_SOURCES)
+	cppo -n -o $@ < $<
+
+.DEFAULT: README.md
+
+.PHONY: clean
+clean:
+    rm -rf $(BUILD_ROOT)

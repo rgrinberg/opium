@@ -1,42 +1,15 @@
-README_NAMES = hello_world.ml middleware_ua.ml
-README_PATHS = $(addprefix examples/,$(README_NAMES))
-
-.BUILD: all
-
-oasis-setup:
-	oasis setup
-
-configure: oasis-setup
-	ocaml setup.ml -configure --enable-tests
-
-configure-all: oasis-setup
-	ocaml setup.ml -configure --enable-tests --enable-examples
-
-configure-no-tests:
-	oasis setup
-	ocaml setup.ml -configure
+.DEFAULT: build
 
 build:
-	ocaml setup.ml -build
+	omake
 
-all: README.md
-	ocaml setup.ml -all
+all: build
 
-test: build
-	ocaml setup.ml -test
-
-doc:
-	ocaml setup.ml -doc
+test:
+	omake test
 
 clean:
-	ocaml setup.ml -clean
-
-scrub: clean
-	ocaml setup.ml -distclean
-	rm -rf _tags
-	rm -rf myocamlbuild.ml
-	rm -rf META
-	rm -rf setup.ml
+	rm -rf _build *.omc .omakedb .omakedb.lock
 
 install:
 	ocaml setup.ml -install
@@ -48,7 +21,4 @@ uninstall:
 reinstall:
 	ocaml setup.ml -reinstall
 
-README.md: README.cpp.md $(README_PATHS)
-	cppo -n -o $@ < $<
-
-.PHONY: build all build install uninstall
+.PHONY: all build install uninstall clean test

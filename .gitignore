@@ -24,3 +24,6 @@ setup.ml
 META
 _tags
 TAGS
+*.omc
+*.omakedb
+.omakedb.lock
