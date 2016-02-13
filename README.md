@@ -10,9 +10,9 @@ Sinatra like web toolkit for OCaml based on [cohttp](https://github.com/avsm/oca
 * Opium should be very small and easily learnable. A programmer should
 be instantly productive when starting out.
 
-* Opium should be extendable using indepedently developed
-plugins. This is a _Rack_ inspired mechanism borrowed from Ruby. The
-middleware mechanism in Opium is called `Rock`.
+* Opium should be extensible using independently developed plugins. This is a
+_Rack_ inspired mechanism borrowed from Ruby. The middleware mechanism in
+Opium is called `Rock`.
 
 * It should maximize use of creature comforts people are used to in
 other languages. Such as [sexplib](https://github.com/janestreet/sexplib), [fieldslib](https://github.com/janestreet/fieldslib), [cow](https://github.com/mirage/ocaml-cow), a decent
@@ -42,6 +42,10 @@ $ opam pin add opium --dev-repo
 ```
 
 ## Examples
+
+All examples are built once the necessary dependencies are installed (`cow`).
+`$ make` will compile all examples. The binaries are located in
+`_build/examples/`
 
 ### Hello World
 
