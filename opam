@@ -8,29 +8,23 @@ bug-reports: "https://github.com/rgrinberg/opium/issues"
 dev-repo: "https://github.com/rgrinberg/opium.git"
 
 build: [
-  ["oasis" "setup"]
-  ["ocaml" "setup.ml" "-configure"]
-  ["ocaml" "setup.ml" "-build"]
+  ["omake"]
 ]
 
-install: ["ocaml" "setup.ml" "-install"]
+install: ["omake" "install"]
 
 remove: [
   ["ocamlfind" "remove" "opium_rock"]
   ["ocamlfind" "remove" "opium"]
 ]
 
-build-doc: ["ocaml" "setup.ml" "-doc"]
 build-test: [
-  ["oasis" "setup"]
-  ["ocaml" "setup.ml" "-configure" "--enable-tests"]
-  ["ocaml" "setup.ml" "-build"]
-  ["ocaml" "setup.ml" "-test"]
+  ["omake" "test"]
 ]
 
 depends: [
   "ocamlfind" {build}
-  "oasis" {build}
+  "omake" {build}
   "cohttp" {>= "0.15.0"}
   "ezjsonm" {>= "0.4.0"}
   "base64" {>= "2.0.0"}
