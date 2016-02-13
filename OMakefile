@@ -20,6 +20,13 @@ InstallTargets(p) =
     files = $(p_root)/META $(find $(p_root) $(flags))
     return $(files)
 
+MakeDep(ps) =
+    foreach(p => ...,$(ps))
+        OCAMLINCLUDES += $(BUILD_ROOT)/$p
+        OCAML_LIBS += $(BUILD_ROOT)/$p/$p
+        export
+    export
+
 USE_OCAMLFIND = true
 BYTE_ENABLED = true
 
@@ -62,8 +69,7 @@ section
     FILES = $(Modules $(LIB))
     OCAMLPACKS += ezjsonm cmdliner
     .SUBDIRS: $(BUILD_ROOT)/$(LIB)
-        OCAMLINCLUDES += ../opium_rock
-        OCAML_LIBS += ../opium_rock/opium_rock
+        MakeDep(opium_rock)
         BUILD = $(OCamlLibrary $(LIB), $(FILES)) $(GenMeta)
         ALL_DEPS += $(BUILD)
         export ALL_DEPS
@@ -76,12 +82,7 @@ section
         FILES = $(Modules examples)
         OCAMLPACKS += cow.syntax cow cmdliner
         .SUBDIRS: $(BUILD_ROOT)/examples
-            OCAMLINCLUDES[] +=
-                ../opium_rock
-                ../opium
-            OCAML_LIBS[] +=
-                ../opium_rock/opium_rock
-                ../opium/opium
+            MakeDep(opium_rock opium)
             .DEFAULT: $(foreach i => $(OCamlProgram $i, $i), $(FILES))
 
 section
@@ -90,12 +91,7 @@ section
         FILES = $(Modules lib_test)
         OCAMLPACKS += $(EXTRA_DEPS)
         .SUBDIRS: $(BUILD_ROOT)/lib_test
-            OCAMLINCLUDES[] +=
-                ../opium_rock
-                ../opium
-            OCAML_LIBS[] +=
-                ../opium_rock/opium_rock
-                ../opium/opium
+            MakeDep(opium_rock opium)
             TESTS = $(foreach i => $(OCamlProgram $i, $i), $(FILES))
             .DEFAULT: $(TESTS)
             .PHONY: check
