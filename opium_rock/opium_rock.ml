@@ -20,16 +20,16 @@ end
 
 module Request = struct
   type t = {
-    request: Co.Request.t;
+    request: Cohttp.Request.t;
     body: Body.t;
     env: Univ_map.t;
   } with fields, sexp_of
 
   let create ?(body=Body.empty) ?(env=Univ_map.empty) request =
     { request; env ; body }
-  let uri     { request; _ } = Co.Request.uri request
-  let meth    { request; _ } = Co.Request.meth request
-  let headers { request; _ } = Co.Request.headers request
+  let uri     { request; _ } = Cohttp.Request.uri request
+  let meth    { request; _ } = Cohttp.Request.meth request
+  let headers { request; _ } = Cohttp.Request.headers request
 end
 
 module Response = struct
@@ -83,13 +83,13 @@ module Middleware = struct
   let wrap_debug handler ({ Request.env ; request } as req) =
     let env = Univ_map.sexp_of_t env in
     let req' = request
-               |> Co.Request.headers
-               |> Co.Header.to_lines in
+               |> Cohttp.Request.headers
+               |> Cohttp.Header.to_lines in
     printf "Env:\n%s\n" (Sexp.to_string_hum env);
     printf "%s\n" (String.concat req');
     let resp = handler req in
     resp >>| (fun ({Response.headers; _} as resp) ->
-      printf "%s\n" (headers |> Co.Header.to_lines |> String.concat);
+      printf "%s\n" (headers |> Cohttp.Header.to_lines |> String.concat);
       resp)
 
   let apply_middlewares_debug (middlewares : t list) handler =

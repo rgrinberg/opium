@@ -7,6 +7,8 @@ module Route = Opium_route
 module Debug = Opium_debug
 open Rock
 
+module Co = Cohttp
+
 type t = {
   port:        int;
   ssl:         ([ `Crt_file_path of string ] * [ `Key_file_path of string ]) option;
