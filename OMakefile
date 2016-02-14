@@ -1,7 +1,6 @@
 Modules(path) =
     return $(basename $(removesuffix $(find $(path) -name *.ml)))
 
-# TODO fix this check. omake throws an exception on non zero error codes
 FindlibExists(packages) =
     return $(equal 0,$(shell-code ocamlfind query $(packages) > /dev/null))
 
@@ -30,19 +29,28 @@ MakeDep(ps) =
 USE_OCAMLFIND = true
 BYTE_ENABLED = true
 
-VERSION = 0.14.0
+VERSION = 0.15.0
 
 OCAMLFLAGS = -g -bin-annot -thread
 
 OCAMLFINDFLAGS += -syntax camlp4o
-OCAMLPACKS[] = core_kernel cohttp.lwt camlp4 fieldslib.syntax sexplib.syntax
+OCAMLPACKS[] +=
+    core_kernel
+    lwt.log
+    cohttp.lwt-core
+    camlp4
+    fieldslib.syntax
+    sexplib.syntax
+    ezjsonm
+
+UNIX_DEPS = cmdliner cohttp.lwt magic-mime
 
 BUILD_ROOT = $(dir _build)
 
-SOURCE_DIRS = opium_rock opium lib_test examples
+SOURCE_DIRS = opium_kernel opium lib_test examples
 
-EXAMPLES_DEPS = cow.syntax cow cmdliner
-TEST_DEPS = oUnit ezjsonm cmdliner
+EXAMPLES_DEPS = cow.syntax cow $(UNIX_DEPS)
+TEST_DEPS = oUnit ezjsonm
 
 EXAMPLES_ENABLED = true
 
@@ -55,7 +63,7 @@ CREATE_SUBDIRS = true
 ALL_DEPS =
 
 section
-    LIB = opium_rock
+    LIB = opium_kernel
     FILES = $(Modules $(LIB))
     .SUBDIRS: $(BUILD_ROOT)/$(LIB)
         BUILD = $(OCamlLibrary $(LIB), $(FILES)) $(GenMeta)
@@ -67,9 +75,9 @@ section
 section
     LIB = opium
     FILES = $(Modules $(LIB))
-    OCAMLPACKS += ezjsonm cmdliner
+    OCAMLPACKS += $(UNIX_DEPS)
     .SUBDIRS: $(BUILD_ROOT)/$(LIB)
-        MakeDep(opium_rock)
+        MakeDep(opium_kernel)
         BUILD = $(OCamlLibrary $(LIB), $(FILES)) $(GenMeta)
         ALL_DEPS += $(BUILD)
         export ALL_DEPS
@@ -77,21 +85,21 @@ section
     export ALL_DEPS
 
 section
-    EXTRA_DEPS = cow.syntax cow cmdliner
+    EXTRA_DEPS = $(EXAMPLES_DEPS)
     if $(FindlibExists $(EXTRA_DEPS))
         FILES = $(Modules examples)
-        OCAMLPACKS += cow.syntax cow cmdliner
+        OCAMLPACKS += cow.syntax cow $(UNIX_DEPS)
         .SUBDIRS: $(BUILD_ROOT)/examples
-            MakeDep(opium_rock opium)
+            MakeDep(opium_kernel opium)
             .DEFAULT: $(foreach i => $(OCamlProgram $i, $i), $(FILES))
 
 section
-    EXTRA_DEPS = oUnit ezjsonm cmdliner
+    EXTRA_DEPS = $(TEST_DEPS)
     if $(FindlibExists $(EXTRA_DEPS))
         FILES = $(Modules lib_test)
-        OCAMLPACKS += $(EXTRA_DEPS)
+        OCAMLPACKS += $(EXTRA_DEPS) $(UNIX_DEPS)
         .SUBDIRS: $(BUILD_ROOT)/lib_test
-            MakeDep(opium_rock opium)
+            MakeDep(opium_kernel opium)
             TESTS = $(foreach i => $(OCamlProgram $i, $i), $(FILES))
             .DEFAULT: $(TESTS)
             .PHONY: check
@@ -103,7 +111,7 @@ README_SOURCES = $(addprefix examples/,$(README_SOURCES))
 README.md: README.cpp.md $(README_SOURCES)
     cppo -n -o $@ < $<
 
-FINDLIB_PACKAGES = opium opium_rock
+FINDLIB_PACKAGES = opium_kernel opium
 .PHONY: install
 install: $(ALL_DEPS)
     foreach(p => ..., $(FINDLIB_PACKAGES))

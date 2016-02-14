@@ -5,9 +5,25 @@ module Rock = Opium_rock
 module Router = Opium_router
 module Route = Opium_route
 module Debug = Opium_debug
+module Server = Cohttp_lwt_unix.Server
 open Rock
 
 module Co = Cohttp
+
+let run_unix ?ssl t ~port =
+  let middlewares = t |> App.middlewares |> List.map ~f:Middleware.filter in
+  let handler = App.handler t in
+  let mode = Option.value_map ssl
+               ~default:(`TCP (`Port port)) ~f:(fun (c, k) ->
+                 `TLS (c, k, `No_password, `Port port)) in
+  Server.create ~mode (
+    Server.make ~callback:(fun _ req body ->
+      let req = Request.create ~body req in
+      let handler = Filter.apply_all middlewares handler in
+      handler req >>= fun { Response.code; headers; body } ->
+      Server.respond ~headers ~body ~status:code ()
+    ) ()
+  )
 
 type t = {
   port:        int;
@@ -106,7 +122,7 @@ let start app =
   let port = app.port in
   let ssl = app.ssl in
   let app = Rock.App.create ~middlewares ~handler:app.not_found in
-  app |> Rock.App.run ~port ?ssl
+  app |> run_unix ~port ?ssl
 
 let print_routes_f routes =
   let routes_tbl = Hashtbl.Poly.create () in

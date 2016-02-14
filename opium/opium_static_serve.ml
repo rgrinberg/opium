@@ -1,6 +1,7 @@
 open Core_kernel.Std
 open Opium_misc
 
+module Server = Cohttp_lwt_unix.Server
 module Rock = Opium_rock
 open Rock
 
@@ -9,7 +10,7 @@ type t = {
   local_path: string;
 } with fields, sexp
 
-let legal_path {prefix;local_path} requested = 
+let legal_path {prefix;local_path} requested =
   let open Option in
   String.chop_prefix requested ~prefix >>= fun p ->
   let requested_path = Filename.concat local_path p

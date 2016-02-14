@@ -107,18 +107,4 @@ module App = struct
     { t with middlewares=(t.middlewares @ [m]) }
 
   let create ?(middlewares=[]) ~handler = { middlewares; handler }
-
-  let run ?ssl { handler; middlewares } ~port =
-    let middlewares = middlewares |> List.map ~f:Middleware.filter in
-    let mode = Option.value_map ssl
-      ~default:(`TCP (`Port port)) ~f:(fun (c, k) ->
-        `TLS (c, k, `No_password, `Port port)) in
-    Server.create ~mode (
-      Server.make ~callback:(fun _ req body ->
-        let req = Request.create ~body req in
-        let handler = Filter.apply_all middlewares handler in
-        handler req >>= fun { Response.code; headers; body } ->
-        Server.respond ~headers ~body ~status:code ()
-      ) ()
-    )
 end

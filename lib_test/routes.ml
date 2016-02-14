@@ -1,8 +1,8 @@
 open Core_kernel.Std
 open OUnit
 
-module O = Opium.Router
-module Route = Opium.Route
+module O = Opium_kernel.Router
+module Route = Opium_kernel.Route
 
 let match_get_params route url =
   url |> Route.match_url route |> Option.map ~f:Route.params
@@ -71,12 +71,12 @@ let test_match_no_param _ =
 
 let test_empty_route _ =
   let r = Route.of_string "/" in
-  let m s = 
+  let m s =
     match Route.match_url r s with
     | None -> false
     | Some _ -> true
   in
-  let (m1, m2) = Route.(m "/", m "/testing") in 
+  let (m1, m2) = Route.(m "/", m "/testing") in
   assert_bool "match '/'" m1;
   assert_bool "not match '/testing'" (not m2)
 

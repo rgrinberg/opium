@@ -6,7 +6,7 @@
     - Automatic generation of a command line app
 *)
 open Core_kernel.Std
-open Opium_rock
+open Opium_kernel.Rock
 
 (** An opium app is a simple builder wrapper around a rock app *)
 type t with sexp_of
