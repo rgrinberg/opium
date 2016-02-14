@@ -1,12 +1,12 @@
 .DEFAULT: build
 
 build:
-	@omake
+	@omake -j4
 
 all: build
 
 check:
-	@omake check
+	@omake -j4 check
 
 clean:
 	rm -rf _build *.omc .omakedb .omakedb.lock
