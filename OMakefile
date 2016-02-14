@@ -36,14 +36,13 @@ OCAMLFLAGS = -g -bin-annot -thread
 OCAMLFINDFLAGS += -syntax camlp4o
 OCAMLPACKS[] +=
     core_kernel
-    lwt.log
     cohttp.lwt-core
     camlp4
     fieldslib.syntax
     sexplib.syntax
     ezjsonm
 
-UNIX_DEPS = cmdliner cohttp.lwt magic-mime
+UNIX_DEPS = cmdliner cohttp.lwt magic-mime lwt.log
 
 BUILD_ROOT = $(dir _build)
 
@@ -97,9 +96,9 @@ section
     EXTRA_DEPS = $(TEST_DEPS)
     if $(FindlibExists $(EXTRA_DEPS))
         FILES = $(Modules lib_test)
-        OCAMLPACKS += $(EXTRA_DEPS) $(UNIX_DEPS)
+        OCAMLPACKS += $(EXTRA_DEPS)
         .SUBDIRS: $(BUILD_ROOT)/lib_test
-            MakeDep(opium_kernel opium)
+            MakeDep(opium_kernel)
             TESTS = $(foreach i => $(OCamlProgram $i, $i), $(FILES))
             .DEFAULT: $(TESTS)
             .PHONY: check
