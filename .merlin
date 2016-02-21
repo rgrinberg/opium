@@ -6,11 +6,12 @@ S examples
 B _build/**
 
 PKG base64
-PKG core_kernel
 PKG lwt
 PKG lwt.unix
 PKG cohttp.lwt
 PKG cmdliner
+PKG uri
+PKG sexplib
 PKG oUnit
 PKG ezjsonm
 PKG sexplib.syntax

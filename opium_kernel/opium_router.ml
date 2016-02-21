@@ -1,14 +1,16 @@
-open Core_kernel.Std
+open Opium_misc
+open Sexplib.Std
 
 module Co = Cohttp
 module Rock = Opium_rock
 module Route = Opium_route
+module Univ_map = Opium_umap.Default
 
 open Rock
 
 type 'a t = (Route.t * 'a) Queue.t array with sexp
 
-let create () = Array.init 7 ~f:(fun _ -> Queue.create ())
+let create () = Array.init 7 (fun _ -> Queue.create ())
 
 let int_of_meth = function
   | `GET     -> 0
@@ -23,30 +25,30 @@ let int_of_meth = function
 let get t meth = t.(int_of_meth meth)
 
 let add t ~route ~meth ~action =
-  Queue.enqueue t.(int_of_meth meth) (route, action)
+  Queue.push (route, action) t.(int_of_meth meth)
 
 (** finds matching endpoint and returns it with the parsed list of
     parameters *)
 let matching_endpoint endpoints meth uri =
   let endpoints = get endpoints meth in
-  endpoints |> Queue.find_map ~f:(fun ep ->
-    uri |> Route.match_url (fst ep) |> Option.map ~f:(fun p -> (ep, p)))
+  endpoints
+    |> Queue.find_map ~f:(fun ep ->
+      uri |> Route.match_url (fst ep) |> Option.map ~f:(fun p -> (ep, p)))
 
 module Env = struct
   let key : Route.matches Univ_map.Key.t =
-    Univ_map.Key.create "path_params" <:sexp_of<Route.matches>>
+    Univ_map.Key.create ("path_params",<:sexp_of<Route.matches>>)
 end
 
 (* not param_exn since if the endpoint was selected it's likely that
    the parameter is already there *)
 let param req param =
   let { Route.params;  _ } =
-    Univ_map.find_exn (Request.env req) Env.key in
-  List.Assoc.find_exn params param
+    Univ_map.find_exn Env.key (Request.env req) in
+  List.assoc param params
 
 let splat req =
-  Env.key
-  |> Univ_map.find_exn (Request.env req)
+  Univ_map.find_exn Env.key (Request.env req)
   |> Route.splat
 
 (* takes a list of endpoints and a default handler. calls an endpoint
@@ -58,7 +60,7 @@ let m endpoints =
     | None -> default req
     | Some (endpoint, params) -> begin
         let env_with_params =
-          Univ_map.add_exn (Request.env req) Env.key params in
+          Univ_map.add Env.key params (Request.env req) in
         (snd endpoint) { req with Request.env=env_with_params }
       end
-  in Rock.Middleware.create ~name:(Info.of_string "Router") ~filter
+  in Rock.Middleware.create ~name:"Router" ~filter

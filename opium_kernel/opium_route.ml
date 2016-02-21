@@ -1,4 +1,5 @@
-open Core_kernel.Std
+open Opium_misc
+open Sexplib.Std (* for the `with sexp` *)
 
 type path_segment =
   | Match of string
@@ -20,9 +21,8 @@ let parse_param s =
   else if s = "*" then Splat
   else if s = "**" then FullSplat
   else
-    match String.chop_prefix s ~prefix:":" with
-    | Some s -> Param s
-    | None -> Match s
+    try Scanf.sscanf s ":%s" (fun s -> Param s)
+    with Scanf.Scan_failure _ -> Match s
 
 let of_list l = 
   let last_i = List.length l - 1 in
@@ -57,7 +57,7 @@ let to_string l =
       | Splat     -> Some "*"
       | FullSplat -> Some "**"
       | Slash     -> None)
-    |> String.concat ~sep:"/" in
+    |> String.concat "/" in
   "/" ^ r
 
 let rec match_url t url ({params; splat} as matches) =

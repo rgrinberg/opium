@@ -1,6 +1,8 @@
-open Core_kernel.Std
 open Cohttp
+open Sexplib.Std
 open Opium_misc
+
+module Univ_map = Opium_umap.Default
 
 module Service = struct
   type ('req, 'rep) t = 'req -> 'rep Lwt.t with sexp
@@ -71,7 +73,7 @@ end
 module Middleware = struct
   type t = {
     filter: (Request.t, Response.t) Filter.simple;
-    name: Info.t;
+    name: string;
   } with fields, sexp_of
 
   let create ~filter ~name = { filter ; name }
@@ -85,15 +87,15 @@ module Middleware = struct
     let req' = request
                |> Cohttp.Request.headers
                |> Cohttp.Header.to_lines in
-    printf "Env:\n%s\n" (Sexp.to_string_hum env);
-    printf "%s\n" (String.concat req');
+    Printf.printf "Env:\n%s\n" (Sexplib.Sexp.to_string_hum env);
+    Printf.printf "%s\n" (String.concat "" req');
     let resp = handler req in
     resp >>| (fun ({Response.headers; _} as resp) ->
-      printf "%s\n" (headers |> Cohttp.Header.to_lines |> String.concat);
+      Printf.printf "%s\n" (headers |> Cohttp.Header.to_lines |> String.concat "\n");
       resp)
 
   let apply_middlewares_debug (middlewares : t list) handler =
-    List.fold_left middlewares ~init:handler ~f:(fun h m ->
+    ListLabels.fold_left middlewares ~init:handler ~f:(fun h m ->
       wrap_debug (apply m h))
 end
 

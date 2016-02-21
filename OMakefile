@@ -35,7 +35,7 @@ OCAMLFLAGS = -g -bin-annot -thread
 
 OCAMLFINDFLAGS += -syntax camlp4o
 OCAMLPACKS[] +=
-    core_kernel
+    # core_kernel
     cohttp.lwt-core
     camlp4
     fieldslib.syntax

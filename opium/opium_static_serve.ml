@@ -1,5 +1,5 @@
-open Core_kernel.Std
 open Opium_misc
+open Sexplib.Std
 
 module Server = Cohttp_lwt_unix.Server
 module Rock = Opium_rock
@@ -12,11 +12,10 @@ type t = {
 
 let legal_path {prefix;local_path} requested =
   let open Option in
-  String.chop_prefix requested ~prefix >>= fun p ->
-  let requested_path = Filename.concat local_path p
-  in Option.some_if
-       (String.is_prefix requested_path ~prefix:local_path)
-       requested_path
+  let p = String.chop_prefix requested ~prefix in
+  let requested_path = Filename.concat local_path p in
+  if String.is_prefix requested_path ~prefix:local_path
+  then Some requested_path else None
 
 let public_serve t ~requested =
   match legal_path t requested with
@@ -42,4 +41,4 @@ let m ~local_path ~uri_prefix =
         handler req
     else
       handler req
-  in Rock.Middleware.create ~name:(Info.of_string "Static Pages") ~filter
+  in Rock.Middleware.create ~name:"Static Pages" ~filter

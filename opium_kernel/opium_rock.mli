@@ -3,8 +3,6 @@
     this to for such a tiny framework but it makes extensions a lot
     more straightforward *)
 
-open Core_kernel.Std
-
 (** A service is simply a function that returns it's result
     asynchronously *)
 module Service : sig
@@ -40,11 +38,11 @@ module Request : sig
   type t = {
     request: Cohttp.Request.t;
     body:    Cohttp_lwt_body.t;
-    env:     Univ_map.t;
+    env:     Opium_umap.Default.t;
   } with fields, sexp_of
 
   val create : ?body:Cohttp_lwt_body.t
-    -> ?env:Univ_map.t
+    -> ?env:Opium_umap.Default.t
     -> Cohttp.Request.t -> t
   (** Convenience accessors on the request field  *)
   val uri : t -> Uri.t
@@ -57,18 +55,18 @@ module Response : sig
     code:    Cohttp.Code.status_code;
     headers: Cohttp.Header.t;
     body:    Cohttp_lwt_body.t;
-    env:     Univ_map.t
+    env:     Opium_umap.Default.t
   } with fields, sexp_of
 
   val create :
-    ?env: Univ_map.t ->
+    ?env: Opium_umap.Default.t ->
     ?body:Cohttp_lwt_body.t ->
     ?headers:Cohttp.Header.t ->
     ?code:Cohttp.Code.status_code ->
     unit -> t
 
   val of_string_body :
-    ?env: Univ_map.t ->
+    ?env: Opium_umap.Default.t ->
     ?headers:Cohttp.Header.t ->
     ?code:Cohttp.Code.status_code ->
     string -> t
@@ -90,10 +88,10 @@ module Middleware : sig
 
   val filter : t -> (Request.t, Response.t) Filter.simple
 
-  val name : t -> Info.t
+  val name : t -> string
 
   val create : filter:(Request.t, Response.t) Filter.simple
-    -> name:Info.t -> t
+    -> name:string -> t
 end
 
 module App : sig

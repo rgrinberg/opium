@@ -1,5 +1,7 @@
-open Core_kernel.Std
 open Opium_misc
+open Sexplib.Std
+
+module UMap = Opium_umap.Default
 module Co = Cohttp
 module Rock = Opium_rock
 
@@ -14,21 +16,22 @@ let valc = keyc
 
 module Env = struct
   type cookie = (string * string) list
-  let key : cookie Univ_map.Key.t =
-    Univ_map.Key.create "cookie" <:sexp_of<(string * string) list>>
+  let key : cookie UMap.Key.t =
+    UMap.Key.create ("cookie",<:sexp_of<(string * string) list>>)
 end
 
 module Env_resp = struct
   type cookie = (string * string * Co.Cookie.expiration) list
-  let key : cookie Univ_map.Key.t =
-    Univ_map.Key.create "cookie_res" <:sexp_of<(string * string * Co.Cookie.expiration) list>>
+  let key : cookie UMap.Key.t =
+    UMap.Key.create
+      ("cookie_res",<:sexp_of<(string * string * Co.Cookie.expiration) list>>)
 end
 
 let current_cookies env record =
-  Option.value ~default:[] (Univ_map.find (Field.get env record) Env.key)
+  Option.value ~default:[] (UMap.find Env.key (env record) )
 
 let current_cookies_resp env record =
-  Option.value ~default:[] (Univ_map.find (Field.get env record) Env_resp.key)
+  Option.value ~default:[] (UMap.find Env_resp.key (env record))
 
 let cookies_raw req = req
                       |> Rock.Request.request
@@ -43,7 +46,7 @@ let cookies req = req
 
 let get req ~key =
   let cookie1 =
-    let env = current_cookies Rock.Request.Fields.env req in
+    let env = current_cookies (fun r -> r.Rock.Request.env) req in
     List.find_map env ~f:(fun (k,v) -> if k = key then Some v else None)
   in
   match cookie1 with
@@ -58,11 +61,11 @@ let get req ~key =
 
 let set_cookies ?(expiration = `Session) resp cookies =
   let env = Rock.Response.env resp in
-  let current_cookies = current_cookies_resp Rock.Response.Fields.env resp in
+  let current_cookies = current_cookies_resp (fun r->r.Rock.Response.env) resp in
   let cookies' = List.map cookies ~f:(fun (key, data) -> (key, data, expiration)) in
   (* WRONG cookies cannot just be concatenated *)
   let all_cookies = current_cookies @ cookies' in
-  { resp with Rock.Response.env=(Univ_map.set env Env_resp.key all_cookies) }
+  { resp with Rock.Response.env=(UMap.add Env_resp.key all_cookies env) }
 
 let set ?expiration resp ~key ~data =
   set_cookies ?expiration resp [(key, data)]
@@ -76,10 +79,12 @@ let m =             (* TODO: "optimize" *)
         (keyc#encode k, valc#encode v)
         |> Cookie.make ~path:"/" ~expiration
         |> Cookie.serialize
-      in current_cookies_resp Rock.Response.Fields.env response |> List.map ~f in
+      in current_cookies_resp (fun r->r.Rock.Response.env) response
+         |> List.map ~f
+    in
     let old_headers = Rock.Response.headers response in
     { response with Rock.Response.headers=(
        List.fold_left cookie_headers ~init:old_headers
          ~f:(fun headers (k,v) -> Co.Header.add headers k v))
-    } 
-  in Rock.Middleware.create ~filter ~name:(Info.of_string "Cookie")
+    }
+  in Rock.Middleware.create ~filter ~name:"Cookie"
