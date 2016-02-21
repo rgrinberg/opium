@@ -1,4 +1,3 @@
-open Core_kernel.Std
 open Opium.Std
 
 let uppercase =
@@ -7,9 +6,9 @@ let uppercase =
       response
       |> Response.body
       |> Cohttp_lwt_body.map String.uppercase
-      |> Field.fset Response.Fields.body response)
+      |> (fun b->{response with Response.body=b; }))
   in
-  Rock.Middleware.create ~name:(Info.of_string "uppercaser") ~filter
+  Rock.Middleware.create ~name:"uppercaser" ~filter
 
 let _ = App.empty
         |> middleware uppercase

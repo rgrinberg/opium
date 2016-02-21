@@ -1,5 +1,6 @@
-open Core_kernel.Std
 open Opium.Std
+open Opium_misc
+
 (* don't open cohttp and opium since they both define
    request/response modules*)
 
@@ -12,7 +13,7 @@ let reject_ua ~f =
     | Some ua when f ua ->
       `String ("Please upgrade your browser") |> respond'
     | _ -> handler req in
-  Rock.Middleware.create ~filter ~name:(Info.of_string "reject_ua")
+  Rock.Middleware.create ~filter ~name:"reject_ua"
 
 let _ = App.empty
         |> get "/" (fun req -> `String ("Hello World") |> respond')

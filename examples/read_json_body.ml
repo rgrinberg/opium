@@ -1,4 +1,3 @@
-open Core_kernel.Std
 open Opium.Std
 
 let print_json req =

@@ -1,4 +1,6 @@
-open Core_kernel.Std
+open Opium_misc
+open Sexplib
+open Sexplib.Std
 open OUnit
 
 module Route = Opium_kernel.Route
@@ -11,7 +13,7 @@ let string_of_match = function
   | Some m ->
     Sexp.to_string_hum
       (List.sexp_of_t
-         (Tuple.T2.sexp_of_t String.sexp_of_t String.sexp_of_t) m)
+         (sexp_of_pair sexp_of_string sexp_of_string) m)
 
 let simple_route1 _ =
   let r = Route.of_string "/test/:id" in
@@ -25,8 +27,8 @@ let simple_route2 _ =
   match m with
   | None -> assert_failure "no matches"
   | Some s -> begin
-      assert_equal (List.Assoc.find_exn s "format") "json";
-      assert_equal (List.Assoc.find_exn s "name") "bar"
+      assert_equal (List.assoc "format" s) "json";
+      assert_equal (List.assoc "name" s) "bar"
     end
 
 let simple_route3 _ =
@@ -57,8 +59,8 @@ let test_match_2_params _ =
   match m with
   | None -> assert_failure "no match found"
   | Some m -> begin
-      assert_equal (List.Assoc.find_exn m "x") "123";
-      assert_equal (List.Assoc.find_exn m "y") "456"
+      assert_equal (List.assoc "x" m) "123";
+      assert_equal (List.assoc "y" m) "456"
     end
 
 let test_match_no_param _ =

@@ -13,9 +13,13 @@ end
 
 module Option = struct
   let some x = Some x
+  let is_some = function Some _ -> true | None -> false
   let value ~default = function
     | Some x -> x
     | None -> default
+  let value_exn ~message = function
+    | Some x -> x
+    | None -> failwith message
   let map ~f = function
     | None -> None
     | Some x -> Some (f x)
@@ -66,6 +70,26 @@ module String = struct
   let chop_prefix ~prefix s =
     assert (is_prefix ~prefix s);
     sub s (length prefix) (length s - length prefix)
+
+  let _is_sub ~sub i s j ~len =
+    let rec check k =
+      if k = len
+        then true
+        else sub.[i+k] = s.[j+k] && check (k+1)
+    in
+    j+len <= String.length s && check 0
+
+  (* note: inefficient *)
+  let substr_index ~pattern:sub s =
+    let n = String.length sub in
+    let i = ref 0 in
+    try
+      while !i + n <= String.length s do
+        if _is_sub ~sub 0 s !i ~len:n then raise Exit;
+        incr i
+      done;
+      None
+    with Exit -> Some !i
 end
 
 module Queue = struct

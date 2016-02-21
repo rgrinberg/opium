@@ -1,5 +1,5 @@
-open Core_kernel.Std
 open Opium.Std
+
 let e1 = get "/version" (fun req -> (`String "testing") |> respond')
 
 let e2 = get "/hello/:name" (fun req -> 
@@ -8,15 +8,15 @@ let e2 = get "/hello/:name" (fun req ->
 
 let e3 = get "/xxx/:x/:y" begin fun req ->
   let open Cow.Json in
-  let x = "x" |> param req |> Int.of_string in
-  let y = "y" |> param req |> Int.of_string in
-  let sum = Float.of_int (x + y) in
+  let x = "x" |> param req |> int_of_string in
+  let y = "y" |> param req |> int_of_string in
+  let sum = float_of_int (x + y) in
   `Json (`A [int x; int y;float sum]) |> respond'
 end
 
 let e4 = put "/hello/:x/from/:y" begin fun req ->
   let (x,y) = (param req "x", param req "y") in
-  let msg = sprintf "Hello %s! from %s." x y in
+  let msg = Printf.sprintf "Hello %s! from %s." x y in
   `String msg |> respond |> return
 end
 
@@ -31,14 +31,14 @@ end
 let get_cookie = get "/get/:key" begin fun req ->
   Lwt_log.ign_info "Getting cookie";
   let key = param req "key" in
-  let message = sprintf "Cookie %s doesn't exist" key in
+  let message = Printf.sprintf "Cookie %s doesn't exist" key in
   let value = Option.value_exn ~message (Cookie.get req ~key) in
-  `String (sprintf "Cookie %s is: %s" key value) |> respond |> return
+  `String (Printf.sprintf "Cookie %s is: %s" key value) |> respond |> return
 end
 
 let splat_route = get "/testing/*/:p" begin fun req ->
   let p = param req "p" in
-  `String (sprintf "__ %s __" p ^ (req |> splat |> String.concat ~sep:":"))
+  `String (Printf.sprintf "__ %s __" p ^ (req |> splat |> String.concat ":"))
   |> respond'
 end
 
@@ -46,9 +46,9 @@ let all_cookies = get "/cookies" begin fun req ->
   let cookies = req
                 |> Cookie.cookies
                 |> List.map ~f:(fun (k,v) -> k ^ "=" ^ v)
-                |> String.concat ~sep:"\n"
+                |> String.concat "\n"
   in
-  `String (sprintf "<pre>%s</pre>" cookies) |> respond |> return
+  `String (Printf.sprintf "<pre>%s</pre>" cookies) |> respond |> return
 end
 
 (* exceptions should be nicely formatted *)
