@@ -1,5 +1,5 @@
-open Core_kernel.Std
 open Opium_misc
+open Sexplib.Std
 
 module Rock = Opium_rock
 module Router = Opium_router
@@ -77,7 +77,7 @@ let middleware m app =
 
 let public_path root requested =
   let asked_path = Filename.concat root requested in
-  Option.some_if (String.is_prefix asked_path ~prefix:root) asked_path
+  if String.is_prefix asked_path ~prefix:root then Some asked_path else None
 
 let action meth route action =
   register ~meth ~route:(Route.of_string route) ~action
@@ -125,26 +125,27 @@ let start app =
   app |> run_unix ~port ?ssl
 
 let print_routes_f routes =
-  let routes_tbl = Hashtbl.Poly.create () in
+  let routes_tbl = Hashtbl.create 64 in
   routes |> List.iter ~f:(fun (meth, route, _) ->
-    Hashtbl.add_multi routes_tbl ~key:route ~data:meth);
-  printf "%d Routes:\n" (Hashtbl.length routes_tbl);
-  Hashtbl.iter routes_tbl ~f:(fun ~key ~data ->
-    printf "> %s (%s)\n" (Route.to_string key)
-      (data
-       |> List.map ~f:Cohttp.Code.string_of_method
-       |> String.concat ~sep:" ")
-  )
+    hashtbl_add_multi routes_tbl route meth);
+  Printf.printf "%d Routes:\n" (Hashtbl.length routes_tbl);
+  Hashtbl.iter
+    (fun key data ->
+      Printf.printf "> %s (%s)\n" (Route.to_string key)
+        (data
+         |> List.map ~f:Cohttp.Code.string_of_method
+         |> String.concat " "))
+    routes_tbl 
 
 let print_middleware_f middlewares =
   print_endline "Active middleware:";
   middlewares
-  |> List.map ~f:(Fn.compose Info.to_string_hum Rock.Middleware.name)
-  |> List.iter ~f:(printf "> %s \n")
+  |> List.map ~f:Rock.Middleware.name
+  |> List.iter ~f:(Printf.printf "> %s \n")
 
 let cmd_run app port ssl_cert ssl_key host print_routes print_middleware
     debug verbose errors =
-  let ssl = Option.map2 ssl_cert ssl_key (fun c k ->
+  let ssl = Option.map2 ssl_cert ssl_key ~f:(fun c k ->
     (`Crt_file_path c, `Key_file_path k)) in
   let app = { app with debug ; verbose ; port ; ssl } in
   let rock_app = to_rock app in
@@ -198,7 +199,7 @@ module Cmds = struct
       $ interface $ routes $ middleware $ debug $ verbose $ errors
 
   let info name =
-    let doc = sprintf "%s (Opium App)" name in
+    let doc = Printf.sprintf "%s (Opium App)" name in
     let man = [] in
     Term.info name ~doc ~man
 end

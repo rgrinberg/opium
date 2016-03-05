@@ -54,7 +54,6 @@ Here's a simple hello world example to get your feet wet:
 `$ cat hello_world.ml`
 
 ``` ocaml
-open Core_kernel.Std
 open Opium.Std
 
 type person = {
@@ -74,7 +73,7 @@ end
 let print_person = get "/person/:name/:age" begin fun req ->
   let person = {
     name = param req "name";
-    age = "age" |> param req |> Int.of_string;
+    age = "age" |> param req |> int_of_string;
   } in
   `Json (person |> json_of_person |> Ezjsonm.wrap) |> respond'
 end
@@ -107,8 +106,9 @@ Here's how you'd create a simple middleware turning away everyone's
 favourite browser.
 
 ``` ocaml
-open Core_kernel.Std
 open Opium.Std
+open Opium_misc
+
 (* don't open cohttp and opium since they both define
    request/response modules*)
 
@@ -121,7 +121,7 @@ let reject_ua ~f =
     | Some ua when f ua ->
       `String ("Please upgrade your browser") |> respond'
     | _ -> handler req in
-  Rock.Middleware.create ~filter ~name:(Info.of_string "reject_ua")
+  Rock.Middleware.create ~filter ~name:"reject_ua"
 
 let _ = App.empty
         |> get "/" (fun req -> `String ("Hello World") |> respond')

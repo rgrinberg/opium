@@ -1,4 +1,3 @@
-open Core_kernel.Std
 open Opium.Std
 
 let hello = get "/" (fun req -> `String "Hello World" |> respond')

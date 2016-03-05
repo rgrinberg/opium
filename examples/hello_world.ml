@@ -1,4 +1,3 @@
-open Core_kernel.Std
 open Opium.Std
 
 type person = {
@@ -18,7 +17,7 @@ end
 let print_person = get "/person/:name/:age" begin fun req ->
   let person = {
     name = param req "name";
-    age = "age" |> param req |> Int.of_string;
+    age = "age" |> param req |> int_of_string;
   } in
   `Json (person |> json_of_person |> Ezjsonm.wrap) |> respond'
 end

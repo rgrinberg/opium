@@ -6,7 +6,7 @@
    The result will be the corresponding file in ./examples/ rather than the
    string "hello_world".
 *)
-open Core_kernel.Std
+
 open Opium.Std
 
 let hello = get "/examples/hello_world.ml" (fun req ->
