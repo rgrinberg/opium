@@ -1,9 +1,20 @@
 open Opium_misc
 open Sexplib
 open Sexplib.Std
-open OUnit
 
 module Route = Opium_kernel.Route
+
+let slist t = Alcotest.slist t compare
+let params = slist Alcotest.(pair string string)
+let matches_t : Route.matches Alcotest.testable =
+  (module struct
+    type t = Route.matches
+    let equal r1 r2 =
+      (Route.splat r1) = (Route.splat r2)
+      && (Route.params r1) = (Route.params r2)
+    let pp f t =
+      Sexp.pp_hum f (Route.sexp_of_matches t)
+  end)
 
 let match_get_params route url =
   url |> Route.match_url route |> Option.map ~f:Route.params
@@ -17,58 +28,46 @@ let string_of_match = function
 
 let simple_route1 _ =
   let r = Route.of_string "/test/:id" in
-  assert_equal ~printer:string_of_match None
-    (match_get_params r "/test/blerg/123");
-  assert_equal (match_get_params r "/test/123") (Some [("id","123")])
+  Alcotest.(check (option params) "no match"
+              None (match_get_params r "/test/blerg/123"));
+  Alcotest.(check (option params) "match"
+              (match_get_params r "/test/123") (Some [("id","123")]))
 
 let simple_route2 _ =
   let r = Route.of_string "/test/:format/:name" in
   let m = match_get_params r "/test/json/bar" in
-  match m with
-  | None -> assert_failure "no matches"
-  | Some s -> begin
-      assert_equal (List.assoc "format" s) "json";
-      assert_equal (List.assoc "name" s) "bar"
-    end
+  Alcotest.(check (option params) ""
+              m (Some [ "format", "json" ; "name", "bar" ]))
 
 let simple_route3 _ =
   let r = Route.of_string "/test/:format/:name" in
   let m = Route.match_url r "/test/bar" in
-  match m with
-  | None -> ()
-  | Some _ -> assert_failure "unexpected matches"
+  Alcotest.(check (option matches_t) "unexpected match" None m)
 
 let splat_route1 _ =
   let r = Route.of_string "/test/*/:id" in
   let matches = Route.match_url r "/test/splat/123" in
-  match matches with
-  | Some matches ->
-    assert_equal (Route.params matches) [("id","123")];
-    assert_equal (Route.splat matches) ["splat"]
-  | None -> assert_failure "No matches for splat"
+  Alcotest.(check (option matches_t) "matches"
+              (Some { Route.params=["id", "123"]
+                    ; splat=["splat"] })
+              matches)
 
 let splat_route2 _ =
   let r = Route.of_string "/*" in
-  match Route.match_url r "/abc/123" with
-  | None -> ()
-  | Some _ -> assert_failure "splat matches an extra path"
+  let m = Route.match_url r "/abc/123" in
+  Alcotest.(check (option matches_t) "unexpected match" None m)
 
 let test_match_2_params _ =
   let r = Route.of_string "/xxx/:x/:y" in
   let m = match_get_params r "/xxx/123/456" in
-  match m with
-  | None -> assert_failure "no match found"
-  | Some m -> begin
-      assert_equal (List.assoc "x" m) "123";
-      assert_equal (List.assoc "y" m) "456"
-    end
+  Alcotest.(check (option params) "" (Some ["x", "123"; "y", "456"]) m)
 
 let test_match_no_param _ =
   let r = Route.of_string "/version" in
   let (m1, m2) = Route.(match_url r "/version", match_url r "/tt") in
   match (m1, m2) with
   | Some _, None -> ()
-  | x, y -> assert_failure "bad match"
+  | x, y -> Alcotest.fail "bad match"
 
 let test_empty_route _ =
   let r = Route.of_string "/" in
@@ -78,62 +77,65 @@ let test_empty_route _ =
     | Some _ -> true
   in
   let (m1, m2) = Route.(m "/", m "/testing") in
-  assert_bool "match '/'" m1;
-  assert_bool "not match '/testing'" (not m2)
+  Alcotest.(check bool "match '/'" true m1);
+  Alcotest.(check bool "not match '/testing'" false m2)
 
 let printer x = x
 
 let str_t s = s |> Route.of_string |> Route.to_string
 
 let string_convert_1 _ =
-  assert_equal ~printer "/" (str_t "/")
+  Alcotest.(check string "" "/" (str_t "/"))
 
 let string_convert_2 _ =
-  assert_equal ~printer "/one/:two" (str_t "/one/:two")
+  Alcotest.(check string "" "/one/:two" (str_t "/one/:two"))
 
 let string_convert_3 _ =
-  assert_equal ~printer "/one/two/*/three" (str_t "/one/two/*/three")
+  Alcotest.(check string "" "/one/two/*/three" (str_t "/one/two/*/three"))
 
 let escape_param_1 _ =
   let r = Route.of_string "/:pp/*" in
-  match Route.match_url r "/%23/%23a" with
-  | None -> assert_failure "should match route"
-  | Some p ->
-    begin
-      assert_equal (Route.params p) [("pp", "#")];
-      assert_equal (Route.splat p) ["#a"]
-    end
+  let matches = Route.match_url r "/%23/%23a" in
+  Alcotest.(check (option matches_t) "matches"
+              (Some { Route.params=["pp", "#"]
+                    ; splat=["#a"] })
+              matches)
 
 let empty_route _ =
   let r = Route.of_string "" in
-  match Route.match_url r "" with
-  | None -> assert_failure "empty should match empty"
-  | Some _ -> ()
+  Alcotest.(check (option matches_t) ""
+              (Some { Route.params=[] ; splat=[] })
+                 (Route.match_url r ""))
 
 let test_double_splat _ =
   let r = Route.of_string "/**" in
   let matching_urls = [ "/test"; "/"; "/user/123/foo/bar" ] in
   matching_urls |> List.iter ~f:(fun u ->
     match Route.match_url r u with
-    | None -> assert_failure ("Failed to match " ^ u)
+    | None -> Alcotest.fail ("Failed to match " ^ u)
     | Some _ -> ())
 
-let test_fixtures =
-  "test routes" >:::
-  [ "test match no param"      >:: test_match_no_param
-  ; "test match 1"             >:: simple_route1
-  ; "test match 2"             >:: simple_route2
-  ; "test match 3"             >:: simple_route3
-  ; "splat match 1"            >:: splat_route1
-  ; "splat match 2"            >:: splat_route2
-  ; "test match 2 params"      >:: test_match_2_params
-  ; "test empty route"         >:: test_empty_route
-  ; "test string conversion 1" >:: string_convert_1
-  ; "test string conversion 2" >:: string_convert_2
-  ; "test string conversion 3" >:: string_convert_3
-  ; "test escape param"        >:: escape_param_1
-  ; "empty route"              >:: empty_route
-  ; "test double splat"        >:: test_double_splat
-  ]
-
-let _ = run_test_tt_main test_fixtures
+let () =
+  Alcotest.run "routes"
+    [ "match",
+      [ "test match no param", `Quick, test_match_no_param
+      ; "test match 1", `Quick, simple_route1
+      ; "test match 2", `Quick, simple_route2
+      ; "test match 3", `Quick, simple_route3
+      ; "test match 2 params", `Quick, test_match_2_params
+      ]
+    ; "splat",
+      [ "splat match 1", `Quick, splat_route1
+      ; "splat match 2", `Quick, splat_route2
+      ; "test double splat", `Quick, test_double_splat
+      ]
+    ; "conversion",
+      [ "test string conversion 1", `Quick, string_convert_1
+      ; "test string conversion 2", `Quick, string_convert_2
+      ; "test string conversion 3", `Quick, string_convert_3 ]
+    ; "empty",
+      [ "test empty route", `Quick, test_empty_route
+      ; "empty route", `Quick, empty_route ]
+    ; "escape",
+      [ "test escape param", `Quick, escape_param_1 ]
+    ]

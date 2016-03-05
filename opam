@@ -30,7 +30,7 @@ depends: [
   "sexplib"
   "re" {>= "1.3.0"}
   "magic-mime"
-  "ounit" {test}
+  "alcotest" {test}
   "cow" {test & >= "0.10.0"}
 ]
 

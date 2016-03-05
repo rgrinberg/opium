@@ -12,7 +12,7 @@ PKG cohttp.lwt
 PKG cmdliner
 PKG uri
 PKG sexplib
-PKG oUnit
 PKG ezjsonm
 PKG sexplib.syntax
 PKG fieldslib.syntax
+PKG alcotest

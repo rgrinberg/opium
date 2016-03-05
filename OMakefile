@@ -49,7 +49,7 @@ BUILD_ROOT = $(dir _build)
 SOURCE_DIRS = opium_kernel opium lib_test examples
 
 EXAMPLES_DEPS = cow.syntax cow $(UNIX_DEPS)
-TEST_DEPS = oUnit ezjsonm
+TEST_DEPS = alcotest ezjsonm
 
 EXAMPLES_ENABLED = true
 
