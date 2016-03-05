@@ -106,6 +106,8 @@ public.USE_OCAMLFIND = false
     OCAMLC_EXISTS = $(or $(OCAMLC_OPT_EXISTS), $(CheckProg ocamlc))
     OCAMLOPT_OPT_EXISTS = $(CheckProg ocamlopt.opt)
     OCAMLOPT_EXISTS = $(or $(OCAMLOPT_OPT_EXISTS), $(CheckProg ocamlopt))
+    OCAMLDEP_OPT_EXISTS = $(CheckProg ocamldep.opt)
+    OCAMLLEX_OPT_EXISTS = $(CheckProg ocamllex.opt)
     ConfMsgChecking(whether ocamlc understands the "z" warnings)
     OCAML_ACCEPTS_Z_WARNING =
         if $(OCAMLC_EXISTS)
@@ -128,9 +130,9 @@ public.OCAMLFIND = $`(if $(USE_OCAMLFIND), ocamlfind)
 public.OCAMLFINDFLAGS =
 public.LAZY_OCAMLFINDFLAGS = $`(if $(USE_OCAMLFIND), $(OCAMLFINDFLAGS))
 
-public.OCAMLDEP = ocamldep
+public.OCAMLDEP = $(if $(OCAMLDEP_OPT_EXISTS), ocamldep.opt, ocamldep)
 public.CAMLP4 = camlp4
-public.OCAMLLEX = ocamllex
+public.OCAMLLEX = $(if $(OCAMLLEX_OPT_EXISTS), ocamllex.opt, ocamllex)
 public.OCAMLLEXFLAGS = -q
 public.OCAMLYACC = ocamlyacc
 public.OCAMLYACCFLAGS =
