@@ -12,7 +12,7 @@ GenMeta() =
 
 InstallTargets(p) =
     p_root = $(BUILD_ROOT)/$p
-    exts = a o cmi cmt cmti cmx cmxa cma mli
+    exts = a o cmi cmt cmti cmx cmxa cmxs cma mli
     ext_glob = $(addprefix -name *., $(exts))
     # without the split find doesn't accept the args properly
     flags = $(split \ ,$(concat \ -o , $(ext_glob)))
