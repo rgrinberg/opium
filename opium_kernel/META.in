@@ -1,6 +1,6 @@
 version = "%version%"
 description = "Sinatra like web toolkit for OCaml. Unix independent"
-requires = "core_kernel ezjsonm base64 cmdliner magic-mime"
+requires = "ezjsonm base64 cmdliner magic-mime"
 archive(byte) = "opium_kernel.cma"
 archive(byte, plugin) = "opium_kernel.cma"
 archive(native) = "opium_kernel.cmxa"
