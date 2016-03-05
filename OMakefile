@@ -28,6 +28,7 @@ MakeDep(ps) =
 
 USE_OCAMLFIND = true
 BYTE_ENABLED = true
+CMXS_ENABLED = $(NATIVE_ENABLED)
 
 VERSION = 0.15.0
 

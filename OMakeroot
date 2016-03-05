@@ -1,4 +1,4 @@
-open build/OCaml
+open omake/OCaml
 
 DefineCommandVars()
 
