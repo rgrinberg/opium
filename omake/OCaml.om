@@ -130,9 +130,9 @@ public.OCAMLFIND = $`(if $(USE_OCAMLFIND), ocamlfind)
 public.OCAMLFINDFLAGS =
 public.LAZY_OCAMLFINDFLAGS = $`(if $(USE_OCAMLFIND), $(OCAMLFINDFLAGS))
 
-public.OCAMLDEP = $(if $(OCAMLDEP_OPT_EXISTS), ocamldep.opt, ocamldep)
+public.OCAMLDEP = ocamldep
 public.CAMLP4 = camlp4
-public.OCAMLLEX = $(if $(OCAMLLEX_OPT_EXISTS), ocamllex.opt, ocamllex)
+public.OCAMLLEX = ocamllex
 public.OCAMLLEXFLAGS = -q
 public.OCAMLYACC = ocamlyacc
 public.OCAMLYACCFLAGS =
