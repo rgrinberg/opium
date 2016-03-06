@@ -27,3 +27,4 @@ TAGS
 *.omc
 *.omakedb
 .omakedb.lock
+_tests
