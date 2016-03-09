@@ -4,7 +4,6 @@ open Sexplib.Std
 module Co = Cohttp
 module Rock = Opium_rock
 module Route = Opium_route
-module Univ_map = Opium_umap.Default
 
 open Rock
 
@@ -36,19 +35,19 @@ let matching_endpoint endpoints meth uri =
       uri |> Route.match_url (fst ep) |> Option.map ~f:(fun p -> (ep, p)))
 
 module Env = struct
-  let key : Route.matches Univ_map.Key.t =
-    Univ_map.Key.create ("path_params",<:sexp_of<Route.matches>>)
+  let key : Route.matches Opium_umap.key =
+    Opium_umap.Key.create ("path_params",<:sexp_of<Route.matches>>)
 end
 
 (* not param_exn since if the endpoint was selected it's likely that
    the parameter is already there *)
 let param req param =
   let { Route.params;  _ } =
-    Univ_map.find_exn Env.key (Request.env req) in
+    Opium_umap.find_exn Env.key (Request.env req) in
   List.assoc param params
 
 let splat req =
-  Univ_map.find_exn Env.key (Request.env req)
+  Opium_umap.find_exn Env.key (Request.env req)
   |> Route.splat
 
 (* takes a list of endpoints and a default handler. calls an endpoint
@@ -60,7 +59,7 @@ let m endpoints =
     | None -> default req
     | Some (endpoint, params) -> begin
         let env_with_params =
-          Univ_map.add Env.key params (Request.env req) in
+          Opium_umap.add Env.key params (Request.env req) in
         (snd endpoint) { req with Request.env=env_with_params }
       end
   in Rock.Middleware.create ~name:"Router" ~filter

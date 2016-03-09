@@ -5,6 +5,7 @@ S examples
 
 B _build/**
 
+PKG hmap
 PKG base64
 PKG lwt
 PKG lwt.unix

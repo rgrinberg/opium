@@ -45,8 +45,8 @@ OCAMLFLAGS = -g -bin-annot -thread
 
 OCAMLFINDFLAGS += -syntax camlp4o
 OCAMLPACKS[] +=
+    hmap
     cohttp.lwt-core
-    camlp4
     fieldslib.syntax
     sexplib.syntax
     ezjsonm

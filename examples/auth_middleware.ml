@@ -1,8 +1,5 @@
-
 open Opium.Std
 open Sexplib.Std
-
-module Univ_map = Opium_umap.Default
 
 type user = {
   username: string;
@@ -15,7 +12,7 @@ type user = {
 module Env = struct
   (* or use type nonrec *)
   type user' = user
-  let key : user' Univ_map.Key.t = Univ_map.Key.create ("user",<:sexp_of<user>>)
+  let key : user' Opium_umap.key = Opium_umap.Key.create ("user",<:sexp_of<user>>)
 end
 
 (*
@@ -39,10 +36,10 @@ let m auth =
       match auth ~username ~password with
       | None -> failwith "TODO: bad username/password pair"
       | Some user -> (* we have a user. let's add him to req *)
-        let env = Univ_map.add Env.key user (Request.env req) in
+        let env = Opium_umap.add Env.key user (Request.env req) in
         let req = {req with Request.env = env; } in
         handler req
   in
   Rock.Middleware.create ~name:"http basic auth" ~filter
 
-let user req = Univ_map.find Env.key (Request.env req)
+let user req = Opium_umap.find Env.key (Request.env req)

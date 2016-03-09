@@ -21,6 +21,7 @@ build-test: [ [make "check"] ]
 depends: [
   "ocamlfind" {build}
   "omake" {build}
+  "hmap"
   "cohttp" {>= "0.15.0"}
   "ezjsonm" {>= "0.4.0"}
   "base64" {>= "2.0.0"}
