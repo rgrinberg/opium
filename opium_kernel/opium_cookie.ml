@@ -15,22 +15,22 @@ let valc = keyc
 
 module Env = struct
   type cookie = (string * string) list
-  let key : cookie Opium_umap.key =
-    Opium_umap.Key.create ("cookie",<:sexp_of<(string * string) list>>)
+  let key : cookie Opium_hmap.key =
+    Opium_hmap.Key.create ("cookie",<:sexp_of<(string * string) list>>)
 end
 
 module Env_resp = struct
   type cookie = (string * string * Co.Cookie.expiration) list
-  let key : cookie Opium_umap.key =
-    Opium_umap.Key.create
+  let key : cookie Opium_hmap.key =
+    Opium_hmap.Key.create
       ("cookie_res",<:sexp_of<(string * string * Co.Cookie.expiration) list>>)
 end
 
 let current_cookies env record =
-  Option.value ~default:[] (Opium_umap.find Env.key (env record) )
+  Option.value ~default:[] (Opium_hmap.find Env.key (env record) )
 
 let current_cookies_resp env record =
-  Option.value ~default:[] (Opium_umap.find Env_resp.key (env record))
+  Option.value ~default:[] (Opium_hmap.find Env_resp.key (env record))
 
 let cookies_raw req = req
                       |> Rock.Request.request
@@ -64,7 +64,7 @@ let set_cookies ?(expiration = `Session) resp cookies =
   let cookies' = List.map cookies ~f:(fun (key, data) -> (key, data, expiration)) in
   (* WRONG cookies cannot just be concatenated *)
   let all_cookies = current_cookies @ cookies' in
-  { resp with Rock.Response.env=(Opium_umap.add Env_resp.key all_cookies env) }
+  { resp with Rock.Response.env=(Opium_hmap.add Env_resp.key all_cookies env) }
 
 let set ?expiration resp ~key ~data =
   set_cookies ?expiration resp [(key, data)]

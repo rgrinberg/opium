@@ -22,10 +22,10 @@ module Request = struct
   type t = {
     request: Cohttp.Request.t;
     body: Body.t;
-    env: Opium_umap.t;
+    env: Opium_hmap.t;
   } with fields, sexp_of
 
-  let create ?(body=Body.empty) ?(env=Opium_umap.empty) request =
+  let create ?(body=Body.empty) ?(env=Opium_hmap.empty) request =
     { request; env ; body }
   let uri     { request; _ } = Cohttp.Request.uri request
   let meth    { request; _ } = Cohttp.Request.meth request
@@ -37,18 +37,18 @@ module Response = struct
     code: Code.status_code;
     headers: Header.t;
     body: Body.t;
-    env: Opium_umap.t
+    env: Opium_hmap.t
   } with fields, sexp_of
 
   let default_header = Option.value ~default:(Header.init ())
 
-  let create ?(env=Opium_umap.empty) ?(body=Body.empty)
+  let create ?(env=Opium_hmap.empty) ?(body=Body.empty)
         ?headers ?(code=`OK) () =
     { code; env;
       headers=Option.value ~default:(Header.init ()) headers;
       body; }
 
-  let of_string_body ?(env=Opium_umap.empty) ?headers ?(code=`OK) body =
+  let of_string_body ?(env=Opium_hmap.empty) ?headers ?(code=`OK) body =
     { env; code; headers=default_header headers; body=(Body.of_string body) }
 
   let of_response_body (resp, body) =
@@ -81,7 +81,7 @@ module Middleware = struct
   (* wrap_debug/apply_middlewares_debug are used for debugging when
      middlewares are stepping over each other *)
   let wrap_debug handler ({ Request.env ; request } as req) =
-    let env = Opium_umap.sexp_of_t env in
+    let env = Opium_hmap.sexp_of_t env in
     let req' = request
                |> Cohttp.Request.headers
                |> Cohttp.Header.to_lines in

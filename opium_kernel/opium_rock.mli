@@ -38,11 +38,11 @@ module Request : sig
   type t = {
     request: Cohttp.Request.t;
     body:    Cohttp_lwt_body.t;
-    env:     Opium_umap.t;
+    env:     Opium_hmap.t;
   } with fields, sexp_of
 
   val create : ?body:Cohttp_lwt_body.t
-    -> ?env:Opium_umap.t
+    -> ?env:Opium_hmap.t
     -> Cohttp.Request.t -> t
   (** Convenience accessors on the request field  *)
   val uri : t -> Uri.t
@@ -55,18 +55,18 @@ module Response : sig
     code:    Cohttp.Code.status_code;
     headers: Cohttp.Header.t;
     body:    Cohttp_lwt_body.t;
-    env:     Opium_umap.t
+    env:     Opium_hmap.t
   } with fields, sexp_of
 
   val create :
-    ?env: Opium_umap.t ->
+    ?env: Opium_hmap.t ->
     ?body:Cohttp_lwt_body.t ->
     ?headers:Cohttp.Header.t ->
     ?code:Cohttp.Code.status_code ->
     unit -> t
 
   val of_string_body :
-    ?env: Opium_umap.t ->
+    ?env: Opium_hmap.t ->
     ?headers:Cohttp.Header.t ->
     ?code:Cohttp.Code.status_code ->
     string -> t
