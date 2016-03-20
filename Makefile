@@ -12,8 +12,8 @@ check:
 	@omake -j4 check
 
 clean:
-	!omake clean
-	!rm -rf *.omc .omakedb .omakedb.lock
+	@omake clean
+	@rm -rf *.omc .omakedb .omakedb.lock
 
 install:
 	@omake install
