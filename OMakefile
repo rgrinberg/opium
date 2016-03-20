@@ -35,6 +35,16 @@ RunTests(tests) =
                 message = Test $t failed with code $code
             raise $(err)
 
+IncludeDeps(file) =
+    deps[] =
+    FS = $' "|"'
+    awk($(file))
+    case $'^#include'
+        deps += $2
+        export
+    deps = $(set $(deps))
+    value $(set $(deps))
+
 USE_OCAMLFIND = true
 BYTE_ENABLED = true
 CMXS_ENABLED = $(NATIVE_ENABLED)
@@ -110,10 +120,31 @@ section
             check: $(TESTS)
                 RunTests($(FILES))
 
+.SCANNER: %.md: %.cpp.md
+    section
+        deps = $(IncludeDeps $<)
+        println($"$@: $(deps)")
+
 README_SOURCES = hello_world.ml middleware_ua.ml
 README_SOURCES = $(addprefix examples/,$(README_SOURCES))
-README.md: README.cpp.md $(README_SOURCES)
-    cppo -n -o $@ < $<
+README.md: README.cpp.md
+    section
+        FS = $' "|"'
+        out = $(fopen $@,w)
+        print = true
+        awk($<)
+        case $'^#include'
+            fprint($(out), $(cat $2))
+            print = false
+            export
+        default
+            if $(print)
+                fprintln($(out), $0)
+            else
+                print = true
+                export
+            export
+        close($(out))
 
 FINDLIB_PACKAGES = opium_kernel opium
 .PHONY: install
