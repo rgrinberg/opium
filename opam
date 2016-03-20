@@ -7,7 +7,7 @@ homepage: "https://github.com/rgrinberg/opium"
 bug-reports: "https://github.com/rgrinberg/opium/issues"
 dev-repo: "https://github.com/rgrinberg/opium.git"
 
-build: [ [make] ]
+build: [ [make "opam"] ]
 
 install: [make "install"]
 

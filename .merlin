@@ -1,9 +1,12 @@
-S rock
+S opium_kernel
 S opium
 S lib_test
 S examples
 
-B _build/**
+B opium_kernel
+B opium
+B lib_test
+B examples
 
 PKG hmap
 PKG base64

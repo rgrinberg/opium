@@ -1,3 +1,11 @@
+*.cmt
+*.cmti
+*.o
+*.cmo
+*.cma
+*.cmxs
+*.opt
+*.run
 *.cmi
 *.cmx
 *.cmxa
@@ -28,3 +36,15 @@ TAGS
 *.omakedb
 .omakedb.lock
 _tests
+
+examples/auth_middleware
+examples/exit_hook_example
+examples/hello_world
+examples/hello_world_basic
+examples/hello_world_html
+examples/middleware_ua
+examples/read_json_body
+examples/sample
+examples/static_serve_override
+examples/uppercase_middleware
+lib_test/routes

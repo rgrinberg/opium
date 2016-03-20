@@ -53,7 +53,7 @@ OCAMLPACKS[] +=
 
 UNIX_DEPS = cmdliner cohttp.lwt magic-mime lwt.log
 
-BUILD_ROOT = $(dir _build)
+BUILD_ROOT = $(dir .)
 
 SOURCE_DIRS = opium_kernel opium lib_test examples
 
@@ -61,10 +61,6 @@ EXAMPLES_DEPS = cow.syntax cow $(UNIX_DEPS)
 TEST_DEPS = alcotest ezjsonm
 
 EXAMPLES_ENABLED = true
-
-foreach(s => ...,$(SOURCE_DIRS))
-    vmount(-l, $s, $(BUILD_ROOT)/$s)
-    export
 
 CREATE_SUBDIRS = true
 
@@ -132,6 +128,11 @@ uninstall:
 
 .DEFAULT: README.md
 
+PRECIOUS = README.md
+protected.PRJ = $(ls R, .)
 .PHONY: clean
 clean:
-    rm -rf $(BUILD_ROOT)
+    rm -rf _tests
+    rm $(filter-out $(PRECIOUS),$(filter-proper-targets $(protected.PRJ)))
+    foreach(p => ..., $(protected.PRJ))
+        rm $(filter-exists $(find $p -name *.cmt -o -name *.cmti))

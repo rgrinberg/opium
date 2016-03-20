@@ -1,7 +1,10 @@
 .DEFAULT: build
 
 build:
-	@omake -j4
+	@omake -j4 -s --no--print-status --output-only-errors
+
+opam:
+	@omake
 
 all: build
 
@@ -9,7 +12,8 @@ check:
 	@omake -j4 check
 
 clean:
-	rm -rf _build *.omc .omakedb .omakedb.lock
+	!omake clean
+	!rm -rf *.omc .omakedb .omakedb.lock
 
 install:
 	@omake install
