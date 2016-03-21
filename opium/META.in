@@ -1,8 +1,0 @@
-version = "%version%"
-description = "Sinatra like web toolkit for OCaml. Standard unix dependent."
-requires = "hmap ezjsonm base64 cmdliner magic-mime opium_kernel"
-archive(byte) = "opium.cma"
-archive(byte, plugin) = "opium.cma"
-archive(native) = "opium.cmxa"
-archive(native, plugin) = "opium.cmxs"
-exists_if = "opium.cma"

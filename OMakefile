@@ -16,8 +16,7 @@ InstallTargets(p) =
     ext_glob = $(addprefix -name *., $(exts))
     # without the split find doesn't accept the args properly
     flags = $(split \ ,$(concat \ -o , $(ext_glob)))
-    files = $(p_root)/META $(find $(p_root) $(flags))
-    return $(files)
+    value $(find $(p_root) $(flags))
 
 MakeDep(ps) =
     foreach(p => ...,$(ps))
@@ -53,6 +52,7 @@ USE_OCAMLFIND = true
 BYTE_ENABLED = true
 CMXS_ENABLED = $(NATIVE_ENABLED)
 
+LIB = opium
 VERSION = 0.15.0
 
 OCAMLFLAGS = -g -bin-annot -thread
@@ -84,7 +84,7 @@ section
     LIB = opium_kernel
     FILES = $(Modules $(LIB))
     .SUBDIRS: $(BUILD_ROOT)/$(LIB)
-        BUILD = $(OCamlLibrary $(LIB), $(FILES)) $(GenMeta)
+        BUILD = $(OCamlLibrary $(LIB), $(FILES))
         ALL_DEPS += $(BUILD)
         export ALL_DEPS
         .DEFAULT: $(BUILD)
@@ -96,7 +96,7 @@ section
     OCAMLPACKS += $(UNIX_DEPS)
     .SUBDIRS: $(BUILD_ROOT)/$(LIB)
         MakeDep(opium_kernel)
-        BUILD = $(OCamlLibrary $(LIB), $(FILES)) $(GenMeta)
+        BUILD = $(OCamlLibrary $(LIB), $(FILES))
         ALL_DEPS += $(BUILD)
         export ALL_DEPS
         .DEFAULT: $(BUILD)
@@ -124,6 +124,9 @@ section
             check: $(TESTS)
                 RunTests($(FILES))
 
+section
+    .DEFAULT: $(GenMeta)
+
 .SCANNER: %.md: %.cpp.md
     section
         deps = $(IncludeDeps $<)
@@ -150,16 +153,19 @@ README.md: README.cpp.md
             export
         close($(out))
 
-FINDLIB_PACKAGES = opium_kernel opium
 .PHONY: install
-install: $(ALL_DEPS)
-    foreach(p => ..., $(FINDLIB_PACKAGES))
-        ocamlfind install $p $(InstallTargets $p)
+install: $(ALL_DEPS) META
+    section
+        FINDLIB_PACKAGES = opium_kernel opium
+        targets[] =
+        foreach(p => ..., $(FINDLIB_PACKAGES))
+            targets += $(InstallTargets $p)
+            export
+        ocamlfind install $(LIB) META $(targets)
 
 .PHONY: uninstall
 uninstall:
-    foreach(p => ..., $(FINDLIB_PACKAGES))
-        ocamlfind remove $p
+    ocamlfind remove $(LIB)
 
 .DEFAULT: README.md
 
