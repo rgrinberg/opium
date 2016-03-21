@@ -28,12 +28,16 @@ MakeDep(ps) =
 
 RunTests(tests) =
     foreach(t => ..., $(tests))
-        code = $(shell-code ./$t$(EXE))
+        out = $(tmpfile $t)
+        code = $(shell-code ./$t$(EXE) > $(out))
         if $(not $(equal $(code),0))
+            println($(cat $(out)))
+            $(unlink $(out))
             err. =
                 extends $(UnbuildableException)
                 message = Test $t failed with code $code
             raise $(err)
+        unlink($(out))
 
 IncludeDeps(file) =
     deps[] =
