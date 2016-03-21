@@ -1,14 +1,14 @@
 Modules(path) =
-    return $(basename $(removesuffix $(find $(path) -name *.ml)))
+    value $(basename $(removesuffix $(find $(path) -name *.ml)))
 
 FindlibExists(packages) =
-    return $(equal 0,$(shell-code ocamlfind query $(packages) > /dev/null))
+    value $(equal 0,$(shell-code ocamlfind query $(packages) > /dev/null))
 
 GenMeta() =
     meta = $(file META)
     $(meta): META.in
         sed -e 's/%version%/$(VERSION)/' $< > $@
-    return $(meta)
+    value $(meta)
 
 InstallTargets(p) =
     p_root = $(BUILD_ROOT)/$p
