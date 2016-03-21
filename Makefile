@@ -9,7 +9,9 @@ opam:
 all: build
 
 check:
-	@omake -j4 check
+	@omake -j4 check --no--print-status --output-only-errors
+
+test: check
 
 clean:
 	@omake clean
@@ -21,4 +23,4 @@ install:
 uninstall:
 	@omake uninstall
 
-.PHONY: all build install uninstall clean check
+.PHONY: all build install uninstall clean check test
