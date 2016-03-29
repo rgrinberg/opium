@@ -1,52 +1,52 @@
 Modules(path) =
-    value $(basename $(removesuffix $(find $(path) -name *.ml)))
+  value $(basename $(removesuffix $(find $(path) -name *.ml)))
 
 FindlibExists(packages) =
-    value $(equal 0,$(shell-code ocamlfind query $(packages) > /dev/null))
+  value $(equal 0,$(shell-code ocamlfind query $(packages) > /dev/null))
 
 GenMeta() =
-    meta = $(file META)
-    $(meta): META.in
-        sed -e 's/%version%/$(VERSION)/' $< > $@
-    value $(meta)
+  meta = $(file META)
+  $(meta): META.in
+    sed -e 's/%version%/$(VERSION)/' $< > $@
+  value $(meta)
 
 InstallTargets(p) =
-    p_root = $(BUILD_ROOT)/$p
-    exts = a o cmi cmt cmti cmx cmxa cmxs cma mli
-    ext_glob = $(addprefix -name *., $(exts))
-    # without the split find doesn't accept the args properly
-    flags = $(split \ ,$(concat \ -o , $(ext_glob)))
-    value $(find $(p_root) $(flags))
+  p_root = $(BUILD_ROOT)/$p
+  exts = a o cmi cmt cmti cmx cmxa cmxs cma mli
+  ext_glob = $(addprefix -name *., $(exts))
+  # without the split find doesn't accept the args properly
+  flags = $(split \ ,$(concat \ -o , $(ext_glob)))
+  value $(find $(p_root) $(flags))
 
 MakeDep(ps) =
-    foreach(p => ...,$(ps))
-        OCAMLINCLUDES += $(BUILD_ROOT)/$p
-        OCAML_LIBS += $(BUILD_ROOT)/$p/$p
-        export
+  foreach(p => ...,$(ps))
+    OCAMLINCLUDES += $(BUILD_ROOT)/$p
+    OCAML_LIBS += $(BUILD_ROOT)/$p/$p
     export
+  export
 
 RunTests(tests) =
-    foreach(t => ..., $(tests))
-        out = $(tmpfile $t)
-        code = $(shell-code ./$t$(EXE) > $(out))
-        if $(not $(equal $(code),0))
-            println($(cat $(out)))
-            $(unlink $(out))
-            err. =
-                extends $(UnbuildableException)
-                message = Test $t failed with code $code
-            raise $(err)
-        unlink($(out))
+  foreach(t => ..., $(tests))
+    out = $(tmpfile $t)
+    code = $(shell-code ./$t$(EXE) > $(out))
+    if $(not $(equal $(code),0))
+      println($(cat $(out)))
+      $(unlink $(out))
+      err. =
+        extends $(UnbuildableException)
+        message = Test $t failed with code $code
+      raise $(err)
+    unlink($(out))
 
 IncludeDeps(file) =
-    deps[] =
-    FS = $' "|"'
-    awk($(file))
-    case $'^#include'
-        deps += $2
-        export
-    deps = $(set $(deps))
-    value $(set $(deps))
+  deps[] =
+  FS = $' "|"'
+  awk($(file))
+  case $'^#include'
+    deps += $2
+    export
+  deps = $(set $(deps))
+  value $(set $(deps))
 
 USE_OCAMLFIND = true
 BYTE_ENABLED = true
@@ -59,11 +59,11 @@ OCAMLFLAGS = -g -bin-annot -thread
 
 OCAMLFINDFLAGS += -syntax camlp4o
 OCAMLPACKS[] +=
-    hmap
-    cohttp.lwt-core
-    fieldslib.syntax
-    sexplib.syntax
-    ezjsonm
+  hmap
+  cohttp.lwt-core
+  fieldslib.syntax
+  sexplib.syntax
+  ezjsonm
 
 UNIX_DEPS = cmdliner cohttp.lwt magic-mime lwt.log
 
@@ -81,91 +81,91 @@ CREATE_SUBDIRS = true
 ALL_DEPS =
 
 section
-    LIB = opium_kernel
-    FILES = $(Modules $(LIB))
-    .SUBDIRS: $(BUILD_ROOT)/$(LIB)
-        BUILD = $(OCamlLibrary $(LIB), $(FILES))
-        ALL_DEPS += $(BUILD)
-        export ALL_DEPS
-        .DEFAULT: $(BUILD)
+  LIB = opium_kernel
+  FILES = $(Modules $(LIB))
+  .SUBDIRS: $(BUILD_ROOT)/$(LIB)
+    BUILD = $(OCamlLibrary $(LIB), $(FILES))
+    ALL_DEPS += $(BUILD)
     export ALL_DEPS
+    .DEFAULT: $(BUILD)
+  export ALL_DEPS
 
 section
-    LIB = opium
-    FILES = $(Modules $(LIB))
-    OCAMLPACKS += $(UNIX_DEPS)
-    .SUBDIRS: $(BUILD_ROOT)/$(LIB)
-        MakeDep(opium_kernel)
-        BUILD = $(OCamlLibrary $(LIB), $(FILES))
-        ALL_DEPS += $(BUILD)
-        export ALL_DEPS
-        .DEFAULT: $(BUILD)
+  LIB = opium
+  FILES = $(Modules $(LIB))
+  OCAMLPACKS += $(UNIX_DEPS)
+  .SUBDIRS: $(BUILD_ROOT)/$(LIB)
+    MakeDep(opium_kernel)
+    BUILD = $(OCamlLibrary $(LIB), $(FILES))
+    ALL_DEPS += $(BUILD)
     export ALL_DEPS
+    .DEFAULT: $(BUILD)
+  export ALL_DEPS
 
 section
-    EXTRA_DEPS = $(EXAMPLES_DEPS)
-    if $(FindlibExists $(EXTRA_DEPS))
-        FILES = $(Modules examples)
-        OCAMLPACKS += cow.syntax cow $(UNIX_DEPS)
-        .SUBDIRS: $(BUILD_ROOT)/examples
-            MakeDep(opium_kernel opium)
-            .DEFAULT: $(foreach i => $(OCamlProgram $i, $i), $(FILES))
+  EXTRA_DEPS = $(EXAMPLES_DEPS)
+  if $(FindlibExists $(EXTRA_DEPS))
+    FILES = $(Modules examples)
+    OCAMLPACKS += cow.syntax cow $(UNIX_DEPS)
+    .SUBDIRS: $(BUILD_ROOT)/examples
+      MakeDep(opium_kernel opium)
+      .DEFAULT: $(foreach i => $(OCamlProgram $i, $i), $(FILES))
 
 section
-    EXTRA_DEPS = $(TEST_DEPS)
-    if $(FindlibExists $(EXTRA_DEPS))
-        FILES = $(Modules lib_test)
-        OCAMLPACKS += $(EXTRA_DEPS)
-        .SUBDIRS: $(BUILD_ROOT)/lib_test
-            MakeDep(opium_kernel)
-            TESTS = $(foreach i => $(OCamlProgram $i, $i), $(FILES))
-            .DEFAULT: $(TESTS)
-            .PHONY: check
-            check: $(TESTS)
-                RunTests($(FILES))
+  EXTRA_DEPS = $(TEST_DEPS)
+  if $(FindlibExists $(EXTRA_DEPS))
+    FILES = $(Modules lib_test)
+    OCAMLPACKS += $(EXTRA_DEPS)
+    .SUBDIRS: $(BUILD_ROOT)/lib_test
+      MakeDep(opium_kernel)
+      TESTS = $(foreach i => $(OCamlProgram $i, $i), $(FILES))
+      .DEFAULT: $(TESTS)
+      .PHONY: check
+      check: $(TESTS)
+        RunTests($(FILES))
 
 section
-    .DEFAULT: $(GenMeta)
+  .DEFAULT: $(GenMeta)
 
 .SCANNER: %.md: %.cpp.md
-    section
-        deps = $(IncludeDeps $<)
-        println($"$@: $(deps)")
+  section
+    deps = $(IncludeDeps $<)
+    println($"$@: $(deps)")
 
 README_SOURCES = hello_world.ml middleware_ua.ml
 README_SOURCES = $(addprefix examples/,$(README_SOURCES))
 README.md: README.cpp.md
-    section
-        FS = $' "|"'
-        out = $(fopen $@,w)
+  section
+    FS = $' "|"'
+    out = $(fopen $@,w)
+    print = true
+    awk($<)
+    case $'^#include'
+      fprint($(out), $(cat $2))
+      print = false
+      export
+    default
+      if $(print)
+        fprintln($(out), $0)
+      else
         print = true
-        awk($<)
-        case $'^#include'
-            fprint($(out), $(cat $2))
-            print = false
-            export
-        default
-            if $(print)
-                fprintln($(out), $0)
-            else
-                print = true
-                export
-            export
-        close($(out))
+        export
+      export
+    close($(out))
 
 .PHONY: install
 install: $(ALL_DEPS) META
-    section
-        FINDLIB_PACKAGES = opium_kernel opium
-        targets[] =
-        foreach(p => ..., $(FINDLIB_PACKAGES))
-            targets += $(InstallTargets $p)
-            export
-        ocamlfind install $(LIB) META $(targets)
+  section
+    FINDLIB_PACKAGES = opium_kernel opium
+    targets[] =
+    foreach(p => ..., $(FINDLIB_PACKAGES))
+      targets += $(InstallTargets $p)
+      export
+    ocamlfind install $(LIB) META $(targets)
 
 .PHONY: uninstall
 uninstall:
-    ocamlfind remove $(LIB)
+  ocamlfind remove $(LIB)
 
 .DEFAULT: README.md
 
@@ -173,7 +173,9 @@ PRECIOUS = README.md
 protected.PRJ = $(ls R, .)
 .PHONY: clean
 clean:
-    rm -rf _tests
-    rm $(filter-out $(PRECIOUS),$(filter-proper-targets $(protected.PRJ)))
-    foreach(p => ..., $(protected.PRJ))
-        rm $(filter-exists $(find $p -name *.cmt -o -name *.cmti))
+  rm -rf _tests
+  rm $(filter-out $(PRECIOUS),$(filter-proper-targets $(protected.PRJ)))
+  foreach(p => ..., $(protected.PRJ))
+    rm $(filter-exists $(find $p -name *.cmt -o -name *.cmti))
+
+#vim:fen:ts=2:sw=2:sts=2
