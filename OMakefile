@@ -132,8 +132,6 @@ section
     deps = $(IncludeDeps $<)
     println($"$@: $(deps)")
 
-README_SOURCES = hello_world.ml middleware_ua.ml
-README_SOURCES = $(addprefix examples/,$(README_SOURCES))
 README.md: README.cpp.md
   section
     FS = $' "|"'
