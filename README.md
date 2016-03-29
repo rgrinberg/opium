@@ -75,7 +75,7 @@ let print_person = get "/person/:name/:age" begin fun req ->
     name = param req "name";
     age = "age" |> param req |> int_of_string;
   } in
-  `Json (person |> json_of_person |> Ezjsonm.wrap) |> respond'
+  `Json (person |> json_of_person) |> respond'
 end
 
 let _ =

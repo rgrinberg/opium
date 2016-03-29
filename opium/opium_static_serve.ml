@@ -8,7 +8,7 @@ open Rock
 type t = {
   prefix:     string;
   local_path: string;
-} with fields, sexp
+} [@@deriving fields, sexp]
 
 let legal_path {prefix;local_path} requested =
   let open Option in

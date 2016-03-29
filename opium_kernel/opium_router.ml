@@ -7,7 +7,7 @@ module Route = Opium_route
 
 open Rock
 
-type 'a t = (Route.t * 'a) Queue.t array with sexp
+type 'a t = (Route.t * 'a) Queue.t array [@@deriving sexp]
 
 let create () = Array.init 7 (fun _ -> Queue.create ())
 
@@ -36,7 +36,7 @@ let matching_endpoint endpoints meth uri =
 
 module Env = struct
   let key : Route.matches Opium_hmap.key =
-    Opium_hmap.Key.create ("path_params",<:sexp_of<Route.matches>>)
+    Opium_hmap.Key.create ("path_params",[%sexp_of: Route.matches])
 end
 
 (* not param_exn since if the endpoint was selected it's likely that

@@ -4,7 +4,7 @@ open Sexplib.Std
 type user = {
   username: string;
   (* ... *)
-} with sexp
+} [@@deriving sexp]
 
 (* My convention is to stick the keys inside an Env sub module. By
    not exposing this module in the mli we are preventing the user or other
@@ -12,7 +12,7 @@ type user = {
 module Env = struct
   (* or use type nonrec *)
   type user' = user
-  let key : user' Opium_hmap.key = Opium_hmap.Key.create ("user",<:sexp_of<user>>)
+  let key : user' Opium_hmap.key = Opium_hmap.Key.create ("user",[%sexp_of: user])
 end
 
 (*

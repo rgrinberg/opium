@@ -1,4 +1,4 @@
-type 'action t with sexp
+type 'action t [@@deriving sexp]
 
 val create : unit -> _ t
 

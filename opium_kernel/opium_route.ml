@@ -1,5 +1,5 @@
 open Opium_misc
-open Sexplib.Std (* for the `with sexp` *)
+open Sexplib.Std
 
 type path_segment =
   | Match of string
@@ -7,14 +7,14 @@ type path_segment =
   | Splat
   | FullSplat
   | Slash
-with sexp
+[@@deriving sexp]
 
 type matches = {
   params: (string * string) list;
   splat:  string list;
-} with fields, sexp
+} [@@deriving fields, sexp]
 
-type t = path_segment list with sexp
+type t = path_segment list [@@deriving sexp]
 
 let parse_param s =
   if s = "/" then Slash

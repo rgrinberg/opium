@@ -16,14 +16,14 @@ let valc = keyc
 module Env = struct
   type cookie = (string * string) list
   let key : cookie Opium_hmap.key =
-    Opium_hmap.Key.create ("cookie",<:sexp_of<(string * string) list>>)
+    Opium_hmap.Key.create ("cookie",[%sexp_of: (string * string) list])
 end
 
 module Env_resp = struct
   type cookie = (string * string * Co.Cookie.expiration) list
   let key : cookie Opium_hmap.key =
     Opium_hmap.Key.create
-      ("cookie_res",<:sexp_of<(string * string * Co.Cookie.expiration) list>>)
+      ("cookie_res",[%sexp_of: (string * string * Co.Cookie.expiration) list])
 end
 
 let current_cookies env record =

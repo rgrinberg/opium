@@ -6,7 +6,7 @@
 (** A service is simply a function that returns it's result
     asynchronously *)
 module Service : sig
-  type ('req, 'rep) t = 'req -> 'rep Lwt.t with sexp
+  type ('req, 'rep) t = 'req -> 'rep Lwt.t [@@deriving sexp]
 
   val id : ('a, 'a) t
   val const : 'rep -> (_, 'rep) t
@@ -17,11 +17,11 @@ end
 module Filter : sig
   type ('req, 'rep, 'req', 'rep') t =
     ('req, 'rep) Service.t -> ('req', 'rep') Service.t
-  with sexp
+  [@@deriving sexp]
 
   (** A filter is simple when it preserves the type of a service *)
   type ('req, 'rep) simple = ('req, 'rep, 'req, 'rep) t
-  with sexp
+  [@@deriving sexp]
 
   val id : ('req, 'rep) simple
 
@@ -39,7 +39,7 @@ module Request : sig
     request: Cohttp.Request.t;
     body:    Cohttp_lwt_body.t;
     env:     Opium_hmap.t;
-  } with fields, sexp_of
+  } [@@deriving fields, sexp_of]
 
   val create : ?body:Cohttp_lwt_body.t
     -> ?env:Opium_hmap.t
@@ -56,7 +56,7 @@ module Response : sig
     headers: Cohttp.Header.t;
     body:    Cohttp_lwt_body.t;
     env:     Opium_hmap.t
-  } with fields, sexp_of
+  } [@@deriving fields, sexp_of]
 
   val create :
     ?env: Opium_hmap.t ->
@@ -76,7 +76,7 @@ end
 
 (** A handler is a rock specific service *)
 module Handler : sig
-  type t = (Request.t, Response.t) Service.t with sexp_of
+  type t = (Request.t, Response.t) Service.t [@@deriving sexp_of]
   val default : t
   val not_found : t
 end
@@ -84,7 +84,7 @@ end
 (** Middleware is a named, simple filter, that only works on rock
     requests/response *)
 module Middleware : sig
-  type t with sexp_of
+  type t [@@deriving sexp_of]
 
   val filter : t -> (Request.t, Response.t) Filter.simple
 
@@ -95,7 +95,7 @@ module Middleware : sig
 end
 
 module App : sig
-  type t with sexp_of
+  type t [@@deriving sexp_of]
 
   val handler : t -> Handler.t
 

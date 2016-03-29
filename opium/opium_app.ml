@@ -34,11 +34,11 @@ type t = {
   middlewares: Middleware.t list;
   name:        string;
   not_found :  Handler.t;
-} with fields, sexp_of
+} [@@deriving fields, sexp_of]
 
-type builder = t -> t with sexp_of
+type builder = t -> t [@@deriving sexp]
 
-type route = string -> Handler.t -> builder with sexp_of
+type route = string -> Handler.t -> builder [@@deriving sexp]
 
 let register app ~meth ~route ~action =
   { app with routes=(meth, route, action)::app.routes }

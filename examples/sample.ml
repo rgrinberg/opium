@@ -2,15 +2,15 @@ open Opium.Std
 
 let e1 = get "/version" (fun req -> (`String "testing") |> respond')
 
-let e2 = get "/hello/:name" (fun req -> 
+let e2 = get "/hello/:name" (fun req ->
   let name = param req "name" in
   `String ("hello " ^ name) |> respond')
 
 let e3 = get "/xxx/:x/:y" begin fun req ->
-  let open Cow.Json in
   let x = "x" |> param req |> int_of_string in
   let y = "y" |> param req |> int_of_string in
   let sum = float_of_int (x + y) in
+  let open Ezjsonm in
   `Json (`A [int x; int y;float sum]) |> respond'
 end
 
