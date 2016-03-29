@@ -40,17 +40,17 @@ module List = struct
   let rec filter_map ~f = function
     | [] -> []
     | x :: l ->
-        let l' = filter_map ~f l in
-        match f x with
-        | None -> l'
-        | Some y -> y :: l'
+      let l' = filter_map ~f l in
+      match f x with
+      | None -> l'
+      | Some y -> y :: l'
   let is_empty = function [] -> true | _::_ -> false
   let rec find_map ~f = function
     | [] -> None
     | x :: l ->
-        match f x with
-        | Some _ as res -> res
-        | None -> find_map ~f l
+      match f x with
+      | Some _ as res -> res
+      | None -> find_map ~f l
   let rec filter_opt = function
     | [] -> []
     | None :: l -> filter_opt l
@@ -64,8 +64,8 @@ module String = struct
   let is_prefix ~prefix s =
     String.length prefix <= String.length s &&
     (let i = ref 0 in
-      while !i < String.length prefix && s.[!i] = prefix.[!i] do incr i done;
-      !i = String.length prefix)
+     while !i < String.length prefix && s.[!i] = prefix.[!i] do incr i done;
+     !i = String.length prefix)
 
   let chop_prefix ~prefix s =
     assert (is_prefix ~prefix s);
@@ -74,8 +74,8 @@ module String = struct
   let _is_sub ~sub i s j ~len =
     let rec check k =
       if k = len
-        then true
-        else sub.[i+k] = s.[j+k] && check (k+1)
+      then true
+      else sub.[i+k] = s.[j+k] && check (k+1)
     in
     j+len <= String.length s && check 0
 
@@ -106,9 +106,9 @@ module Queue = struct
 
   let t_of_sexp elem_of_sexp s = match s with
     | Sexp.List l ->
-        let q = create () in
-        List.iter (fun x -> push (elem_of_sexp x) q) l;
-        q
+      let q = create () in
+      List.iter (fun x -> push (elem_of_sexp x) q) l;
+      q
     | Sexp.Atom _ -> raise (Conv.Of_sexp_error (Failure "expected list", s))
 
   let sexp_of_t sexp_of_elem q =
