@@ -85,7 +85,7 @@ module String = struct
     let i = ref 0 in
     try
       while !i + n <= String.length s do
-        if _is_sub ~sub 0 s !i ~len:n then raise Exit;
+        if _is_sub ~sub 0 s !i ~len:n then raise_notrace Exit;
         incr i
       done;
       None
@@ -95,11 +95,12 @@ end
 module Queue = struct
   include Queue
 
-  let find_map (type res) ~f q =
+  let find_map (type res) q ~f =
     let module M = struct exception E of res end in
     try
-      Queue.iter
-        (fun x -> match f x with None -> () | Some y -> raise (M.E y))
+      Queue.iter (fun x -> match f x with
+        | None -> ()
+        | Some y -> raise_notrace (M.E y))
         q;
       None
     with M.E res -> Some res
