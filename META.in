@@ -1,6 +1,6 @@
 version = "%version%"
 description = "Sinatra like web toolkit for OCaml. Unix independent"
-requires = "hmap lwt cohttp bytes ezjsonm base64 cmdliner magic-mime"
+requires = "hmap lwt cohttp.lwt-core bytes ezjsonm base64 cmdliner magic-mime"
 
 archive(byte) = "opium_kernel.cma"
 archive(byte, plugin) = "opium_kernel.cma"
@@ -12,7 +12,7 @@ exists_if = "opium_kernel.cma"
 package "unix" (
   version = "%version%"
   description = "unix support"
-  requires = "opium cmdliner"
+  requires = "opium cmdliner lwt.unix cohttp.lwt"
 
   archive(byte) = "opium.cma"
   archive(byte, plugin) = "opium.cma"
