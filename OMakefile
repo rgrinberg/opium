@@ -6,7 +6,7 @@ FindlibExists(packages) =
 
 GenMeta() =
   meta = $(file META)
-  $(meta): META.in
+  $(meta): META.in :value: $(VERSION)
     sed -e 's/%version%/$(VERSION)/' $< > $@
   value $(meta)
 
