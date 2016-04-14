@@ -6,8 +6,12 @@ FindlibExists(packages) =
 
 GenMeta() =
   meta = $(file META)
-  $(meta): META.in :value: $(VERSION)
-    sed -e 's/%version%/$(VERSION)/' $< > $@
+  $(meta): META.in :value: $(VERSION) $(OPIUM_DEPS) $(OPIUM_UNIX_DEPS)
+    section
+      UNIX_DEPS = $(set-diff $(OPIUM_UNIX_DEPS),$(OPIUM_DEPS))
+      sed -e 's/%version%/$(VERSION)/' -e \
+        's/%deps%/$(OPIUM_DEPS)/' -e \
+        's/%unix_deps%/$(UNIX_DEPS)/' $< > $@
   value $(meta)
 
 InstallTargets(p) =
@@ -57,7 +61,7 @@ VERSION = 0.15.0
 
 OCAMLFLAGS = -g -bin-annot -thread
 
-OCAMLPACKS[] +=
+OCAMLPACKS[] =
   hmap
   cohttp.lwt-core
   ppx_deriving
@@ -80,6 +84,7 @@ CREATE_SUBDIRS = true
 
 ALL_DEPS =
 
+OPIUM_DEPS = $(OCAMLPACKS)
 section
   LIB = opium_kernel
   FILES = $(Modules $(LIB))
@@ -90,10 +95,13 @@ section
     .DEFAULT: $(BUILD)
   export ALL_DEPS
 
+OPIUM_UNIX_DEPS =
 section
   LIB = opium
   FILES = $(Modules $(LIB))
   OCAMLPACKS += $(UNIX_DEPS)
+  OPIUM_UNIX_DEPS = $(OCAMLPACKS)
+  export OPIUM_UNIX_DEPS
   .SUBDIRS: $(BUILD_ROOT)/$(LIB)
     MakeDep(opium_kernel)
     BUILD = $(OCamlLibrary $(LIB), $(FILES))
