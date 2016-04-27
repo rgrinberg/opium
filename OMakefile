@@ -9,9 +9,15 @@ GenMeta() =
   $(meta): META.in :value: $(VERSION) $(OPIUM_DEPS) $(OPIUM_UNIX_DEPS)
     section
       UNIX_DEPS = $(set-diff $(OPIUM_UNIX_DEPS),$(OPIUM_DEPS))
-      sed -e 's/%version%/$(VERSION)/' -e \
-        's/%deps%/$(OPIUM_DEPS)/' -e \
-        's/%unix_deps%/$(UNIX_DEPS)/' $< > $@
+      stdout = $(fopen $@,w)
+      fsubst($<)
+      case $"%version%" g
+        value $(VERSION)
+      case $"%deps%" g
+        value $(concat $" ",$(OPIUM_DEPS))
+      case $"%unix_deps%" g
+        value $(concat $" ",$(UNIX_DEPS))
+      close($(stdout))
   value $(meta)
 
 InstallTargets(p) =
