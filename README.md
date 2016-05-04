@@ -87,8 +87,15 @@ let _ =
 
 compile with:
 ```
-$ corebuild -pkg opium,cow.syntax hello_world.native
+$ ocamlbuild -pkg opium.unix hello_world.native
 ```
+
+and then call
+
+    ./hello_world.native &
+    curl http://localhost:3000/person/john_doe/42
+
+You should see a JSON message.
 
 ### Middleware
 
@@ -134,7 +141,7 @@ let _ = App.empty
 Compile with:
 
 ```
-$ corebuild -pkg opium middleware_ua.native
+$ ocamlbuild -pkg opium.unix middleware_ua.native
 ```
 
 Here we also use the ability of Opium to generate a cmdliner term to run your
