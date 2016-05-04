@@ -3,7 +3,7 @@
     this to for such a tiny framework but it makes extensions a lot
     more straightforward *)
 
-(** A service is simply a function that returns it's result
+(** A service is simply a function that returns its result
     asynchronously *)
 module Service : sig
   type ('req, 'rep) t = 'req -> 'rep Lwt.t [@@deriving sexp]
