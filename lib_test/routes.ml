@@ -26,30 +26,30 @@ let string_of_match = function
       (List.sexp_of_t
          (sexp_of_pair sexp_of_string sexp_of_string) m)
 
-let simple_route1 _ =
+let simple_route1 () =
   let r = Route.of_string "/test/:id" in
   Alcotest.(check (option params) "no match"
               None (match_get_params r "/test/blerg/123"));
   Alcotest.(check (option params) "match"
               (match_get_params r "/test/123") (Some [("id","123")]))
 
-let simple_route2 _ =
+let simple_route2 () =
   let r = Route.of_string "/test/:format/:name" in
   let m = match_get_params r "/test/json/bar" in
   Alcotest.(check (option params) ""
               m (Some [ "format", "json" ; "name", "bar" ]))
 
-let simple_route3 _ =
+let simple_route3 () =
   let r = Route.of_string "/test/:format/:name" in
   let m = Route.match_url r "/test/bar" in
   Alcotest.(check (option matches_t) "unexpected match" None m)
 
-let route_no_slash _ =
+let route_no_slash () =
   let r = Route.of_string "/xxx/:title" in
   let m = Route.match_url r "/xxx/../" in
   Alcotest.(check (option matches_t) "unexpected match" None m)
 
-let splat_route1 _ =
+let splat_route1 () =
   let r = Route.of_string "/test/*/:id" in
   let matches = Route.match_url r "/test/splat/123" in
   Alcotest.(check (option matches_t) "matches"
@@ -57,24 +57,24 @@ let splat_route1 _ =
                     ; splat=["splat"] })
               matches)
 
-let splat_route2 _ =
+let splat_route2 () =
   let r = Route.of_string "/*" in
   let m = Route.match_url r "/abc/123" in
   Alcotest.(check (option matches_t) "unexpected match" None m)
 
-let test_match_2_params _ =
+let test_match_2_params () =
   let r = Route.of_string "/xxx/:x/:y" in
   let m = match_get_params r "/xxx/123/456" in
   Alcotest.(check (option params) "" (Some ["x", "123"; "y", "456"]) m)
 
-let test_match_no_param _ =
+let test_match_no_param () =
   let r = Route.of_string "/version" in
   let (m1, m2) = Route.(match_url r "/version", match_url r "/tt") in
   match (m1, m2) with
   | Some _, None -> ()
   | x, y -> Alcotest.fail "bad match"
 
-let test_empty_route _ =
+let test_empty_route () =
   let r = Route.of_string "/" in
   let m s =
     match Route.match_url r s with
@@ -89,16 +89,16 @@ let printer x = x
 
 let str_t s = s |> Route.of_string |> Route.to_string
 
-let string_convert_1 _ =
+let string_convert_1 () =
   Alcotest.(check string "" "/" (str_t "/"))
 
-let string_convert_2 _ =
+let string_convert_2 () =
   Alcotest.(check string "" "/one/:two" (str_t "/one/:two"))
 
-let string_convert_3 _ =
+let string_convert_3 () =
   Alcotest.(check string "" "/one/two/*/three" (str_t "/one/two/*/three"))
 
-let escape_param_1 _ =
+let escape_param_1 () =
   let r = Route.of_string "/:pp/*" in
   let matches = Route.match_url r "/%23/%23a" in
   Alcotest.(check (option matches_t) "matches"
@@ -106,13 +106,13 @@ let escape_param_1 _ =
                     ; splat=["#a"] })
               matches)
 
-let empty_route _ =
+let empty_route () =
   let r = Route.of_string "" in
   Alcotest.(check (option matches_t) ""
               (Some { Route.params=[] ; splat=[] })
                  (Route.match_url r ""))
 
-let test_double_splat _ =
+let test_double_splat () =
   let r = Route.of_string "/**" in
   let matching_urls = [ "/test"; "/"; "/user/123/foo/bar" ] in
   matching_urls |> List.iter ~f:(fun u ->
