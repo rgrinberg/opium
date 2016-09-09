@@ -44,6 +44,11 @@ let simple_route3 _ =
   let m = Route.match_url r "/test/bar" in
   Alcotest.(check (option matches_t) "unexpected match" None m)
 
+let route_no_slash _ =
+  let r = Route.of_string "/xxx/:title" in
+  let m = Route.match_url r "/xxx/../" in
+  Alcotest.(check (option matches_t) "unexpected match" None m)
+
 let splat_route1 _ =
   let r = Route.of_string "/test/*/:id" in
   let matches = Route.match_url r "/test/splat/123" in
