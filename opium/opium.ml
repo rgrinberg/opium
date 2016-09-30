@@ -37,6 +37,5 @@ module Std = struct
   include Export
   module Middleware = Middleware
   include App_export
-
-  include Opium_misc
+  module Body = Cohttp_lwt_body
 end
