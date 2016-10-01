@@ -4,14 +4,11 @@ open Sexplib.Std
 module Co = Cohttp
 module Rock = Opium_rock
 
-let keyc =
-  object
-    method encode = Fn.compose (Uri.pct_encode ~component:`Query_key) B64.encode
-    method decode = Fn.compose B64.decode Uri.pct_decode
-  end
+let encode x =
+  Uri.pct_encode ~component:`Query_key (B64.encode x)
 
-(* work around since cohttp doesn't support = in values *)
-let valc = keyc
+let decode x =
+  B64.decode (Uri.pct_decode x)
 
 module Env = struct
   type cookie = (string * string) list
@@ -32,16 +29,18 @@ let current_cookies env record =
 let current_cookies_resp env record =
   Option.value ~default:[] (Opium_hmap.find Env_resp.key (env record))
 
-let cookies_raw req = req
-                      |> Rock.Request.request
-                      |> Co.Request.headers
-                      |> Co.Cookie.Cookie_hdr.extract
+let cookies_raw req =
+  req
+  |> Rock.Request.request
+  |> Co.Request.headers
+  |> Co.Cookie.Cookie_hdr.extract
 
-let cookies req = req
-                  |> cookies_raw
-                  |> List.filter_map ~f:(fun (k,v) ->
-                    (* ignore bad cookies *)
-                    Option.try_with (fun () -> (keyc#decode k, valc#decode v)))
+let cookies req =
+  req
+  |> cookies_raw
+  |> List.filter_map ~f:(fun (k,v) ->
+    (* ignore bad cookies *)
+    Option.try_with (fun () -> (decode k, decode v)))
 
 let get req ~key =
   let cookie1 =
@@ -52,11 +51,10 @@ let get req ~key =
   | Some cookie -> Some cookie
   | None ->
     let cookies = cookies_raw req in
-    let encoded_key = keyc#encode key in
+    let encoded_key = encode key in
     cookies
-    |> List.find_map
-         ~f:(fun (k,v) ->
-           if k = encoded_key then Some (valc#decode v) else None)
+    |> List.find_map ~f:(fun (k,v) ->
+      if k = encoded_key then Some (decode v) else None)
 
 let set_cookies ?(expiration = `Session) resp cookies =
   let env = Rock.Response.env resp in
@@ -74,16 +72,18 @@ let m =             (* TODO: "optimize" *)
     handler req >>| fun response ->
     let cookie_headers =
       let module Cookie = Co.Cookie.Set_cookie_hdr in
-      let f (k,v,expiration) =
-        (keyc#encode k, valc#encode v)
+      let f (k, v, expiration) =
+        (encode k, encode v)
         |> Cookie.make ~path:"/" ~expiration
         |> Cookie.serialize
-      in current_cookies_resp (fun r->r.Rock.Response.env) response
-         |> List.map ~f
+      in
+      response
+      |> current_cookies_resp (fun r -> r.Rock.Response.env)
+      |> List.map ~f
     in
     let old_headers = Rock.Response.headers response in
     { response with Rock.Response.headers=(
-       List.fold_left cookie_headers ~init:old_headers
-         ~f:(fun headers (k,v) -> Co.Header.add headers k v))
+        List.fold_left cookie_headers ~init:old_headers
+          ~f:(fun headers (k,v) -> Co.Header.add headers k v))
     }
   in Rock.Middleware.create ~filter ~name:"Cookie"
