@@ -52,6 +52,7 @@ open configure/Configure
 #    machines.
 # \varlabel{OCAMLDEP_MODULES_AVAILABLE}{OCAMLDEP\_MODULES\_AVAILABLE} True when a version of
 #    \verb+ocamldep+ that understands the \verb+-modules+ option is available on your machine.
+# \varlabel{CMXS_SUPPORTED}{CMXS\_SUPPORTED} True if "ocamlopt -shared" is supported by the compiler.
 # \varlabel{MENHIR_AVAILABLE}{MENHIR\_AVAILABLE} True when the Menhir parser-generator is available
 #    on your machine.
 # \var{OCAMLLIB} The location of OCaml library directory (output of \verb+ocamlc -where+). Empty when no
@@ -83,6 +84,9 @@ open configure/Configure
 # \var{OCAMLINCLUDES} Search path to pass to the OCaml compilers (default \verb+.+).
 #    The search path with the \verb+-I+ prefix is defined by the \verb+PREFIXED_OCAMLINCLUDES+
 #    variable.
+# \varlabel{OCAMLINCLUDES_FOR_OCAMLDEP_MODULES}{OCAMLINCLUDES\_FOR\_OCAMLDEP\_MODULES} Extra path for searching files
+#    corresponding to dependencies returned by "ocamldep -modules". This
+#    defaults to ".". There is normally no reason to change this value.
 # \var{OCAMLFIND} The \verb+ocamlfind+ utility (default \verb+ocamlfind+ if
 #     \verb+USE_OCAMLFIND+ is set, otherwise empty).
 # \var{OCAMLFINDFLAGS} The flags to pass to \verb+ocamlfind+ (default empty, \verb+USE_OCAMLFIND+ must be set).
@@ -91,6 +95,10 @@ open configure/Configure
 # \varlabel{NATIVE_ENABLED}{NATIVE\_ENABLED} Flag indicating whether to use the native-code compiler (default \verb+true+, when ocamlopt is found, \verb+false+ otherwise).
 #    Both \verb+BYTE_ENABLED+ and \verb+NATIVE_ENABLED+ can be set to true;
 #    at least one should be set to true.
+# \varlabel{CMXS_ENABLED}{CMXS\_ENABLED} Flag indicating whether libraries are
+#    also created as plugins. This defaults to \verb+false+ for compatibility
+#    with old omake versions. Set it to \verb+CMXS_SUPPORTED+ to enable this
+#    feature when supported
 # \varlabel{MENHIR_ENABLED}{MENHIR\_ENABLED} Define this as \verb+true+ if you wish to use
 #    \verb+menhir+ instead of \verb+ocamlyacc+ (default \verb+false+).
 # \varlabel{EXTENDED_DIGESTS}{EXTENDED\_DIGESTS} Whether to include more information into
@@ -115,8 +123,15 @@ public.USE_OCAMLFIND = false
         else
             ConfMsgResult($"FAILED - ocamlc not found")
             value false
-    OCAMLC = $(if $(OCAMLC_OPT_EXISTS), $`(if $(USE_OCAMLFIND), ocamlc, ocamlc.opt), ocamlc)
-    OCAMLOPT = $(if $(OCAMLOPT_OPT_EXISTS), $`(if $(USE_OCAMLFIND), ocamlopt, ocamlopt.opt), ocamlopt)
+    ConfMsgChecking(whether ocamlopt can create cmxs plugins)
+    CMXS_SUPPORTED =
+        if $(OCAMLOPT_EXISTS)
+            ok = $(ConfMsgYesNo $(shell-success-null ocamlopt -shared -o .dummy.cmxs))
+            rm(-f .dummy.cmxs)
+            value $(ok)
+        else
+            ConfMsgResult($"no (ocamlopt not found)")
+            value false
     #
     # Compile native or byte code?
     #
@@ -130,9 +145,16 @@ public.OCAMLFIND = $`(if $(USE_OCAMLFIND), ocamlfind)
 public.OCAMLFINDFLAGS =
 public.LAZY_OCAMLFINDFLAGS = $`(if $(USE_OCAMLFIND), $(OCAMLFINDFLAGS))
 
-public.OCAMLDEP = ocamldep
+# OCAMLC/OCAMLOPT/OCAMLDEP are now 0-ary functions instead of normal variables
+# because sometimes USE_OCAMLFIND is set too late by the user.
+public.OCAMLC() =
+    value $(if $(OCAMLC_OPT_EXISTS), $(if $(USE_OCAMLFIND), ocamlc, ocamlc.opt), ocamlc)
+public.OCAMLOPT() =
+    value $(if $(OCAMLOPT_OPT_EXISTS), $(if $(USE_OCAMLFIND), ocamlopt, ocamlopt.opt), ocamlopt)
+public.OCAMLDEP() =
+    value $(if $(OCAMLDEP_OPT_EXISTS), $(if $(USE_OCAMLFIND), ocamldep, ocamldep.opt), ocamldep)
 public.CAMLP4 = camlp4
-public.OCAMLLEX = ocamllex
+public.OCAMLLEX = $(if $(OCAMLLEX_OPT_EXISTS), ocamllex.opt, ocamllex)
 public.OCAMLLEXFLAGS = -q
 public.OCAMLYACC = ocamlyacc
 public.OCAMLYACCFLAGS =
@@ -152,6 +174,7 @@ public.OCAMLOPTLINK = $`(OCAMLOPT)
 # Include path
 #
 public.OCAMLINCLUDES[] = .
+public.OCAMLINCLUDES_FOR_OCAMLDEP_MODULES[] = .
 public.PREFIXED_OCAMLINCLUDES = $`(mapprefix -I, $(OCAMLINCLUDES))
 
 #
@@ -296,6 +319,9 @@ public.OCAMLDEPFLAGS = $`(if $(and $(NATIVE_ENABLED), $(not $(OCAMLDEP_MODULES_E
 
 .PHONY: OCamlGeneratedFilesTarget
 
+# GS: The test on $(OCAMLDEP_MODULES_ENABLED) in only partially working.
+# What if we set this variable later?
+
 public.OCamlGeneratedFiles(files) =
     if $(OCAMLDEP_MODULES_ENABLED)
         # For now, we want to allow ``backwards-compatible'' projects.
@@ -377,11 +403,14 @@ public.PrintFileDependencies(filename, cmideps) =
 # associated with each module.
 #
 public.PrintDependencies(filename, modules) =
+    private.includes[] =
+        $(OCAMLINCLUDES_FOR_OCAMLDEP_MODULES)
+        $(OCAMLINCLUDES)
     if $(filename)
         #
         # Find the .cmi files that can be built
         #
-        private.cmideps = $(find-ocaml-targets-in-path-optional $(OCAMLINCLUDES), $(addsuffix .cmi, $(modules)))
+        private.cmideps = $(find-ocaml-targets-in-path-optional $(includes), $(addsuffix .cmi, $(modules)))
 
         # Now produce the dependencies
         if $(OCAMLDEP_PRESERVE_TARGETS)
@@ -391,7 +420,7 @@ public.PrintDependencies(filename, modules) =
             case .ml
                 protected.cmxdeps[] =
                 if $(NATIVE_ENABLED)
-                    cmxdeps = $(find-ocaml-targets-in-path-optional $(OCAMLINCLUDES), $(addsuffix .cmx, $(modules)))
+                    cmxdeps = $(find-ocaml-targets-in-path-optional $(includes), $(addsuffix .cmx, $(modules)))
                     export
                 PrintMLDependencies($(filename), $(cmideps), $(cmxdeps))
             case .mli
@@ -429,7 +458,7 @@ public.OCamlScannerPostproc(input) =
 Shell. +=
     ocamldep-postproc(argv) =
         if $(defined ocamldep-postproc)
-            ocamldep-postproc($(OCAMLINCLUDES), $(NATIVE_ENABLED))
+            ocamldep-postproc($(OCAMLINCLUDES_FOR_OCAMLDEP_MODULES) $(OCAMLINCLUDES), $(NATIVE_ENABLED))
         else
             OCamlScannerPostproc($(stdin))
 
@@ -555,6 +584,41 @@ if you really want to build this file.
 
 %.cmi: %.mli :scanner: scan-ocaml-%.mli
     $(OCamlC) -c $<
+
+# \begin{doc}
+# \fun{DeclareMLIOnly}
+#
+# Sometimes, MLI files only contain type and exception definitions. In fact,
+# the MLI file could also be parsed as ML file. For convenience, it is possible
+# to declare modules as MLI-only. In this case, an ML file needs not to be
+# written. Do this as follows:
+#
+# \verb+DeclareMLIOnly(<files>)+
+#
+# where the \verb+<files>+ are without suffixes.
+#
+# Note that this really only works if the MLI file can be parsed as ML file.
+# Also, it is possible this results in an object to be linked in, so don't
+# forget to link the modules into the library or executable.
+# \end{doc}
+
+DeclareMLIOnly(modules) =
+    foreach(mod => ..., $(modules))
+        if $(BYTE_ENABLED)
+            if $(NATIVE_ENABLED)
+               $(mod).cmi $(mod).cmo $(mod).cmx $(mod).o: $(mod).mli
+                   $(OCamlC) -c $(mod).mli
+                   $(OCamlC) -c -impl $(mod).mli
+                   $(OCamlOpt) -c -impl $(mod).mli
+            else
+               $(mod).cmi $(mod).cmo: $(mod).mli
+                   $(OCamlC) -c $(mod).mli
+                   $(OCamlC) -c -impl $(mod).mli
+        else
+           $(mod).cmi $(mod).cmx $(mod).o: $(mod).mli
+               $(OCamlC) -c $(mod).mli
+               $(OCamlOpt) -c -impl $(mod).mli
+        
 
 ########################################################################
 # Parser generators
@@ -782,6 +846,17 @@ OCamlLinkSort(nodes) =
 # \begin{verbatim}
 # OCamlLibrary(libfoo, foo bar)
 # \end{verbatim}
+#
+# If the variable \verb+CMXS_ENABLED+ is set, additionally the cmxs plugin
+# is created. Note that \verb+CMXS_SUPPORTED+ returns whether the compiler
+# installation supports plugins, so you can simply set
+#
+# \begin{verbatim}
+# CMXS_ENABLED = CMXS_SUPPORTED
+# \end{verbatime}
+#
+# before calling \verb+OCamlLibrary+. For compatibility with older omake
+# versions, \verb+CMXS_ENABLED+ defaults to \verb+false+.
 # \end{doc}
 #
 public.OCamlLibrary(name, files) =
