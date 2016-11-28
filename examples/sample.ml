@@ -17,7 +17,7 @@ end
 let e4 = put "/hello/:x/from/:y" begin fun req ->
   let (x,y) = (param req "x", param req "y") in
   let msg = Printf.sprintf "Hello %s! from %s." x y in
-  `String msg |> respond |> return
+  `String msg |> respond |> Lwt.return
 end
 
 let set_cookie = get "/set/:key/:value" begin fun req ->
@@ -25,15 +25,17 @@ let set_cookie = get "/set/:key/:value" begin fun req ->
   `String (Printf.sprintf "Set %s to %s" key value)
   |> respond
   |> Cookie.set ~key ~data:value
-  |> return
+  |> Lwt.return
 end
 
 let get_cookie = get "/get/:key" begin fun req ->
   Lwt_log.ign_info "Getting cookie";
   let key = param req "key" in
-  let message = Printf.sprintf "Cookie %s doesn't exist" key in
-  let value = Option.value_exn ~message (Cookie.get req ~key) in
-  `String (Printf.sprintf "Cookie %s is: %s" key value) |> respond |> return
+  let value =
+    match Cookie.get req ~key with
+    | None -> Printf.sprintf "Cookie %s doesn't exist" key
+    | Some s -> s in
+  `String (Printf.sprintf "Cookie %s is: %s" key value) |> respond |> Lwt.return
 end
 
 let splat_route = get "/testing/*/:p" begin fun req ->
@@ -45,10 +47,10 @@ end
 let all_cookies = get "/cookies" begin fun req ->
   let cookies = req
                 |> Cookie.cookies
-                |> List.map ~f:(fun (k,v) -> k ^ "=" ^ v)
+                |> List.map (fun (k,v) -> k ^ "=" ^ v)
                 |> String.concat "\n"
   in
-  `String (Printf.sprintf "<pre>%s</pre>" cookies) |> respond |> return
+  `String (Printf.sprintf "<pre>%s</pre>" cookies) |> respond |> Lwt.return
 end
 
 (* exceptions should be nicely formatted *)
@@ -58,7 +60,7 @@ let throws = get "/yyy" (fun req ->
 
 (* TODO: a static path will not be overriden. bug? *)
 let override_static = get "/public/_tags" (fun req ->
-  (`String "overriding path") |> respond |> return)
+  (`String "overriding path") |> respond |> Lwt.return)
 
 let app =
   App.empty
