@@ -135,7 +135,7 @@ let print_routes_f routes =
         (data
          |> List.map ~f:Cohttp.Code.string_of_method
          |> String.concat " "))
-    routes_tbl 
+    routes_tbl
 
 let print_middleware_f middlewares =
   print_endline "Active middleware:";
@@ -145,8 +145,13 @@ let print_middleware_f middlewares =
 
 let cmd_run app port ssl_cert ssl_key host print_routes print_middleware
     debug verbose errors =
-  let ssl = Option.map2 ssl_cert ssl_key ~f:(fun c k ->
-    (`Crt_file_path c, `Key_file_path k)) in
+  let ssl =
+    let cmd_ssl = Option.map2 ssl_cert ssl_key ~f:(fun c k ->
+      (`Crt_file_path c, `Key_file_path k)) in
+    match cmd_ssl, app.ssl with
+    | Some s, _ | None, Some s -> Some s
+    | None, None -> None
+  in
   let app = { app with debug ; verbose ; port ; ssl } in
   let rock_app = to_rock app in
   (if print_routes then begin
@@ -271,4 +276,3 @@ let respond                  = Response_helpers.respond
 let respond'                 = Response_helpers.respond'
 let redirect                 = Response_helpers.redirect
 let redirect'                = Response_helpers.redirect'
-
