@@ -1,0 +1,12 @@
+(jbuild_version 1)
+
+(library
+ ((name opium)
+  (wrapped false)
+  (preprocess (pps (ppx_sexp_conv ppx_fields_conv)))
+  (libraries
+   (opium_kernel
+    cmdliner
+    cohttp.lwt
+    magic-mime
+    lwt.log))))

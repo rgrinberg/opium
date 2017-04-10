@@ -1,5 +1,0 @@
-open omake/OCaml
-
-DefineCommandVars()
-
-.SUBDIRS: .

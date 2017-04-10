@@ -7,32 +7,23 @@ homepage: "https://github.com/rgrinberg/opium"
 bug-reports: "https://github.com/rgrinberg/opium/issues"
 dev-repo: "https://github.com/rgrinberg/opium.git"
 
-build: [ [make "opam"] ]
-
-install: [make "install"]
-
-remove: [
-  ["ocamlfind" "remove" "opium"]
-  ["ocamlfind" "remove" "opium_kernel"]
+build: [
+  ["jbuilder" "build" "--only-packages" "opium_kernel" "--root" "."
+   "-j" jobs "@install"]
 ]
 
-build-test: [ [make "check"] ]
-
 depends: [
-  "ocamlfind" {build}
-  "omake" {build}
+  "jbuilder" {build}
   "hmap"
   "cohttp" {>= "0.15.0"}
   "ezjsonm" {>= "0.4.0"}
   "base64" {>= "2.0.0"}
   "lwt"
-  "cmdliner"
   "fieldslib"
   "sexplib"
   "ppx_fields_conv"
   "ppx_sexp_conv"
   "re" {>= "1.3.0"}
-  "magic-mime"
   "alcotest" {test}
   "cow" {test & >= "0.10.0"}
 ]
