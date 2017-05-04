@@ -1,3 +1,4 @@
+module Misc = Misc
 module Export = struct
   module Rock            = Rock
   module Response        = Rock.Response
