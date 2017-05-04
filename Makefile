@@ -1,26 +1,20 @@
-.DEFAULT: build
+.DEFAULT_GOAL: all
 
-build:
-	@omake -j4 -s --no--print-status --output-only-errors
+JBUILDER ?= jbuilder
 
-opam:
-	@omake
-
-all: build
+all:
+	$(JBUILDER) build
 
 check:
-	@omake -j4 check --no--print-status --output-only-errors
+	$(JBUILDER) runtest
 
 test: check
 
+README.md: README.cpp.md $(wildcard examples/*.ml)
+		cppo -n $< -o $@
+
 clean:
-	@omake clean
-	@rm -rf *.omc .omakedb .omakedb.lock
+	rm -rf _build
+	find . -iname "*.merlin" -o -iname "*.install" -delete
 
-install:
-	@omake install
-
-uninstall:
-	@omake uninstall
-
-.PHONY: all build install uninstall clean check test
+.PHONY: all clean check test opam-opium opam-opium_kernel

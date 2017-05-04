@@ -1,0 +1,9 @@
+(jbuild_version 1)
+
+(library
+ ((name opium_kernel)
+  (preprocess (pps (ppx_sexp_conv ppx_fields_conv)))
+  (libraries
+   (hmap
+    cohttp.lwt-core
+    ezjsonm))))

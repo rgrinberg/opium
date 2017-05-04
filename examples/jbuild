@@ -1,0 +1,15 @@
+(jbuild_version 1)
+
+(executables
+ ((libraries (ezjsonm opium))
+  (names
+   (auth_middleware
+    exit_hook_example
+    hello_world_basic
+    hello_world_html
+    hello_world
+    middleware_ua
+    read_json_body
+    sample
+    static_serve_override
+    uppercase_middleware))))

@@ -48,3 +48,5 @@ examples/sample
 examples/static_serve_override
 examples/uppercase_middleware
 lib_test/routes
+*.merlin
+*.install

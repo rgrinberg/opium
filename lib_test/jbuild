@@ -1,0 +1,10 @@
+(jbuild_version 1)
+
+(executables
+ ((libraries (alcotest opium))
+  (names (routes))))
+
+(alias
+ ((name   runtest)
+  (deps   (routes.exe))
+  (action (run ${<}))))

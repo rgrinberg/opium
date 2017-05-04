@@ -1,9 +1,8 @@
-open Opium_misc
+open Opium_kernel.Misc
 open Sexplib.Std
 
 module Server = Cohttp_lwt_unix.Server
-module Rock = Opium_rock
-open Rock
+open Opium_kernel.Rock
 
 type t = {
   prefix:     string;
@@ -32,7 +31,7 @@ let m ~local_path ~uri_prefix =
   let filter handler req =
     if Request.meth req = `GET then
       let local_map = { prefix=uri_prefix; local_path } in
-      let local_path = req  |> Request.uri |> Uri.path in
+      let local_path = req |> Request.uri |> Uri.path in
       if local_path |> String.is_prefix ~prefix:uri_prefix then
         public_serve local_map ~requested:local_path >>= function
         | `Not_found -> handler req
@@ -41,4 +40,4 @@ let m ~local_path ~uri_prefix =
         handler req
     else
       handler req
-  in Rock.Middleware.create ~name:"Static Pages" ~filter
+  in Opium_kernel.Rock.Middleware.create ~name:"Static Pages" ~filter
