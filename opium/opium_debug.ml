@@ -1,5 +1,5 @@
-open Opium_misc
-open Opium_rock
+open Opium_kernel.Misc
+open Opium_kernel.Rock
 
 let exn_ e = Lwt_log.ign_error_f "%s" (Printexc.to_string e)
 

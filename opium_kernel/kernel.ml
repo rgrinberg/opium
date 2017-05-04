@@ -1,15 +1,15 @@
 module Export = struct
-  module Rock            = Opium_rock
+  module Rock            = Rock
   module Response        = Rock.Response
   module Request         = Rock.Request
-  module Cookie          = Opium_cookie
-  module Router          = Opium_router
-  module Route           = Opium_route
+  module Cookie          = Cookie
+  module Router          = Router
+  module Route           = Route
 end
 include Export
 
 module Std = struct
   include Export
 
-  include Opium_misc
+  include Misc
 end

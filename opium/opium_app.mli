@@ -51,7 +51,7 @@ val action : Cohttp.Code.meth -> route
 val middleware : Middleware.t -> builder
 
 (** Convert an opium app to a rock app *)
-val to_rock : t -> Opium_rock.App.t
+val to_rock : t -> Opium_kernel.Rock.App.t
 
 (** Start an opium server. The thread returned can be cancelled to shutdown the
     server *)

@@ -1,9 +1,5 @@
-module Export = struct
-  include Opium_kernel.Export
-  module App = Opium_app
-end
-
-include Export
+module App = Opium_app
+include Opium_kernel.Std
 
 module App_export = struct
   (* selectively export the most useful parts of App *)
@@ -34,7 +30,6 @@ module Middleware = struct
 end
 
 module Std = struct
-  include Export
   module Middleware = Middleware
   include App_export
   module Body = Cohttp_lwt_body

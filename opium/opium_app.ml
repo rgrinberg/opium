@@ -1,9 +1,9 @@
-open Opium_misc
+open Opium_kernel.Misc
 open Sexplib.Std
 
-module Rock = Opium_rock
-module Router = Opium_router
-module Route = Opium_route
+module Rock = Opium_kernel.Rock
+module Router = Opium_kernel.Router
+module Route = Opium_kernel.Route
 module Debug = Opium_debug
 module Server = Cohttp_lwt_unix.Server
 open Rock
