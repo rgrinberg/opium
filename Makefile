@@ -10,6 +10,9 @@ check:
 
 test: check
 
+README.md: README.cpp.md $(wildcard examples/*.ml)
+		cppo -n $< -o $@
+
 clean:
 	rm -rf _build
 	find . -iname "*.merlin" -o -iname "*.install" -delete
