@@ -1,4 +1,4 @@
-module App = Opium_app
+module App = App
 include Opium_kernel.Std
 
 module App_export = struct
@@ -24,9 +24,9 @@ end
 module Middleware = struct
   (** Re-exports simple middleware that doesn't have auxiliary
       functions *)
-  let debug = Opium_debug.debug
-  let trace = Opium_debug.trace
-  let static = Opium_static_serve.m
+  let debug = Debug.debug
+  let trace = Debug.trace
+  let static = Static_serve.m
 end
 
 module Std = struct
