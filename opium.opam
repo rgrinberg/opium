@@ -8,9 +8,10 @@ bug-reports: "https://github.com/rgrinberg/opium/issues"
 dev-repo: "https://github.com/rgrinberg/opium.git"
 
 build: [
-  ["jbuilder" "build" "--only-packages" "opium" "--root" "."
-   "-j" jobs "@install"]
+  ["jbuilder" "subst" "-n" name] {pinned}
+  ["jbuilder" "build" "-p" name "-j" jobs]
 ]
+build-test: [["jbuilder" "runtest" "-p" name "-j" jobs]]
 
 depends: [
   "jbuilder" {build}
@@ -26,4 +27,4 @@ depends: [
   "cow" {test & >= "0.10.0"}
 ]
 
-available: [ocaml-version >= "4.01.0"]
+available: [ocaml-version >= "4.02.3"]
