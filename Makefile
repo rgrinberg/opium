@@ -3,18 +3,17 @@
 JBUILDER ?= jbuilder
 
 all:
-	$(JBUILDER) build
+	@$(JBUILDER) build @install @DEFAULT
 
 check:
-	$(JBUILDER) runtest
+	@$(JBUILDER) runtest
 
 test: check
 
 README.md: README.cpp.md $(wildcard examples/*.ml)
-		cppo -n $< -o $@
+	@cppo -n $< -o $@
 
 clean:
-	rm -rf _build
-	find . -iname "*.merlin" -o -iname "*.install" -delete
+	@$(JBUILDER) clean
 
-.PHONY: all clean check test opam-opium opam-opium_kernel
+.PHONY: all clean check test
