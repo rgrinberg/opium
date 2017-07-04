@@ -1,5 +1,25 @@
 language: c
-install: wget https://raw.githubusercontent.com/samoht/ocaml-travisci-skeleton/master/.travis-opam.sh
-script: bash -ex .travis-opam.sh
+sudo: false
+services:
+  - docker
+install: wget https://raw.githubusercontent.com/ocaml/ocaml-travisci-skeleton/master/.travis-docker.sh
+script: bash -ex ./.travis-docker.sh
 env:
-- OCAML_VERSION=latest
+  global:
+  - EXTRA_REMOTES="https://github.com/mirage/mirage-dev.git"
+  - PINS="opium_kernel:. opium:."
+  matrix:
+  - PACKAGE="opium_kernel" DISTRO="ubuntu-16.04" OCAML_VERSION="4.04.2"
+  - PACKAGE="opium" DISTRO="ubuntu-16.04" OCAML_VERSION="4.04.2"
+  - PACKAGE="opium_kernel" DISTRO="alpine" OCAML_VERSION="4.03.0"
+  - PACKAGE="opium" DISTRO="alpine" OCAML_VERSION="4.03.0"
+  - PACKAGE="opium_kernel" DISTRO="debian-unstable" OCAML_VERSION="4.03.0"
+  - PACKAGE="opium" DISTRO="debian-unstable" OCAML_VERSION="4.03.0"
+  - PACKAGE="mirage-http" DISTRO="debian-unstable" OCAML_VERSION="4.03.0"
+notifications:
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/6ee5059c7420709f4ad1
+    on_success: change
+    on_failure: always
+    on_start: false
