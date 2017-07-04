@@ -7,6 +7,6 @@
   (libraries
    (opium_kernel
     cmdliner
-    cohttp.lwt
+    cohttp-lwt-unix
     magic-mime
     lwt.log))))

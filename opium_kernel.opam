@@ -16,7 +16,8 @@ build-test: [["jbuilder" "runtest" "-p" name "-j" jobs]]
 depends: [
   "jbuilder" {build}
   "hmap"
-  "cohttp" {>= "0.15.0"}
+  "cohttp" {>= "1.0.0"}
+  "cohttp-lwt" {>= "1.0.0"}
   "ezjsonm" {>= "0.4.0"}
   "base64" {>= "2.0.0"}
   "lwt"
@@ -29,4 +30,4 @@ depends: [
   "cow" {test & >= "0.10.0"}
 ]
 
-available: [ocaml-version >= "4.01.0"]
+available: [ocaml-version >= "4.02.3"]

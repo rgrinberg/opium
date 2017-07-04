@@ -5,5 +5,5 @@
   (preprocess (pps (ppx_sexp_conv ppx_fields_conv)))
   (libraries
    (hmap
-    cohttp.lwt-core
+    cohttp-lwt
     ezjsonm))))
