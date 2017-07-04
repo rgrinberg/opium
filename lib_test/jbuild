@@ -5,6 +5,7 @@
   (names (routes))))
 
 (alias
- ((name   runtest)
-  (deps   (routes.exe))
+ ((name runtest)
+  (package opium)
+  (deps (routes.exe))
   (action (run ${<}))))
