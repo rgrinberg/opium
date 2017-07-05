@@ -1,4 +1,4 @@
-open Opium_kernel.Misc
+open Opium_kernel__Misc
 open Sexplib.Std
 
 module Rock = Opium_kernel.Rock
@@ -99,9 +99,9 @@ let options route action =
 
 let any methods route action t =
   (if List.is_empty methods then
-     Lwt_log.ign_warning_f
-       "Warning: you're using [any] attempting to bind to '%s' but your list
-        of http methods is empty route" route);
+     Logs.warn (fun f ->
+       f "Warning: you're using [any] attempting to bind to '%s' but your list
+        of http methods is empty route" route));
   let route = Route.of_string route in
   methods |> List.fold_left ~init:t
                ~f:(fun app meth -> app |> register ~meth ~route ~action)
@@ -114,14 +114,14 @@ let to_rock app =
 
 let start app =
   let middlewares = attach_middleware app in
-  if app.verbose then
-    Lwt_log.(add_rule "*" Info);
-  Lwt_log.ign_info_f "Running on port: %d%s" app.port
-    (if app.debug then " (debug)" else "");
+  (* if app.verbose then *)
+  (*   Logs.info.(add_rule "*" Info); *)
+  Logs.info (fun f -> f "Running on port: %d%s" app.port
+                        (if app.debug then " (debug)" else ""));
   let port = app.port in
   let ssl = app.ssl in
   let app = Rock.App.create ~middlewares ~handler:app.not_found in
-  app |> run_unix ~port ?ssl
+  run_unix ~port ?ssl app
 
 let print_routes_f routes =
   let routes_tbl = Hashtbl.create 64 in

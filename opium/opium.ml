@@ -1,7 +1,7 @@
 module App = App
-include Opium_kernel.Std
 
 module App_export = struct
+  module App = App
   (* selectively export the most useful parts of App *)
   let param     = App.param
   let splat     = App.splat
@@ -30,7 +30,10 @@ module Middleware = struct
 end
 
 module Std = struct
+  include Opium_kernel.Std
   module Middleware = Middleware
   include App_export
-  module Body = Cohttp_lwt_body
+  module Body = Cohttp_lwt_body_unix
 end
+
+module Hmap = Opium_kernel.Hmap

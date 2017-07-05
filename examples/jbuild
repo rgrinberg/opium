@@ -1,7 +1,8 @@
 (jbuild_version 1)
 
 (executables
- ((libraries (ezjsonm opium))
+ ((libraries (re ezjsonm opium))
+  (preprocess (pps (ppx_sexp_conv)))
   (names
    (auth_middleware
     exit_hook_example

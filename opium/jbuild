@@ -9,4 +9,4 @@
     cmdliner
     cohttp-lwt-unix
     magic-mime
-    lwt.log))))
+    logs))))

@@ -1,4 +1,3 @@
-module Misc = Misc
 module Export = struct
   module Rock            = Rock
   module Response        = Rock.Response
@@ -12,5 +11,6 @@ include Export
 module Std = struct
   include Export
 
-  include Misc
 end
+
+module Hmap = Hmap0

@@ -1,4 +1,4 @@
-open Opium_kernel.Misc
+open Opium_kernel__Misc
 open Sexplib.Std
 
 module Server = Cohttp_lwt_unix.Server

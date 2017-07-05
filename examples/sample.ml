@@ -29,7 +29,7 @@ let set_cookie = get "/set/:key/:value" begin fun req ->
 end
 
 let get_cookie = get "/get/:key" begin fun req ->
-  Lwt_log.ign_info "Getting cookie";
+  Logs.info (fun f ->  f "Getting cookie");
   let key = param req "key" in
   let value =
     match Cookie.get req ~key with
@@ -45,17 +45,18 @@ let splat_route = get "/testing/*/:p" begin fun req ->
 end
 
 let all_cookies = get "/cookies" begin fun req ->
-  let cookies = req
-                |> Cookie.cookies
-                |> List.map (fun (k,v) -> k ^ "=" ^ v)
-                |> String.concat "\n"
+  let cookies =
+    req
+    |> Cookie.cookies
+    |> List.map (fun (k, v) -> k ^ "=" ^ v)
+    |> String.concat "\n"
   in
   `String (Printf.sprintf "<pre>%s</pre>" cookies) |> respond |> Lwt.return
 end
 
 (* exceptions should be nicely formatted *)
 let throws = get "/yyy" (fun req ->
-  Lwt_log.ign_warning "Crashing...";
+  Logs.warn (fun f -> f "Crashing...");
   failwith "expected failure!")
 
 (* TODO: a static path will not be overriden. bug? *)
