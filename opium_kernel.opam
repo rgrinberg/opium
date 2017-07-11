@@ -16,8 +16,8 @@ build-test: [["jbuilder" "runtest" "-p" name "-j" jobs]]
 depends: [
   "jbuilder" {build}
   "hmap"
-  "cohttp" {>= "1.0.0"}
-  "cohttp-lwt" {>= "1.0.0"}
+  "cohttp" {>= "0.99.0"}
+  "cohttp-lwt" {>= "0.99.0"}
   "ezjsonm" {>= "0.4.0"}
   "base64" {>= "2.0.0"}
   "lwt"

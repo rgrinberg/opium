@@ -16,7 +16,7 @@ build-test: [["jbuilder" "runtest" "-p" name "-j" jobs]]
 depends: [
   "jbuilder" {build}
   "opium_kernel"
-  "cohttp-lwt-unix" {>= "1.0.0"}
+  "cohttp-lwt-unix" {>= "0.99.0"}
   "base-unix"
   "lwt"
   "cmdliner"
