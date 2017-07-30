@@ -16,14 +16,16 @@ let matches_t : Route.matches Alcotest.testable =
   end)
 
 let match_get_params route url =
-  url |> Route.match_url route |> Option.map ~f:Route.params
+  match Route.match_url route url with
+  | None -> None
+  | Some s -> Some (Route.params s)
 
 let string_of_match = function
   | None -> "None"
   | Some m ->
+    let open Conv in
     Sexp.to_string_hum
-      (List.sexp_of_t
-         (sexp_of_pair sexp_of_string sexp_of_string) m)
+      (sexp_of_list (sexp_of_pair sexp_of_string sexp_of_string) m)
 
 let simple_route1 () =
   let r = Route.of_string "/test/:id" in
@@ -114,7 +116,7 @@ let empty_route () =
 let test_double_splat () =
   let r = Route.of_string "/**" in
   let matching_urls = [ "/test"; "/"; "/user/123/foo/bar" ] in
-  matching_urls |> List.iter ~f:(fun u ->
+  matching_urls |> List.iter (fun u ->
     match Route.match_url r u with
     | None -> Alcotest.fail ("Failed to match " ^ u)
     | Some _ -> ())
