@@ -259,11 +259,11 @@ end
 
 module Request_helpers = struct
   let json_exn req =
-    req |> Request.body |> Body.to_string >>| Ezjsonm.from_string
+    req |> Request.body |> Cohttp_lwt.Body.to_string >>| Ezjsonm.from_string
   let string_exn req =
-    req |> Request.body |> Body.to_string
+    req |> Request.body |> Cohttp_lwt.Body.to_string
   let pairs_exn req =
-    req |> Request.body |> Body.to_string >>| Uri.query_of_encoded
+    req |> Request.body |> Cohttp_lwt.Body.to_string >>| Uri.query_of_encoded
 end
 
 let json_of_body_exn         = Request_helpers.json_exn

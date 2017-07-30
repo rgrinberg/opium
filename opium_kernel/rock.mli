@@ -37,11 +37,11 @@ end
 module Request : sig
   type t = {
     request: Cohttp.Request.t;
-    body:    Cohttp_lwt_body.t;
+    body:    Cohttp_lwt.Body.t;
     env:     Hmap0.t;
   } [@@deriving fields, sexp_of]
 
-  val create : ?body:Cohttp_lwt_body.t
+  val create : ?body:Cohttp_lwt.Body.t
     -> ?env:Hmap0.t
     -> Cohttp.Request.t -> t
   (** Convenience accessors on the request field  *)
@@ -54,13 +54,13 @@ module Response : sig
   type t = {
     code:    Cohttp.Code.status_code;
     headers: Cohttp.Header.t;
-    body:    Cohttp_lwt_body.t;
+    body:    Cohttp_lwt.Body.t;
     env:     Hmap0.t
   } [@@deriving fields, sexp_of]
 
   val create :
     ?env: Hmap0.t ->
-    ?body:Cohttp_lwt_body.t ->
+    ?body:Cohttp_lwt.Body.t ->
     ?headers:Cohttp.Header.t ->
     ?code:Cohttp.Code.status_code ->
     unit -> t
@@ -71,7 +71,7 @@ module Response : sig
     ?code:Cohttp.Code.status_code ->
     string -> t
 
-  val of_response_body : Cohttp.Response.t * Cohttp_lwt_body.t -> t
+  val of_response_body : Cohttp.Response.t * Cohttp_lwt.Body.t -> t
 end
 
 (** A handler is a rock specific service *)

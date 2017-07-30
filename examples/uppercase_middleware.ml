@@ -5,7 +5,7 @@ let uppercase =
     req |> handler |> Lwt.map (fun response ->
       response
       |> Response.body
-      |> Cohttp_lwt_body.map String.uppercase
+      |> Cohttp_lwt.Body.map String.uppercase
       |> (fun b->{response with Response.body=b; }))
   in
   Rock.Middleware.create ~name:"uppercaser" ~filter

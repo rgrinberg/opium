@@ -1,6 +1,7 @@
-open Cohttp
 open Sexplib.Std
 open Misc
+
+module Header = Cohttp.Header
 
 module Service = struct
   type ('req, 'rep) t = 'req -> 'rep Lwt.t [@@deriving sexp]
@@ -21,11 +22,11 @@ end
 module Request = struct
   type t = {
     request: Cohttp.Request.t;
-    body: Body.t;
+    body: Cohttp_lwt.Body.t;
     env: Hmap0.t;
   } [@@deriving fields, sexp_of]
 
-  let create ?(body=Body.empty) ?(env=Hmap0.empty) request =
+  let create ?(body=Cohttp_lwt.Body.empty) ?(env=Hmap0.empty) request =
     { request; env ; body }
   let uri     { request; _ } = Cohttp.Request.uri request
   let meth    { request; _ } = Cohttp.Request.meth request
@@ -34,15 +35,15 @@ end
 
 module Response = struct
   type t = {
-    code: Code.status_code;
+    code: Cohttp.Code.status_code;
     headers: Header.t;
-    body: Body.t;
+    body: Cohttp_lwt.Body.t;
     env: Hmap0.t
   } [@@deriving fields, sexp_of]
 
   let default_header = Option.value ~default:(Header.init ())
 
-  let create ?(env=Hmap0.empty) ?(body=Body.empty)
+  let create ?(env=Hmap0.empty) ?(body=Cohttp_lwt.Body.empty)
         ?headers ?(code=`OK) () =
     { code
     ; env
@@ -51,11 +52,14 @@ module Response = struct
     }
 
   let of_string_body ?(env=Hmap0.empty) ?headers ?(code=`OK) body =
-    { env; code; headers=default_header headers; body=(Body.of_string body) }
+    { env
+    ; code
+    ; headers = default_header headers
+    ; body = Cohttp_lwt.Body.of_string body }
 
   let of_response_body (resp, body) =
-    let code = Response.status resp in
-    let headers = Response.headers resp in
+    let code = Cohttp.Response.status resp in
+    let headers = Cohttp.Response.headers resp in
     create ~code ~headers ~body ()
 end
 
