@@ -21,10 +21,10 @@ depends: [
   "ezjsonm" {>= "0.4.0"}
   "base64" {>= "2.0.0"}
   "lwt"
-  "fieldslib"
-  "sexplib"
-  "ppx_fields_conv"
-  "ppx_sexp_conv"
+  "fieldslib" {>= "v0.9.0"}
+  "sexplib" {>= "v0.9.0"}
+  "ppx_fields_conv" {>= "v0.9.0"}
+  "ppx_sexp_conv" {>= "v0.9.0"}
   "re" {>= "1.3.0"}
   "alcotest" {test}
   "cow" {test & >= "0.10.0"}

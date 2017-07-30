@@ -20,8 +20,8 @@ depends: [
   "base-unix"
   "lwt"
   "cmdliner"
-  "ppx_fields_conv"
-  "ppx_sexp_conv"
+  "ppx_fields_conv" {>= "v0.9.0"}
+  "ppx_sexp_conv" {>= "v0.9.0"}
   "re" {>= "1.3.0"}
   "magic-mime"
   "alcotest" {test}
