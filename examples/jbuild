@@ -3,6 +3,7 @@
 (executables
  ((libraries (re ezjsonm opium))
   (preprocess (pps (ppx_sexp_conv)))
+  (flags (:standard -safe-string))
   (names
    (auth_middleware
     exit_hook_example

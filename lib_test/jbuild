@@ -2,6 +2,7 @@
 
 (executables
  ((libraries (alcotest opium))
+  (flags (:standard -safe-string))
   (names (routes))))
 
 (alias
