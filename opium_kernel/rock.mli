@@ -88,6 +88,8 @@ module Middleware : sig
 
   val filter : t -> (Request.t, Response.t) Filter.simple
 
+  val apply : t -> (Request.t, Response.t) Service.t -> Request.t -> Response.t Lwt.t
+
   val name : t -> string
 
   val create : filter:(Request.t, Response.t) Filter.simple

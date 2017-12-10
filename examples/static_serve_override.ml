@@ -9,7 +9,7 @@
 
 open Opium.Std
 
-let hello = get "/examples/hello_world.ml" (fun req ->
+let hello = get "/examples/hello_world.ml" (fun _ ->
   `String "Hello World" |> respond')
 
 let () =

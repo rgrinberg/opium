@@ -1,5 +1,4 @@
 open Sexplib
-open Sexplib.Std
 
 module Route = Opium_kernel.Route
 
@@ -73,7 +72,7 @@ let test_match_no_param () =
   let (m1, m2) = Route.(match_url r "/version", match_url r "/tt") in
   match (m1, m2) with
   | Some _, None -> ()
-  | x, y -> Alcotest.fail "bad match"
+  | _, _ -> Alcotest.fail "bad match"
 
 let test_empty_route () =
   let r = Route.of_string "/" in
@@ -82,7 +81,7 @@ let test_empty_route () =
     | None -> false
     | Some _ -> true
   in
-  let (m1, m2) = Route.(m "/", m "/testing") in
+  let (m1, m2) = (m "/", m "/testing") in
   Alcotest.(check bool "match '/'" true m1);
   Alcotest.(check bool "not match '/testing'" false m2)
 

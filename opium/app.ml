@@ -19,7 +19,7 @@ let run_unix ?ssl t ~port =
     Server.make ~callback:(fun _ req body ->
       let req = Request.create ~body req in
       let handler = Filter.apply_all middlewares handler in
-      handler req >>= fun { Response.code; headers; body } ->
+      handler req >>= fun { Response.code; headers; body; _ } ->
       Server.respond ~headers ~body ~status:code ()
     ) ()
   )
@@ -73,10 +73,6 @@ let cmd_name name t = { t with name }
 
 let middleware m app =
   { app with middlewares=m::app.middlewares }
-
-let public_path root requested =
-  let asked_path = Filename.concat root requested in
-  if String.is_prefix asked_path ~prefix:root then Some asked_path else None
 
 let action meth route action =
   register ~meth ~route:(Route.of_string route) ~action
@@ -142,8 +138,8 @@ let print_middleware_f middlewares =
   |> List.map ~f:Rock.Middleware.name
   |> List.iter ~f:(Printf.printf "> %s \n")
 
-let cmd_run app port ssl_cert ssl_key host print_routes print_middleware
-    debug verbose errors =
+let cmd_run app port ssl_cert ssl_key _host print_routes print_middleware
+    debug verbose _errors =
   let ssl =
     let cmd_ssl = Option.map2 ssl_cert ssl_key ~f:(fun c k ->
       (`Crt_file_path c, `Key_file_path k)) in
@@ -196,7 +192,6 @@ module Cmds = struct
     Arg.(value & flag & info ["f"; "fatal"] ~doc)
 
   let term =
-    let open Cmdliner in
     let open Cmdliner.Term in
     fun app ->
       pure cmd_run $ (pure app) $ port app.port $ ssl_cert $ ssl_key

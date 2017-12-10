@@ -86,21 +86,21 @@ module Middleware = struct
 
   (* wrap_debug/apply_middlewares_debug are used for debugging when
      middlewares are stepping over each other *)
-  let wrap_debug handler ({ Request.env ; request } as req) =
-    let env = Hmap0.sexp_of_t env in
-    let req' = request
-               |> Cohttp.Request.headers
-               |> Cohttp.Header.to_lines in
-    Printf.printf "Env:\n%s\n" (Sexplib.Sexp.to_string_hum env);
-    Printf.printf "%s\n" (String.concat "" req');
-    let resp = handler req in
-    resp >>| (fun ({Response.headers; _} as resp) ->
-      Printf.printf "%s\n" (headers |> Cohttp.Header.to_lines |> String.concat "\n");
-      resp)
+  (* let wrap_debug handler ({ Request.env ; request; _ } as req) =
+   *   let env = Hmap0.sexp_of_t env in
+   *   let req' = request
+   *              |> Cohttp.Request.headers
+   *              |> Cohttp.Header.to_lines in
+   *   Printf.printf "Env:\n%s\n" (Sexplib.Sexp.to_string_hum env);
+   *   Printf.printf "%s\n" (String.concat "" req');
+   *   let resp = handler req in
+   *   resp >>| (fun ({Response.headers; _} as resp) ->
+   *     Printf.printf "%s\n" (headers |> Cohttp.Header.to_lines |> String.concat "\n");
+   *     resp) *)
 
-  let apply_middlewares_debug (middlewares : t list) handler =
-    ListLabels.fold_left middlewares ~init:handler ~f:(fun h m ->
-      wrap_debug (apply m h))
+  (* let apply_middlewares_debug (middlewares : t list) handler =
+   *   ListLabels.fold_left middlewares ~init:handler ~f:(fun h m ->
+   *     wrap_debug (apply m h)) *)
 end
 
 module App = struct

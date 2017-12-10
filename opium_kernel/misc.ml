@@ -108,7 +108,7 @@ module Queue = struct
   let t_of_sexp elem_of_sexp s = match s with
     | Sexp.List l ->
       let q = create () in
-      List.iter (fun x -> push (elem_of_sexp x) q) l;
+      List.iter ~f:(fun x -> push (elem_of_sexp x) q) l;
       q
     | Sexp.Atom _ -> raise (Conv.Of_sexp_error (Failure "expected list", s))
 

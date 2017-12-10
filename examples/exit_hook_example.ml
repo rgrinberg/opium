@@ -2,7 +2,7 @@
 
 open Opium.Std
 
-let hello = get "/" (fun req -> `String "Hello World" |> respond')
+let hello = get "/" (fun _ -> `String "Hello World" |> respond')
 
 let () =
   let app =

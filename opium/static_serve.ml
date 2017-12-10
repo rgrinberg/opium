@@ -10,7 +10,6 @@ type t = {
 } [@@deriving fields, sexp]
 
 let legal_path {prefix;local_path} requested =
-  let open Option in
   let p = String.chop_prefix requested ~prefix in
   let requested_path = Filename.concat local_path p in
   if String.is_prefix requested_path ~prefix:local_path

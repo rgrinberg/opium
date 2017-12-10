@@ -1,6 +1,6 @@
 open Opium.Std
 
-let e1 = get "/version" (fun req -> (`String "testing") |> respond')
+let e1 = get "/version" (fun _ -> (`String "testing") |> respond')
 
 let e2 = get "/hello/:name" (fun req ->
   let name = param req "name" in
@@ -55,12 +55,12 @@ let all_cookies = get "/cookies" begin fun req ->
 end
 
 (* exceptions should be nicely formatted *)
-let throws = get "/yyy" (fun req ->
+let throws = get "/yyy" (fun _ ->
   Logs.warn (fun f -> f "Crashing...");
   failwith "expected failure!")
 
 (* TODO: a static path will not be overriden. bug? *)
-let override_static = get "/public/_tags" (fun req ->
+let override_static = get "/public/_tags" (fun _ ->
   (`String "overriding path") |> respond |> Lwt.return)
 
 let app =

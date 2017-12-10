@@ -17,7 +17,7 @@ let reject_ua ~f =
 
 let _ =
   App.empty
-  |> get "/" (fun req -> `String ("Hello World") |> respond')
+  |> get "/" (fun _ -> `String ("Hello World") |> respond')
   |> middleware (reject_ua ~f:(is_substring ~substring:"MSIE"))
   |> App.cmd_name "Reject UA"
   |> App.run_command
