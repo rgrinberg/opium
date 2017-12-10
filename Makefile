@@ -17,3 +17,6 @@ clean:
 	@$(JBUILDER) clean
 
 .PHONY: all clean check test
+
+all-supported-ocaml-versions:
+	$(JBUILDER) runtest --dev --workspace jbuild-workspace.dev
