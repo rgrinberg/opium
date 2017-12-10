@@ -3,10 +3,10 @@
 JBUILDER ?= jbuilder
 
 all:
-	@$(JBUILDER) build @install @DEFAULT
+	@$(JBUILDER) build --dev @install @DEFAULT
 
 check:
-	@$(JBUILDER) runtest
+	@$(JBUILDER) runtest --dev
 
 test: check
 
