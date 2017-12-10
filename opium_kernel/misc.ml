@@ -4,7 +4,7 @@ let return = Lwt.return
 let (>>=) = Lwt.(>>=)
 let (>>|) = Lwt.(>|=)
 
-module Body = Cohttp_lwt_body
+module Body = Cohttp_lwt.Body
 
 module Fn = struct
   let compose f g x = f (g x)
