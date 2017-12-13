@@ -4,10 +4,9 @@ open Sexplib.Std
 module Co = Cohttp
 
 let encode x =
-  Uri.pct_encode ~component:`Query_key (B64.encode x)
+  Uri.pct_encode ~component:`Query_key x
 
-let decode x =
-  B64.decode (Uri.pct_decode x)
+let decode = Uri.pct_decode
 
 module Env = struct
   type cookie = (string * string) list
@@ -39,7 +38,7 @@ let cookies req =
   |> cookies_raw
   |> List.filter_map ~f:(fun (k,v) ->
     (* ignore bad cookies *)
-    Option.try_with (fun () -> (decode k, decode v)))
+    Option.try_with (fun () -> (k, decode v)))
 
 let get req ~key =
   let cookie1 =
@@ -50,10 +49,9 @@ let get req ~key =
   | Some cookie -> Some cookie
   | None ->
     let cookies = cookies_raw req in
-    let encoded_key = encode key in
     cookies
     |> List.find_map ~f:(fun (k,v) ->
-      if k = encoded_key then Some (decode v) else None)
+      if k = key then Some (decode v) else None)
 
 let set_cookies ?(expiration = `Session) resp cookies =
   let env = Rock.Response.env resp in
@@ -72,7 +70,7 @@ let m =             (* TODO: "optimize" *)
     let cookie_headers =
       let module Cookie = Co.Cookie.Set_cookie_hdr in
       let f (k, v, expiration) =
-        (encode k, encode v)
+        (k, encode v)
         |> Cookie.make ~path:"/" ~expiration
         |> Cookie.serialize
       in
