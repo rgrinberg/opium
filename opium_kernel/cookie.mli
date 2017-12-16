@@ -1,4 +1,4 @@
-(** Simple cookie module.  Cookies are base64'd and percent encoded. *)
+(** Simple cookie module.  Cookie values are percent encoded. *)
 
 (** Fetch all cookies from a rock request *)
 val cookies : Rock.Request.t -> (string * string) list
