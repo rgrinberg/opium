@@ -29,7 +29,7 @@ library will always be developed against OPAM version.
 The latest stable version is available on opam
 
 ```
-$ opam install opium
+opam install opium
 ```
 
 ### Master
@@ -38,20 +38,20 @@ If you'd like to live on the bleeding edge (which is sometimes more stable than
 stable)
 
 ```
-$ opam pin add opium --dev-repo
+opam pin add opium --dev-repo
 ```
 
 ## Examples
 
 All examples are built once the necessary dependencies are installed (`cow`).
-`$ make` will compile all examples. The binaries are located in
+`make` will compile all examples. The binaries are located in
 `_build/examples/`
 
 ### Hello World
 
 Here's a simple hello world example to get your feet wet:
 
-`$ cat hello_world.ml`
+`cat hello_world.ml`
 
 ``` ocaml
 open Opium.Std
@@ -87,7 +87,7 @@ let _ =
 
 compile with:
 ```
-$ ocamlbuild -pkg opium hello_world.native
+ocamlbuild -pkg opium hello_world.native
 ```
 
 and then call
@@ -142,7 +142,7 @@ let _ = App.empty
 Compile with:
 
 ```
-$ ocamlbuild -pkg opium middleware_ua.native
+ocamlbuild -pkg opium middleware_ua.native
 ```
 
 Here we also use the ability of Opium to generate a cmdliner term to run your
@@ -151,5 +151,5 @@ you. For example:
 
 ```
 # run in debug mode on port 9000
-$ ./middleware_ua.native -p 9000 -d
+./middleware_ua.native -p 9000 -d
 ```
