@@ -14,7 +14,7 @@ let hello = get "/examples/hello_world.ml" (fun _ ->
 
 let () =
   let static =
-    Middleware.static ~local_path:"./examples" ~uri_prefix:"/examples" in
+    Middleware.static ~local_path:"./examples" ~uri_prefix:"/examples" () in
   App.empty
   |> hello
   |> middleware static
