@@ -16,7 +16,7 @@ let legal_path {prefix;local_path} requested =
   then Some requested_path else None
 
 let public_serve t ~requested ~request_if_none_match ?etag_of_fname ?headers
-      ?(mime_lookup=Magic_mime.lookup) () =
+      ?mime_lookup () =
   match legal_path t requested with
   | None -> return `Not_found
   | Some legal_path ->
@@ -25,8 +25,11 @@ let public_serve t ~requested ~request_if_none_match ?etag_of_fname ?headers
       | Some f -> Some (Printf.sprintf "%S" (f legal_path))
       | None -> None
     in
-    let mime_type = mime_lookup legal_path in
-    let headers = Cohttp.Header.add_opt_unless_exists headers "content-type" mime_type in
+    let headers = match mime_lookup with
+      | Some lookup -> Cohttp.Header.add_opt_unless_exists
+                         headers "content-type" @@ lookup legal_path
+      | None -> Option.value ~default:(Cohttp.Header.init ()) headers
+    in
     let headers =
       match etag_quoted with
       | Some etag_quoted -> Cohttp.Header.add_unless_exists headers "etag" etag_quoted
