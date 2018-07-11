@@ -19,6 +19,7 @@ depends: [
   "cohttp-lwt-unix" {>= "0.99.0"}
   "base-unix"
   "lwt"
+  "lwt_log"
   "cmdliner"
   "ppx_fields_conv" {>= "v0.9.0"}
   "ppx_sexp_conv" {>= "v0.9.0"}

@@ -74,7 +74,7 @@ let app =
   |> all_cookies
   |> throws
   |> middleware Cookie.m
-  |> middleware (Middleware.static ~local_path:"./" ~uri_prefix:"/public")
+  |> middleware (Middleware.static ~local_path:"./" ~uri_prefix:"/public" ())
   |> splat_route
 
 let _ =
