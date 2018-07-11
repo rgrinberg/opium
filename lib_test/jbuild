@@ -3,10 +3,12 @@
 (executables
  ((libraries (alcotest opium))
   (flags (:standard -safe-string))
-  (names (routes))))
+  (names (routes static_serve))))
 
 (alias
  ((name runtest)
   (package opium)
-  (deps (routes.exe))
-  (action (run ${<}))))
+  (deps (routes.exe static_serve.exe))
+  (action (progn
+           (run ${<})
+           (run ./static_serve.exe)))))

@@ -15,7 +15,8 @@ let legal_path {prefix;local_path} requested =
   if String.is_prefix requested_path ~prefix:local_path
   then Some requested_path else None
 
-let public_serve t ~requested ~request_if_none_match ?etag_of_fname ?headers () =
+let public_serve t ~requested ~request_if_none_match ?etag_of_fname ?headers
+      ?mime_lookup () =
   match legal_path t requested with
   | None -> return `Not_found
   | Some legal_path ->
@@ -24,8 +25,11 @@ let public_serve t ~requested ~request_if_none_match ?etag_of_fname ?headers () 
       | Some f -> Some (Printf.sprintf "%S" (f legal_path))
       | None -> None
     in
-    let mime_type = Magic_mime.lookup legal_path in
-    let headers = Cohttp.Header.add_opt_unless_exists headers "content-type" mime_type in
+    let headers = match mime_lookup with
+      | Some lookup -> Cohttp.Header.add_opt_unless_exists
+                         headers "content-type" @@ lookup legal_path
+      | None -> Option.value ~default:(Cohttp.Header.init ()) headers
+    in
     let headers =
       match etag_quoted with
       | Some etag_quoted -> Cohttp.Header.add_unless_exists headers "etag" etag_quoted
@@ -50,14 +54,15 @@ let public_serve t ~requested ~request_if_none_match ?etag_of_fname ?headers () 
       then `Not_found
       else `Ok (Response.of_response_body resp)
 
-let m ~local_path ~uri_prefix ?headers ?etag_of_fname () =
+let m ~local_path ~uri_prefix ?headers ?etag_of_fname
+      ?mime_lookup () =
   let filter handler req =
     if Request.meth req = `GET then
       let local_map = { prefix=uri_prefix; local_path } in
       let local_path = req |> Request.uri |> Uri.path in
       if local_path |> String.is_prefix ~prefix:uri_prefix then
         let request_if_none_match = Cohttp.Header.get (Request.headers req) "If-None-Match" in
-        public_serve local_map ~requested:local_path ~request_if_none_match ?etag_of_fname ?headers () >>= function
+        public_serve local_map ~requested:local_path ~request_if_none_match ?etag_of_fname ?headers ?mime_lookup () >>= function
         | `Not_found -> handler req
         | `Ok x -> return x
       else
