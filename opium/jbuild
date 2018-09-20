@@ -11,4 +11,5 @@
     cmdliner
     cohttp-lwt-unix
     magic-mime
-    logs))))
+    logs
+    stringext))))
