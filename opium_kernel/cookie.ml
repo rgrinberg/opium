@@ -15,10 +15,10 @@ module Env = struct
 end
 
 module Env_resp = struct
-  type cookie = (string * string * Co.Cookie.expiration) list
+  type cookie = Co.Cookie.Set_cookie_hdr.t list
   let key : cookie Hmap0.key =
     Hmap0.Key.create
-      ("cookie_res",[%sexp_of: (string * string * Co.Cookie.expiration) list])
+      ("cookie_res",[%sexp_of: Co.Cookie.Set_cookie_hdr.t list])
 end
 
 let current_cookies env record =
@@ -53,30 +53,26 @@ let get req ~key =
     |> List.find_map ~f:(fun (k,v) ->
       if k = key then Some (decode v) else None)
 
-let set_cookies ?(expiration = `Session) resp cookies =
+let set_cookies ?expiration ?path ?domain ?secure ?http_only resp cookies =
   let env = Rock.Response.env resp in
   let current_cookies = current_cookies_resp (fun r->r.Rock.Response.env) resp in
-  let cookies' = List.map cookies ~f:(fun (key, data) -> (key, data, expiration)) in
+  let cookies' = List.map cookies ~f:(fun (key, data) ->
+    Co.Cookie.Set_cookie_hdr.make ?path ?domain ?expiration ?secure ?http_only (key, encode data)) in
   (* WRONG cookies cannot just be concatenated *)
   let all_cookies = current_cookies @ cookies' in
   { resp with Rock.Response.env=(Hmap0.add Env_resp.key all_cookies env) }
 
-let set ?expiration resp ~key ~data =
-  set_cookies ?expiration resp [(key, data)]
+let set ?expiration ?path ?domain ?secure ?http_only resp ~key ~data =
+  set_cookies ?expiration ?path ?domain ?secure ?http_only resp [(key, data)]
 
-let m =             (* TODO: "optimize" *)
+let m = (* TODO: "optimize" *)
   let filter handler req =
     handler req >>| fun response ->
     let cookie_headers =
       let module Cookie = Co.Cookie.Set_cookie_hdr in
-      let f (k, v, expiration) =
-        (k, encode v)
-        |> Cookie.make ~path:"/" ~expiration
-        |> Cookie.serialize
-      in
       response
       |> current_cookies_resp (fun r -> r.Rock.Response.env)
-      |> List.map ~f
+      |> List.map ~f:Cookie.serialize
     in
     let old_headers = Rock.Response.headers response in
     { response with Rock.Response.headers=(
