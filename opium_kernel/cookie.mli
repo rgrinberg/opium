@@ -9,6 +9,10 @@ val get : Rock.Request.t -> key:string -> string option
 (** Set the value of a cookie with a certain key in a response *)
 val set
   : ?expiration:Cohttp.Cookie.expiration
+  -> ?path:string
+  -> ?domain:string
+  -> ?secure:bool
+  -> ?http_only:bool
   -> Rock.Response.t
   -> key:string
   -> data:string
@@ -17,6 +21,10 @@ val set
 (** Like set but will do multiple cookies at once *)
 val set_cookies
   : ?expiration:Cohttp.Cookie.expiration
+  -> ?path:string
+  -> ?domain:string
+  -> ?secure:bool
+  -> ?http_only:bool
   -> Rock.Response.t
   -> (string * string) list
   -> Rock.Response.t
