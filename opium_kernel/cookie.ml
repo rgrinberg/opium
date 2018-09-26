@@ -53,11 +53,12 @@ let get req ~key =
     |> List.find_map ~f:(fun (k,v) ->
       if k = key then Some (decode v) else None)
 
-let set_cookies ?expiration ?path ?domain ?secure ?http_only resp cookies =
+(* Path defaulted to "/" as otherwise the default is the path of the request's URI *)
+let set_cookies ?expiration ?(path = "/") ?domain ?secure ?http_only resp cookies =
   let env = Rock.Response.env resp in
   let current_cookies = current_cookies_resp (fun r->r.Rock.Response.env) resp in
   let cookies' = List.map cookies ~f:(fun (key, data) ->
-    Co.Cookie.Set_cookie_hdr.make ?path ?domain ?expiration ?secure ?http_only (key, encode data)) in
+    Co.Cookie.Set_cookie_hdr.make ~path ?domain ?expiration ?secure ?http_only (key, encode data)) in
   (* WRONG cookies cannot just be concatenated *)
   let all_cookies = current_cookies @ cookies' in
   { resp with Rock.Response.env=(Hmap0.add Env_resp.key all_cookies env) }
