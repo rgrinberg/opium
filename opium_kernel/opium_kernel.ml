@@ -8,9 +8,6 @@ module Export = struct
 end
 include Export
 
-module Std = struct
-  include Export
-
-end
+module Std = Export
 
 module Hmap = Hmap0
