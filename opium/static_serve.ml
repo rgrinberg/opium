@@ -35,7 +35,7 @@ let public_serve t ~requested ~request_if_none_match ?etag_of_fname ?headers () 
       match request_if_none_match, etag_quoted with
       | Some request_etags, Some etag_quoted ->
         request_etags
-        |> String.split_on_char ','
+        |> Stringext.split ~on:','
         |> List.exists ~f:(fun request_etag ->
           String.trim request_etag = etag_quoted
         )
