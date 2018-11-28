@@ -1,0 +1,10 @@
+(library
+ (public_name opium_kernel)
+ (flags
+  (:standard -safe-string)
+ )
+ (preprocess
+  (pps ppx_sexp_conv ppx_fields_conv)
+ )
+ (libraries hmap cohttp-lwt ezjsonm)
+)
