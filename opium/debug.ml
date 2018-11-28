@@ -3,6 +3,8 @@ open Opium_kernel.Rock
 
 let exn_ e = Logs.err (fun f -> f "%s" (Printexc.to_string e))
 
+let log_src = Logs.Src.create "opium.server"
+
 let format_error req _exn = Printf.sprintf "
 <html>
   <body>
@@ -24,6 +26,6 @@ let trace =
   let filter handler req =
     handler req >|= fun response ->
     let code = response |> Response.code |> Cohttp.Code.code_of_status in
-    Lwt_log.ign_debug_f "Responded with %d" code;
+    Logs.debug ~src:log_src (fun m -> m "Responded with %d" code);
     response
   in Middleware.create ~name:"Trace" ~filter

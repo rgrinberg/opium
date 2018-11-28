@@ -1,0 +1,15 @@
+(executables
+ (libraries re ezjsonm opium)
+ (preprocess
+  (pps ppx_sexp_conv)
+ )
+ (flags
+  (:standard -safe-string)
+ )
+ (names auth_middleware exit_hook_example hello_world_basic hello_world_html hello_world middleware_ua read_json_body sample static_serve_override uppercase_middleware)
+)
+
+(alias
+ (name DEFAULT)
+ (deps auth_middleware.exe exit_hook_example.exe hello_world_basic.exe hello_world_html.exe hello_world.exe middleware_ua.exe read_json_body.exe sample.exe static_serve_override.exe uppercase_middleware.exe)
+)

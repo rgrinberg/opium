@@ -1,12 +1,12 @@
 .DEFAULT_GOAL: all
 
-JBUILDER ?= jbuilder
+JBUILDER ?= dune
 
 all:
-	@$(JBUILDER) build --dev @install @DEFAULT
+	@$(JBUILDER) build @install @DEFAULT
 
 check:
-	@$(JBUILDER) runtest --dev
+	@$(JBUILDER) runtest
 
 test: check
 
@@ -19,4 +19,4 @@ clean:
 .PHONY: all clean check test
 
 all-supported-ocaml-versions:
-	$(JBUILDER) runtest --dev --workspace jbuild-workspace.dev
+	$(JBUILDER) runtest --workspace dune-workspace.dev
