@@ -50,3 +50,4 @@ examples/uppercase_middleware
 lib_test/routes
 *.merlin
 *.install
+_opam

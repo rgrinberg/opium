@@ -1,17 +1,34 @@
 language: c
-sudo: false
+install: wget https://raw.githubusercontent.com/ocaml/ocaml-ci-scripts/master/.travis-docker.sh
+script: bash -ex .travis-docker.sh
 services:
-  - docker
-install: wget https://raw.githubusercontent.com/ocaml/ocaml-travisci-skeleton/master/.travis-docker.sh
-script: bash -ex ./.travis-docker.sh
+- docker
 env:
   global:
   - EXTRA_REMOTES="https://github.com/mirage/mirage-dev.git"
   - PINS="opium_kernel:. opium:."
   matrix:
-  - PACKAGE="opium_kernel" DISTRO="ubuntu-16.04" OCAML_VERSION="4.04.2"
-  - PACKAGE="opium" DISTRO="ubuntu-16.04" OCAML_VERSION="4.04.2"
-  - PACKAGE="opium_kernel" DISTRO="alpine" OCAML_VERSION="4.03.0"
-  - PACKAGE="opium" DISTRO="alpine" OCAML_VERSION="4.03.0"
-  - PACKAGE="opium_kernel" DISTRO="debian-unstable" OCAML_VERSION="4.03.0"
-  - PACKAGE="opium" DISTRO="debian-unstable" OCAML_VERSION="4.03.0"
+  - PACKAGE="opium_kernel" DISTRO="ubuntu-18.04" OCAML_VERSION="4.04"
+  - PACKAGE="opium" DISTRO="ubuntu-18.04" OCAML_VERSION="4.04"
+  - PACKAGE="opium_kernel" DISTRO="ubuntu-18.04" OCAML_VERSION="4.05"
+  - PACKAGE="opium" DISTRO="ubuntu-18.04" OCAML_VERSION="4.05"
+  - PACKAGE="opium_kernel" DISTRO="ubuntu-18.04" OCAML_VERSION="4.06"
+  - PACKAGE="opium" DISTRO="ubuntu-18.04" OCAML_VERSION="4.06"
+  - PACKAGE="opium_kernel" DISTRO="ubuntu-18.04" OCAML_VERSION="4.07"
+  - PACKAGE="opium" DISTRO="ubuntu-18.04" OCAML_VERSION="4.07"
+  - PACKAGE="opium_kernel" DISTRO="ubuntu-16.04" OCAML_VERSION="4.04"
+  - PACKAGE="opium" DISTRO="ubuntu-16.04" OCAML_VERSION="4.04"
+  - PACKAGE="opium_kernel" DISTRO="ubuntu-16.04" OCAML_VERSION="4.05"
+  - PACKAGE="opium" DISTRO="ubuntu-16.04" OCAML_VERSION="4.05"
+  - PACKAGE="opium_kernel" DISTRO="ubuntu-16.04" OCAML_VERSION="4.06"
+  - PACKAGE="opium" DISTRO="ubuntu-16.04" OCAML_VERSION="4.06"
+  - PACKAGE="opium_kernel" DISTRO="ubuntu-16.04" OCAML_VERSION="4.07"
+  - PACKAGE="opium" DISTRO="ubuntu-16.04" OCAML_VERSION="4.07"
+  - PACKAGE="opium_kernel" DISTRO="alpine" OCAML_VERSION="4.04"
+  - PACKAGE="opium" DISTRO="alpine" OCAML_VERSION="4.04"
+  - PACKAGE="opium_kernel" DISTRO="alpine" OCAML_VERSION="4.05"
+  - PACKAGE="opium" DISTRO="alpine" OCAML_VERSION="4.05"
+  - PACKAGE="opium_kernel" DISTRO="alpine" OCAML_VERSION="4.06"
+  - PACKAGE="opium" DISTRO="alpine" OCAML_VERSION="4.06"
+  - PACKAGE="opium_kernel" DISTRO="alpine" OCAML_VERSION="4.07"
+  - PACKAGE="opium" DISTRO="alpine" OCAML_VERSION="4.07"
