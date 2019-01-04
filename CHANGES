@@ -1,0 +1,11 @@
+v0.17.0 (01/04/2019)
+-------------------
+
+- Switch to dune (#88, anuragoni)
+
+- Keep the "/" cookie default and expose all cookie directives (#82,
+  @actionshrimp)
+
+- Do not assume base 64 encoding of cookies (#74, @malthe)
+
+- Add caching capabilities to middleware (#76, @mattjbray)
