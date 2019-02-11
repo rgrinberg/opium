@@ -73,7 +73,7 @@ You should see a JSON message.
 
 The two fundamental building blocks of opium are:
 
-* Handlers: `Rock.Request.t -> Rock.Response.t Deferred.t`
+* Handlers: `Rock.Request.t -> Rock.Response.t Lwt.t`
 * Middleware: `Rock.Handler.t -> Rock.Handler.t`
 
 Almost every all of opium's functionality is assembled through various
