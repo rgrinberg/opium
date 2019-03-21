@@ -36,5 +36,4 @@ depends: [
   "magic-mime"
   "stringext"
   "alcotest" {with-test}
-  "cow" {with-test & >= "0.10.0"}
 ]

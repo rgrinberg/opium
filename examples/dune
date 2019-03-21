@@ -10,6 +10,6 @@
 )
 
 (alias
- (name DEFAULT)
+ (name examples)
  (deps auth_middleware.exe exit_hook_example.exe hello_world_basic.exe hello_world_html.exe hello_world.exe middleware_ua.exe read_json_body.exe sample.exe static_serve_override.exe uppercase_middleware.exe)
 )
