@@ -3,7 +3,7 @@ Opium
 
 ## Executive Summary
 
-Sinatra like web toolkit for OCaml based on [cohttp](https://github.com/avsm/ocaml-cohttp/) & [lwt](https://github.com/ocsigen/lwt)
+Sinatra like web toolkit for OCaml based on [cohttp](https://github.com/mirage/ocaml-cohttp/) & [lwt](https://github.com/ocsigen/lwt)
 
 ## Design Goals
 
@@ -15,14 +15,10 @@ _Rack_ inspired mechanism borrowed from Ruby. The middleware mechanism in
 Opium is called `Rock`.
 
 * It should maximize use of creature comforts people are used to in
-other languages. Such as [sexplib](https://github.com/janestreet/sexplib), [fieldslib](https://github.com/janestreet/fieldslib), [cow](https://github.com/mirage/ocaml-cow), a decent
+other languages. Such as [sexplib](https://github.com/janestreet/sexplib), [fieldslib](https://github.com/janestreet/fieldslib), a decent
 standard library.
 
 ## Installation
-
-__NOTE__: At this point there's a good chance this library will only
-work against cohttp master. Once cohttp 1.0 is released then this
-library will always be developed against OPAM version.
 
 ### Stable
 
@@ -43,9 +39,9 @@ $ opam pin add opium --dev-repo
 
 ## Examples
 
-All examples are built once the necessary dependencies are installed (`cow`).
-`$ make` will compile all examples. The binaries are located in
-`_build/examples/`
+All examples are built once the necessary dependencies are installed.
+`$ dune build @examples` will compile all examples. The binaries are located in
+`_build/default/examples/`
 
 ### Hello World
 

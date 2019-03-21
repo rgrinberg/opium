@@ -32,5 +32,4 @@ depends: [
   "ppx_sexp_conv" {>= "v0.9.0"}
   "re" {>= "1.3.0"}
   "alcotest" {with-test}
-  "cow" {with-test & >= "0.10.0"}
 ]

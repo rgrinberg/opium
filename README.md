@@ -15,21 +15,17 @@ _Rack_ inspired mechanism borrowed from Ruby. The middleware mechanism in
 Opium is called `Rock`.
 
 * It should maximize use of creature comforts people are used to in
-other languages. Such as [sexplib](https://github.com/janestreet/sexplib), [fieldslib](https://github.com/janestreet/fieldslib), [cow](https://github.com/mirage/ocaml-cow), a decent
+other languages. Such as [sexplib](https://github.com/janestreet/sexplib), [fieldslib](https://github.com/janestreet/fieldslib), a decent
 standard library.
 
 ## Installation
-
-__NOTE__: At this point there's a good chance this library will only
-work against cohttp master. Once cohttp 1.0 is released then this
-library will always be developed against OPAM version.
 
 ### Stable
 
 The latest stable version is available on opam
 
 ```
-opam install opium
+$ opam install opium
 ```
 
 ### Master
@@ -38,20 +34,20 @@ If you'd like to live on the bleeding edge (which is sometimes more stable than
 stable)
 
 ```
-opam pin add opium --dev-repo
+$ opam pin add opium --dev-repo
 ```
 
 ## Examples
 
-All examples are built once the necessary dependencies are installed (`cow`).
-`make` will compile all examples. The binaries are located in
-`_build/examples/`
+All examples are built once the necessary dependencies are installed.
+`$ dune build @examples` will compile all examples. The binaries are located in
+`_build/default/examples/`
 
 ### Hello World
 
 Here's a simple hello world example to get your feet wet:
 
-`cat hello_world.ml`
+`$ cat hello_world.ml`
 
 ``` ocaml
 open Opium.Std
@@ -87,14 +83,13 @@ let _ =
 
 compile with:
 ```
-ocamlbuild -pkg opium hello_world.native
+$ ocamlbuild -pkg opium.unix hello_world.native
 ```
 
 and then call
-```
-./hello_world.native &
-curl http://localhost:3000/person/john_doe/42
-```
+
+    ./hello_world.native &
+    curl http://localhost:3000/person/john_doe/42
 
 You should see a JSON message.
 
@@ -115,13 +110,13 @@ favourite browser.
 
 ``` ocaml
 open Opium.Std
-open Opium_misc
 
 (* don't open cohttp and opium since they both define
    request/response modules*)
 
-let is_substring ~substring s =
-  Option.is_some (String.substr_index s ~pattern:substring)
+let is_substring ~substring =
+  let re = Re.compile (Re.str substring) in
+  Re.execp re
 
 let reject_ua ~f =
   let filter handler req =
@@ -131,18 +126,18 @@ let reject_ua ~f =
     | _ -> handler req in
   Rock.Middleware.create ~filter ~name:"reject_ua"
 
-let _ = App.empty
-        |> get "/" (fun req -> `String ("Hello World") |> respond')
-        |> middleware (reject_ua ~f:(is_substring ~substring:"MSIE"))
-        |> App.cmd_name "Reject UA"
-        |> App.run_command
-
+let _ =
+  App.empty
+  |> get "/" (fun _ -> `String ("Hello World") |> respond')
+  |> middleware (reject_ua ~f:(is_substring ~substring:"MSIE"))
+  |> App.cmd_name "Reject UA"
+  |> App.run_command
 ```
 
 Compile with:
 
 ```
-ocamlbuild -pkg opium middleware_ua.native
+$ ocamlbuild -pkg opium.unix middleware_ua.native
 ```
 
 Here we also use the ability of Opium to generate a cmdliner term to run your
@@ -151,5 +146,5 @@ you. For example:
 
 ```
 # run in debug mode on port 9000
-./middleware_ua.native -p 9000 -d
+$ ./middleware_ua.native -p 9000 -d
 ```
