@@ -6,6 +6,7 @@ license: "MIT"
 homepage: "https://github.com/rgrinberg/opium"
 bug-reports: "https://github.com/rgrinberg/opium/issues"
 dev-repo: "git+https://github.com/rgrinberg/opium.git"
+doc: "https://rgrinberg.github.io/opium/"
 synopsis: "Sinatra like web toolkit based on Lwt + Cohttp"
 description: """
 Opium is a minimalistic library for quickly binding functions to http routes. Its features include (but not limited to):
