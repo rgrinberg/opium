@@ -3,5 +3,7 @@
  (flags
   (:standard -safe-string))
  (preprocess
-  (pps ppx_sexp_conv ppx_fields_conv))
- (libraries hmap cohttp-lwt lwt sexplib))
+  (pps ppx_sexp_conv ppx_fields_conv)
+ )
+ (libraries hmap httpaf lwt logs bigstringaf re uri ezjsonm)
+)
