@@ -16,6 +16,8 @@ depends: [
   "base64" {>= "2.0.0"}
   "lwt"
   "uri"
+  "logs"
+  "bigstringaf"
   "httpaf"
   "fieldslib" {>= "v0.9.0"}
   "sexplib" {>= "v0.9.0"}
