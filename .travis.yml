@@ -5,7 +5,6 @@ services:
 - docker
 env:
   global:
-  - EXTRA_REMOTES="https://github.com/mirage/mirage-dev.git"
   - PINS="opium_kernel:. opium:."
   matrix:
   - PACKAGE="opium_kernel" DISTRO="ubuntu-18.04" OCAML_VERSION="4.04"
@@ -16,19 +15,5 @@ env:
   - PACKAGE="opium" DISTRO="ubuntu-18.04" OCAML_VERSION="4.06"
   - PACKAGE="opium_kernel" DISTRO="ubuntu-18.04" OCAML_VERSION="4.07"
   - PACKAGE="opium" DISTRO="ubuntu-18.04" OCAML_VERSION="4.07"
-  - PACKAGE="opium_kernel" DISTRO="ubuntu-16.04" OCAML_VERSION="4.04"
-  - PACKAGE="opium" DISTRO="ubuntu-16.04" OCAML_VERSION="4.04"
-  - PACKAGE="opium_kernel" DISTRO="ubuntu-16.04" OCAML_VERSION="4.05"
-  - PACKAGE="opium" DISTRO="ubuntu-16.04" OCAML_VERSION="4.05"
-  - PACKAGE="opium_kernel" DISTRO="ubuntu-16.04" OCAML_VERSION="4.06"
-  - PACKAGE="opium" DISTRO="ubuntu-16.04" OCAML_VERSION="4.06"
-  - PACKAGE="opium_kernel" DISTRO="ubuntu-16.04" OCAML_VERSION="4.07"
-  - PACKAGE="opium" DISTRO="ubuntu-16.04" OCAML_VERSION="4.07"
-  - PACKAGE="opium_kernel" DISTRO="alpine" OCAML_VERSION="4.04"
-  - PACKAGE="opium" DISTRO="alpine" OCAML_VERSION="4.04"
-  - PACKAGE="opium_kernel" DISTRO="alpine" OCAML_VERSION="4.05"
-  - PACKAGE="opium" DISTRO="alpine" OCAML_VERSION="4.05"
-  - PACKAGE="opium_kernel" DISTRO="alpine" OCAML_VERSION="4.06"
-  - PACKAGE="opium" DISTRO="alpine" OCAML_VERSION="4.06"
-  - PACKAGE="opium_kernel" DISTRO="alpine" OCAML_VERSION="4.07"
-  - PACKAGE="opium" DISTRO="alpine" OCAML_VERSION="4.07"
+  - PACKAGE="opium_kernel" DISTRO="ubuntu-18.04" OCAML_VERSION="4.08"
+  - PACKAGE="opium" DISTRO="ubuntu-18.04" OCAML_VERSION="4.08"
