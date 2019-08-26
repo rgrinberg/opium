@@ -1,8 +1,8 @@
 open Opium.Std
 open Lwt.Infix
 
-(* This is done to demonstrate a usecase where the log reporter
-   is returned via a Lwt promise *)
+(* This is done to demonstrate a usecase where the log reporter is returned via
+   a Lwt promise *)
 let log_reporter () = Lwt.return (Logs_fmt.reporter ())
 
 let logger =
@@ -18,22 +18,18 @@ let logger =
 
 let say_hello =
   get "/hello/:name" (fun req ->
-      `String ("Hello " ^ param req "name") |> respond' )
+      `String ("Hello " ^ param req "name") |> respond')
 
 let () =
-  let app = App.empty
-          |> say_hello
-          |> middleware logger
-          |> App.run_command' in
+  let app = App.empty |> say_hello |> middleware logger |> App.run_command' in
   match app with
   | `Ok app ->
       let s =
         log_reporter ()
-        >>= fun r -> begin
-            Logs.set_reporter r ;
-            Logs.set_level (Some Logs.Info) ;
-            app
-          end
+        >>= fun r ->
+        Logs.set_reporter r ;
+        Logs.set_level (Some Logs.Info) ;
+        app
       in
       ignore (Lwt_main.run s)
   | `Error -> exit 1
