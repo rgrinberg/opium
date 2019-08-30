@@ -16,12 +16,12 @@
 title: Opium
 description: >- # this means to ignore newlines until "baseurl:"
   Sinatra like web toolkit for OCaml based on cohttp & lwt
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://rgrinberg.github.io/opium" # the base hostname & protocol for your site, e.g. http://example.com
+baseurl: "opium" # the subpath of your site, e.g. /blog
+url: "https://rgrinberg.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 
 search_enabled: true
 
 markdown: kramdown
-remote_theme: pmarsceill/just-the-docs
+theme: "just-the-docs"
 plugins:
   - jekyll-feed
