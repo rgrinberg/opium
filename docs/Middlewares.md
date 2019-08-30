@@ -13,6 +13,8 @@ The two fundamental building blocks of opium are:
 
 Almost all of opium's functionality is assembled through various middleware. For example: debugging, routing, serving static files, etc. Creating middleware is usually the most natural way to extend an opium app.
 
+## Writing middleware
+
 Here's how you'd create a simple middleware turning away everyone's favourite browser.
 
 ```ocaml
@@ -32,8 +34,14 @@ let reject_ua ~f =
       `String ("Please upgrade your browser") |> respond'
     | _ -> handler req in
   Rock.Middleware.create ~filter ~name:"reject_ua"
+```
 
-let _ =
+## Using middleware
+
+To use the `reject_ua` middleware you can use the `middleware` builder from the Opium.Std.App module.
+
+```ocaml
+let () =
   App.empty
   |> get "/" (fun _ -> `String ("Hello World") |> respond')
   |> middleware (reject_ua ~f:(is_substring ~substring:"MSIE"))
