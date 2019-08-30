@@ -30,10 +30,8 @@ $ opam install opium
 
 ### Master
 
-If you'd like to live on the bleeding edge (which is sometimes more stable than
-stable)
-
 ```
+$ opam pin add opium_kernel --dev-repo
 $ opam pin add opium --dev-repo
 ```
 
