@@ -3,6 +3,7 @@ layout: default
 title: Exit Hook
 parent: Examples
 nav_order: 2
+permalink: /examples/exithook
 ---
 
 # Exit hook
