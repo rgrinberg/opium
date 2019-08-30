@@ -3,6 +3,7 @@ layout: default
 title: Logging
 parent: Examples
 nav_order: 1
+permalink: /examples/logging
 ---
 
 # Logging
