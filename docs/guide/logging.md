@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Logging
-parent: guide
+parent: Guide
 nav_order: 1
 ---
 
