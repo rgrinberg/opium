@@ -69,6 +69,7 @@ let () =
   |> get "/" (fun _ -> `String "Hello World" |> respond')
   |> App.run_command
 ```
-Save this in a file `my_app.ml` and then compile with: `ocamlbuild -pkg opium my_app.native`
-Run it by executing `./my_app.native`
-You can access it at [http://localhost:3000](http://localhost:3000). This is a very simple example of how to start using Opium. For anything beyond this, we recommend using [dune](https://dune.build/) to build your project.
+Save this in a file `my_app.ml` and then compile with: `ocamlbuild -pkg opium my_app.native` and run it by executing `./my_app.native`.
+You can access it at [http://localhost:3000](http://localhost:3000).
+
+This is a very simple example of how to start using Opium. For anything beyond this, we recommend using [dune](https://dune.build/) to build your project.
