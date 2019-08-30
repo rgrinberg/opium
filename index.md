@@ -29,38 +29,46 @@ opam pin add opium_kernel.dev git+https://github.com/rgrinberg/opium.git
 opam pin add opium.dev git+https://github.com/rgrinberg/opium.git
 ```
 
-## Hello World
+## Usage
 
-Here's a simple hello world example to get your feet wet:
+1. Add opium as a dependency in your project.
+
+    If using opam, depend on opium in your opam file:
+
+    ```
+    depends: [
+      "opium"
+    ]
+    ```
+
+    If using esy, add opium in the "dependencies" attribute of the package.json or esy.json file :
+
+    ```javascript
+    {
+      "dependencies" {
+        "@opam/opium": "0.17.1"
+      }
+    }
+    ```
+
+2. Add opium as a dependency into your dune file
+
+    ```scheme
+    (executable
+      (name my_project)
+      (libraries opium))
+    ```
+
+## Hello World
 
 ```ocaml
 open Opium.Std
 
-type person = {
-  name: string;
-  age: int;
-}
-
-let json_of_person { name ; age } =
-  let open Ezjsonm in
-  dict [ "name", (string name)
-       ; "age", (int age) ]
-
-let print_param = put "/hello/:name" begin fun req ->
-  `String ("Hello " ^ param req "name") |> respond'
-end
-
-let print_person = get "/person/:name/:age" begin fun req ->
-  let person = {
-    name = param req "name";
-    age = "age" |> param req |> int_of_string;
-  } in
-  `Json (person |> json_of_person) |> respond'
-end
-
-let _ =
+let () =
   App.empty
-  |> print_param
-  |> print_person
+  |> get "/" (fun _ -> `String "Hello World" |> respond')
   |> App.run_command
 ```
+Save this in a file `my_app.ml` and then compile with: `ocamlbuild -pkg opium my_app.native`
+Run it by executing `./my_app.native`
+You can access it at [http://localhost:3000](http://localhost:3000). This is a very simple example of how to start using Opium. For anything beyond this, we recommend using [dune](https://dune.build/) to build your project.
