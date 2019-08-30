@@ -1,7 +1,7 @@
 ---
 layout: default
-title: Guide
+title: Examples
 nav_order: 3
 has_children: true
-permalink: /guide
+permalink: /examples
 ---
