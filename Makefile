@@ -1,22 +1,15 @@
-.DEFAULT_GOAL: all
+.PHONY: default build clean test examples
 
-JBUILDER ?= dune
+default: build
 
-all:
-	@$(JBUILDER) build @install @DEFAULT
+build:
+	dune build @check
 
-check:
-	@$(JBUILDER) runtest
+clean:
+	dune clean
 
-test: check
+test:
+	dune runtest -f
 
 README.md: README.cpp.md $(wildcard examples/*.ml)
 	@cppo -n $< -o $@
-
-clean:
-	@$(JBUILDER) clean
-
-.PHONY: all clean check test
-
-all-supported-ocaml-versions:
-	$(JBUILDER) runtest --workspace dune-workspace.dev
