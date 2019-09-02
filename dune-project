@@ -9,6 +9,7 @@
 
 (package
  (name opium_core)
+ (synopsis "Finagle inspired service and filter types")
  (depends
   (ocaml (>= 4.04.2))
   (dune (>= 1.11))
