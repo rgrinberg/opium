@@ -6,13 +6,13 @@ open Opium_kernel.Rock
     - Easy handling of routes and bodies
     - Automatic generation of a command line app *)
 
-type t [@@deriving sexp_of]
+type t
 (** An opium app is a simple builder wrapper around a rock app *)
 
 val empty : t
 (** A basic empty app *)
 
-type builder = t -> t [@@deriving sexp_of]
+type builder = t -> t
 (** A builder is a function that transforms an [app] by adding some
     functionality. Builders are usuallys composed with a base app using (|>) to
     create a full app *)
@@ -23,7 +23,7 @@ val ssl : cert:string -> key:string -> builder
 
 val cmd_name : string -> builder
 
-type route = string -> Handler.t -> builder [@@deriving sexp_of]
+type route = string -> Handler.t -> builder
 (** A route is a function that returns a buidler that hooks up a handler to a
     url mapping *)
 

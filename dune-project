@@ -8,12 +8,21 @@
 (license MIT)
 
 (package
+ (name opium_core)
+ (synopsis "Finagle inspired service and filter types")
+ (depends
+  (ocaml (>= 4.04.2))
+  (dune (>= 1.11))
+  lwt))
+
+(package
  (name opium_kernel)
  (synopsis "Sinatra like web toolkit based on Lwt + Cohttp")
  (description "Opium_kernel is the Unix indpendent core of Opium. Useful for extremely portable environments such as mirage.")
  (depends
-  (ocaml (>= 4.04.1))
+  (ocaml (>= 4.04.2))
   (dune (>= 1.11))
+  opium_core
   hmap
   cohttp
   cohttp-lwt
@@ -39,7 +48,7 @@
     Request/Response pretty printing for easier debugging
   ")
  (depends
-  (ocaml (>= 4.04.1))
+  (ocaml (>= 4.04.2))
   (dune (>= 1.11))
   opium_kernel
   cohttp-lwt-unix
