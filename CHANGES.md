@@ -1,3 +1,8 @@
+# v0.18.0
+
+* Use `dune` to generate opam files (#98, @anuragsoni)
+* Use `ocamlformat` for formatting all OCaml/dune files (#99, @anuragsoni)
+
 # v0.17.1
 
 * Change Deferred.t to Lwt.t in readme (#91, @rymdhund)
