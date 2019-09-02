@@ -14,7 +14,7 @@ license: "MIT"
 homepage: "https://github.com/rgrinberg/opium"
 bug-reports: "https://github.com/rgrinberg/opium/issues"
 depends: [
-  "ocaml" {>= "4.04.1"}
+  "ocaml" {>= "4.04.2"}
   "dune" {>= "1.11"}
   "opium_kernel"
   "cohttp-lwt-unix"

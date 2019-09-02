@@ -1,29 +1,8 @@
-open Sexplib.Std
 open Misc
 module Header = Cohttp.Header
 
-module Service = struct
-  type ('req, 'rep) t = 'req -> 'rep Lwt.t [@@deriving sexp]
-
-  let id req = return req
-
-  let const resp = Fn.compose return (Fn.const resp)
-end
-
-module Filter = struct
-  type ('req, 'rep, 'req_, 'rep_) t =
-    ('req, 'rep) Service.t -> ('req_, 'rep_) Service.t
-  [@@deriving sexp]
-
-  type ('req, 'rep) simple = ('req, 'rep, 'req, 'rep) t [@@deriving sexp]
-
-  let id s = s
-
-  let ( >>> ) f1 f2 s = s |> f1 |> f2
-
-  let apply_all filters service =
-    List.fold_left filters ~init:service ~f:( |> )
-end
+module Filter = Opium_core.Filter
+module Service = Opium_core.Service
 
 module Request = struct
   type t = {request: Cohttp.Request.t; body: Cohttp_lwt.Body.t; env: Hmap0.t}
@@ -66,7 +45,7 @@ module Response = struct
 end
 
 module Handler = struct
-  type t = (Request.t, Response.t) Service.t [@@deriving sexp_of]
+  type t = (Request.t, Response.t) Service.t
 
   let default _ = return (Response.of_string_body "route failed (404)")
 
@@ -78,7 +57,7 @@ end
 
 module Middleware = struct
   type t = {filter: (Request.t, Response.t) Filter.simple; name: string}
-  [@@deriving fields, sexp_of]
+  [@@deriving fields]
 
   let create ~filter ~name = {filter; name}
 
@@ -105,7 +84,7 @@ end
 
 module App = struct
   type t = {middlewares: Middleware.t list; handler: Handler.t}
-  [@@deriving fields, sexp_of]
+  [@@deriving fields]
 
   let append_middleware t m = {t with middlewares= t.middlewares @ [m]}
 
