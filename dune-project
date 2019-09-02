@@ -1,4 +1,5 @@
 (lang dune 1.11)
+(name opium)
 (using fmt 1.2)
 (generate_opam_files true)
 
