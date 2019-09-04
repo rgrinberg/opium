@@ -1,0 +1,3 @@
+(test
+ (name opium_core_test)
+ (libraries opium_core alcotest-lwt))

@@ -26,4 +26,3 @@ module Filter : sig
     -> ('req, 'rep) Service.t
     -> ('req, 'rep) Service.t
 end
-

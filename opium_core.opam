@@ -10,6 +10,7 @@ depends: [
   "ocaml" {>= "4.04.2"}
   "dune" {>= "1.11"}
   "lwt"
+  "alcotest-lwt" {with-test}
 ]
 build: [
   ["dune" "subst"] {pinned}

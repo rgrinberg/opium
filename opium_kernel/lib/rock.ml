@@ -1,6 +1,5 @@
 open Misc
 module Header = Cohttp.Header
-
 module Filter = Opium_core.Filter
 module Service = Opium_core.Service
 

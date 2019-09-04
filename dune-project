@@ -14,7 +14,8 @@
  (depends
   (ocaml (>= 4.04.2))
   (dune (>= 1.11))
-  lwt))
+  lwt
+  (alcotest-lwt :with-test)))
 
 (package
  (name opium_kernel)

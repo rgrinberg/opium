@@ -59,11 +59,15 @@ module Middleware : sig
   val filter : t -> (Request.t, Response.t) Opium_core.Filter.simple
 
   val apply :
-    t -> (Request.t, Response.t) Opium_core.Service.t -> Request.t -> Response.t Lwt.t
+       t
+    -> (Request.t, Response.t) Opium_core.Service.t
+    -> Request.t
+    -> Response.t Lwt.t
 
   val name : t -> string
 
-  val create : filter:(Request.t, Response.t) Opium_core.Filter.simple -> name:string -> t
+  val create :
+    filter:(Request.t, Response.t) Opium_core.Filter.simple -> name:string -> t
 end
 
 module App : sig
