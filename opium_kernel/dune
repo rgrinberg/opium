@@ -4,4 +4,4 @@
   (:standard -safe-string))
  (preprocess
   (pps ppx_sexp_conv ppx_fields_conv))
- (libraries opium_core hmap cohttp-lwt ezjsonm))
+ (libraries hmap cohttp-lwt ezjsonm))
