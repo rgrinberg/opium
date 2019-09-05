@@ -1,0 +1,3 @@
+(library
+ (public_name opium_core)
+ (libraries lwt))

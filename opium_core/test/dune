@@ -1,0 +1,3 @@
+(test
+ (name service_and_filters)
+ (libraries opium_core alcotest alcotest-lwt))
