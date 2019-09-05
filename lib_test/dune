@@ -1,6 +1,6 @@
 (test
  (name routes)
  (libraries alcotest opium)
- (package opium)
+ (package opium_kernel)
  (flags
   (:standard -safe-string)))
