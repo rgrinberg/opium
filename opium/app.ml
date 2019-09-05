@@ -19,7 +19,7 @@ let run_unix ?ssl t ~port =
     (Server.make
        ~callback:(fun _ req body ->
          let req = Request.create ~body req in
-         let handler = Opium_core.Filter.apply_all middlewares handler in
+         let handler = Filter.apply_all middlewares handler in
          handler req
          >>= fun {Response.code; headers; body; _} ->
          Server.respond ~headers ~body ~status:code ())
@@ -34,7 +34,7 @@ type t =
   ; middlewares: Middleware.t list
   ; name: string
   ; not_found: Handler.t }
-[@@deriving fields]
+[@@deriving fields, sexp_of]
 
 type builder = t -> t [@@deriving sexp]
 

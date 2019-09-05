@@ -5,7 +5,7 @@ services:
 - docker
 env:
   global:
-    - PINS="opium_core:. opium_kernel:. opium:."
+  - PINS="opium_kernel:. opium:."
   matrix:
   - PACKAGE="opium_kernel" DISTRO="ubuntu-18.04" OCAML_VERSION="4.04"
   - PACKAGE="opium" DISTRO="ubuntu-18.04" OCAML_VERSION="4.04"
