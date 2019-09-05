@@ -1,11 +1,11 @@
 language: c
 install: wget https://raw.githubusercontent.com/ocaml/ocaml-ci-scripts/master/.travis-docker.sh
-script: bash -ex .travis-docker.sh
+script: bash -ex ./.travis-docker.sh
 services:
 - docker
 env:
   global:
-    - PINS="opium_kernel:. opium:. opium_core:."
+    - PINS="opium.dev:. opium_kernel.dev:. opium_core.dev:."
   matrix:
   - PACKAGE="opium_kernel" DISTRO="ubuntu-18.04" OCAML_VERSION="4.04"
   - PACKAGE="opium_core" DISTRO="ubuntu-18.04" OCAML_VERSION="4.04"
