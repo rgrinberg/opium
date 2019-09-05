@@ -4,16 +4,30 @@
 (generate_opam_files true)
 
 (source (github rgrinberg/opium))
+(documentation "https://rgrinberg.github.io/opium")
 (authors "Rudi Grinberg")
 (maintainers "Rudi Grinberg <rudi.grinberg@gmail>")
 (license MIT)
+
+(package
+ (name opium_core)
+ (synopsis "Finagle inspired service & filters")
+ (depends
+  (ocaml
+   (>= 4.04.2))
+  (dune
+   (>= 1.11))
+  lwt
+  md2mld
+  (alcotest :with-test)
+  (alcotest-lwt :with-test)))
 
 (package
  (name opium_kernel)
  (synopsis "Sinatra like web toolkit based on Lwt + Cohttp")
  (description "Opium_kernel is the Unix indpendent core of Opium. Useful for extremely portable environments such as mirage.")
  (depends
-  (ocaml (>= 4.04.1))
+  (ocaml (>= 4.04.2))
   (dune (>= 1.11))
   hmap
   cohttp
@@ -40,7 +54,7 @@
     Request/Response pretty printing for easier debugging
   ")
  (depends
-  (ocaml (>= 4.04.1))
+  (ocaml (>= 4.04.2))
   (dune (>= 1.11))
   opium_kernel
   cohttp-lwt-unix

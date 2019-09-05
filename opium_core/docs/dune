@@ -1,0 +1,11 @@
+(rule
+ (targets index.mld)
+ (deps ../README.md)
+ (action
+  (with-stdout-to
+   %{targets}
+   (run md2mld -min-header 1 %{deps}))))
+
+(documentation
+ (package opium_core)
+ (mld_files index))
