@@ -18,7 +18,7 @@
   (dune
    (>= 1.11))
   lwt
-  md2mld
+  (md2mld :with-doc)
   (alcotest :with-test)
   (alcotest-lwt :with-test)))
 
