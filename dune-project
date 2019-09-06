@@ -18,7 +18,6 @@
   (dune
    (>= 1.11))
   lwt
-  md2mld
   (alcotest :with-test)
   (alcotest-lwt :with-test)))
 
