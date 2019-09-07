@@ -3,3 +3,5 @@
 .sass-cache
 _site
 node_modules
+_build
+_opam
