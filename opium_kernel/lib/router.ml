@@ -1,4 +1,4 @@
-open Misc
+open Base
 open Sexplib.Std
 module Co = Cohttp
 module Rock = Rock
@@ -7,7 +7,7 @@ open Rock
 
 type 'a t = (Route.t * 'a) Queue.t array [@@deriving sexp]
 
-let create () = Array.init 7 (fun _ -> Queue.create ())
+let create () = Array.init 7 ~f:(fun _ -> Queue.create ())
 
 let int_of_meth = function
   | `GET -> 0
@@ -22,7 +22,7 @@ let int_of_meth = function
 let get t meth = t.(int_of_meth meth)
 
 let add t ~route ~meth ~action =
-  Queue.push (route, action) t.(int_of_meth meth)
+  Queue.enqueue t.(int_of_meth meth) (route, action)
 
 (** finds matching endpoint and returns it with the parsed list of parameters *)
 let matching_endpoint endpoints meth uri =
@@ -40,7 +40,7 @@ end
    parameter is already there *)
 let param req param =
   let {Route.params; _} = Hmap0.find_exn Env.key (Request.env req) in
-  List.assoc param params
+  List.Assoc.find_exn ~equal:String.equal params param
 
 let splat req = Hmap0.find_exn Env.key (Request.env req) |> Route.splat
 

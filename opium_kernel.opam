@@ -12,6 +12,8 @@ bug-reports: "https://github.com/rgrinberg/opium/issues"
 depends: [
   "ocaml" {>= "4.04.2"}
   "dune" {>= "1.11"}
+  "base" {>= "v0.11.0"}
+  "opium_core"
   "hmap"
   "cohttp"
   "cohttp-lwt"
