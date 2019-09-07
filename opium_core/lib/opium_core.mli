@@ -1,6 +1,6 @@
 (** A service is simply a function that returns its result asynchronously *)
 module Service : sig
-  type ('req, 'res) t = 'req -> 'res Lwt.t
+  type ('req, 'res) t = 'req -> 'res Lwt.t [@@deriving sexp]
 
   val id : ('a, 'a) t
 
@@ -12,8 +12,9 @@ end
 module Filter : sig
   type ('req, 'rep, 'req', 'rep') t =
     ('req, 'rep) Service.t -> ('req', 'rep') Service.t
+  [@@deriving sexp]
 
-  type ('req, 'rep) simple = ('req, 'rep, 'req, 'rep) t
+  type ('req, 'rep) simple = ('req, 'rep, 'req, 'rep) t [@@deriving sexp]
   (** A filter is simple when it preserves the type of a service *)
 
   val id : ('req, 'rep) simple
