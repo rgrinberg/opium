@@ -17,6 +17,7 @@
    (>= 4.04.2))
   (dune
    (>= 1.11))
+  ppx_sexp_conv
   lwt
   (alcotest :with-test)
   (alcotest-lwt :with-test)))
