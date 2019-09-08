@@ -1,5 +1,5 @@
-open Misc
-open Sexplib.Std
+open Base
+open Lwt.Infix
 module Co = Cohttp
 
 let encode x = Uri.pct_encode ~component:`Query_key x
@@ -39,7 +39,8 @@ let cookies req =
 let get req ~key =
   let cookie1 =
     let env = current_cookies (fun r -> r.Rock.Request.env) req in
-    List.find_map env ~f:(fun (k, v) -> if k = key then Some v else None)
+    List.find_map env ~f:(fun (k, v) ->
+        if String.(k = key) then Some v else None)
   in
   match cookie1 with
   | Some cookie -> Some cookie
@@ -47,7 +48,7 @@ let get req ~key =
       let cookies = cookies_raw req in
       cookies
       |> List.find_map ~f:(fun (k, v) ->
-             if k = key then Some (decode v) else None)
+             if String.(k = key) then Some (decode v) else None)
 
 (* Path defaulted to "/" as otherwise the default is the path of the request's
    URI *)
@@ -74,7 +75,7 @@ let m =
   (* TODO: "optimize" *)
   let filter handler req =
     handler req
-    >>| fun response ->
+    >|= fun response ->
     let cookie_headers =
       let module Cookie = Co.Cookie.Set_cookie_hdr in
       response

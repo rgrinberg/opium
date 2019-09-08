@@ -4,4 +4,3 @@ module Request = Rock.Request
 module Cookie = Cookie
 module Router = Router
 module Route = Route
-include Misc
