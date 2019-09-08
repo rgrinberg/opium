@@ -4,8 +4,8 @@
 * Use `ocamlformat` for formatting all OCaml/dune files (#99, @anuragsoni)
 * Replace the `Misc` module with a combination of base + stdio (#110, @anuragsoni)
 * Extract the service & filter module into a smaller `opium_core`. (#107, @anuragsoni)
-* Merge `opium` and `opium_kernel`. (#113, @anuragsoni)
-* Switch to `yojson` from `ezjsonm`. (@anuragsoni)
+* Merge `opium` and `opium_kernel`. This fixes the implementation to cohttp-lwt-unix for now. (#113, @anuragsoni)
+* Switch to `yojson` from `ezjsonm`. (#114, @anuragsoni)
 
 # v0.17.1
 
