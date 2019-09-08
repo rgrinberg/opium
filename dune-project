@@ -48,6 +48,5 @@
   ppx_sexp_conv
   re
   magic-mime
-  stringext
   (alcotest :with-test))
  )
