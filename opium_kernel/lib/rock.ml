@@ -1,7 +1,29 @@
-open Base
+open Sexplib.Std
+open Misc
 module Header = Cohttp.Header
-module Service = Opium_core.Service
-module Filter = Opium_core.Filter
+
+module Service = struct
+  type ('req, 'rep) t = 'req -> 'rep Lwt.t [@@deriving sexp]
+
+  let id req = return req
+
+  let const resp = Fn.compose return (Fn.const resp)
+end
+
+module Filter = struct
+  type ('req, 'rep, 'req_, 'rep_) t =
+    ('req, 'rep) Service.t -> ('req_, 'rep_) Service.t
+  [@@deriving sexp]
+
+  type ('req, 'rep) simple = ('req, 'rep, 'req, 'rep) t [@@deriving sexp]
+
+  let id s = s
+
+  let ( >>> ) f1 f2 s = s |> f1 |> f2
+
+  let apply_all filters service =
+    List.fold_left filters ~init:service ~f:( |> )
+end
 
 module Request = struct
   type t = {request: Cohttp.Request.t; body: Cohttp_lwt.Body.t; env: Hmap0.t}
@@ -46,10 +68,10 @@ end
 module Handler = struct
   type t = (Request.t, Response.t) Service.t [@@deriving sexp_of]
 
-  let default _ = Lwt.return (Response.of_string_body "route failed (404)")
+  let default _ = return (Response.of_string_body "route failed (404)")
 
   let not_found _ =
-    Lwt.return
+    return
       (Response.of_string_body ~code:`Not_found
          "<html><body><h1>404 - Not found</h1></body></html>")
 end

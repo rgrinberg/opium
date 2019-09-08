@@ -1,6 +1,5 @@
-open Base
-open Stdio
-open Lwt.Infix
+open Opium_kernel__Misc
+open Sexplib.Std
 module Rock = Opium_kernel.Rock
 module Router = Opium_kernel.Router
 module Route = Opium_kernel.Route
@@ -20,7 +19,7 @@ let run_unix ?ssl t ~port =
     (Server.make
        ~callback:(fun _ req body ->
          let req = Request.create ~body req in
-         let handler = Opium_core.Filter.apply_all middlewares handler in
+         let handler = Filter.apply_all middlewares handler in
          handler req
          >>= fun {Response.code; headers; body; _} ->
          Server.respond ~headers ~body ~status:code ())
@@ -129,29 +128,23 @@ let start app =
   let app = Rock.App.create ~middlewares ~handler:app.not_found in
   run_unix ~port ?ssl app
 
-let hashtbl_add_multi tbl x y =
-  Base.Hashtbl.change tbl x ~f:(fun x ->
-      match x with None -> Some [] | Some l -> Some (y :: l))
-
 let print_routes_f routes =
-  let routes_tbl = Base.Hashtbl.create (module Route) ~size:64 in
+  let routes_tbl = Hashtbl.create 64 in
   routes
   |> List.iter ~f:(fun (meth, route, _) ->
          hashtbl_add_multi routes_tbl route meth) ;
-  printf "%d Routes:\n" (Base.Hashtbl.length routes_tbl) ;
-  Base.Hashtbl.iteri
-    ~f:(fun ~key ~data ->
-      printf "> %s (%s)\n" (Route.to_string key)
-        ( data
-        |> List.map ~f:Cohttp.Code.string_of_method
-        |> String.concat ~sep:" " ))
+  Printf.printf "%d Routes:\n" (Hashtbl.length routes_tbl) ;
+  Hashtbl.iter
+    (fun key data ->
+      Printf.printf "> %s (%s)\n" (Route.to_string key)
+        (data |> List.map ~f:Cohttp.Code.string_of_method |> String.concat " "))
     routes_tbl
 
 let print_middleware_f middlewares =
   print_endline "Active middleware:" ;
   middlewares
   |> List.map ~f:Rock.Middleware.name
-  |> List.iter ~f:(printf "> %s \n")
+  |> List.iter ~f:(Printf.printf "> %s \n")
 
 let cmd_run app port ssl_cert ssl_key _host print_routes print_middleware debug
     verbose _errors =
@@ -168,10 +161,10 @@ let cmd_run app port ssl_cert ssl_key _host print_routes print_middleware debug
   let rock_app = to_rock app in
   if print_routes then (
     app |> routes |> print_routes_f ;
-    Caml.exit 0 ) ;
+    exit 0 ) ;
   if print_middleware then (
     rock_app |> Rock.App.middlewares |> print_middleware_f ;
-    Caml.exit 0 ) ;
+    exit 0 ) ;
   app |> start
 
 module Cmds = struct
@@ -236,8 +229,8 @@ let run_command' app =
 let run_command app =
   match app |> run_command' with
   | `Ok a -> Lwt_main.run a
-  | `Error -> Caml.exit 1
-  | `Not_running -> Caml.exit 0
+  | `Error -> exit 1
+  | `Not_running -> exit 0
 
 type body =
   [`Html of string | `Json of Ezjsonm.t | `Xml of string | `String of string]
@@ -261,7 +254,7 @@ module Response_helpers = struct
     | `Html s -> respond_with_string ~code ~headers:(html_header headers) s
     | `Xml s -> respond_with_string ~code ~headers:(xml_header headers) s
 
-  let respond' ?headers ?code s = s |> respond ?headers ?code |> Lwt.return
+  let respond' ?headers ?code s = s |> respond ?headers ?code |> return
 
   let redirect ?headers uri =
     let headers =
@@ -269,17 +262,17 @@ module Response_helpers = struct
     in
     Response.create ~headers ~code:`Found ()
 
-  let redirect' ?headers uri = uri |> redirect ?headers |> Lwt.return
+  let redirect' ?headers uri = uri |> redirect ?headers |> return
 end
 
 module Request_helpers = struct
   let json_exn req =
-    req |> Request.body |> Cohttp_lwt.Body.to_string >|= Ezjsonm.from_string
+    req |> Request.body |> Cohttp_lwt.Body.to_string >>| Ezjsonm.from_string
 
   let string_exn req = req |> Request.body |> Cohttp_lwt.Body.to_string
 
   let pairs_exn req =
-    req |> Request.body |> Cohttp_lwt.Body.to_string >|= Uri.query_of_encoded
+    req |> Request.body |> Cohttp_lwt.Body.to_string >>| Uri.query_of_encoded
 end
 
 let json_of_body_exn = Request_helpers.json_exn

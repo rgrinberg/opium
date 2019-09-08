@@ -29,8 +29,6 @@
  (depends
   (ocaml (>= 4.04.2))
   (dune (>= 1.11))
-  (base (>= "v0.11.0"))
-  opium_core
   hmap
   cohttp
   cohttp-lwt
@@ -58,9 +56,6 @@
  (depends
   (ocaml (>= 4.04.2))
   (dune (>= 1.11))
-  (base (>= "v0.11.0"))
-  (stdio (>= "v0.11.0"))
-  opium_core
   opium_kernel
   cohttp-lwt-unix
   lwt

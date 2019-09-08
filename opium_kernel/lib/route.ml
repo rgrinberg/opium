@@ -1,4 +1,5 @@
-open Base
+open Misc
+open Sexplib.Std
 
 type path_segment =
   | Match of string
@@ -14,12 +15,12 @@ type matches = {params: (string * string) list; splat: string list}
 type t = path_segment list [@@deriving sexp]
 
 let parse_param s =
-  if String.(s = "/") then Slash
-  else if String.(s = "*") then Splat
-  else if String.(s = "**") then FullSplat
+  if s = "/" then Slash
+  else if s = "*" then Splat
+  else if s = "**" then FullSplat
   else
-    try Caml.Scanf.sscanf s ":%s" (fun s -> Param s)
-    with Caml.Scanf.Scan_failure _ -> Match s
+    try Scanf.sscanf s ":%s" (fun s -> Param s)
+    with Scanf.Scan_failure _ -> Match s
 
 let of_list l =
   let last_i = List.length l - 1 in
@@ -51,7 +52,7 @@ let to_string l =
          | Splat -> Some "*"
          | FullSplat -> Some "**"
          | Slash -> None)
-    |> String.concat ~sep:"/"
+    |> String.concat "/"
   in
   "/" ^ r
 
@@ -59,7 +60,7 @@ let rec match_url t url ({params; splat} as matches) =
   match (t, url) with
   | [], [] | [FullSplat], _ -> Some matches
   | FullSplat :: _, _ -> assert false (* splat can't be last *)
-  | Match x :: t, `Text y :: url when String.(x = y) -> match_url t url matches
+  | Match x :: t, `Text y :: url when x = y -> match_url t url matches
   | Slash :: t, `Delim :: url -> match_url t url matches
   | Splat :: t, `Text s :: url ->
       match_url t url {matches with splat= Uri.pct_decode s :: splat}
@@ -76,7 +77,3 @@ let rec match_url t url ({params; splat} as matches) =
 let match_url t url =
   let path = url |> split_slash_delim in
   match_url t path {params= []; splat= []}
-
-let hash = Hashtbl.hash
-
-let compare = Poly.compare
