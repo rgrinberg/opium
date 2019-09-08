@@ -5,20 +5,15 @@ services:
 - docker
 env:
   global:
-    - PINS="opium.dev:. opium_kernel.dev:. opium_core.dev:."
+    - PINS="opium.dev:. opium_core.dev:."
   matrix:
-  - PACKAGE="opium_kernel" DISTRO="ubuntu-18.04" OCAML_VERSION="4.04"
   - PACKAGE="opium_core" DISTRO="ubuntu-18.04" OCAML_VERSION="4.04"
   - PACKAGE="opium" DISTRO="ubuntu-18.04" OCAML_VERSION="4.04"
-  - PACKAGE="opium_kernel" DISTRO="ubuntu-18.04" OCAML_VERSION="4.05"
   - PACKAGE="opium_core" DISTRO="ubuntu-18.04" OCAML_VERSION="4.05"
   - PACKAGE="opium" DISTRO="ubuntu-18.04" OCAML_VERSION="4.05"
-  - PACKAGE="opium_kernel" DISTRO="ubuntu-18.04" OCAML_VERSION="4.06"
   - PACKAGE="opium_core" DISTRO="ubuntu-18.04" OCAML_VERSION="4.06"
   - PACKAGE="opium" DISTRO="ubuntu-18.04" OCAML_VERSION="4.06"
-  - PACKAGE="opium_kernel" DISTRO="ubuntu-18.04" OCAML_VERSION="4.07"
   - PACKAGE="opium_core" DISTRO="ubuntu-18.04" OCAML_VERSION="4.07"
   - PACKAGE="opium" DISTRO="ubuntu-18.04" OCAML_VERSION="4.07"
-  - PACKAGE="opium_kernel" DISTRO="ubuntu-18.04" OCAML_VERSION="4.08"
   - PACKAGE="opium_core" DISTRO="ubuntu-18.04" OCAML_VERSION="4.08"
   - PACKAGE="opium" DISTRO="ubuntu-18.04" OCAML_VERSION="4.08"

@@ -1,4 +1,4 @@
-open Opium_kernel.Rock
+open Rock
 (** An opium app provides a set of convenience functions and types to construct
     a rock app.
 
@@ -54,7 +54,7 @@ val action : Cohttp.Code.meth -> route
 
 val middleware : Middleware.t -> builder
 
-val to_rock : t -> Opium_kernel.Rock.App.t
+val to_rock : t -> Rock.App.t
 (** Convert an opium app to a rock app *)
 
 val start : t -> unit Lwt.t

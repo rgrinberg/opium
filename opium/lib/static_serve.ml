@@ -1,7 +1,7 @@
 open Base
 open Lwt.Infix
 module Server = Cohttp_lwt_unix.Server
-open Opium_kernel.Rock
+open Rock
 
 type t = {prefix: string; local_path: string} [@@deriving fields, sexp]
 
@@ -64,4 +64,4 @@ let m ~local_path ~uri_prefix ?headers ?etag_of_fname () =
       else handler req
     else handler req
   in
-  Opium_kernel.Rock.Middleware.create ~name:"Static Pages" ~filter
+  Rock.Middleware.create ~name:"Static Pages" ~filter
