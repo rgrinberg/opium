@@ -39,7 +39,7 @@
   (stdio (>= "v0.11.0"))
   opium_core
   hmap
-  ezjsonm
+  yojson
   cohttp-lwt-unix
   lwt
   logs

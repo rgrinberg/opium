@@ -1,5 +1,5 @@
 (executables
- (libraries re ezjsonm opium logs.fmt)
+ (libraries re yojson opium logs.fmt)
  (preprocess
   (pps ppx_sexp_conv))
  (flags

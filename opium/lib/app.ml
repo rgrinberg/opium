@@ -237,7 +237,7 @@ let run_command app =
   | `Not_running -> Caml.exit 0
 
 type body =
-  [`Html of string | `Json of Ezjsonm.t | `Xml of string | `String of string]
+  [`Html of string | `Json of Yojson.Safe.t | `Xml of string | `String of string]
 
 module Response_helpers = struct
   let content_type ct h = Cohttp.Header.add_opt h "Content-Type" ct
@@ -254,7 +254,7 @@ module Response_helpers = struct
     | `String s -> respond_with_string ?headers ~code s
     | `Json s ->
         respond_with_string ~code ~headers:(json_header headers)
-          (Ezjsonm.to_string s)
+          (Yojson.Safe.to_string s)
     | `Html s -> respond_with_string ~code ~headers:(html_header headers) s
     | `Xml s -> respond_with_string ~code ~headers:(xml_header headers) s
 
@@ -271,7 +271,7 @@ end
 
 module Request_helpers = struct
   let json_exn req =
-    req |> Request.body |> Cohttp_lwt.Body.to_string >|= Ezjsonm.from_string
+    req |> Request.body |> Cohttp_lwt.Body.to_string >|= Yojson.Safe.from_string
 
   let string_exn req = req |> Request.body |> Cohttp_lwt.Body.to_string
 
