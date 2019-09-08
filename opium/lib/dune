@@ -4,5 +4,5 @@
   (:standard -safe-string))
  (preprocess
   (pps ppx_sexp_conv ppx_fields_conv))
- (libraries base stdio opium_core cmdliner cohttp-lwt-unix
-   magic-mime logs hmap yojson))
+ (libraries base stdio opium_core cmdliner cohttp-lwt-unix magic-mime logs
+   hmap yojson))
