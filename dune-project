@@ -35,7 +35,6 @@
   cohttp
   cohttp-lwt
   ezjsonm
-  base64
   lwt
   fieldslib
   sexplib
