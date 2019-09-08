@@ -3,8 +3,7 @@ open Opium.Std
 type person = {name: string; age: int}
 
 let json_of_person {name; age} =
-  let open Ezjsonm in
-  dict [("name", string name); ("age", int age)]
+  `Assoc [("name", `String name); ("age", `Int age)]
 
 let print_param =
   put "/hello/:name" (fun req ->

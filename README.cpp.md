@@ -30,13 +30,10 @@ $ opam install opium
 
 ### Master
 
-If you'd like to live on the bleeding edge (which is sometimes more stable than
-stable)
-
 ```
-$ opam pin add opium --dev-repo
+$ opam pin add opium_core git+https://github.com/rgrinberg/opium.git
+$ opam pin add opium git+https://github.com/rgrinberg/opium.git
 ```
-
 ## Examples
 
 All examples are built once the necessary dependencies are installed.
@@ -55,7 +52,7 @@ Here's a simple hello world example to get your feet wet:
 
 compile with:
 ```
-$ ocamlbuild -pkg opium.unix hello_world.native
+$ ocamlbuild -pkg opium hello_world.native
 ```
 
 and then call
@@ -87,7 +84,7 @@ favourite browser.
 Compile with:
 
 ```
-$ ocamlbuild -pkg opium.unix middleware_ua.native
+$ ocamlbuild -pkg opium middleware_ua.native
 ```
 
 Here we also use the ability of Opium to generate a cmdliner term to run your

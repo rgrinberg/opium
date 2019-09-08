@@ -12,8 +12,7 @@ let e3 =
       let x = "x" |> param req |> int_of_string in
       let y = "y" |> param req |> int_of_string in
       let sum = float_of_int (x + y) in
-      let open Ezjsonm in
-      `Json (`A [int x; int y; float sum]) |> respond')
+      `Json (`List [`Int x; `Int y; `Float sum]) |> respond')
 
 let e4 =
   put "/hello/:x/from/:y" (fun req ->
