@@ -1,5 +1,5 @@
 open Lwt.Infix
-open Opium_kernel.Rock
+open Rock
 
 let exn_ e = Logs.err (fun f -> f "%s" (Printexc.to_string e))
 

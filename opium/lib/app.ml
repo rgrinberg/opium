@@ -1,9 +1,6 @@
 open Base
 open Stdio
 open Lwt.Infix
-module Rock = Opium_kernel.Rock
-module Router = Opium_kernel.Router
-module Route = Opium_kernel.Route
 module Server = Cohttp_lwt_unix.Server
 open Rock
 module Co = Cohttp

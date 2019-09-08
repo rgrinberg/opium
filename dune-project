@@ -23,28 +23,6 @@
   (alcotest-lwt :with-test)))
 
 (package
- (name opium_kernel)
- (synopsis "Sinatra like web toolkit based on Lwt + Cohttp")
- (description "Opium_kernel is the Unix indpendent core of Opium. Useful for extremely portable environments such as mirage.")
- (depends
-  (ocaml (>= 4.04.2))
-  (dune (>= 1.11))
-  (base (>= "v0.11.0"))
-  opium_core
-  hmap
-  cohttp
-  cohttp-lwt
-  ezjsonm
-  lwt
-  fieldslib
-  sexplib
-  ppx_fields_conv
-  ppx_sexp_conv
-  re
-  (alcotest :with-test))
- )
-
-(package
  (name opium)
  (synopsis "Sinatra like web toolkit based on Lwt + Cohttp")
  (description
@@ -60,7 +38,8 @@
   (base (>= "v0.11.0"))
   (stdio (>= "v0.11.0"))
   opium_core
-  opium_kernel
+  hmap
+  ezjsonm
   cohttp-lwt-unix
   lwt
   logs

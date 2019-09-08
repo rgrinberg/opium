@@ -1,5 +1,5 @@
 open Sexplib
-module Route = Opium_kernel.Route
+module Route = Opium.Std.Route
 
 let slist t = Alcotest.slist t compare
 

@@ -20,7 +20,8 @@ depends: [
   "base" {>= "v0.11.0"}
   "stdio" {>= "v0.11.0"}
   "opium_core"
-  "opium_kernel"
+  "hmap"
+  "ezjsonm"
   "cohttp-lwt-unix"
   "lwt"
   "logs"
