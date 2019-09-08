@@ -31,10 +31,9 @@ $ opam install opium
 ### Master
 
 ```
-$ opam pin add opium_kernel --dev-repo
-$ opam pin add opium --dev-repo
+$ opam pin add opium_core git+https://github.com/rgrinberg/opium.git
+$ opam pin add opium git+https://github.com/rgrinberg/opium.git
 ```
-
 ## Examples
 
 All examples are built once the necessary dependencies are installed.
@@ -50,38 +49,28 @@ Here's a simple hello world example to get your feet wet:
 ``` ocaml
 open Opium.Std
 
-type person = {
-  name: string;
-  age: int;
-}
+type person = {name: string; age: int}
 
-let json_of_person { name ; age } =
-  let open Ezjsonm in
-  dict [ "name", (string name)
-       ; "age", (int age) ]
+let json_of_person {name; age} =
+  `Assoc [("name", `String name); ("age", `Int age)]
 
-let print_param = put "/hello/:name" begin fun req ->
-  `String ("Hello " ^ param req "name") |> respond'
-end
+let print_param =
+  put "/hello/:name" (fun req ->
+      `String ("Hello " ^ param req "name") |> respond')
 
-let print_person = get "/person/:name/:age" begin fun req ->
-  let person = {
-    name = param req "name";
-    age = "age" |> param req |> int_of_string;
-  } in
-  `Json (person |> json_of_person) |> respond'
-end
+let print_person =
+  get "/person/:name/:age" (fun req ->
+      let person =
+        {name= param req "name"; age= "age" |> param req |> int_of_string}
+      in
+      `Json (person |> json_of_person) |> respond')
 
-let _ =
-  App.empty
-  |> print_param
-  |> print_person
-  |> App.run_command
+let _ = App.empty |> print_param |> print_person |> App.run_command
 ```
 
 compile with:
 ```
-$ ocamlbuild -pkg opium.unix hello_world.native
+$ ocamlbuild -pkg opium hello_world.native
 ```
 
 and then call
@@ -98,7 +87,7 @@ The two fundamental building blocks of opium are:
 * Handlers: `Rock.Request.t -> Rock.Response.t Lwt.t`
 * Middleware: `Rock.Handler.t -> Rock.Handler.t`
 
-Almost all of opium's functionality is assembled through various
+Almost every all of opium's functionality is assembled through various
 middleware. For example: debugging, routing, serving static files,
 etc. Creating middleware is usually the most natural way to extend an
 opium app.
@@ -109,8 +98,7 @@ favourite browser.
 ``` ocaml
 open Opium.Std
 
-(* don't open cohttp and opium since they both define
-   request/response modules*)
+(* don't open cohttp and opium since they both define request/response modules*)
 
 let is_substring ~substring =
   let re = Re.compile (Re.str substring) in
@@ -119,23 +107,22 @@ let is_substring ~substring =
 let reject_ua ~f =
   let filter handler req =
     match Cohttp.Header.get (Request.headers req) "user-agent" with
-    | Some ua when f ua ->
-      `String ("Please upgrade your browser") |> respond'
-    | _ -> handler req in
+    | Some ua when f ua -> `String "Please upgrade your browser" |> respond'
+    | _ -> handler req
+  in
   Rock.Middleware.create ~filter ~name:"reject_ua"
 
 let _ =
   App.empty
-  |> get "/" (fun _ -> `String ("Hello World") |> respond')
+  |> get "/" (fun _ -> `String "Hello World" |> respond')
   |> middleware (reject_ua ~f:(is_substring ~substring:"MSIE"))
-  |> App.cmd_name "Reject UA"
-  |> App.run_command
+  |> App.cmd_name "Reject UA" |> App.run_command
 ```
 
 Compile with:
 
 ```
-$ ocamlbuild -pkg opium.unix middleware_ua.native
+$ ocamlbuild -pkg opium middleware_ua.native
 ```
 
 Here we also use the ability of Opium to generate a cmdliner term to run your
