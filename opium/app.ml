@@ -130,16 +130,16 @@ let start app =
   run_unix ~port ?ssl app
 
 let hashtbl_add_multi tbl x y =
-  Base.Hashtbl.change tbl x ~f:(fun x ->
-      match x with None -> Some [] | Some l -> Some (y :: l))
+  Hashtbl.update tbl x ~f:(fun v ->
+      match v with None -> [y] | Some l -> y :: l)
 
 let print_routes_f routes =
-  let routes_tbl = Base.Hashtbl.create (module Route) ~size:64 in
+  let routes_tbl = Hashtbl.create (module Route) ~size:64 in
   routes
   |> List.iter ~f:(fun (meth, route, _) ->
          hashtbl_add_multi routes_tbl route meth) ;
-  printf "%d Routes:\n" (Base.Hashtbl.length routes_tbl) ;
-  Base.Hashtbl.iteri
+  printf "%d Routes:\n" (Hashtbl.length routes_tbl) ;
+  Hashtbl.iteri
     ~f:(fun ~key ~data ->
       printf "> %s (%s)\n" (Route.to_string key)
         ( data
