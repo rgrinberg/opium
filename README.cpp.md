@@ -34,6 +34,16 @@ $ opam install opium
 $ opam pin add opium_core git+https://github.com/rgrinberg/opium.git
 $ opam pin add opium git+https://github.com/rgrinberg/opium.git
 ```
+
+## Documentation
+
+- Read [the hosted documentation for the latest version][hosted-docs].
+- Build and view the docs for version installed locally using [`odig`][odig]:
+  `odig doc opium`.
+
+[hosted-docs]: https://rgrinberg.github.io/opium/
+[odig]: https://github.com/b0-system/odig
+
 ## Examples
 
 All examples are built once the necessary dependencies are installed.
