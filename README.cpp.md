@@ -35,6 +35,15 @@ $ opam pin add opium_kernel --dev-repo
 $ opam pin add opium --dev-repo
 ```
 
+## Documentation
+
+- Read [the hosted documentation for the latest version][hosted-docs].
+- Build and view the docs for version installed locally using [`odig`][odig]:
+  `odig doc opium`.
+
+[hosted-docs]: https://rgrinberg.github.io/opium/
+[odig]: https://github.com/b0-system/odig
+
 ## Examples
 
 All examples are built once the necessary dependencies are installed.
