@@ -1,0 +1,26 @@
+name: Format
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    name: Format OCaml code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: avsm/setup-ocaml@v1.0
+        with:
+          ocaml-version: 4.09.0
+      - name: Install dependencies
+        run: opam install dune ocamlformat
+      - name: Format
+        run: opam exec -- dune build @fmt --auto-promote || true
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: ocamlformat fixes
+          title: ocamlformat fixes
+          body: This is an auto-generated PR with fixes by ocamlformat.
+          labels: ocamlformat, automated pr
