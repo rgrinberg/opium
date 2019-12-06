@@ -1,4 +1,4 @@
-name: RoutesTest
+name: OpiumTest
 on:
   pull_request:
 jobs:
@@ -17,7 +17,7 @@ jobs:
       - name: Install dependencies
         run: |
           opam pin add opium_kernel.dev -n .
-          opam pin add opium.dev -n
+          opam pin add opium.dev -n .
           opam depext -yt opium_kernel
           opam depext -yt opium
           opam install -t . --deps-only
