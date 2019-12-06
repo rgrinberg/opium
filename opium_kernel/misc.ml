@@ -101,8 +101,7 @@ module Queue = struct
     end in
     try
       Queue.iter
-        (fun x ->
-          match f x with None -> () | Some y -> raise_notrace (M.E y))
+        (fun x -> match f x with None -> () | Some y -> raise_notrace (M.E y))
         q ;
       None
     with M.E res -> Some res

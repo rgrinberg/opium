@@ -44,8 +44,7 @@ let get_cookie =
 let splat_route =
   get "/testing/*/:p" (fun req ->
       let p = param req "p" in
-      `String
-        (Printf.sprintf "__ %s __" p ^ (req |> splat |> String.concat ":"))
+      `String (Printf.sprintf "__ %s __" p ^ (req |> splat |> String.concat ":"))
       |> respond')
 
 let all_cookies =

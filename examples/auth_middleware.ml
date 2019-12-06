@@ -14,8 +14,8 @@ module Env = struct
     Opium.Hmap.Key.create ("user", [%sexp_of: user])
 end
 
-(* Usually middleware gets its own module so the middleware constructor
-   function is usually shortened to m. For example, [Auth.m] is obvious enough.
+(* Usually middleware gets its own module so the middleware constructor function
+   is usually shortened to m. For example, [Auth.m] is obvious enough.
 
    The auth param (auth : username:string -> password:string -> user option)
    would represent our database model. E.g. it would do some lookup in the db

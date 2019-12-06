@@ -21,8 +21,7 @@ module Filter = struct
 
   let ( >>> ) f1 f2 s = s |> f1 |> f2
 
-  let apply_all filters service =
-    List.fold_left filters ~init:service ~f:( |> )
+  let apply_all filters service = List.fold_left filters ~init:service ~f:( |> )
 end
 
 module Request = struct

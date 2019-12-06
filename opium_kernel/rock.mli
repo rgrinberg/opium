@@ -27,9 +27,7 @@ module Filter : sig
     ('q1, 'p1, 'q2, 'p2) t -> ('q2, 'p2, 'q3, 'p3) t -> ('q1, 'p1, 'q3, 'p3) t
 
   val apply_all :
-       ('req, 'rep) simple list
-    -> ('req, 'rep) Service.t
-    -> ('req, 'rep) Service.t
+    ('req, 'rep) simple list -> ('req, 'rep) Service.t -> ('req, 'rep) Service.t
 end
 
 module Request : sig
