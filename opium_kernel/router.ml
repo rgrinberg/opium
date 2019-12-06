@@ -21,8 +21,7 @@ let int_of_meth = function
 
 let get t meth = t.(int_of_meth meth)
 
-let add t ~route ~meth ~action =
-  Queue.push (route, action) t.(int_of_meth meth)
+let add t ~route ~meth ~action = Queue.push (route, action) t.(int_of_meth meth)
 
 (** finds matching endpoint and returns it with the parsed list of parameters *)
 let matching_endpoint endpoints meth uri =
@@ -44,8 +43,8 @@ let param req param =
 
 let splat req = Hmap0.find_exn Env.key (Request.env req) |> Route.splat
 
-(* takes a list of endpoints and a default handler. calls an endpoint if a
-   match is found. otherwise calls the handler *)
+(* takes a list of endpoints and a default handler. calls an endpoint if a match
+   is found. otherwise calls the handler *)
 let m endpoints =
   let filter default req =
     let url = req |> Request.uri |> Uri.path in

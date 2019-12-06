@@ -8,8 +8,7 @@ type t = {prefix: string; local_path: string} [@@deriving fields, sexp]
 let legal_path {prefix; local_path} requested =
   let p = String.chop_prefix requested ~prefix in
   let requested_path = Filename.concat local_path p in
-  if String.is_prefix requested_path ~prefix:local_path then
-    Some requested_path
+  if String.is_prefix requested_path ~prefix:local_path then Some requested_path
   else None
 
 let public_serve t ~requested ~request_if_none_match ?etag_of_fname ?headers ()

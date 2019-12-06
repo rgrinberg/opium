@@ -30,8 +30,7 @@ let string_of_match = function
 let simple_route1 () =
   let r = Route.of_string "/test/:id" in
   Alcotest.(
-    check (option params) "no match" None
-      (match_get_params r "/test/blerg/123")) ;
+    check (option params) "no match" None (match_get_params r "/test/blerg/123")) ;
   Alcotest.(
     check (option params) "match"
       (match_get_params r "/test/123")

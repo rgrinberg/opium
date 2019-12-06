@@ -105,8 +105,7 @@ let any methods route action t =
     Logs.warn (fun f ->
         f
           "Warning: you're using [any] attempting to bind to '%s' but your list\n\
-          \        of http methods is empty route"
-          route) ;
+          \        of http methods is empty route" route) ;
   let route = Route.of_string route in
   methods
   |> List.fold_left ~init:t ~f:(fun app meth ->
