@@ -5,3 +5,4 @@ _site
 node_modules
 _build
 _opam
+*.merlin
