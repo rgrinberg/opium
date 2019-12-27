@@ -51,9 +51,11 @@ and the simple examples below.
 
 ## Examples
 
-All examples are built once the necessary dependencies are installed.
-`$ dune build @examples` will compile all examples. The binaries are located in
-`_build/default/examples/`
+Assuming the necessary dependencies are installed, `$ dune build @examples` will
+compile all examples. The binaries are located in `_build/default/examples/`.
+
+You can execute these binaries directly, though in the examples below we use
+`dune exec` to run them.
 
 ### Hello World
 
@@ -84,17 +86,23 @@ let print_person =
 let _ = App.empty |> print_param |> print_person |> App.run_command
 ```
 
-compile with:
+compile and run with:
+
+```sh
+$ dune exec examples/hello_world.exe &
 ```
-$ ocamlbuild -pkg opium.unix hello_world.native
+
+then call
+
+```sh
+curl http://localhost:3000/person/john_doe/42
 ```
 
-and then call
+You should see the JSON message
 
-    ./hello_world.native &
-    curl http://localhost:3000/person/john_doe/42
-
-You should see a JSON message.
+```json
+{"name":"john_doe","age":42}
+```
 
 ### Middleware
 
@@ -137,15 +145,15 @@ let _ =
 
 Compile with:
 
-```
-$ ocamlbuild -pkg opium.unix middleware_ua.native
+```sh
+$ dune build examples/middleware_ua.ml
 ```
 
 Here we also use the ability of Opium to generate a cmdliner term to run your
-app. Run your executable with the `-h` to see the options that are available to
-you. For example:
+app. Run your executable with `-h` to see the options that are available to you.
+For example:
 
 ```
 # run in debug mode on port 9000
-$ ./middleware_ua.native -p 9000 -d
+$ dune exec examples/middleware_ua.exe -- -p 9000 -d
 ```
