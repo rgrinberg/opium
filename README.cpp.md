@@ -37,9 +37,14 @@ $ opam pin add opium --dev-repo
 
 ## Documentation
 
+For the API documentation:
+
 - Read [the hosted documentation for the latest version][hosted-docs].
 - Build and view the docs for version installed locally using [`odig`][odig]:
   `odig doc opium`.
+
+For examples of idiomatic usage, see the [./examples directory](./examples)
+and the simple examples below.
 
 [hosted-docs]: https://rgrinberg.github.io/opium/
 [odig]: https://github.com/b0-system/odig
