@@ -78,6 +78,10 @@ val json_of_body_exn : Request.t -> Ezjsonm.t Lwt.t
 val string_of_body_exn : Request.t -> string Lwt.t
 
 val urlencoded_pairs_of_body : Request.t -> (string * string list) list Lwt.t
+(** Parse a request body encoded according to the
+    [application/x-www-form-urlencoded] content type (typically from POST
+    requests with form data) into an association list of key-value pairs. An
+    exception is raised on invalid data. *)
 
 val param : Request.t -> string -> string
 
