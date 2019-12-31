@@ -27,6 +27,10 @@ type route = string -> Handler.t -> builder [@@deriving sexp_of]
 (** A route is a function that returns a buidler that hooks up a handler to a
     url mapping *)
 
+val not_found : Handler.t -> builder
+(** [not_found] accepts a regular Opium handler that will be used instead
+    of the default 404 handler. *)
+
 val get : route
 (** Method specific routes *)
 
