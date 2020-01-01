@@ -79,6 +79,12 @@ let middleware m app = {app with middlewares= m :: app.middlewares}
 let action meth route action =
   register ~meth ~route:(Route.of_string route) ~action
 
+let not_found action t =
+  let action req =
+    action req >>| fun resp -> {resp with Response.code= `Not_found}
+  in
+  {t with not_found= action}
+
 let get route action =
   register ~meth:`GET ~route:(Route.of_string route) ~action
 

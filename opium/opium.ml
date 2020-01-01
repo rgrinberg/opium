@@ -16,6 +16,8 @@ module App_export = struct
 
   let redirect' = App.redirect'
 
+  let not_found = App.not_found
+
   let get = App.get
 
   let post = App.post
