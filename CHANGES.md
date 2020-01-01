@@ -1,3 +1,8 @@
+# 0.18.0
+
+* Make examples easier to find and add documentation related to features used in them. (#125, @shonfeder)
+* Allow overriding 404 handlers (#127, @anuragsoni)
+
 # v0.17.1
 
 * Change Deferred.t to Lwt.t in readme (#91, @rymdhund)
