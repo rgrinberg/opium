@@ -21,6 +21,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: ocamlformat fixes
-          title: ocamlformat fixes
+          title: 'style: run ocamlformat'
           body: This is an auto-generated PR with fixes by ocamlformat.
           labels: ocamlformat, automated pr
