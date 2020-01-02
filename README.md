@@ -37,13 +37,19 @@ $ opam pin add opium --dev-repo
 
 ## Documentation
 
-For the API documentation:
+For the **API documentation**:
 
 - Read [the hosted documentation for the latest version][hosted-docs].
 - Build and view the docs for version installed locally using [`odig`][odig]:
   `odig doc opium`.
 
-For examples of idiomatic usage, see the [./examples directory](./examples)
+The following **tutorials** walk through various usecases of Opium:
+
+- [A Lightweight OCaml Webapp Tutorial](https://shonfeder.gitlab.io/ocaml_webapp/) 
+  covers a simple webapp generating dynamic HTML on the backend and 
+  interfacing with PostgreSQL.
+
+For **examples** of idiomatic usage, see the [./examples directory](./examples)
 and the simple examples below.
 
 [hosted-docs]: https://rgrinberg.github.io/opium/
