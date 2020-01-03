@@ -18,8 +18,6 @@
   hmap
   cohttp
   cohttp-lwt
-  ezjsonm
-  base64
   lwt
   fieldslib
   sexplib
@@ -44,6 +42,7 @@
   (dune (>= 1.11))
   opium_kernel
   cohttp-lwt-unix
+  ezjsonm
   lwt
   logs
   cmdliner
@@ -51,6 +50,5 @@
   ppx_sexp_conv
   re
   magic-mime
-  stringext
   (alcotest :with-test))
  )
