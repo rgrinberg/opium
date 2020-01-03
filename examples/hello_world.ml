@@ -11,7 +11,7 @@ let print_param =
       `String ("Hello " ^ param req "name") |> respond')
 
 let default =
-  not_found (fun req ->
+  not_found (fun _req ->
       `Json Ezjsonm.(dict [("message", string "Route not found")]) |> respond')
 
 let print_person =
