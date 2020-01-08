@@ -58,6 +58,12 @@ module Response = struct
     ; headers= default_header headers
     ; body= Cohttp_lwt.Body.of_string body }
 
+  let of_stream ?(env = Hmap0.empty) ?headers ?(code = `OK) body =
+    { env
+    ; code
+    ; headers= default_header headers
+    ; body= Cohttp_lwt.Body.of_stream body }
+
   let of_response_body (resp, body) =
     let code = Cohttp.Response.status resp in
     let headers = Cohttp.Response.headers resp in

@@ -67,6 +67,13 @@ module Response : sig
     -> string
     -> t
 
+  val of_stream :
+       ?env:Hmap0.t
+    -> ?headers:Cohttp.Header.t
+    -> ?code:Cohttp.Code.status_code
+    -> string Lwt_stream.t
+    -> t
+
   val of_response_body : Cohttp.Response.t * Cohttp_lwt.Body.t -> t
 end
 

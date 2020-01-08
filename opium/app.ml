@@ -238,7 +238,11 @@ let run_command app =
   | `Not_running -> exit 0
 
 type body =
-  [`Html of string | `Json of Ezjsonm.t | `Xml of string | `String of string]
+  [ `Html of string
+  | `Json of Ezjsonm.t
+  | `Xml of string
+  | `String of string
+  | `Streaming of string Lwt_stream.t ]
 
 module Response_helpers = struct
   let content_type ct h = Cohttp.Header.add_opt h "Content-Type" ct
@@ -258,6 +262,7 @@ module Response_helpers = struct
           (Ezjsonm.to_string s)
     | `Html s -> respond_with_string ~code ~headers:(html_header headers) s
     | `Xml s -> respond_with_string ~code ~headers:(xml_header headers) s
+    | `Streaming s -> Response.of_stream s
 
   let respond' ?headers ?code s = s |> respond ?headers ?code |> return
 
