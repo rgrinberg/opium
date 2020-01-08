@@ -74,7 +74,11 @@ val run_command : t -> unit
 val run_command' : t -> [> `Ok of unit Lwt.t | `Error | `Not_running]
 
 type body =
-  [`Html of string | `Json of Ezjsonm.t | `Xml of string | `String of string]
+  [ `Html of string
+  | `Json of Ezjsonm.t
+  | `Xml of string
+  | `String of string
+  | `Streaming of string Lwt_stream.t ]
 (** Convenience functions for a running opium app *)
 
 val json_of_body_exn : Request.t -> Ezjsonm.t Lwt.t
