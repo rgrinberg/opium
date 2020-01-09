@@ -11,8 +11,7 @@ let print_param =
       `String ("Hello " ^ param req "name") |> respond')
 
 let streaming =
-  let open Lwt.Infix in
-  get "/hello/stream" (fun req ->
+  get "/hello/stream" (fun _req ->
       let count = ref 0 in
       let chunk = "00000000000" in
       `Streaming
