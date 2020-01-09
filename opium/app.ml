@@ -262,7 +262,7 @@ module Response_helpers = struct
           (Ezjsonm.to_string s)
     | `Html s -> respond_with_string ~code ~headers:(html_header headers) s
     | `Xml s -> respond_with_string ~code ~headers:(xml_header headers) s
-    | `Streaming s -> Response.of_stream s
+    | `Streaming s -> Response.of_stream ?headers ~code s
 
   let respond' ?headers ?code s = s |> respond ?headers ?code |> return
 
