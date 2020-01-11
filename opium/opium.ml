@@ -46,7 +46,6 @@ module Std = struct
   include Opium_kernel.Std
   module Middleware = Middleware
   include App_export
-  module Body = Cohttp_lwt.Body
 end
 
 module Hmap = Opium_kernel.Hmap

@@ -16,14 +16,16 @@
   (ocaml (>= 4.04.1))
   (dune (>= 1.11))
   hmap
-  cohttp
-  cohttp-lwt
+  httpaf
   lwt
   fieldslib
   sexplib
   ppx_fields_conv
   ppx_sexp_conv
+  logs
+  bigstringaf
   re
+  uri
   (alcotest :with-test))
  )
 
@@ -41,7 +43,7 @@
   (ocaml (>= 4.04.1))
   (dune (>= 1.11))
   opium_kernel
-  cohttp-lwt-unix
+  httpaf-lwt-unix
   ezjsonm
   lwt
   logs
@@ -49,6 +51,7 @@
   ppx_fields_conv
   ppx_sexp_conv
   re
+  logs
   magic-mime
   (alcotest :with-test))
  )

@@ -12,14 +12,16 @@ depends: [
   "ocaml" {>= "4.04.1"}
   "dune" {>= "1.11"}
   "hmap"
-  "cohttp"
-  "cohttp-lwt"
+  "httpaf"
   "lwt"
   "fieldslib"
   "sexplib"
   "ppx_fields_conv"
   "ppx_sexp_conv"
+  "logs"
+  "bigstringaf"
   "re"
+  "uri"
   "alcotest" {with-test}
 ]
 build: [

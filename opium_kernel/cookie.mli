@@ -1,33 +1,33 @@
-(** Simple cookie module. Cookie values are percent encoded. *)
+(*(1** Simple cookie module. Cookie values are percent encoded. *1) *)
 
-val cookies : Rock.Request.t -> (string * string) list
-(** Fetch all cookies from a rock request *)
+(*(1** Fetch all cookies from a rock request *1) *)
+(*val cookies : Rock.Request.t -> (string * string) list *)
 
-val get : Rock.Request.t -> key:string -> string option
-(** Get the follow of a cookie with a certain key *)
+(*(1** Get the follow of a cookie with a certain key *1) *)
+(*val get : Rock.Request.t -> key:string -> string option *)
 
-val set :
-     ?expiration:Cohttp.Cookie.expiration
-  -> ?path:string
-  -> ?domain:string
-  -> ?secure:bool
-  -> ?http_only:bool
-  -> Rock.Response.t
-  -> key:string
-  -> data:string
-  -> Rock.Response.t
-(** Set the value of a cookie with a certain key in a response *)
+(*(1** Set the value of a cookie with a certain key in a response *1) *)
+(*val set *)
+(* : ?expiration:Cohttp.Cookie.expiration *)
+(* -> ?path:string *)
+(* -> ?domain:string *)
+(* -> ?secure:bool *)
+(*  -> ?http_only:bool *)
+(*  -> Rock.Response.t *)
+(* -> key:string *)
+(* -> data:string *)
+(* -> Rock.Response.t *)
 
-val set_cookies :
-     ?expiration:Cohttp.Cookie.expiration
-  -> ?path:string
-  -> ?domain:string
-  -> ?secure:bool
-  -> ?http_only:bool
-  -> Rock.Response.t
-  -> (string * string) list
-  -> Rock.Response.t
-(** Like set but will do multiple cookies at once *)
+(*(1** Like set but will do multiple cookies at once *1) *)
+(*val set_cookies *)
+(* : ?expiration:Cohttp.Cookie.expiration *)
+(* -> ?path:string *)
+(* -> ?domain:string *)
+(* -> ?secure:bool *)
+(*  -> ?http_only:bool *)
+(*  -> Rock.Response.t *)
+(* -> (string * string) list *)
+(* -> Rock.Response.t *)
 
-val m : Rock.Middleware.t
-(** Rock middleware to add the the functionality above *)
+(*(1** Rock middleware to add the the functionality above *1) *)
+(*val m : Rock.Middleware.t *)

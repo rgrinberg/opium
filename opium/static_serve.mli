@@ -1,7 +1,7 @@
 val m :
      local_path:string
   -> uri_prefix:string
-  -> ?headers:Cohttp.Header.t
+  -> ?headers:Httpaf.Headers.t
   -> ?etag_of_fname:(string -> string)
   -> unit
   -> Opium_kernel.Rock.Middleware.t

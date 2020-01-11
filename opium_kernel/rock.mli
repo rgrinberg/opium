@@ -2,9 +2,12 @@
     general and inspired by Finagle. It's not imperative to have this to for
     such a tiny framework but it makes extensions a lot more straightforward *)
 
-(** A service is simply a function that returns its result asynchronously *)
+module Body = Misc.Body
+
+(** A service is simply a function that returns its result
+    asynchronously *)
 module Service : sig
-  type ('req, 'rep) t = 'req -> 'rep Lwt.t [@@deriving sexp]
+  type ('req, 'rep) t = 'req -> 'rep Lwt.t
 
   val id : ('a, 'a) t
 
@@ -16,10 +19,8 @@ end
 module Filter : sig
   type ('req, 'rep, 'req', 'rep') t =
     ('req, 'rep) Service.t -> ('req', 'rep') Service.t
-  [@@deriving sexp]
 
-  type ('req, 'rep) simple = ('req, 'rep, 'req, 'rep) t [@@deriving sexp]
-  (** A filter is simple when it preserves the type of a service *)
+  type ('req, 'rep) simple = ('req, 'rep, 'req, 'rep) t
 
   val id : ('req, 'rep) simple
 
@@ -31,56 +32,55 @@ module Filter : sig
 end
 
 module Request : sig
-  type t = {request: Cohttp.Request.t; body: Cohttp_lwt.Body.t; env: Hmap0.t}
-  [@@deriving fields, sexp_of]
+  type t = {
+    request: Httpaf.Request.t;
+    uri:     Uri.t;
+    body:    Body.t;
+    env:     Hmap0.t;
+  } [@@deriving fields, sexp_of]
 
-  val create : ?body:Cohttp_lwt.Body.t -> ?env:Hmap0.t -> Cohttp.Request.t -> t
-
-  (* Convenience accessors on the request field *)
+  val create : ?body:Body.t
+    -> ?env:Hmap0.t
+    -> Httpaf.Request.t -> t
+  (** Convenience accessors on the request field  *)
   val uri : t -> Uri.t
-
-  val meth : t -> Cohttp.Code.meth
-
-  val headers : t -> Cohttp.Header.t
+  val meth : t -> Httpaf.Method.t
+  val headers : t -> Httpaf.Headers.t
 end
 
 module Response : sig
-  type t =
-    { code: Cohttp.Code.status_code
-    ; headers: Cohttp.Header.t
-    ; body: Cohttp_lwt.Body.t
-    ; env: Hmap0.t }
-  [@@deriving fields, sexp_of]
+  type t = {
+    code:    Httpaf.Status.t;
+    headers: Httpaf.Headers.t;
+    body:    Body.t;
+    env:     Hmap0.t
+  } [@@deriving fields]
 
   val create :
-       ?env:Hmap0.t
-    -> ?body:Cohttp_lwt.Body.t
-    -> ?headers:Cohttp.Header.t
-    -> ?code:Cohttp.Code.status_code
-    -> unit
-    -> t
+    ?env: Hmap0.t ->
+    ?body: Body.t ->
+    ?headers: Httpaf.Headers.t ->
+    ?code: Httpaf.Status.t ->
+    unit -> t
 
   val of_string_body :
-       ?env:Hmap0.t
-    -> ?headers:Cohttp.Header.t
-    -> ?code:Cohttp.Code.status_code
-    -> string
-    -> t
+    ?env: Hmap0.t ->
+    ?headers: Httpaf.Headers.t ->
+    ?code: Httpaf.Status.t ->
+    string -> t
 
-  val of_stream :
-       ?env:Hmap0.t
-    -> ?headers:Cohttp.Header.t
-    -> ?code:Cohttp.Code.status_code
-    -> string Lwt_stream.t
-    -> t
+  val of_bigstring_body :
+    ?env: Hmap0.t ->
+    ?headers: Httpaf.Headers.t ->
+    ?code: Httpaf.Status.t ->
+    Bigstringaf.t -> t
 
-  val of_response_body : Cohttp.Response.t * Cohttp_lwt.Body.t -> t
+  val of_response_body : Httpaf.Response.t * Body.t -> t
 end
 
 (** A handler is a rock specific service *)
 module Handler : sig
-  type t = (Request.t, Response.t) Service.t [@@deriving sexp_of]
-
+  type t = (Request.t, Response.t) Service.t
   val default : t
 
   val not_found : t
@@ -89,7 +89,7 @@ end
 (** Middleware is a named, simple filter, that only works on rock
     requests/response *)
 module Middleware : sig
-  type t [@@deriving sexp_of]
+  type t
 
   val filter : t -> (Request.t, Response.t) Filter.simple
 
@@ -102,7 +102,7 @@ module Middleware : sig
 end
 
 module App : sig
-  type t [@@deriving sexp_of]
+  type t
 
   val handler : t -> Handler.t
 

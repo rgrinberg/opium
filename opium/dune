@@ -4,4 +4,4 @@
   (:standard -safe-string))
  (preprocess
   (pps ppx_sexp_conv ppx_fields_conv))
- (libraries opium_kernel cmdliner cohttp-lwt-unix magic-mime logs ezjsonm))
+ (libraries opium_kernel cmdliner httpaf httpaf-lwt-unix magic-mime logs))
