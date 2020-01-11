@@ -42,7 +42,7 @@ let respond_with_file ?headers ~name () =
           return (resp, "")
       | exn -> Lwt.fail exn)
 
-let public_serve t ~requested ~request_if_none_match ?etag_of_fname ?headers ()
+let public_serve t ~requested ~request_if_none_match ?etag_of_fname ?(headers = Httpaf.Headers.empty) ()
     =
   match legal_path t requested with
   | None -> return `Not_found
@@ -54,8 +54,8 @@ let public_serve t ~requested ~request_if_none_match ?etag_of_fname ?headers ()
       in
       let headers =
         match etag_quoted with
-        | Some etag_quoted -> Httpaf.Headers.of_list [("etag", etag_quoted)]
-        | None -> Httpaf.Headers.empty
+        | Some etag_quoted -> Httpaf.Headers.add_unless_exists headers "etag" etag_quoted
+        | None -> headers
       in
       let request_matches_etag =
         match (request_if_none_match, etag_quoted) with
