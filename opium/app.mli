@@ -108,6 +108,14 @@ val respond' :
   -> body
   -> Response.t Lwt.t
 
+val create_stream :
+     unit
+  -> (   ?headers:Cohttp.Header.t
+      -> ?code:Cohttp.Code.status_code
+      -> unit Lwt.t
+      -> Response.t Lwt.t)
+     * (string -> unit)
+
 val redirect : ?headers:Cohttp.Header.t -> Uri.t -> Response.t
 
 (* Same as return (redirect ...) *)

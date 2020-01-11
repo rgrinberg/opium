@@ -266,6 +266,16 @@ module Response_helpers = struct
 
   let respond' ?headers ?code s = s |> respond ?headers ?code |> return
 
+  let create_stream () =
+    let open Lwt.Infix in
+    let stream, push = Lwt_stream.create () in
+    let p' w = push (Some w) in
+    let f ?headers ?code p =
+      Lwt.async (fun () -> p >|= fun () -> push None) ;
+      respond' ?headers ?code (`Streaming stream)
+    in
+    (f, p')
+
   let redirect ?headers uri =
     let headers =
       Cohttp.Header.add_opt headers "Location" (Uri.to_string uri)
@@ -302,3 +312,5 @@ let respond' = Response_helpers.respond'
 let redirect = Response_helpers.redirect
 
 let redirect' = Response_helpers.redirect'
+
+let create_stream = Response_helpers.create_stream
