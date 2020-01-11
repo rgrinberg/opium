@@ -1,6 +1,5 @@
 open Misc
 open Sexplib.Std
-
 module Rock = Rock
 module Route = Route
 open Rock
@@ -10,11 +9,11 @@ type 'a t = (Route.t * 'a) Queue.t array
 let create () = Array.init 7 (fun _ -> Queue.create ())
 
 let int_of_meth = function
-  | `GET     -> 0
-  | `POST    -> 1
-  | `PUT     -> 2
-  | `DELETE  -> 3
-  | `HEAD    -> 4
+  | `GET -> 0
+  | `POST -> 1
+  | `PUT -> 2
+  | `DELETE -> 3
+  | `HEAD -> 4
   | `OPTIONS -> 6
   | _ -> failwith "non standard http verbs not supported"
 

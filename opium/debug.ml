@@ -31,9 +31,10 @@ let debug =
 
 let trace =
   let filter handler req =
-    handler req >|= fun response ->
+    handler req
+    >|= fun response ->
     let code = response |> Response.code |> Httpaf.Status.to_code in
-    Logs.debug ~src:log_src (fun m -> m "Responded with %d" code);
+    Logs.debug ~src:log_src (fun m -> m "Responded with %d" code) ;
     response
   in
   Middleware.create ~name:"Trace" ~filter

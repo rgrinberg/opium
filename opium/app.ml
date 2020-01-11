@@ -9,72 +9,77 @@ open Rock
 let run_unix ?ssl t ~port =
   let middlewares = t |> App.middlewares |> List.map ~f:Middleware.filter in
   let handler = App.handler t in
-  let _mode = Option.value_map ssl
-               ~default:(`TCP (`Port port)) ~f:(fun (c, k) ->
-                 `TLS (c, k, `No_password, `Port port)) in
+  let _mode =
+    Option.value_map ssl
+      ~default:(`TCP (`Port port))
+      ~f:(fun (c, k) -> `TLS (c, k, `No_password, `Port port))
+  in
   let listen_address = Unix.(ADDR_INET (inet_addr_loopback, port)) in
   let connection_handler =
     let read_body m request_body =
-      let (body_read, finished) = Lwt.wait () in
-      (match m with
-      | `POST | `PUT -> begin
-          let b = Buffer.create Httpaf.Config.default.request_body_buffer_size in
+      let body_read, finished = Lwt.wait () in
+      ( match m with
+      | `POST | `PUT ->
+          let b =
+            Buffer.create Httpaf.Config.default.request_body_buffer_size
+          in
           let rec on_read bs ~off ~len =
             let b' = Bytes.create len in
-            Bigstringaf.blit_to_bytes bs ~src_off:off b' ~dst_off:0 ~len;
-            Buffer.add_bytes b b';
+            Bigstringaf.blit_to_bytes bs ~src_off:off b' ~dst_off:0 ~len ;
+            Buffer.add_bytes b b' ;
             Httpaf.Body.schedule_read request_body ~on_read ~on_eof
-          and on_eof () = Lwt.wakeup_later finished (Body.of_string (Buffer.contents b))
+          and on_eof () =
+            Lwt.wakeup_later finished (Body.of_string (Buffer.contents b))
           in
           Httpaf.Body.schedule_read request_body ~on_read ~on_eof
-        end
-      | _ -> Lwt.wakeup_later finished Rock.Body.empty);
+      | _ -> Lwt.wakeup_later finished Rock.Body.empty ) ;
       body_read
     in
     let request_handler _ reqd =
-      Lwt.async begin fun () ->
-        let request = Reqd.request reqd in
-        read_body request.meth (Httpaf.Reqd.request_body reqd) >>=
-        fun body ->
-        let req = Request.create ~body request in
-        let handler = Filter.apply_all middlewares handler in
-        handler req >>| fun {Response.code; headers; body; _} ->
-        let headers = Httpaf.Headers.add_unless_exists headers "Content-Length" (string_of_int (Body.length body)) in
-        let response = Httpaf.Response.create ~headers code in
-        match body with
-        | `Empty -> Reqd.respond_with_string reqd response ""
-        | `String s -> Reqd.respond_with_string reqd response s
-        | `Bigstring b -> Reqd.respond_with_bigstring reqd response b
-      end
+      Lwt.async (fun () ->
+          let request = Reqd.request reqd in
+          read_body request.meth (Httpaf.Reqd.request_body reqd)
+          >>= fun body ->
+          let req = Request.create ~body request in
+          let handler = Filter.apply_all middlewares handler in
+          handler req
+          >>| fun {Response.code; headers; body; _} ->
+          let headers =
+            Httpaf.Headers.add_unless_exists headers "Content-Length"
+              (string_of_int (Body.length body))
+          in
+          let response = Httpaf.Response.create ~headers code in
+          match body with
+          | `Empty -> Reqd.respond_with_string reqd response ""
+          | `String s -> Reqd.respond_with_string reqd response s
+          | `Bigstring b -> Reqd.respond_with_bigstring reqd response b)
     in
     let error_handler _ ?request:_ error start_response =
       let response_body = start_response Httpaf.Headers.empty in
-      begin match error with
+      ( match error with
       | `Exn exn ->
-        Httpaf.Body.write_string response_body (Printexc.to_string exn);
-        Httpaf.Body.write_string response_body "\n";
-
+          Httpaf.Body.write_string response_body (Printexc.to_string exn) ;
+          Httpaf.Body.write_string response_body "\n"
       | #Httpaf.Status.standard as error ->
-        Httpaf.Body.write_string response_body (Httpaf.Status.default_reason_phrase error)
-        end;
-        Httpaf.Body.close_writer response_body
+          Httpaf.Body.write_string response_body
+            (Httpaf.Status.default_reason_phrase error) ) ;
+      Httpaf.Body.close_writer response_body
     in
     Server.create_connection_handler ~request_handler ~error_handler
   in
-  Lwt_io.establish_server_with_client_socket ~backlog:128
-    listen_address connection_handler
+  Lwt_io.establish_server_with_client_socket ~backlog:128 listen_address
+    connection_handler
 
-
-type t = {
-  port:        int;
-  ssl:         ([ `Crt_file_path of string ] * [ `Key_file_path of string ]) option;
-  debug:       bool;
-  verbose:     bool;
-  routes :     ( Httpaf.Method.t * Route.t * Handler.t) list;
-  middlewares: Middleware.t list;
-  name:        string;
-  not_found :  Handler.t;
-} [@@deriving fields]
+type t =
+  { port: int
+  ; ssl: ([`Crt_file_path of string] * [`Key_file_path of string]) option
+  ; debug: bool
+  ; verbose: bool
+  ; routes: (Httpaf.Method.t * Route.t * Handler.t) list
+  ; middlewares: Middleware.t list
+  ; name: string
+  ; not_found: Handler.t }
+[@@deriving fields]
 
 type builder = t -> t
 
@@ -138,7 +143,7 @@ let put route action =
   register ~meth:`PUT ~route:(Route.of_string route) ~action
 
 (* let patch route action = *)
-(*   register ~meth:`PATCH ~route:(Route.of_string route) ~action *)
+(* register ~meth:`PATCH ~route:(Route.of_string route) ~action *)
 let head route action =
   register ~meth:`HEAD ~route:(Route.of_string route) ~action
 
@@ -156,7 +161,7 @@ let any methods route action t =
   |> List.fold_left ~init:t ~f:(fun app meth ->
          app |> register ~meth ~route ~action)
 
-let all = any [`GET;`POST;`DELETE;`PUT;`HEAD;`OPTIONS]
+let all = any [`GET; `POST; `DELETE; `PUT; `HEAD; `OPTIONS]
 
 let to_rock app =
   Rock.App.create ~middlewares:(attach_middleware app) ~handler:app.not_found
@@ -181,9 +186,7 @@ let print_routes_f routes =
   Hashtbl.iter
     (fun key data ->
       Printf.printf "> %s (%s)\n" (Route.to_string key)
-        (data
-         |> List.map ~f: Httpaf.Method.to_string
-         |> String.concat " "))
+        (data |> List.map ~f:Httpaf.Method.to_string |> String.concat " "))
     routes_tbl
 
 let print_middleware_f middlewares =
@@ -274,12 +277,11 @@ let run_command' app =
 
 let run_command app =
   match app |> run_command' with
-  | `Ok a        -> begin
-      Lwt.async (fun () -> a >>= fun _server -> Lwt.return_unit);
+  | `Ok a ->
+      Lwt.async (fun () -> a >>= fun _server -> Lwt.return_unit) ;
       let forever, _ = Lwt.wait () in
       Lwt_main.run forever
-    end
-  | `Error       -> exit 1
+  | `Error -> exit 1
   | `Not_running -> exit 0
 
 type body =
@@ -287,24 +289,27 @@ type body =
   | `Json of Ezjsonm.t
   | `Xml of string
   | `String of string
-  | `Bigstring of Bigstringaf.t]
+  | `Bigstring of Bigstringaf.t ]
 
 module Response_helpers = struct
-
-  let add_opt headers k v = match headers with
+  let add_opt headers k v =
+    match headers with
     | Some h -> Httpaf.Headers.add h k v
-    | None -> Httpaf.Headers.of_list [k, v]
+    | None -> Httpaf.Headers.of_list [(k, v)]
 
   let content_type ct h = add_opt h "Content-Type" ct
-  let json_header       = content_type "application/json"
-  let xml_header        = content_type "application/xml"
-  let html_header       = content_type "text/html"
+
+  let json_header = content_type "application/json"
+
+  let xml_header = content_type "application/xml"
+
+  let html_header = content_type "text/html"
 
   let respond_with_string = Response.of_string_body
 
   let respond_with_bigstring = Response.of_bigstring_body
 
-  let respond ?headers ?(code=`OK) = function
+  let respond ?headers ?(code = `OK) = function
     | `String s -> respond_with_string ?headers ~code s
     | `Bigstring s -> respond_with_bigstring ?headers ~code s
     | `Json s ->
@@ -312,7 +317,6 @@ module Response_helpers = struct
           (Ezjsonm.to_string s)
     | `Html s -> respond_with_string ~code ~headers:(html_header headers) s
     | `Xml s -> respond_with_string ~code ~headers:(xml_header headers) s
-    | `Streaming s -> Response.of_stream ?headers ~code s
 
   let respond' ?headers ?code s = s |> respond ?headers ?code |> return
 
@@ -326,8 +330,9 @@ end
 module Request_helpers = struct
   let json_exn req =
     req |> Request.body |> Body.to_string_promise >>| Ezjsonm.from_string
-  let string_exn req =
-    req |> Request.body |> Body.to_string_promise
+
+  let string_exn req = req |> Request.body |> Body.to_string_promise
+
   let pairs_exn req =
     req |> Request.body |> Body.to_string_promise >>| Uri.query_of_encoded
 end

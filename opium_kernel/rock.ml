@@ -1,13 +1,11 @@
 open Sexplib
-
 open Misc
-
 module Header = Httpaf.Headers
-
 module Body = Misc.Body
 
 module Service = struct
   type ('req, 'rep) t = 'req -> 'rep Lwt.t
+
   let id req = return req
 
   let const resp = Fn.compose return (Fn.const resp)
@@ -16,7 +14,9 @@ end
 module Filter = struct
   type ('req, 'rep, 'req_, 'rep_) t =
     ('req, 'rep) Service.t -> ('req_, 'rep_) Service.t
+
   type ('req, 'rep) simple = ('req, 'rep, 'req, 'rep) t
+
   let id s = s
 
   let ( >>> ) f1 f2 s = s |> f1 |> f2
@@ -25,65 +25,51 @@ module Filter = struct
 end
 
 module Request = struct
-  type t = {
-    request: Httpaf.Request.t;
-    uri: Uri.t;
-    body: Body.t;
-    env: Hmap0.t;
-  } [@@deriving fields]
+  type t = {request: Httpaf.Request.t; uri: Uri.t; body: Body.t; env: Hmap0.t}
+  [@@deriving fields]
 
-  let create ?(body=Body.empty) ?(env=Hmap0.empty) request =
-    { request; env ; body; uri = Uri.of_string request.target }
-  let uri     { uri; _ } = uri
-  let meth    { request; _ } = request.meth
-  let headers { request; _ } = request.headers
+  let create ?(body = Body.empty) ?(env = Hmap0.empty) request =
+    {request; env; body; uri= Uri.of_string request.target}
+
+  let uri {uri; _} = uri
+
+  let meth {request; _} = request.meth
+
+  let headers {request; _} = request.headers
 
   let sexp_of_t {request; body; uri; env} =
-    Sexp.(List [
-      List [ Atom (Httpaf.Method.to_string request.meth)
-           ; Atom (request.target)
-           ; Atom (Httpaf.Version.to_string request.version)
-           ; List (List.map 
-                     ~f:(fun (a, b) -> List [Atom a; Atom b])
-                     (Httpaf.Headers.to_list request.headers))]
-      ; Atom (Body.to_string body)
-      ; Atom (Uri.to_string uri)
-      ; Hmap0.sexp_of_t env
-    ])
-
+    Sexp.(
+      List
+        [ List
+            [ Atom (Httpaf.Method.to_string request.meth)
+            ; Atom request.target
+            ; Atom (Httpaf.Version.to_string request.version)
+            ; List
+                (List.map
+                   ~f:(fun (a, b) -> List [Atom a; Atom b])
+                   (Httpaf.Headers.to_list request.headers)) ]
+        ; Atom (Body.to_string body)
+        ; Atom (Uri.to_string uri)
+        ; Hmap0.sexp_of_t env ])
 end
 
 module Response = struct
-  type t = {
-    code: Httpaf.Status.t;
-    headers: Header.t;
-    body: Body.t;
-    env: Hmap0.t
-  } [@@deriving fields]
+  type t = {code: Httpaf.Status.t; headers: Header.t; body: Body.t; env: Hmap0.t}
+  [@@deriving fields]
 
-  let default_header = Option.value ~default:(Header.empty)
+  let default_header = Option.value ~default:Header.empty
 
-  let create ?(env=Hmap0.empty) ?(body=Body.empty)
-        ?headers ?(code=`OK) () =
-    { code
-    ; env
-    ; headers = Option.value ~default:(Header.empty) headers
-    ; body
-    }
+  let create ?(env = Hmap0.empty) ?(body = Body.empty) ?headers ?(code = `OK) ()
+      =
+    {code; env; headers= Option.value ~default:Header.empty headers; body}
 
   let of_string_body ?(env = Hmap0.empty) ?headers ?(code = `OK) body =
-    { env
-    ; code
-    ; headers = default_header headers
-    ; body = Body.of_string body }
+    {env; code; headers= default_header headers; body= Body.of_string body}
 
-  let of_bigstring_body ?(env=Hmap0.empty) ?headers ?(code=`OK) body =
-    { env
-    ; code
-    ; headers = default_header headers
-    ; body = Body.of_bigstring body }
+  let of_bigstring_body ?(env = Hmap0.empty) ?headers ?(code = `OK) body =
+    {env; code; headers= default_header headers; body= Body.of_bigstring body}
 
-  let of_response_body ({Httpaf.Response.status;headers;_}, body) =
+  let of_response_body ({Httpaf.Response.status; headers; _}, body) =
     create ~code:status ~headers ~body ()
 end
 
@@ -99,10 +85,8 @@ module Handler = struct
 end
 
 module Middleware = struct
-  type t =
-    { filter: (Request.t, Response.t) Filter.simple
-    ; name: string
-    } [@@deriving fields]
+  type t = {filter: (Request.t, Response.t) Filter.simple; name: string}
+  [@@deriving fields]
 
   let create ~filter ~name = {filter; name}
 
@@ -128,10 +112,8 @@ module Middleware = struct
 end
 
 module App = struct
-  type t = {
-    middlewares: Middleware.t list;
-    handler: Handler.t;
-  } [@@deriving fields]
+  type t = {middlewares: Middleware.t list; handler: Handler.t}
+  [@@deriving fields]
 
   let append_middleware t m = {t with middlewares= t.middlewares @ [m]}
 

@@ -8,11 +8,7 @@ let ( >>= ) = Lwt.( >>= )
 let ( >>| ) = Lwt.( >|= )
 
 module Body = struct
-  type t = [
-    `Empty
-    | `String of string
-    | `Bigstring of Bigstringaf.t
-  ]
+  type t = [`Empty | `String of string | `Bigstring of Bigstringaf.t]
 
   let empty = `Empty
 

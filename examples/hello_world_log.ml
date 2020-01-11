@@ -31,7 +31,7 @@ let () =
         Logs.set_level (Some Logs.Info) ;
         app
       in
-      Lwt.async (fun () -> (s >>= fun _ -> Lwt.return_unit));
+      Lwt.async (fun () -> s >>= fun _ -> Lwt.return_unit) ;
       Lwt_main.run (fst (Lwt.wait ()))
   | `Error -> exit 1
   | `Not_running -> exit 0
