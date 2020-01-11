@@ -10,7 +10,7 @@ let logger =
     let uri = Request.uri req |> Uri.path_and_query in
     handler req
     >|= fun response ->
-    let code = response |> Response.code |> Cohttp.Code.code_of_status in
+    let code = response |> Response.code |> Httpaf.Status.to_code in
     Logs.info (fun m -> m "Responded to '%s' with %d" uri code) ;
     response
   in
@@ -31,6 +31,7 @@ let () =
         Logs.set_level (Some Logs.Info) ;
         app
       in
-      ignore (Lwt_main.run s)
+      Lwt.async (fun () -> s >>= fun _ -> Lwt.return_unit) ;
+      Lwt_main.run (fst (Lwt.wait ()))
   | `Error -> exit 1
   | `Not_running -> exit 0

@@ -37,13 +37,19 @@ $ opam pin add opium --dev-repo
 
 ## Documentation
 
-For the API documentation:
+For the **API documentation**:
 
 - Read [the hosted documentation for the latest version][hosted-docs].
 - Build and view the docs for version installed locally using [`odig`][odig]:
   `odig doc opium`.
 
-For examples of idiomatic usage, see the [./examples directory](./examples)
+The following **tutorials** walk through various usecases of Opium:
+
+- [A Lightweight OCaml Webapp Tutorial](https://shonfeder.gitlab.io/ocaml_webapp/) 
+  covers a simple webapp generating dynamic HTML on the backend and 
+  interfacing with PostgreSQL.
+
+For **examples** of idiomatic usage, see the [./examples directory](./examples)
 and the simple examples below.
 
 [hosted-docs]: https://rgrinberg.github.io/opium/
@@ -76,6 +82,10 @@ let print_param =
   put "/hello/:name" (fun req ->
       `String ("Hello " ^ param req "name") |> respond')
 
+let default =
+  not_found (fun req ->
+      `Json Ezjsonm.(dict [("message", string "Route not found")]) |> respond')
+
 let print_person =
   get "/person/:name/:age" (fun req ->
       let person =
@@ -83,7 +93,7 @@ let print_person =
       in
       `Json (person |> json_of_person) |> respond')
 
-let _ = App.empty |> print_param |> print_person |> App.run_command
+let _ = App.empty |> print_param |> print_person |> default |> App.run_command
 ```
 
 compile and run with:
