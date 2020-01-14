@@ -11,16 +11,17 @@ let print_param =
       `String ("Hello " ^ param req "name") |> respond')
 
 let streaming =
+  let open Lwt.Infix in
   get "/hello/stream" (fun _req ->
-      let count = ref 0 in
-      let chunk = "00000000000" in
-      `Streaming
-        (Lwt_stream.from_direct (fun () ->
-             if !count < 1000 then (
-               incr count ;
-               Some (chunk ^ "\n") )
-             else None))
-      |> respond')
+      let f, push = App.create_stream () in
+      let timers =
+        List.map
+          (fun t ->
+            Lwt_unix.sleep t
+            >|= fun () -> push (Printf.sprintf "Hello after %f seconds\n" t))
+          [1.; 2.; 3.]
+      in
+      f (Lwt.join timers))
 
 let default =
   not_found (fun _req ->
