@@ -2,6 +2,7 @@
 
 * Make examples easier to find and add documentation related to features used in them. (#125, @shonfeder)
 * Allow overriding 404 handlers (#127, @anuragsoni)
+* Support cohttp streaming response (#135, #137, #139, @anuragsoni)
 
 # v0.17.1
 
