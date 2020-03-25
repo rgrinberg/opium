@@ -12,6 +12,7 @@ maintainer: ["Rudi Grinberg <rudi.grinberg@gmail>"]
 authors: ["Rudi Grinberg"]
 license: "MIT"
 homepage: "https://github.com/rgrinberg/opium"
+doc: "https://rgrinberg.github.io/opium/"
 bug-reports: "https://github.com/rgrinberg/opium/issues"
 depends: [
   "ocaml" {>= "4.04.1"}
