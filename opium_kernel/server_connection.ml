@@ -65,7 +65,7 @@ let httpaf_request_to_request ?body req =
     | #Httpaf.Method.standard as meth -> meth
     | _ -> failwith "invalid method"
   in
-  Request.make ~headers ?body req.target meth ()
+  Rock.Request.make ~headers ?body req.target meth ()
 
 let run server_handler ?error_handler app =
   let {Rock.App.middlewares; handler} = app in
@@ -95,7 +95,7 @@ let run server_handler ?error_handler app =
     let request = httpaf_request_to_request ~body req in
     Lwt.async (fun () ->
         service request
-        >>= fun {Response.body; headers; status; _} ->
+        >>= fun {Rock.Response.body; headers; status; _} ->
         let {Body.content; length} = body in
         let headers =
           match length with

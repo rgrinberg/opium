@@ -1,14 +1,26 @@
-open Opium_kernel__Misc
-open Sexplib.Std
 module Server = Httpaf_lwt_unix.Server
 open Opium_kernel.Rock
+open Lwt.Infix
 
 type t = {prefix: string; local_path: string} [@@deriving fields, sexp]
 
+let is_prefix ~prefix s =
+  String.length prefix <= String.length s
+  &&
+  let i = ref 0 in
+  while !i < String.length prefix && s.[!i] = prefix.[!i] do
+    incr i
+  done ;
+  !i = String.length prefix
+
+let chop_prefix ~prefix s =
+  assert (is_prefix ~prefix s) ;
+  String.sub s (String.length prefix) String.(length s - length prefix)
+
 let legal_path {prefix; local_path} requested =
-  let p = String.chop_prefix requested ~prefix in
+  let p = chop_prefix requested ~prefix in
   let requested_path = Filename.concat local_path p in
-  if String.is_prefix requested_path ~prefix:local_path then Some requested_path
+  if is_prefix requested_path ~prefix:local_path then Some requested_path
   else None
 
 exception Isnt_a_file
@@ -34,18 +46,18 @@ let respond_with_file ?headers ~name () =
             add_opt_header_unless_exists headers "content-type" mime_type
           in
           let resp = Httpaf.Response.create ~headers `OK in
-          return (resp, body)))
+          Lwt.return (resp, body)))
     (fun e ->
       match e with
       | Isnt_a_file ->
           let resp = Httpaf.Response.create `Not_found in
-          return (resp, "")
+          Lwt.return (resp, "")
       | exn -> Lwt.fail exn)
 
 let public_serve t ~requested ~request_if_none_match ?etag_of_fname
     ?(headers = Httpaf.Headers.empty) () =
   match legal_path t requested with
-  | None -> return `Not_found
+  | None -> Lwt.return `Not_found
   | Some legal_path ->
       let etag_quoted =
         match etag_of_fname with
@@ -62,30 +74,40 @@ let public_serve t ~requested ~request_if_none_match ?etag_of_fname
         match (request_if_none_match, etag_quoted) with
         | Some request_etags, Some etag_quoted ->
             request_etags |> Stringext.split ~on:','
-            |> List.exists ~f:(fun request_etag ->
+            |> ListLabels.exists ~f:(fun request_etag ->
                    String.trim request_etag = etag_quoted)
         | _ -> false
       in
       if request_matches_etag then
-        `Ok (Response.create ~code:`Not_modified ~headers ()) |> Lwt.return
+        `Ok (Response.make ~status:`Not_modified ~headers ()) |> Lwt.return
       else
         respond_with_file ~headers ~name:legal_path ()
-        >>| fun (resp, body) ->
+        >|= fun (resp, body) ->
         if resp.status = `Not_found then `Not_found
-        else `Ok (Response.of_response_body (resp, `String body))
+        else `Ok (Response.make ~body:(Opium_kernel.Body.of_string body) ())
+
+let is_prefix ~prefix s =
+  (* TODO: factor out string utilities into their own module *)
+  String.length prefix <= String.length s
+  &&
+  let i = ref 0 in
+  while !i < String.length prefix && s.[!i] = prefix.[!i] do
+    incr i
+  done ;
+  !i = String.length prefix
 
 let m ~local_path ~uri_prefix ?headers ?etag_of_fname () =
   let filter handler req =
-    if Request.meth req = `GET then
+    if req.Request.meth = `GET then
       let local_map = {prefix= uri_prefix; local_path} in
-      let local_path = req |> Request.uri |> Uri.path in
-      if local_path |> String.is_prefix ~prefix:uri_prefix then
+      let local_path = req.Request.target in
+      if local_path |> is_prefix ~prefix:uri_prefix then
         let request_if_none_match =
-          Httpaf.Headers.get (Request.headers req) "If-None-Match"
+          Httpaf.Headers.get req.Request.headers "If-None-Match"
         in
         public_serve local_map ~requested:local_path ~request_if_none_match
           ?etag_of_fname ?headers ()
-        >>= function `Not_found -> handler req | `Ok x -> return x
+        >>= function `Not_found -> handler req | `Ok x -> Lwt.return x
       else handler req
     else handler req
   in

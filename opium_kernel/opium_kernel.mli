@@ -32,46 +32,6 @@ module Body : sig
   val of_stream : ?length:Int64.t -> string Lwt_stream.t -> t
 end
 
-module Request : sig
-  type t = private
-    { version: Httpaf.Version.t option
-    ; target: string
-    ; headers: Httpaf.Headers.t
-    ; meth: Httpaf.Method.standard
-    ; body: Body.t
-    ; env: Hmap0.t }
-
-  val make :
-       ?version:Httpaf.Version.t
-    -> ?body:Body.t
-    -> ?env:Hmap0.t
-    -> ?headers:Httpaf.Headers.t
-    -> string
-    -> Httpaf.Method.standard
-    -> unit
-    -> t
-end
-
-module Response : sig
-  type t = private
-    { version: Httpaf.Version.t option
-    ; status: Httpaf.Status.t
-    ; reason: string option
-    ; headers: Httpaf.Headers.t
-    ; body: Body.t
-    ; env: Hmap0.t }
-
-  val make :
-       ?version:Httpaf.Version.t
-    -> ?status:Httpaf.Status.t
-    -> ?reason:string
-    -> ?headers:Httpaf.Headers.t
-    -> ?body:Body.t
-    -> ?env:Hmap0.t
-    -> unit
-    -> t
-end
-
 module Rock : sig
   (** A tiny clone of ruby's Rack protocol in OCaml. Which is slightly more
       general and inspired by Finagle. It's not imperative to have this to for
@@ -100,6 +60,48 @@ module Rock : sig
       -> ('req, 'rep) Service.t
   end
 
+  module Request : sig
+    type t = private
+      { version: Httpaf.Version.t
+      ; target: string
+      ; headers: Httpaf.Headers.t
+      ; meth: Httpaf.Method.standard
+      ; body: Body.t
+      ; env: Hmap0.t }
+
+    val make :
+         ?version:Httpaf.Version.t
+      -> ?body:Body.t
+      -> ?env:Hmap0.t
+      -> ?headers:Httpaf.Headers.t
+      -> string
+      -> Httpaf.Method.standard
+      -> unit
+      -> t
+
+    val pp_hum : Format.formatter -> t -> unit
+  end
+
+  module Response : sig
+    type t = private
+      { version: Httpaf.Version.t option
+      ; status: Httpaf.Status.t
+      ; reason: string option
+      ; headers: Httpaf.Headers.t
+      ; body: Body.t
+      ; env: Hmap0.t }
+
+    val make :
+         ?version:Httpaf.Version.t
+      -> ?status:Httpaf.Status.t
+      -> ?reason:string
+      -> ?headers:Httpaf.Headers.t
+      -> ?body:Body.t
+      -> ?env:Hmap0.t
+      -> unit
+      -> t
+  end
+
   (** A handler is a rock specific service *)
   module Handler : sig
     type t = (Request.t, Response.t) Service.t
@@ -108,7 +110,8 @@ module Rock : sig
   (** Middleware is a named, simple filter, that only works on rock
       requests/response *)
   module Middleware : sig
-    type t
+    type t = private
+      {filter: (Request.t, Response.t) Filter.simple; name: string}
 
     val create :
       filter:(Request.t, Response.t) Filter.simple -> name:string -> t
@@ -127,6 +130,8 @@ module Route : sig
   type t
 
   val of_string : string -> t
+
+  val to_string : t -> string
 end
 
 module Router : sig
@@ -137,9 +142,9 @@ module Router : sig
   val add :
     'a t -> route:Route.t -> meth:Httpaf.Method.standard -> action:'a -> unit
 
-  val param : Request.t -> string -> string
+  val param : Rock.Request.t -> string -> string
 
-  val splat : Request.t -> string list
+  val splat : Rock.Request.t -> string list
 
   val m : Rock.Handler.t t -> Rock.Middleware.t
 end

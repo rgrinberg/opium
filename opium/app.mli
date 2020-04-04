@@ -23,7 +23,7 @@ val ssl : cert:string -> key:string -> builder
 
 val cmd_name : string -> builder
 
-val not_found : Handler.t -> builder
+val not_found : (Request.t -> (Httpaf.Headers.t * Opium_kernel.Body.t) Lwt.t) -> builder
 (** [not_found] accepts a regular Opium handler that will be used instead of the
     default 404 handler. *)
 
@@ -48,14 +48,13 @@ val head : route
 
 (** any [methods] will bind a route to any http method inside of
     [methods] *)
-val any : Httpaf.Method.t list -> route
+val any : Httpaf.Method.standard list -> route
+
 (** all [methods] will bind a route to a URL regardless of the http method.
     You may escape the actual method used from the request passed. *)
 val all : route
-(** all [methods] will bind a route to a URL regardless of the http method. You
-    may escape the actual method used from the request passed. *)
 
-val action : Httpaf.Method.t -> route
+val action : Httpaf.Method.standard -> route
 
 val middleware : Middleware.t -> builder
 
@@ -75,13 +74,6 @@ val run_command : t -> unit
    being launched *)
 val run_command' : t -> [> `Ok of Lwt_io.server Lwt.t | `Error | `Not_running ]
 
-type body =
-  [ `Html of string
-  | `Json of Ezjsonm.t
-  | `Xml of string
-  | `String of string
-  | `Bigstring of Bigstringaf.t]
-
 val json_of_body_exn : Request.t -> Ezjsonm.t Lwt.t
 
 val string_of_body_exn : Request.t -> string Lwt.t
@@ -95,23 +87,3 @@ val urlencoded_pairs_of_body : Request.t -> (string * string list) list Lwt.t
 val param : Request.t -> string -> string
 
 val splat : Request.t -> string list
-
-val respond : ?headers:Httpaf.Headers.t
-  -> ?code:Httpaf.Status.t
-  -> body
-  -> Response.t
-
-(* Same as return (respond ...) *)
-val respond' : ?headers:Httpaf.Headers.t
-  -> ?code: Httpaf.Status.t
-  -> body
-  -> Response.t Lwt.t
-
-val redirect : ?headers: Httpaf.Headers.t
-  -> Uri.t
-  -> Response.t
-
-(* Same as return (redirect ...) *)
-val redirect' : ?headers: Httpaf.Headers.t
-  -> Uri.t
-  -> Response.t Lwt.t

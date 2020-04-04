@@ -8,14 +8,6 @@ module App_export = struct
 
   let splat = App.splat
 
-  let respond = App.respond
-
-  let respond' = App.respond'
-
-  let redirect = App.redirect
-
-  let redirect' = App.redirect'
-
   let not_found = App.not_found
 
   let get = App.get
@@ -43,9 +35,13 @@ module Middleware = struct
 end
 
 module Std = struct
-  include Opium_kernel.Std
+  module Rock = Opium_kernel.Rock
+  module Response = Rock.Response
+  module Request = Rock.Request
+  module Router = Opium_kernel.Router
+  module Route = Opium_kernel.Route
   module Middleware = Middleware
   include App_export
 end
 
-module Hmap = Opium_kernel.Hmap
+module Hmap = Opium_kernel.Hmap0

@@ -43,21 +43,21 @@ end
 (* not param_exn since if the endpoint was selected it's likely that the
    parameter is already there *)
 let param req param =
-  let {Route.params; _} = Hmap0.find_exn Env.key req.Request.env in
+  let {Route.params; _} = Hmap0.find_exn Env.key req.Rock.Request.env in
   List.assoc param params
 
 let splat req =
-  Hmap0.find_exn Env.key req.Request.env |> fun route -> route.Route.splat
+  Hmap0.find_exn Env.key req.Rock.Request.env |> fun route -> route.Route.splat
 
 (* takes a list of endpoints and a default handler. calls an endpoint if a match
    is found. otherwise calls the handler *)
 let m endpoints =
   let filter default req =
-    let url = req.Request.target in
-    match matching_endpoint endpoints req.Request.meth url with
+    let url = req.Rock.Request.target in
+    match matching_endpoint endpoints req.Rock.Request.meth url with
     | None -> default req
     | Some (endpoint, params) ->
-        let env_with_params = Hmap0.add Env.key params req.Request.env in
-        (snd endpoint) {req with Request.env= env_with_params}
+        let env_with_params = Hmap0.add Env.key params req.Rock.Request.env in
+        (snd endpoint) {req with Rock.Request.env= env_with_params}
   in
   Rock.Middleware.create ~name:"Router" ~filter
