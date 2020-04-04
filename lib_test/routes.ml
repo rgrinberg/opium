@@ -10,7 +10,7 @@ let matches_t : Route.matches Alcotest.testable =
     type t = Route.matches
 
     let equal r1 r2 =
-      Route.splat r1 = Route.splat r2 && Route.params r1 = Route.params r2
+      r1.Route.splat = r2.Route.splat && r1.Route.params = r2.Route.params
 
     let pp f t = Sexp.pp_hum f (Route.sexp_of_matches t)
   end )
