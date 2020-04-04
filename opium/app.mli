@@ -1,10 +1,10 @@
-open Opium_kernel.Rock
 (** An opium app provides a set of convenience functions and types to construct
     a rock app.
 
     - Re-exporting common functions needed in handlers
     - Easy handling of routes and bodies
     - Automatic generation of a command line app *)
+open Opium_kernel.Rock
 
 (** An opium app is a simple builder wrapper around a rock app *)
 type t
@@ -13,8 +13,8 @@ val empty : t
 (** A basic empty app *)
 
 (** A builder is a function that transforms an [app] by adding some
-    functionality. Builders are usuallys composed with a base app
-    using (|>) to create a full app *)
+    functionality. Builders are usuallys composed with a base app using (|>) to
+    create a full app *)
 type builder = t -> t
 
 val port : int -> builder
@@ -23,12 +23,13 @@ val ssl : cert:string -> key:string -> builder
 
 val cmd_name : string -> builder
 
-val not_found : (Request.t -> (Httpaf.Headers.t * Opium_kernel.Body.t) Lwt.t) -> builder
+val not_found :
+  (Request.t -> (Httpaf.Headers.t * Opium_kernel.Body.t) Lwt.t) -> builder
 (** [not_found] accepts a regular Opium handler that will be used instead of the
     default 404 handler. *)
 
-(** A route is a function that returns a buidler that hooks up a
-    handler to a url mapping *)
+(** A route is a function that returns a buidler that hooks up a handler to a
+    url mapping *)
 type route = string -> Handler.t -> builder
 
 val get : route
@@ -40,19 +41,18 @@ val delete : route
 
 val put : route
 
-(** Less common method specific routes  *)
 (* val patch : route *)
 val options : route
+(** Less common method specific routes *)
 
 val head : route
 
-(** any [methods] will bind a route to any http method inside of
-    [methods] *)
 val any : Httpaf.Method.standard list -> route
+(** any [methods] will bind a route to any http method inside of [methods] *)
 
-(** all [methods] will bind a route to a URL regardless of the http method.
-    You may escape the actual method used from the request passed. *)
 val all : route
+(** all [methods] will bind a route to a URL regardless of the http method. You
+    may escape the actual method used from the request passed. *)
 
 val action : Httpaf.Method.standard -> route
 
@@ -61,18 +61,17 @@ val middleware : Middleware.t -> builder
 val to_rock : t -> Opium_kernel.Rock.App.t
 (** Convert an opium app to a rock app *)
 
+val start : t -> Lwt_io.server Lwt.t
 (** Start an opium server. The thread returned can be cancelled to shutdown the
     server *)
-val start : t -> Lwt_io.server Lwt.t
 
 val run_command : t -> unit
 (** Create a cmdliner command from an app and run lwt's event loop *)
 
-(* Run a cmdliner command from an app. Does not launch Lwt's event loop.
-   `Error is returned if the command line arguments are incorrect.
-   `Not_running is returned if the command was completed without the server
-   being launched *)
-val run_command' : t -> [> `Ok of Lwt_io.server Lwt.t | `Error | `Not_running ]
+(* Run a cmdliner command from an app. Does not launch Lwt's event loop. `Error
+   is returned if the command line arguments are incorrect. `Not_running is
+   returned if the command was completed without the server being launched *)
+val run_command' : t -> [> `Ok of Lwt_io.server Lwt.t | `Error | `Not_running]
 
 val json_of_body_exn : Request.t -> Ezjsonm.t Lwt.t
 

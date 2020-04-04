@@ -3,6 +3,8 @@ module Hmap0 : sig
 
   val sexp_of_t : t -> Sexplib0.Sexp.t
 
+  val pp_hum : Format.formatter -> t -> unit [@@ocaml.toplevel_printer]
+
   val find_exn : 'a key -> t -> 'a
 end
 
@@ -16,6 +18,10 @@ module Body : sig
       `Stream of string Lwt_stream.t ]
 
   type t = private {length: Int64.t option; content: content}
+
+  val sexp_of_t : t -> Sexplib0.Sexp.t
+
+  val pp_hum : Format.formatter -> t -> unit [@@ocaml.toplevel_printer]
 
   val drain : t -> unit Lwt.t
 
@@ -79,12 +85,14 @@ module Rock : sig
       -> unit
       -> t
 
-    val pp_hum : Format.formatter -> t -> unit
+    val sexp_of_t : t -> Sexplib0.Sexp.t
+
+    val pp_hum : Format.formatter -> t -> unit [@@ocaml.toplevel_printer]
   end
 
   module Response : sig
     type t = private
-      { version: Httpaf.Version.t option
+      { version: Httpaf.Version.t
       ; status: Httpaf.Status.t
       ; reason: string option
       ; headers: Httpaf.Headers.t
@@ -100,6 +108,10 @@ module Rock : sig
       -> ?env:Hmap0.t
       -> unit
       -> t
+
+    val sexp_of_t : t -> Sexplib0.Sexp.t
+
+    val pp_hum : Format.formatter -> t -> unit [@@ocaml.toplevel_printer]
   end
 
   (** A handler is a rock specific service *)

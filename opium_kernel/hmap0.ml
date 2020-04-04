@@ -13,4 +13,6 @@ let sexp_of_t m =
   in
   List l
 
+let pp_hum fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)
+
 let find_exn t k = match find t k with None -> raise Not_found | Some s -> s

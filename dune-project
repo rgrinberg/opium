@@ -31,9 +31,7 @@
   httpaf
   lwt
   fieldslib
-  sexplib
-  ppx_fields_conv
-  ppx_sexp_conv
+  sexplib0
   logs
   bigstringaf
   re
@@ -57,8 +55,7 @@
   lwt
   logs
   cmdliner
-  ppx_fields_conv
-  ppx_sexp_conv
+  sexplib0
   re
   logs
   magic-mime

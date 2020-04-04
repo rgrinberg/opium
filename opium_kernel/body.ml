@@ -7,7 +7,25 @@ type content =
   | (* TODO: switch to a iovec based stream *)
     `Stream of string Lwt_stream.t ]
 
+let sexp_of_content content =
+  let open Sexplib0.Sexp_conv in
+  match content with
+  | `Empty -> sexp_of_string ""
+  | `String s -> sexp_of_string s
+  | `Bigstring b -> sexp_of_string (Bigstringaf.to_string b)
+  | `Stream s -> sexp_of_opaque s
+
 type t = {length: Int64.t option; content: content}
+
+let sexp_of_t {length; content} =
+  let open Sexplib0 in
+  let len = Sexp_conv.sexp_of_option Sexp_conv.sexp_of_int64 in
+  Sexp.(
+    List
+      [ List [Atom "length"; len length]
+      ; List [Atom "content"; sexp_of_content content] ])
+
+let pp_hum fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)
 
 let drain {content; _} =
   match content with
