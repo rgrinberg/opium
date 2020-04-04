@@ -1,9 +1,9 @@
 include Hmap.Make (struct
-  type 'a t = string * ('a -> Sexplib.Sexp.t)
+  type 'a t = string * ('a -> Sexplib0.Sexp.t)
 end)
 
 let sexp_of_t m =
-  let open Sexplib.Sexp in
+  let open Sexplib0.Sexp in
   let l =
     fold
       (fun (B (k, v)) l ->
