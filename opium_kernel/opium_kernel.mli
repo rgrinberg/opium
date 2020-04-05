@@ -172,8 +172,8 @@ module Server_connection : sig
   val run :
        (   request_handler:Httpaf.Server_connection.request_handler
         -> error_handler:Httpaf.Server_connection.error_handler
-        -> unit Lwt.t)
+        -> 'a Lwt.t)
     -> ?error_handler:error_handler
     -> Rock.App.t
-    -> unit Lwt.t
+    -> 'a Lwt.t
 end
