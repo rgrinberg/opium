@@ -67,7 +67,7 @@ module Rock : sig
   end
 
   module Request : sig
-    type t = private
+    type t =
       { version: Httpaf.Version.t
       ; target: string
       ; headers: Httpaf.Headers.t
@@ -91,7 +91,7 @@ module Rock : sig
   end
 
   module Response : sig
-    type t = private
+    type t =
       { version: Httpaf.Version.t
       ; status: Httpaf.Status.t
       ; reason: string option
