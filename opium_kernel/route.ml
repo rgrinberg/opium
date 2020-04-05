@@ -48,10 +48,16 @@ let split_slash path =
 
 let of_string path = path |> split_slash |> of_list
 
+let rec filter_map ~f = function
+  | [] -> []
+  | x :: l -> (
+      let l' = filter_map ~f l in
+      match f x with None -> l' | Some y -> y :: l' )
+
 let to_string l =
   let r =
     l
-    |> ListLabels.filter_map ~f:(function
+    |> filter_map ~f:(function
          | Match s -> Some s
          | Param s -> Some (":" ^ s)
          | Splat -> Some "*"

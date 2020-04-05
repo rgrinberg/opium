@@ -10,7 +10,7 @@ let default_error_handler ?request:_ error start_response =
     | (#Status.server_error | #Status.client_error) as error ->
         Status.default_reason_phrase error
   in
-  let len = Int.to_string (String.length message) in
+  let len = string_of_int (String.length message) in
   let headers = Headers.of_list [("content-length", len)] in
   let body = start_response headers in
   Body.write_string body message ;
