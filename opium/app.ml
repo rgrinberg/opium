@@ -74,7 +74,7 @@ let attach_middleware {verbose; debug; routes; middlewares; _} =
     | Some x :: l -> x :: filter_opt l
   in
   [Some (routes |> create_router |> Router.m)]
-  @ ListLabels.map ~f:Option.some middlewares
+  @ ListLabels.map ~f:(fun x -> Some x) middlewares
   @ [ (if verbose then Some Debug.trace else None)
     ; (if debug then Some Debug.debug else None) ]
   |> filter_opt
