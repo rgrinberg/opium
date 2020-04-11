@@ -1,5 +1,6 @@
 open Lwt.Infix
-open Opium_kernel.Rock
+module K = Opium_kernel.Make (Cohttp_lwt_unix.IO)
+open K
 
 let exn_ e = Logs.err (fun f -> f "%s" (Printexc.to_string e))
 
@@ -27,7 +28,7 @@ let debug =
         |> Response.of_string_body ~code:`Internal_server_error
         |> Lwt.return)
   in
-  Middleware.create ~name:"Debug" ~filter
+  Rock.Middleware.create ~name:"Debug" ~filter
 
 let trace =
   let filter handler req =
@@ -37,4 +38,4 @@ let trace =
     Logs.debug ~src:log_src (fun m -> m "Responded with %d" code) ;
     response
   in
-  Middleware.create ~name:"Trace" ~filter
+  Rock.Middleware.create ~name:"Trace" ~filter

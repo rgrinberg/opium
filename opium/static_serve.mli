@@ -1,10 +1,14 @@
+module K : module type of struct
+  include Opium_kernel.Make (Cohttp_lwt_unix.IO)
+end
+
 val m :
      local_path:string
   -> uri_prefix:string
   -> ?headers:Cohttp.Header.t
   -> ?etag_of_fname:(string -> string)
   -> unit
-  -> Opium_kernel.Rock.Middleware.t
+  -> K.Rock.Middleware.t
 (** Middleware serves all files (recursively) in the [local_path] directory
     under the [uri_prefix] url. The responses contain a [Content-type] header
     that is auto-detected based on the file extension using the

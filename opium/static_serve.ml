@@ -1,7 +1,8 @@
 open Opium_kernel__Misc
 open Sexplib.Std
 module Server = Cohttp_lwt_unix.Server
-open Opium_kernel.Rock
+module K = Opium_kernel.Make (Cohttp_lwt_unix.IO)
+open K.Rock
 
 type t = {prefix: string; local_path: string} [@@deriving fields, sexp]
 
@@ -62,4 +63,4 @@ let m ~local_path ~uri_prefix ?headers ?etag_of_fname () =
       else handler req
     else handler req
   in
-  Opium_kernel.Rock.Middleware.create ~name:"Static Pages" ~filter
+  Middleware.create ~name:"Static Pages" ~filter

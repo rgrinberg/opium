@@ -43,7 +43,8 @@ module Middleware = struct
 end
 
 module Std = struct
-  include Opium_kernel.Std
+  module K = Opium_kernel.Make (Cohttp_lwt_unix.IO)
+  include K.Std
   module Middleware = Middleware
   include App_export
   module Body = Cohttp_lwt.Body

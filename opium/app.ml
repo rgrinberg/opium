@@ -1,8 +1,9 @@
 open Opium_kernel__Misc
 open Sexplib.Std
-module Rock = Opium_kernel.Rock
-module Router = Opium_kernel.Router
-module Route = Opium_kernel.Route
+module K = Opium_kernel.Make (Cohttp_lwt_unix.IO)
+module Rock = K.Rock
+module Router = K.Router
+module Route = K.Route
 module Server = Cohttp_lwt_unix.Server
 open Rock
 module Co = Cohttp
@@ -16,13 +17,19 @@ let run_unix ?ssl t ~port =
       ~f:(fun (c, k) -> `TLS (c, k, `No_password, `Port port))
   in
   Server.create ~mode
-    (Server.make
+    (Server.make_response_action
        ~callback:(fun _ req body ->
          let req = Request.create ~body req in
          let handler = Filter.apply_all middlewares handler in
          handler req
-         >>= fun {Response.code; headers; body; _} ->
-         Server.respond ~headers ~body ~status:code ())
+         >>= fun {Response.code; headers; body; action; _} ->
+         match action with
+         | Some action ->
+             Cohttp_lwt_unix.IO.return
+               (`Expert (Cohttp.Response.make ~headers ~status:code (), action))
+         | None ->
+             Cohttp_lwt_unix.IO.return
+               (`Response (Cohttp.Response.make ~headers ~status:code (), body)))
        ())
 
 type t =
@@ -31,7 +38,7 @@ type t =
   ; debug: bool
   ; verbose: bool
   ; routes: (Co.Code.meth * Route.t * Handler.t) list
-  ; middlewares: Middleware.t list
+  ; middlewares: Rock.Middleware.t list
   ; name: string
   ; not_found: Handler.t }
 [@@deriving fields, sexp_of]
