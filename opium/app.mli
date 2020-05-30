@@ -71,7 +71,7 @@ val run_command : t -> unit
 (* Run a cmdliner command from an app. Does not launch Lwt's event loop. `Error
    is returned if the command line arguments are incorrect. `Not_running is
    returned if the command was completed without the server being launched *)
-val run_command' : t -> [> `Ok of Lwt_io.server Lwt.t | `Error | `Not_running]
+val run_command' : t -> [> `Ok of unit Lwt.t | `Error | `Not_running]
 
 val json_of_body_exn : Request.t -> Ezjsonm.t Lwt.t
 

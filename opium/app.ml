@@ -247,7 +247,10 @@ let run_command' app =
   let open Cmdliner in
   let cmd = Cmds.term app in
   match Term.eval (cmd, Cmds.info app.name) with
-  | `Ok a -> `Ok a
+  | `Ok a ->
+      Lwt.async (fun () -> a >>= fun _server -> Lwt.return_unit) ;
+      let forever, _ = Lwt.wait () in
+      `Ok forever
   | `Error _ -> `Error
   | _ -> `Not_running
 
