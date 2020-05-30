@@ -2,7 +2,10 @@
 
 open Opium.Std
 
-let hello = get "/" (fun _ -> `String "Hello World" |> respond')
+let hello =
+  get "/" (fun _ ->
+      Lwt.return
+        (Response.make ~body:(Opium_kernel.Body.of_string "Hello World\n") ()))
 
 let () =
   let app = App.empty |> hello |> App.run_command' in

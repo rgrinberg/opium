@@ -1,9 +1,11 @@
 Opium
 =====
 
+The current master branch is a WIP port to httpaf. If you are looking for the last version published to opam (that was using Cohttp), please take a look at https://github.com/rgrinberg/opium/tree/0.18.0
+
 ## Executive Summary
 
-Sinatra like web toolkit for OCaml based on [cohttp](https://github.com/mirage/ocaml-cohttp/) & [lwt](https://github.com/ocsigen/lwt)
+Sinatra like web toolkit for OCaml based on [httpaf](https://github.com/inhabitedtype/httpaf/) & [lwt](https://github.com/ocsigen/lwt)
 
 ## Design Goals
 
@@ -13,10 +15,6 @@ be instantly productive when starting out.
 * Opium should be extensible using independently developed plugins. This is a
 _Rack_ inspired mechanism borrowed from Ruby. The middleware mechanism in
 Opium is called `Rock`.
-
-* It should maximize use of creature comforts people are used to in
-other languages. Such as [sexplib](https://github.com/janestreet/sexplib), [fieldslib](https://github.com/janestreet/fieldslib), a decent
-standard library.
 
 ## Installation
 
@@ -71,50 +69,28 @@ Here's a simple hello world example to get your feet wet:
 
 ``` ocaml
 open Opium.Std
-
-type person = {name: string; age: int}
-
-let json_of_person {name; age} =
-  let open Ezjsonm in
-  dict [("name", string name); ("age", int age)]
-
-let print_param =
-  put "/hello/:name" (fun req ->
-      `String ("Hello " ^ param req "name") |> respond')
+open Lwt.Infix
 
 let streaming =
-  let open Lwt.Infix in
-  get "/hello/stream" (fun _req ->
-      (* [create_stream] returns a push function that can be used to
-         push new content onto the stream. [f] is function that
-         expects to receive a promise that gets resolved when the user
-         decides that they have pushed all their content onto the stream.
-         When the promise forwarded to [f] gets resolved, the stream will be
-         closed. *)
-      let f, push = App.create_stream () in
-      let timers =
-        List.map
-          (fun t ->
-            Lwt_unix.sleep t
-            >|= fun () -> push (Printf.sprintf "Hello after %f seconds\n" t))
-          [1.; 2.; 3.]
-      in
-      f (Lwt.join timers))
+  post "/hello/stream" (fun req ->
+      let {Opium_kernel.Body.length; _} = req.Request.body in
+      let content = Opium_kernel.Body.to_stream req.Request.body in
+      let body = Lwt_stream.map String.uppercase_ascii content in
+      Response.make ~body:(Opium_kernel.Body.of_stream ?length body) ()
+      |> Lwt.return)
 
-let default =
-  not_found (fun _req ->
-      `Json Ezjsonm.(dict [("message", string "Route not found")]) |> respond')
-
-let print_person =
-  get "/person/:name/:age" (fun req ->
-      let person =
-        {name= param req "name"; age= "age" |> param req |> int_of_string}
-      in
-      `Json (person |> json_of_person) |> respond')
+let print_param =
+  put "/hello/:name" (fun ({Request.body; _} as req) ->
+      Opium_kernel.Body.to_string body
+      >|= fun content ->
+      Logs.info (fun m -> m "Request body: %s" content) ;
+      let body = Opium_kernel.Body.of_string ("Hello " ^ param req "name") in
+      Response.make ~body ())
 
 let _ =
-  App.empty |> print_param |> print_person |> streaming |> default
-  |> App.run_command
+  Logs.set_reporter (Logs_fmt.reporter ()) ;
+  Logs.set_level (Some Logs.Debug) ;
+  App.empty |> streaming |> print_param |> App.run_command
 ```
 
 compile and run with:
@@ -161,15 +137,21 @@ let is_substring ~substring =
 
 let reject_ua ~f =
   let filter handler req =
-    match Cohttp.Header.get (Request.headers req) "user-agent" with
-    | Some ua when f ua -> `String "Please upgrade your browser" |> respond'
+    match Httpaf.Headers.get req.Request.headers "user-agent" with
+    | Some ua when f ua ->
+        Response.make ~status:`Bad_request
+          ~body:(Opium_kernel.Body.of_string "Please upgrade your browser\n")
+          ()
+        |> Lwt.return
     | _ -> handler req
   in
   Rock.Middleware.create ~filter ~name:"reject_ua"
 
 let _ =
   App.empty
-  |> get "/" (fun _ -> `String "Hello World" |> respond')
+  |> get "/" (fun _ ->
+         Response.make ~body:(Opium_kernel.Body.of_string "Hello World\n") ()
+         |> Lwt.return)
   |> middleware (reject_ua ~f:(is_substring ~substring:"MSIE"))
   |> App.cmd_name "Reject UA" |> App.run_command
 ```

@@ -1,47 +1,54 @@
-open Opium_kernel__Misc
-open Sexplib.Std
 module Rock = Opium_kernel.Rock
 module Router = Opium_kernel.Router
 module Route = Opium_kernel.Route
-module Server = Cohttp_lwt_unix.Server
+module Server = Httpaf_lwt_unix.Server
+module Reqd = Httpaf.Reqd
 open Rock
-module Co = Cohttp
+open Lwt.Infix
 
 let run_unix ?ssl t ~port =
-  let middlewares = t |> App.middlewares |> List.map ~f:Middleware.filter in
-  let handler = App.handler t in
-  let mode =
-    Option.value_map ssl
-      ~default:(`TCP (`Port port))
-      ~f:(fun (c, k) -> `TLS (c, k, `No_password, `Port port))
+  let _mode =
+    match ssl with
+    | None -> `TCP (`Port port)
+    | Some (c, k) -> `TLS (c, k, `No_password, `Port port)
   in
-  Server.create ~mode
-    (Server.make
-       ~callback:(fun _ req body ->
-         let req = Request.create ~body req in
-         let handler = Filter.apply_all middlewares handler in
-         handler req
-         >>= fun {Response.code; headers; body; _} ->
-         Server.respond ~headers ~body ~status:code ())
-       ())
+  let listen_address = Unix.(ADDR_INET (inet_addr_loopback, port)) in
+  let connection_handler addr fd =
+    let f ~request_handler ~error_handler =
+      Httpaf_lwt_unix.Server.create_connection_handler
+        ~request_handler:(fun _ -> request_handler)
+        ~error_handler:(fun _ -> error_handler)
+        addr fd
+    in
+    Opium_kernel.Server_connection.run f t
+  in
+  Lwt_io.establish_server_with_client_socket listen_address connection_handler
 
 type t =
   { port: int
   ; ssl: ([`Crt_file_path of string] * [`Key_file_path of string]) option
   ; debug: bool
   ; verbose: bool
-  ; routes: (Co.Code.meth * Route.t * Handler.t) list
+  ; routes: (Httpaf.Method.standard * Route.t * Handler.t) list
   ; middlewares: Middleware.t list
   ; name: string
   ; not_found: Handler.t }
-[@@deriving fields, sexp_of]
+[@@deriving fields]
 
-type builder = t -> t [@@deriving sexp]
+type builder = t -> t
 
-type route = string -> Handler.t -> builder [@@deriving sexp]
+type route = string -> Handler.t -> builder
 
 let register app ~meth ~route ~action =
   {app with routes= (meth, route, action) :: app.routes}
+
+let default_not_found _ =
+  Lwt.return
+    (Rock.Response.make ~status:`Not_found
+       ~body:
+         (Opium_kernel.Body.of_string
+            "<html><body><h1>404 - Not found</h1></body></html>")
+       ())
 
 let empty =
   { name= "Opium Default Name"
@@ -51,21 +58,26 @@ let empty =
   ; verbose= false
   ; routes= []
   ; middlewares= []
-  ; not_found= Handler.not_found }
+  ; not_found= default_not_found }
 
 let create_router routes =
   let router = Router.create () in
   routes
-  |> List.iter ~f:(fun (meth, route, action) ->
+  |> ListLabels.iter ~f:(fun (meth, route, action) ->
          Router.add router ~meth ~route ~action) ;
   router
 
 let attach_middleware {verbose; debug; routes; middlewares; _} =
+  let rec filter_opt = function
+    | [] -> []
+    | None :: l -> filter_opt l
+    | Some x :: l -> x :: filter_opt l
+  in
   [Some (routes |> create_router |> Router.m)]
-  @ List.map ~f:Option.some middlewares
+  @ ListLabels.map ~f:Option.some middlewares
   @ [ (if verbose then Some Debug.trace else None)
     ; (if debug then Some Debug.debug else None) ]
-  |> List.filter_opt
+  |> filter_opt
 
 let port port t = {t with port}
 
@@ -81,7 +93,9 @@ let action meth route action =
 
 let not_found action t =
   let action req =
-    action req >>| fun resp -> {resp with Response.code= `Not_found}
+    action req
+    >|= fun (headers, body) ->
+    Response.make ~headers ~body ~status:`Not_found ()
   in
   {t with not_found= action}
 
@@ -97,9 +111,8 @@ let delete route action =
 let put route action =
   register ~meth:`PUT ~route:(Route.of_string route) ~action
 
-let patch route action =
-  register ~meth:`PATCH ~route:(Route.of_string route) ~action
-
+(* let patch route action = *)
+(* register ~meth:`PATCH ~route:(Route.of_string route) ~action *)
 let head route action =
   register ~meth:`HEAD ~route:(Route.of_string route) ~action
 
@@ -107,17 +120,17 @@ let options route action =
   register ~meth:`OPTIONS ~route:(Route.of_string route) ~action
 
 let any methods route action t =
-  if List.is_empty methods then
+  if List.length methods = 0 then
     Logs.warn (fun f ->
         f
           "Warning: you're using [any] attempting to bind to '%s' but your list\n\
           \        of http methods is empty route" route) ;
   let route = Route.of_string route in
   methods
-  |> List.fold_left ~init:t ~f:(fun app meth ->
+  |> ListLabels.fold_left ~init:t ~f:(fun app meth ->
          app |> register ~meth ~route ~action)
 
-let all = any [`GET; `POST; `DELETE; `PUT; `PATCH; `HEAD; `OPTIONS]
+let all = any [`GET; `POST; `DELETE; `PUT; `HEAD; `OPTIONS]
 
 let to_rock app =
   Rock.App.create ~middlewares:(attach_middleware app) ~handler:app.not_found
@@ -133,30 +146,36 @@ let start app =
   let app = Rock.App.create ~middlewares ~handler:app.not_found in
   run_unix ~port ?ssl app
 
+let hashtbl_add_multi tbl x y =
+  let l = try Hashtbl.find tbl x with Not_found -> [] in
+  Hashtbl.replace tbl x (y :: l)
+
 let print_routes_f routes =
   let routes_tbl = Hashtbl.create 64 in
   routes
-  |> List.iter ~f:(fun (meth, route, _) ->
-         hashtbl_add_multi routes_tbl route meth) ;
+  |> ListLabels.iter ~f:(fun (meth, route, _) ->
+         hashtbl_add_multi routes_tbl route (meth :> Httpaf.Method.t)) ;
   Printf.printf "%d Routes:\n" (Hashtbl.length routes_tbl) ;
   Hashtbl.iter
     (fun key data ->
       Printf.printf "> %s (%s)\n" (Route.to_string key)
-        (data |> List.map ~f:Cohttp.Code.string_of_method |> String.concat " "))
+        (data |> ListLabels.map ~f:Httpaf.Method.to_string |> String.concat " "))
     routes_tbl
 
 let print_middleware_f middlewares =
   print_endline "Active middleware:" ;
   middlewares
-  |> List.map ~f:Rock.Middleware.name
-  |> List.iter ~f:(Printf.printf "> %s \n")
+  |> ListLabels.map ~f:(fun m -> m.Rock.Middleware.name)
+  |> ListLabels.iter ~f:(Printf.printf "> %s \n")
 
 let cmd_run app port ssl_cert ssl_key _host print_routes print_middleware debug
     verbose _errors =
+  let map2 ~f a b =
+    match (a, b) with Some x, Some y -> Some (f x y) | _ -> None
+  in
   let ssl =
     let cmd_ssl =
-      Option.map2 ssl_cert ssl_key ~f:(fun c k ->
-          (`Crt_file_path c, `Key_file_path k))
+      map2 ssl_cert ssl_key ~f:(fun c k -> (`Crt_file_path c, `Key_file_path k))
     in
     match (cmd_ssl, app.ssl) with
     | Some s, _ | None, Some s -> Some s
@@ -165,10 +184,11 @@ let cmd_run app port ssl_cert ssl_key _host print_routes print_middleware debug
   let app = {app with debug; verbose; port; ssl} in
   let rock_app = to_rock app in
   if print_routes then (
-    app |> routes |> print_routes_f ;
-    exit 0 ) ;
+    let routes = app.routes in
+    print_routes_f routes ; exit 0 ) ;
   if print_middleware then (
-    rock_app |> Rock.App.middlewares |> print_middleware_f ;
+    let middlewares = rock_app.middlewares in
+    print_middleware_f middlewares ;
     exit 0 ) ;
   app |> start
 
@@ -227,72 +247,30 @@ let run_command' app =
   let open Cmdliner in
   let cmd = Cmds.term app in
   match Term.eval (cmd, Cmds.info app.name) with
-  | `Ok a -> `Ok a
+  | `Ok a ->
+      Lwt.async (fun () -> a >>= fun _server -> Lwt.return_unit) ;
+      let forever, _ = Lwt.wait () in
+      `Ok forever
   | `Error _ -> `Error
   | _ -> `Not_running
 
 let run_command app =
   match app |> run_command' with
-  | `Ok a -> Lwt_main.run a
+  | `Ok a ->
+      Lwt.async (fun () -> a >>= fun _server -> Lwt.return_unit) ;
+      let forever, _ = Lwt.wait () in
+      Lwt_main.run forever
   | `Error -> exit 1
   | `Not_running -> exit 0
 
-type body =
-  [ `Html of string
-  | `Json of Ezjsonm.t
-  | `Xml of string
-  | `String of string
-  | `Streaming of string Lwt_stream.t ]
-
-module Response_helpers = struct
-  let content_type ct h = Cohttp.Header.add_opt h "Content-Type" ct
-
-  let json_header = content_type "application/json"
-
-  let xml_header = content_type "application/xml"
-
-  let html_header = content_type "text/html"
-
-  let respond_with_string = Response.of_string_body
-
-  let respond ?headers ?(code = `OK) = function
-    | `String s -> respond_with_string ?headers ~code s
-    | `Json s ->
-        respond_with_string ~code ~headers:(json_header headers)
-          (Ezjsonm.to_string s)
-    | `Html s -> respond_with_string ~code ~headers:(html_header headers) s
-    | `Xml s -> respond_with_string ~code ~headers:(xml_header headers) s
-    | `Streaming s -> Response.of_stream ?headers ~code s
-
-  let respond' ?headers ?code s = s |> respond ?headers ?code |> return
-
-  let create_stream () =
-    let open Lwt.Infix in
-    let stream, push = Lwt_stream.create () in
-    let p' w = push (Some w) in
-    let f ?headers ?code p =
-      Lwt.async (fun () -> p >|= fun () -> push None) ;
-      respond' ?headers ?code (`Streaming stream)
-    in
-    (f, p')
-
-  let redirect ?headers uri =
-    let headers =
-      Cohttp.Header.add_opt headers "Location" (Uri.to_string uri)
-    in
-    Response.create ~headers ~code:`Found ()
-
-  let redirect' ?headers uri = uri |> redirect ?headers |> return
-end
-
 module Request_helpers = struct
   let json_exn req =
-    req |> Request.body |> Cohttp_lwt.Body.to_string >>| Ezjsonm.from_string
+    Opium_kernel.Body.to_string req.Request.body >|= Ezjsonm.from_string
 
-  let string_exn req = req |> Request.body |> Cohttp_lwt.Body.to_string
+  let string_exn req = Opium_kernel.Body.to_string req.Request.body
 
   let pairs_exn req =
-    req |> Request.body |> Cohttp_lwt.Body.to_string >>| Uri.query_of_encoded
+    Opium_kernel.Body.to_string req.Request.body >|= Uri.query_of_encoded
 end
 
 let json_of_body_exn = Request_helpers.json_exn
@@ -304,13 +282,3 @@ let urlencoded_pairs_of_body = Request_helpers.pairs_exn
 let param = Router.param
 
 let splat = Router.splat
-
-let respond = Response_helpers.respond
-
-let respond' = Response_helpers.respond'
-
-let redirect = Response_helpers.redirect
-
-let redirect' = Response_helpers.redirect'
-
-let create_stream = Response_helpers.create_stream

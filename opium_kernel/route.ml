@@ -1,18 +1,23 @@
-open Misc
-open Sexplib.Std
-
 type path_segment =
   | Match of string
   | Param of string
   | Splat
   | FullSplat
   | Slash
-[@@deriving sexp]
 
 type matches = {params: (string * string) list; splat: string list}
-[@@deriving fields, sexp]
 
-type t = path_segment list [@@deriving sexp]
+let sexp_of_matches {params; splat} =
+  let open Sexplib0 in
+  let splat' = Sexp_conv.sexp_of_list Sexp_conv.sexp_of_string splat in
+  let sexp_of_param (a, b) =
+    Sexp_conv.sexp_of_list Sexp_conv.sexp_of_string [a; b]
+  in
+  Sexp.List
+    [ List [Atom "params"; Sexp_conv.sexp_of_list sexp_of_param params]
+    ; List [Atom "splat"; splat'] ]
+
+type t = path_segment list
 
 let parse_param s =
   if s = "/" then Slash
@@ -25,7 +30,7 @@ let parse_param s =
 let of_list l =
   let last_i = List.length l - 1 in
   l
-  |> List.mapi ~f:(fun i s ->
+  |> ListLabels.mapi ~f:(fun i s ->
          match parse_param s with
          | FullSplat when i <> last_i ->
              invalid_arg "** is only allowed at the end"
@@ -35,18 +40,18 @@ let split_slash_delim =
   let re = '/' |> Re.char |> Re.compile in
   fun path ->
     path |> Re.split_full re
-    |> List.map ~f:(function `Text s -> `Text s | `Delim _ -> `Delim)
+    |> ListLabels.map ~f:(function `Text s -> `Text s | `Delim _ -> `Delim)
 
 let split_slash path =
   path |> split_slash_delim
-  |> List.map ~f:(function `Text s -> s | `Delim -> "/")
+  |> ListLabels.map ~f:(function `Text s -> s | `Delim -> "/")
 
 let of_string path = path |> split_slash |> of_list
 
 let to_string l =
   let r =
     l
-    |> List.filter_map ~f:(function
+    |> ListLabels.filter_map ~f:(function
          | Match s -> Some s
          | Param s -> Some (":" ^ s)
          | Splat -> Some "*"

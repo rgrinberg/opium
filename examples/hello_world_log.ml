@@ -7,18 +7,20 @@ let log_reporter () = Lwt.return (Logs_fmt.reporter ())
 
 let logger =
   let filter handler req =
-    let uri = Request.uri req |> Uri.path_and_query in
     handler req
     >|= fun response ->
-    let code = response |> Response.code |> Cohttp.Code.code_of_status in
-    Logs.info (fun m -> m "Responded to '%s' with %d" uri code) ;
+    let code = response.Response.status |> Httpaf.Status.to_code in
+    Logs.info (fun m -> m "Responded to '%s' with %d" req.Request.target code) ;
     response
   in
   Rock.Middleware.create ~name:"Logger" ~filter
 
 let say_hello =
   get "/hello/:name" (fun req ->
-      `String ("Hello " ^ param req "name") |> respond')
+      Lwt.return
+        (Response.make
+           ~body:(Opium_kernel.Body.of_string ("Hello " ^ param req "name"))
+           ()))
 
 let () =
   let app = App.empty |> say_hello |> middleware logger |> App.run_command' in
@@ -31,6 +33,7 @@ let () =
         Logs.set_level (Some Logs.Info) ;
         app
       in
-      ignore (Lwt_main.run s)
+      Lwt.async (fun () -> s >>= fun _ -> Lwt.return_unit) ;
+      Lwt_main.run (fst (Lwt.wait ()))
   | `Error -> exit 1
   | `Not_running -> exit 0

@@ -8,10 +8,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ocaml-version: [ '4.09.0', '4.08.1', '4.07.1', '4.06.1', '4.05.0', '4.04.1' ]
+        ocaml-version: ['4.10.0', '4.09.1', '4.08.1' ]
     steps:
-      - uses: actions/checkout@master
-      - uses: avsm/setup-ocaml@v1.0
+      - uses: actions/checkout@v2
+      - uses: avsm/setup-ocaml@v1
         with:
           ocaml-version: ${{ matrix.ocaml-version }}
       - name: Install dependencies
@@ -21,7 +21,10 @@ jobs:
           opam depext -yt opium_kernel
           opam depext -yt opium
           opam install -t . --deps-only
+          opam install -y ppx_sexp_conv base64
       - name: Build
         run: opam exec -- dune build
       - name: Run tests
         run: opam exec -- dune runtest
+      - name: Build examples
+        run: opam exec -- dune build @examples

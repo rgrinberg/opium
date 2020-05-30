@@ -24,19 +24,20 @@
    "Opium_kernel is the Unix indpendent core of Opium. Useful for extremely portable environments such as mirage.")
  (depends
   (ocaml
-   (>= 4.04.1))
+   (>= 4.08))
   (dune
    (>= 1.11))
   hmap
-  cohttp
-  cohttp-lwt
+  httpaf
   lwt
   fieldslib
-  sexplib
-  ppx_fields_conv
-  ppx_sexp_conv
+  sexplib0
+  logs
+  bigstringaf
   re
-  (alcotest :with-test)))
+  uri
+  (alcotest :with-test))
+ )
 
 (package
  (name opium)
@@ -45,17 +46,17 @@
    "Opium is a minimalistic library for quickly binding functions to http routes. Its features include (but not limited to):\n\n    Middleware system for app independent components\n    A simple router for matching urls and parsing parameters\n    Request/Response pretty printing for easier debugging\n  ")
  (depends
   (ocaml
-   (>= 4.04.1))
+   (>= 4.08))
   (dune
    (>= 1.11))
   opium_kernel
-  cohttp-lwt-unix
+  httpaf-lwt-unix
   ezjsonm
   lwt
   logs
   cmdliner
-  ppx_fields_conv
-  ppx_sexp_conv
+  sexplib0
   re
+  logs
   magic-mime
   (alcotest :with-test)))

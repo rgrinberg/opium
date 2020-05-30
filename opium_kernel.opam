@@ -10,17 +10,17 @@ homepage: "https://github.com/rgrinberg/opium"
 doc: "https://rgrinberg.github.io/opium/"
 bug-reports: "https://github.com/rgrinberg/opium/issues"
 depends: [
-  "ocaml" {>= "4.04.1"}
+  "ocaml" {>= "4.08"}
   "dune" {>= "1.11"}
   "hmap"
-  "cohttp"
-  "cohttp-lwt"
+  "httpaf"
   "lwt"
   "fieldslib"
-  "sexplib"
-  "ppx_fields_conv"
-  "ppx_sexp_conv"
+  "sexplib0"
+  "logs"
+  "bigstringaf"
   "re"
+  "uri"
   "alcotest" {with-test}
 ]
 build: [

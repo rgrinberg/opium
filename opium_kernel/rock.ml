@@ -1,13 +1,7 @@
-open Sexplib.Std
-open Misc
-module Header = Cohttp.Header
-
 module Service = struct
-  type ('req, 'rep) t = 'req -> 'rep Lwt.t [@@deriving sexp]
+  type ('req, 'res) t = 'req -> 'res Lwt.t
 
-  let id req = return req
-
-  let const resp = Fn.compose return (Fn.const resp)
+  let id req = Lwt.return req
 end
 
 module Filter = struct
@@ -17,100 +11,116 @@ module Filter = struct
 
   type ('req, 'rep) simple = ('req, 'rep, 'req, 'rep) t [@@deriving sexp]
 
-  let id s = s
-
   let ( >>> ) f1 f2 s = s |> f1 |> f2
 
-  let apply_all filters service = List.fold_left filters ~init:service ~f:( |> )
+  let apply_all filters service =
+    ListLabels.fold_left filters ~init:service ~f:( |> )
+end
+
+module Pp = struct
+  open Sexplib0
+  open Sexp_conv
+
+  let sexp_of_version version =
+    Sexp.(
+      List
+        [ Atom "version"
+        ; List [Atom "major"; sexp_of_int version.Httpaf.Version.major]
+        ; List [Atom "minor"; sexp_of_int version.minor] ])
+
+  let sexp_of_target target = Sexp.(List [Atom "target"; sexp_of_string target])
+
+  let sexp_of_headers headers =
+    let sexp_of_header =
+      sexp_of_list (sexp_of_pair sexp_of_string sexp_of_string)
+    in
+    Sexp.(
+      List [Atom "headers"; sexp_of_header (Httpaf.Headers.to_list headers)])
+
+  let sexp_of_meth meth =
+    Sexp.(
+      List
+        [ Atom "method"
+        ; sexp_of_string (Httpaf.Method.to_string (meth :> Httpaf.Method.t)) ])
+
+  let sexp_of_body body = Sexp.(List [Atom "body"; Body.sexp_of_t body])
+
+  let sexp_of_env env = Sexp.(List [Atom "env"; Hmap0.sexp_of_t env])
+
+  let sexp_of_status status =
+    Sexp.(List [Atom "status"; sexp_of_int (Httpaf.Status.to_code status)])
+
+  let sexp_of_reason reason =
+    Sexp.(List [Atom "reason"; sexp_of_option sexp_of_string reason])
 end
 
 module Request = struct
-  type t = {request: Cohttp.Request.t; body: Cohttp_lwt.Body.t; env: Hmap0.t}
-  [@@deriving fields, sexp_of]
+  type t =
+    { version: Httpaf.Version.t
+    ; target: string
+    ; headers: Httpaf.Headers.t
+    ; meth: Httpaf.Method.standard
+    ; body: Body.t
+    ; env: Hmap0.t }
 
-  let create ?(body = Cohttp_lwt.Body.empty) ?(env = Hmap0.empty) request =
-    {request; env; body}
+  let make ?(version = {Httpaf.Version.major= 1; minor= 1}) ?(body = Body.empty)
+      ?(env = Hmap0.empty) ?(headers = Httpaf.Headers.empty) target meth () =
+    {version; target; headers; meth; body; env}
 
-  let uri {request; _} = Cohttp.Request.uri request
+  let sexp_of_t t =
+    Sexplib0.Sexp.(
+      List
+        [ Pp.sexp_of_version t.version
+        ; Pp.sexp_of_target t.target
+        ; Pp.sexp_of_headers t.headers
+        ; Pp.sexp_of_meth t.meth
+        ; Pp.sexp_of_body t.body
+        ; Pp.sexp_of_env t.env ])
 
-  let meth {request; _} = Cohttp.Request.meth request
-
-  let headers {request; _} = Cohttp.Request.headers request
+  let pp_hum fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)
 end
 
 module Response = struct
   type t =
-    { code: Cohttp.Code.status_code
-    ; headers: Header.t
-    ; body: Cohttp_lwt.Body.t
+    { version: Httpaf.Version.t
+    ; status: Httpaf.Status.t
+    ; reason: string option
+    ; headers: Httpaf.Headers.t
+    ; body: Body.t
     ; env: Hmap0.t }
-  [@@deriving fields, sexp_of]
 
-  let default_header = Option.value ~default:(Header.init ())
+  let make ?(version = {Httpaf.Version.major= 1; minor= 1}) ?(status = `OK)
+      ?reason ?(headers = Httpaf.Headers.empty) ?(body = Body.empty)
+      ?(env = Hmap0.empty) () =
+    {version; status; reason; headers; body; env}
 
-  let create ?(env = Hmap0.empty) ?(body = Cohttp_lwt.Body.empty) ?headers
-      ?(code = `OK) () =
-    {code; env; headers= Option.value ~default:(Header.init ()) headers; body}
+  let sexp_of_t {version; status; reason; headers; body; env} =
+    Sexplib0.Sexp.(
+      List
+        [ Pp.sexp_of_version version
+        ; Pp.sexp_of_status status
+        ; Pp.sexp_of_reason reason
+        ; Pp.sexp_of_headers headers
+        ; Pp.sexp_of_body body
+        ; Pp.sexp_of_env env ])
 
-  let of_string_body ?(env = Hmap0.empty) ?headers ?(code = `OK) body =
-    { env
-    ; code
-    ; headers= default_header headers
-    ; body= Cohttp_lwt.Body.of_string body }
-
-  let of_stream ?(env = Hmap0.empty) ?headers ?(code = `OK) body =
-    { env
-    ; code
-    ; headers= default_header headers
-    ; body= Cohttp_lwt.Body.of_stream body }
-
-  let of_response_body (resp, body) =
-    let code = Cohttp.Response.status resp in
-    let headers = Cohttp.Response.headers resp in
-    create ~code ~headers ~body ()
+  let pp_hum fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)
 end
 
 module Handler = struct
-  type t = (Request.t, Response.t) Service.t [@@deriving sexp_of]
-
-  let default _ = return (Response.of_string_body "route failed (404)")
-
-  let not_found _ =
-    return
-      (Response.of_string_body ~code:`Not_found
-         "<html><body><h1>404 - Not found</h1></body></html>")
+  type t = (Request.t, Response.t) Service.t
 end
 
 module Middleware = struct
   type t = {filter: (Request.t, Response.t) Filter.simple; name: string}
-  [@@deriving fields, sexp_of]
 
   let create ~filter ~name = {filter; name}
 
   let apply {filter; _} handler = filter handler
-
-  (* wrap_debug/apply_middlewares_debug are used for debugging when middlewares
-     are stepping over each other *)
-  (* let wrap_debug handler ({ Request.env ; request; _ } as req) =
-   *   let env = Hmap0.sexp_of_t env in
-   *   let req' = request
-   *              |> Cohttp.Request.headers
-   *              |> Cohttp.Header.to_lines in
-   *   Printf.printf "Env:\n%s\n" (Sexplib.Sexp.to_string_hum env);
-   *   Printf.printf "%s\n" (String.concat "" req');
-   *   let resp = handler req in
-   *   resp >>| (fun ({Response.headers; _} as resp) ->
-   *     Printf.printf "%s\n" (headers |> Cohttp.Header.to_lines |> String.concat "\n");
-   *     resp) *)
-
-  (* let apply_middlewares_debug (middlewares : t list) handler =
-   *   ListLabels.fold_left middlewares ~init:handler ~f:(fun h m ->
-   *     wrap_debug (apply m h)) *)
 end
 
 module App = struct
   type t = {middlewares: Middleware.t list; handler: Handler.t}
-  [@@deriving fields, sexp_of]
 
   let append_middleware t m = {t with middlewares= t.middlewares @ [m]}
 
