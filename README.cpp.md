@@ -1,9 +1,11 @@
 Opium
 =====
 
+The current master branch is a WIP port to httpaf. If you are looking for the last version published to opam (that was using Cohttp), please take a look at https://github.com/rgrinberg/opium/tree/0.18.0
+
 ## Executive Summary
 
-Sinatra like web toolkit for OCaml based on [cohttp](https://github.com/mirage/ocaml-cohttp/) & [lwt](https://github.com/ocsigen/lwt)
+Sinatra like web toolkit for OCaml based on [httpaf](https://github.com/inhabitedtype/httpaf/) & [lwt](https://github.com/ocsigen/lwt)
 
 ## Design Goals
 
@@ -13,10 +15,6 @@ be instantly productive when starting out.
 * Opium should be extensible using independently developed plugins. This is a
 _Rack_ inspired mechanism borrowed from Ruby. The middleware mechanism in
 Opium is called `Rock`.
-
-* It should maximize use of creature comforts people are used to in
-other languages. Such as [sexplib](https://github.com/janestreet/sexplib), [fieldslib](https://github.com/janestreet/fieldslib), a decent
-standard library.
 
 ## Installation
 
