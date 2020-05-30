@@ -1,4 +1,1 @@
-profile = ocamlformat
-break-cases = fit
-parse-docstrings = true
-wrap-comments = true
+profile = janestreet
