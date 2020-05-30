@@ -80,13 +80,13 @@ $ dune exec examples/hello_world.exe &
 then call
 
 ```sh
-curl http://localhost:3000/person/john_doe/42
+curl "http://localhost:3000/hello/world" 
 ```
 
-You should see the JSON message
+You should see the greeting
 
-```json
-{"name":"john_doe","age":42}
+```
+Hello, world
 ```
 
 ### Middleware

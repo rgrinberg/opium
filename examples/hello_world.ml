@@ -1,5 +1,4 @@
 open Opium.Std
-open Lwt.Infix
 
 let streaming =
   post "/hello/stream" (fun req ->
@@ -10,12 +9,11 @@ let streaming =
 ;;
 
 let print_param =
-  put "/hello/:name" (fun ({ Request.body; _ } as req) ->
-      Opium_kernel.Body.to_string body
-      >|= fun content ->
-      Logs.info (fun m -> m "Request body: %s" content);
-      let body = Opium_kernel.Body.of_string ("Hello " ^ param req "name") in
-      Response.make ~body ())
+  get "/hello/:name" (fun req ->
+      let body =
+        Printf.sprintf "Hello, %s\n" (param req "name") |> Opium_kernel.Body.of_string
+      in
+      Response.make ~body () |> Lwt.return)
 ;;
 
 let _ =
