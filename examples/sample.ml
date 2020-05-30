@@ -21,40 +21,11 @@ let e4 =
       let msg = Printf.sprintf "Hello %s! from %s." x y in
       `String msg |> respond |> Lwt.return)
 
-let set_cookie =
-  get "/set/:key/:value" (fun req ->
-      let key, value = (param req "key", param req "value") in
-      `String (Printf.sprintf "Set %s to %s" key value)
-      |> respond
-      |> Cookie.set ~key ~data:value
-      |> Lwt.return)
-
-let get_cookie =
-  get "/get/:key" (fun req ->
-      Logs.info (fun f -> f "Getting cookie") ;
-      let key = param req "key" in
-      let value =
-        match Cookie.get req ~key with
-        | None -> Printf.sprintf "Cookie %s doesn't exist" key
-        | Some s -> s
-      in
-      `String (Printf.sprintf "Cookie %s is: %s" key value)
-      |> respond |> Lwt.return)
-
 let splat_route =
   get "/testing/*/:p" (fun req ->
       let p = param req "p" in
       `String (Printf.sprintf "__ %s __" p ^ (req |> splat |> String.concat ":"))
       |> respond')
-
-let all_cookies =
-  get "/cookies" (fun req ->
-      let cookies =
-        req |> Cookie.cookies
-        |> List.map (fun (k, v) -> k ^ "=" ^ v)
-        |> String.concat "\n"
-      in
-      `String (Printf.sprintf "<pre>%s</pre>" cookies) |> respond |> Lwt.return)
 
 (* exceptions should be nicely formatted *)
 let throws =
@@ -68,8 +39,7 @@ let override_static =
       `String "overriding path" |> respond |> Lwt.return)
 
 let app =
-  App.empty |> e1 |> e2 |> e3 |> e4 |> get_cookie |> set_cookie |> all_cookies
-  |> throws |> middleware Cookie.m
+  App.empty |> e1 |> e2 |> e3 |> e4 |> throws |> middleware Cookie.m
   |> middleware (Middleware.static ~local_path:"./" ~uri_prefix:"/public" ())
   |> splat_route
 

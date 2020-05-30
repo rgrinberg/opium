@@ -1,16 +1,22 @@
 open Opium.Std
+open Lwt.Infix
 
 let uppercase =
   let filter handler req =
-    req |> handler
-    |> Lwt.map (fun response ->
-           response |> Response.body
-           |> Cohttp_lwt.Body.map String.uppercase_ascii
-           |> fun b -> {response with Response.body= b})
+    handler req
+    >>= fun {Response.body; _} ->
+    Opium_kernel.Body.to_string body
+    >|= fun content ->
+    let content = String.uppercase_ascii content in
+    Response.make ~body:(Opium_kernel.Body.of_string content) ()
   in
   Rock.Middleware.create ~name:"uppercaser" ~filter
 
 let _ =
   App.empty |> middleware uppercase
-  |> get "/hello" (fun _ -> `String "Hello World" |> respond')
+  |> get "/hello" (fun _ ->
+         Lwt.return
+           (Response.make
+              ~body:(Opium_kernel.Body.of_string "Hello World\n")
+              ()))
   |> App.cmd_name "Uppercaser" |> App.run_command

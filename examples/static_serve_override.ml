@@ -9,7 +9,9 @@
 open Opium.Std
 
 let hello =
-  get "/examples/hello_world.ml" (fun _ -> `String "Hello World" |> respond')
+  get "/examples/hello_world.ml" (fun _ ->
+      Lwt.return
+        (Response.make ~body:(Opium_kernel.Body.of_string "Hello World") ()))
 
 let () =
   let static =
