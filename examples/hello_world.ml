@@ -1,7 +1,13 @@
 open Opium.Std
 open Lwt.Infix
 
-type person = {name: string; age: int}
+let streaming =
+  post "/hello/stream" (fun req ->
+      let {Opium_kernel.Body.length; _} = req.Request.body in
+      let content = Opium_kernel.Body.to_stream req.Request.body in
+      let body = Lwt_stream.map String.uppercase_ascii content in
+      Response.make ~body:(Opium_kernel.Body.of_stream ?length body) ()
+      |> Lwt.return)
 
 let print_param =
   put "/hello/:name" (fun ({Request.body; _} as req) ->
@@ -14,4 +20,4 @@ let print_param =
 let _ =
   Logs.set_reporter (Logs_fmt.reporter ()) ;
   Logs.set_level (Some Logs.Debug) ;
-  App.empty |> print_param |> App.run_command
+  App.empty |> streaming |> print_param |> App.run_command

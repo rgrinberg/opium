@@ -21,6 +21,7 @@ jobs:
           opam depext -yt opium_kernel
           opam depext -yt opium
           opam install -t . --deps-only
+          opam install -y ppx_sexp_conv base64
       - name: Build
         run: opam exec -- dune build
       - name: Run tests
