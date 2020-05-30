@@ -10,11 +10,10 @@ open Opium.Std
 
 let hello =
   get "/examples/hello_world.ml" (fun _ ->
-      Lwt.return
-        (Response.make ~body:(Opium_kernel.Body.of_string "Hello World") ()))
+      Lwt.return (Response.make ~body:(Opium_kernel.Body.of_string "Hello World") ()))
+;;
 
 let () =
-  let static =
-    Middleware.static ~local_path:"./examples" ~uri_prefix:"/examples" ()
-  in
+  let static = Middleware.static ~local_path:"./examples" ~uri_prefix:"/examples" () in
   App.empty |> hello |> middleware static |> App.run_command |> ignore
+;;

@@ -22,31 +22,37 @@ module Auth = struct
   open Sexplib0.Sexp_conv
   open Printf
 
-  type challenge = [`Basic of string (* realm *)] [@@deriving sexp]
+  type challenge = [ `Basic of string (* realm *) ] [@@deriving sexp]
 
   type credential =
-    [`Basic of string * string (* username, password *) | `Other of string]
+    [ `Basic of string * string (* username, password *)
+    | `Other of string
+    ]
   [@@deriving sexp]
 
   let string_of_credential (cred : credential) =
     match cred with
-    | `Basic (user, pass) ->
-        "Basic " ^ Base64.encode_string (sprintf "%s:%s" user pass)
+    | `Basic (user, pass) -> "Basic " ^ Base64.encode_string (sprintf "%s:%s" user pass)
     | `Other buf -> buf
+  ;;
 
   let credential_of_string (buf : string) : credential =
     try
       let b64 = Scanf.sscanf buf "Basic %s" (fun b -> b) in
       match Stringext.split ~on:':' (Base64.decode_exn b64) ~max:2 with
-      | [user; pass] -> `Basic (user, pass)
+      | [ user; pass ] -> `Basic (user, pass)
       | _ -> `Other buf
-    with _ -> `Other buf
+    with
+    | _ -> `Other buf
+  ;;
 
   let string_of_challenge (ty : challenge) =
-    match ty with `Basic realm -> sprintf "Basic realm=\"%s\"" realm
+    match ty with
+    | `Basic realm -> sprintf "Basic realm=\"%s\"" realm
+  ;;
 end
 
-type user = {username: string (* ... *)} [@@deriving sexp]
+type user = { username : string (* ... *) } [@@deriving sexp]
 
 (* My convention is to stick the keys inside an Env sub module. By not exposing
    this module in the mli we are preventing the user or other middleware from
@@ -55,8 +61,7 @@ module Env = struct
   (* or use type nonrec *)
   type user' = user
 
-  let key : user' Opium.Hmap.key =
-    Opium.Hmap.Key.create ("user", [%sexp_of: user])
+  let key : user' Opium.Hmap.key = Opium.Hmap.Key.create ("user", [%sexp_of: user])
 end
 
 (* Usually middleware gets its own module so the middleware constructor function
@@ -66,26 +71,26 @@ end
    would represent our database model. E.g. it would do some lookup in the db
    and fetch the user. *)
 let m auth =
-  let filter handler ({Request.headers; env; _} as req) =
+  let filter handler ({ Request.headers; env; _ } as req) =
     match
-      Option.map Auth.credential_of_string
-        (Httpaf.Headers.get headers "authorization")
+      Option.map Auth.credential_of_string (Httpaf.Headers.get headers "authorization")
     with
     | None ->
-        (* could redirect here, but we return user as an option type *)
-        handler req
+      (* could redirect here, but we return user as an option type *)
+      handler req
     | Some (`Other _) ->
-        (* handle other, non-basic authentication mechanisms *)
-        handler req
-    | Some (`Basic (username, password)) -> (
-      match auth ~username ~password with
+      (* handle other, non-basic authentication mechanisms *)
+      handler req
+    | Some (`Basic (username, password)) ->
+      (match auth ~username ~password with
       | None -> failwith "TODO: bad username/password pair"
       | Some user ->
-          (* we have a user. let's add him to req *)
-          let env = Opium.Hmap.add Env.key user env in
-          let req = {req with Request.env} in
-          handler req )
+        (* we have a user. let's add him to req *)
+        let env = Opium.Hmap.add Env.key user env in
+        let req = { req with Request.env } in
+        handler req)
   in
   Rock.Middleware.create ~name:"http basic auth" ~filter
+;;
 
-let user {Request.env; _} = Opium.Hmap.find Env.key env
+let user { Request.env; _ } = Opium.Hmap.find Env.key env
