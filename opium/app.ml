@@ -309,7 +309,10 @@ let run_command app =
 ;;
 
 module Request_helpers = struct
-  let json_exn req = Opium_kernel.Body.to_string req.Request.body >|= Ezjsonm.from_string
+  let json_exn req =
+    Opium_kernel.Body.to_string req.Request.body >|= Yojson.Safe.from_string
+  ;;
+
   let string_exn req = Opium_kernel.Body.to_string req.Request.body
 
   let pairs_exn req =

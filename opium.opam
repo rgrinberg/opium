@@ -17,9 +17,8 @@ bug-reports: "https://github.com/rgrinberg/opium/issues"
 depends: [
   "ocaml" {>= "4.08"}
   "dune" {>= "1.11"}
-  "opium_kernel"
+  "opium_kernel" {= version}
   "httpaf-lwt-unix"
-  "ezjsonm"
   "lwt"
   "logs"
   "cmdliner"
