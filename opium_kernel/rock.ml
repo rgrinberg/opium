@@ -113,6 +113,34 @@ module Response = struct
     { version; status; reason; headers; body; env }
   ;;
 
+  let of_string'
+      ?(content_type = "text/plain")
+      ?version
+      ?status
+      ?reason
+      ?env
+      ?(headers = Httpaf.Headers.empty)
+      body
+    =
+    let headers = Httpaf.Headers.add_unless_exists headers "Content-Type" content_type in
+    make ?version ?status ?reason ~headers ~body:(Body.of_string body) ?env ()
+  ;;
+
+  let of_string ?version ?status ?reason ?headers ?env body =
+    of_string' ?version ?status ?reason ?env ?headers body
+  ;;
+
+  let of_json ?version ?status ?reason ?headers ?env body =
+    of_string'
+      ~content_type:"application/json"
+      ?version
+      ?status
+      ?reason
+      ?headers
+      ?env
+      (body |> Yojson.Safe.to_string)
+  ;;
+
   let sexp_of_t { version; status; reason; headers; body; env } =
     Sexplib0.Sexp.(
       List

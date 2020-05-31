@@ -67,7 +67,7 @@ val run_command : t -> unit
    is returned if the command line arguments are incorrect. `Not_running is
    returned if the command was completed without the server being launched *)
 val run_command' : t -> [> `Ok of unit Lwt.t | `Error | `Not_running ]
-val json_of_body_exn : Request.t -> Ezjsonm.t Lwt.t
+val json_of_body_exn : Request.t -> Yojson.Safe.t Lwt.t
 val string_of_body_exn : Request.t -> string Lwt.t
 
 (** Parse a request body encoded according to the

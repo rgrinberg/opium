@@ -18,6 +18,7 @@ depends: [
   "fieldslib"
   "sexplib0"
   "logs"
+  "yojson"
   "bigstringaf"
   "re"
   "uri"

@@ -1,5 +1,5 @@
 open Opium.Std
-open Sexplib.Std
+open Sexplib0.Sexp_conv
 
 module Auth = struct
   (* https://github.com/mirage/ocaml-cohttp/blob/35e1386dcca759bcc955c59c7e91260f765f253b/cohttp/src/auth.ml *)

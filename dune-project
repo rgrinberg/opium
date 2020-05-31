@@ -33,11 +33,11 @@
   fieldslib
   sexplib0
   logs
+  yojson
   bigstringaf
   re
   uri
-  (alcotest :with-test))
- )
+  (alcotest :with-test)))
 
 (package
  (name opium)
@@ -49,9 +49,9 @@
    (>= 4.08))
   (dune
    (>= 1.11))
-  opium_kernel
+  (opium_kernel
+   (= :version))
   httpaf-lwt-unix
-  ezjsonm
   lwt
   logs
   cmdliner

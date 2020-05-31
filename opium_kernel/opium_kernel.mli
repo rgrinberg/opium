@@ -105,6 +105,24 @@ module Rock : sig
       -> unit
       -> t
 
+    val of_string
+      :  ?version:Httpaf.Version.t
+      -> ?status:Httpaf.Status.t
+      -> ?reason:string
+      -> ?headers:Httpaf.Headers.t
+      -> ?env:Hmap0.t
+      -> string
+      -> t
+
+    val of_json
+      :  ?version:Httpaf.Version.t
+      -> ?status:Httpaf.Status.t
+      -> ?reason:string
+      -> ?headers:Httpaf.Headers.t
+      -> ?env:Hmap0.t
+      -> Yojson.Safe.t
+      -> t
+
     val sexp_of_t : t -> Sexplib0.Sexp.t
     val pp_hum : Format.formatter -> t -> unit [@@ocaml.toplevel_printer]
   end

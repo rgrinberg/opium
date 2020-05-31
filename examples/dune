@@ -1,7 +1,7 @@
 (executables
- (libraries re ezjsonm opium logs.fmt base64)
+ (libraries re yojson opium logs.fmt base64 sexplib0)
  (preprocess
-  (pps ppx_sexp_conv))
+  (pps ppx_sexp_conv ppx_yojson_conv))
  (flags
   (:standard -safe-string))
  (names auth_middleware exit_hook_example hello_world_basic hello_world_html
