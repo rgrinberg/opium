@@ -173,6 +173,35 @@ module Router : sig
   val add : 'a t -> route:Route.t -> meth:Httpaf.Method.t -> action:'a -> 'a t
   val param : Rock.Request.t -> string -> string
   val splat : Rock.Request.t -> string list
+
+  (** [scope] adds scoped routes to the router.
+
+      The scoped routes will be prefixed by [route] and their handlers will be wrapped by
+      [middlewares].
+
+      {4 Example}
+
+      Here's an example that defines a scope that will prefix every routes with "/users"
+      and will wrap the handlers with a middleware defined in [Middleware.require_auth].
+
+      {[
+        let () =
+          Router.scope
+            ~middlewares:[ Middleware.require_auth ]
+            ~route:"/users"
+            router
+            [ `POST, "/register", Handlers.register_user
+            ; `POST, "/login", Handlers.login_user
+            ]
+        ;;
+      ]} *)
+  val scope
+    :  route:string
+    -> middlewares:Rock.Middleware.t list
+    -> Rock.Handler.t t
+    -> (Httpaf.Method.standard * string * Rock.Handler.t) list
+    -> unit
+
   val m : Rock.Handler.t t -> Rock.Middleware.t
 end
 

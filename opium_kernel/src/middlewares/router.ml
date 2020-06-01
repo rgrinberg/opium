@@ -112,6 +112,15 @@ let splat req =
   Hmap0.find_exn Env.key req.Rock.Request.env |> fun route -> route.Route.splat
 ;;
 
+let scope ~route ~middlewares router routes =
+  ListLabels.iter routes ~f:(fun (meth, subroute, action) ->
+      let action =
+        ListLabels.fold_left middlewares ~init:action ~f:(fun h m ->
+            Rock.Middleware.apply m h)
+      in
+      add router ~action ~meth ~route:(Route.of_string (Filename.concat route subroute)))
+;;
+
 let m endpoints =
   let filter default req =
     match matching_endpoint endpoints req.Rock.Request.meth req.Rock.Request.target with
