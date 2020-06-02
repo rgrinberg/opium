@@ -63,8 +63,7 @@ let splat req =
    is found. otherwise calls the handler *)
 let m endpoints =
   let filter default req =
-    let url = req.Rock.Request.target in
-    match matching_endpoint endpoints req.Rock.Request.meth url with
+    match matching_endpoint endpoints req.Rock.Request.meth req.Rock.Request.target with
     | None -> default req
     | Some (endpoint, params) ->
       let env_with_params = Hmap0.add Env.key params req.Rock.Request.env in
