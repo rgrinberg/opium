@@ -1,4 +1,4 @@
-open Sexplib
+open Sexplib0
 module Route = Opium_kernel.Route
 
 let slist t = Alcotest.slist t compare
@@ -16,13 +16,13 @@ let matches_t : Route.matches Alcotest.testable =
 let match_get_params route url =
   match Route.match_url route url with
   | None -> None
-  | Some s -> Some (Route.params s)
+  | Some { Route.params; _ } -> Some params
 ;;
 
 let string_of_match = function
   | None -> "None"
   | Some m ->
-    let open Conv in
+    let open Sexp_conv in
     Sexp.to_string_hum (sexp_of_list (sexp_of_pair sexp_of_string sexp_of_string) m)
 ;;
 
@@ -134,6 +134,14 @@ let test_double_splat () =
          | Some _ -> ())
 ;;
 
+let test_query_params_dont_impact_match () =
+  let r2 = Route.of_string "/foo/:message" in
+  Alcotest.(
+    check (option params) "" (match_get_params r2 "/foo/bar") (Some [ "message", "bar" ]));
+  Alcotest.(
+    check (option params) "" (match_get_params r2 "/foo/bar?key=12") (Some [ "message", "bar" ]))
+;;
+
 let () =
   Alcotest.run
     "routes"
@@ -159,5 +167,10 @@ let () =
         ; "empty route", `Quick, empty_route
         ] )
     ; "escape", [ "test escape param", `Quick, escape_param_1 ]
+    ; ( "query params"
+      , [ ( "test query params dont impact match"
+          , `Quick
+          , test_query_params_dont_impact_match )
+        ] )
     ]
 ;;

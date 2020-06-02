@@ -96,6 +96,10 @@ let rec match_url t url ({ params; splat } as matches) =
 ;;
 
 let match_url t url =
-  let path = url |> split_slash_delim in
+  let path = match String.index_opt url '?' with
+    | None -> url
+    | Some i -> String.sub url 0 i
+  in
+  let path = path |> split_slash_delim in
   match_url t path { params = []; splat = [] }
 ;;
