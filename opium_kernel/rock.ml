@@ -177,5 +177,5 @@ module App = struct
     }
 
   let append_middleware t m = { t with middlewares = t.middlewares @ [ m ] }
-  let create ?(middlewares = []) ~handler = { middlewares; handler }
+  let create ?(middlewares = []) ~handler () = { middlewares; handler }
 end

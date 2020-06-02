@@ -130,7 +130,7 @@ let any methods route action t =
 let all = any [ `GET; `POST; `DELETE; `PUT; `HEAD; `OPTIONS ]
 
 let to_rock app =
-  Rock.App.create ~middlewares:(attach_middleware app) ~handler:app.not_found
+  Rock.App.create ~middlewares:(attach_middleware app) ~handler:app.not_found ()
 ;;
 
 let start app =
@@ -141,7 +141,7 @@ let start app =
       f "Running on port: %d%s" app.port (if app.debug then " (debug)" else ""));
   let port = app.port in
   let ssl = app.ssl in
-  let app = Rock.App.create ~middlewares ~handler:app.not_found in
+  let app = Rock.App.create ~middlewares ~handler:app.not_found () in
   run_unix ~port ?ssl app
 ;;
 
