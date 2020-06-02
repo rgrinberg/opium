@@ -33,6 +33,7 @@
   fieldslib
   sexplib0
   logs
+  mtime
   yojson
   bigstringaf
   re
@@ -54,9 +55,9 @@
   httpaf-lwt-unix
   lwt
   logs
+  mtime
   cmdliner
   sexplib0
   re
-  logs
   magic-mime
   (alcotest :with-test)))
