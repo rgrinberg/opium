@@ -96,7 +96,8 @@ let rec match_url t url ({ params; splat } as matches) =
 ;;
 
 let match_url t url =
-  let path = match String.index_opt url '?' with
+  let path =
+    match String.index_opt url '?' with
     | None -> url
     | Some i -> String.sub url 0 i
   in
