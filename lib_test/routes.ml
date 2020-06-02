@@ -139,7 +139,11 @@ let test_query_params_dont_impact_match () =
   Alcotest.(
     check (option params) "" (match_get_params r2 "/foo/bar") (Some [ "message", "bar" ]));
   Alcotest.(
-    check (option params) "" (match_get_params r2 "/foo/bar?key=12") (Some [ "message", "bar" ]))
+    check
+      (option params)
+      ""
+      (match_get_params r2 "/foo/bar?key=12")
+      (Some [ "message", "bar" ]))
 ;;
 
 let () =
