@@ -150,7 +150,7 @@ module Rock : sig
       }
 
     val append_middleware : t -> Middleware.t -> t
-    val create : ?middlewares:Middleware.t list -> handler:Handler.t -> t
+    val create : ?middlewares:Middleware.t list -> handler:Handler.t -> unit -> t
   end
 end
 
