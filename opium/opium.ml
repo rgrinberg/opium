@@ -10,6 +10,7 @@ module App_export = struct
   let get = App.get
   let post = App.post
   let put = App.put
+  let patch = App.patch
   let delete = App.delete
   let all = App.all
   let any = App.any

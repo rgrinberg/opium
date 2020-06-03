@@ -3,10 +3,10 @@ open Rock
 open Lwt.Infix
 
 let make_router routes =
-  let router = Router.create () in
-  ListLabels.iter routes ~f:(fun (meth, route, action) ->
-      Router.add router ~route:(Route.of_string route) ~meth ~action);
-  Router.m router
+  routes
+  |> ListLabels.fold_left ~init:Router.empty ~f:(fun router (meth, route, action) ->
+         Router.add router ~route:(Route.of_string route) ~meth ~action)
+  |> Router.m
 ;;
 
 let router =

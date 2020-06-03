@@ -65,7 +65,7 @@ module Rock : sig
       { version : Httpaf.Version.t
       ; target : string
       ; headers : Httpaf.Headers.t
-      ; meth : Httpaf.Method.standard
+      ; meth : Httpaf.Method.t
       ; body : Body.t
       ; env : Hmap0.t
       }
@@ -76,7 +76,7 @@ module Rock : sig
       -> ?env:Hmap0.t
       -> ?headers:Httpaf.Headers.t
       -> string
-      -> Httpaf.Method.standard
+      -> Httpaf.Method.t
       -> unit
       -> t
 
@@ -169,8 +169,8 @@ end
 module Router : sig
   type 'action t
 
-  val create : unit -> _ t
-  val add : 'a t -> route:Route.t -> meth:Httpaf.Method.standard -> action:'a -> unit
+  val empty : 'action t
+  val add : 'a t -> route:Route.t -> meth:Httpaf.Method.t -> action:'a -> 'a t
   val param : Rock.Request.t -> string -> string
   val splat : Rock.Request.t -> string list
   val m : Rock.Handler.t t -> Rock.Middleware.t

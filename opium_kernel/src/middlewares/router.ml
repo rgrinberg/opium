@@ -51,48 +51,48 @@
 
 open Core
 
-type 'a t = (Route.t * 'a) Queue.t array
+module MethodMap = Map.Make (struct
+  type t = Httpaf.Method.t
 
-let int_of_meth = function
-  | `GET -> 0
-  | `HEAD -> 1
-  | `POST -> 2
-  | `PUT -> 3
-  | `DELETE -> 4
-  | `CONNECT -> 5
-  | `OPTIONS -> 6
-  | `TRACE -> 7
+  let compare a b =
+    let left = String.uppercase_ascii (Httpaf.Method.to_string a) in
+    let right = String.uppercase_ascii (Httpaf.Method.to_string b) in
+    String.compare left right
+  ;;
+end)
+
+type 'a t = (Route.t * 'a) list MethodMap.t
+
+let empty = MethodMap.empty
+
+let get t meth =
+  match MethodMap.find_opt meth t with
+  | None -> []
+  | Some xs -> List.rev xs
 ;;
 
-let create () = Array.init 8 (fun _ -> Queue.create ())
-let get t meth = t.(int_of_meth meth)
-let add t ~route ~meth ~action = Queue.push (route, action) t.(int_of_meth meth)
+let add t ~route ~meth ~action =
+  MethodMap.update
+    meth
+    (function
+      | None -> Some [ route, action ]
+      | Some xs -> Some ((route, action) :: xs))
+    t
+;;
 
 (** finds matching endpoint and returns it with the parsed list of parameters *)
 let matching_endpoint endpoints meth uri =
-  let opt_map f = function
-    | None -> None
-    | Some t -> Some (f t)
-  in
-  let find_map (type res) q ~f =
-    let module M = struct
-      exception E of res
-    end
-    in
-    try
-      Queue.iter
-        (fun x ->
-          match f x with
-          | None -> ()
-          | Some y -> raise_notrace (M.E y))
-        q;
-      None
-    with
-    | M.E res -> Some res
-  in
   let endpoints = get endpoints meth in
-  endpoints
-  |> find_map ~f:(fun ep -> uri |> Route.match_url (fst ep) |> opt_map (fun p -> ep, p))
+  let rec find_map ~f = function
+    | [] -> None
+    | x :: l ->
+      (match f x with
+      | Some _ as result -> result
+      | None -> find_map ~f l)
+  in
+  find_map
+    ~f:(fun ep -> uri |> Route.match_url (fst ep) |> Option.map (fun p -> ep, p))
+    endpoints
 ;;
 
 module Env = struct
