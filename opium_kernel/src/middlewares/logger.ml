@@ -30,8 +30,7 @@ let respond ?time_f handler req =
     response_lwt
     >|= fun response ->
     let code = response.Response.status |> Httpaf.Status.to_string in
-    Log.info (fun m ->
-        m "Responded with HTTP code %s in %a" code Mtime.Span.pp span);
+    Log.info (fun m -> m "Responded with HTTP code %s in %a" code Mtime.Span.pp span);
     Log.debug (fun m -> m "%a" Response.pp_http response);
     response
   | None ->
