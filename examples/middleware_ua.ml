@@ -1,7 +1,5 @@
 open Opium.Std
 
-(* don't open cohttp and opium since they both define request/response modules*)
-
 let is_substring ~substring =
   let re = Re.compile (Re.str substring) in
   Re.execp re

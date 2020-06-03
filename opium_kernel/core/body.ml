@@ -8,12 +8,22 @@ type content =
     `Stream of string Lwt_stream.t
   ]
 
+let escape_html s =
+  let b = Buffer.create 42 in
+  for i = 0 to String.length s - 1 do
+    match s.[i] with
+    | ('&' | '<' | '>' | '\'' | '"') as c -> Printf.bprintf b "&#%d;" (int_of_char c)
+    | c -> Buffer.add_char b c
+  done;
+  Buffer.contents b
+;;
+
 let sexp_of_content content =
   let open Sexplib0.Sexp_conv in
   match content with
   | `Empty -> sexp_of_string ""
-  | `String s -> sexp_of_string s
-  | `Bigstring b -> sexp_of_string (Bigstringaf.to_string b)
+  | `String s -> sexp_of_string (escape_html s)
+  | `Bigstring b -> sexp_of_string (escape_html (Bigstringaf.to_string b))
   | `Stream s -> sexp_of_opaque s
 ;;
 

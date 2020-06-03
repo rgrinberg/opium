@@ -1,4 +1,5 @@
 open Lwt.Infix
+open Core
 
 let default_error_handler ?request:_ error start_response =
   let open Httpaf in

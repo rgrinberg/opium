@@ -33,17 +33,16 @@ module Body : sig
 end
 
 module Rock : sig
-  (** A tiny clone of ruby's Rack protocol in OCaml. Which is slightly more
-      general and inspired by Finagle. It's not imperative to have this to for
-      such a tiny framework but it makes extensions a lot more straightforward *)
+  (** A tiny clone of ruby's Rack protocol in OCaml. Which is slightly more general and
+      inspired by Finagle. It's not imperative to have this to for such a tiny framework
+      but it makes extensions a lot more straightforward *)
 
   (** A service is simply a function that returns its result asynchronously *)
   module Service : sig
     type ('req, 'rep) t = 'req -> 'rep Lwt.t
   end
 
-  (** A filter is a higher order function that transforms a service into another
-      service. *)
+  (** A filter is a higher order function that transforms a service into another service. *)
   module Filter : sig
     type ('req, 'rep, 'req', 'rep') t = ('req, 'rep) Service.t -> ('req', 'rep') Service.t
 
@@ -132,8 +131,7 @@ module Rock : sig
     type t = (Request.t, Response.t) Service.t
   end
 
-  (** Middleware is a named, simple filter, that only works on rock
-      requests/response *)
+  (** Middleware is a named, simple filter, that only works on rock requests/response *)
   module Middleware : sig
     type t = private
       { filter : (Request.t, Response.t) Filter.simple
@@ -191,4 +189,14 @@ module Server_connection : sig
     -> ?error_handler:error_handler
     -> Rock.App.t
     -> 'a Lwt.t
+end
+
+module Middleware : sig
+  val router : Rock.Handler.t Router.t -> Rock.Middleware.t
+  val debugger : unit -> Rock.Middleware.t
+
+  val logger
+    :  ?time_f:((unit -> Rock.Response.t Lwt.t) -> Mtime.span * Rock.Response.t Lwt.t)
+    -> unit
+    -> Rock.Middleware.t
 end

@@ -54,9 +54,9 @@ end
 
 type user = { username : string (* ... *) } [@@deriving sexp]
 
-(* My convention is to stick the keys inside an Env sub module. By not exposing
-   this module in the mli we are preventing the user or other middleware from
-   meddling with our values by not using our interface *)
+(* My convention is to stick the keys inside an Env sub module. By not exposing this
+   module in the mli we are preventing the user or other middleware from meddling with our
+   values by not using our interface *)
 module Env = struct
   (* or use type nonrec *)
   type user' = user
@@ -64,12 +64,12 @@ module Env = struct
   let key : user' Opium.Hmap.key = Opium.Hmap.Key.create ("user", [%sexp_of: user])
 end
 
-(* Usually middleware gets its own module so the middleware constructor function
-   is usually shortened to m. For example, [Auth.m] is obvious enough.
+(* Usually middleware gets its own module so the middleware constructor function is
+   usually shortened to m. For example, [Auth.m] is obvious enough.
 
-   The auth param (auth : username:string -> password:string -> user option)
-   would represent our database model. E.g. it would do some lookup in the db
-   and fetch the user. *)
+   The auth param (auth : username:string -> password:string -> user option) would
+   represent our database model. E.g. it would do some lookup in the db and fetch the
+   user. *)
 let m auth =
   let filter handler ({ Request.headers; env; _ } as req) =
     match

@@ -27,11 +27,21 @@ module Pp = struct
         ])
   ;;
 
+  let string_of_version version =
+    Printf.sprintf "%d.%d" version.Httpaf.Version.major version.Httpaf.Version.minor
+  ;;
+
   let sexp_of_target target = Sexp.(List [ Atom "target"; sexp_of_string target ])
 
   let sexp_of_headers headers =
     let sexp_of_header = sexp_of_list (sexp_of_pair sexp_of_string sexp_of_string) in
     Sexp.(List [ Atom "headers"; sexp_of_header (Httpaf.Headers.to_list headers) ])
+  ;;
+
+  let string_of_headers headers =
+    Httpaf.Headers.to_list headers
+    |> List.map (fun (header, value) -> Printf.sprintf "%s: %s" header value)
+    |> String.concat "\n"
   ;;
 
   let sexp_of_meth meth =
@@ -42,16 +52,30 @@ module Pp = struct
         ])
   ;;
 
+  let string_of_meth meth = Httpaf.Method.to_string (meth :> Httpaf.Method.t)
   let sexp_of_body body = Sexp.(List [ Atom "body"; Body.sexp_of_t body ])
+
+  let string_of_body body =
+    match body.Body.content with
+    | `Empty -> ""
+    | `String s -> s
+    | `Bigstring b -> Bigstringaf.to_string b
+    | `Stream _ -> "<stream>"
+  ;;
+
   let sexp_of_env env = Sexp.(List [ Atom "env"; Hmap0.sexp_of_t env ])
 
   let sexp_of_status status =
     Sexp.(List [ Atom "status"; sexp_of_int (Httpaf.Status.to_code status) ])
   ;;
 
+  let string_of_status status = string_of_int (Httpaf.Status.to_code status)
+
   let sexp_of_reason reason =
     Sexp.(List [ Atom "reason"; sexp_of_option sexp_of_string reason ])
   ;;
+
+  let string_of_reason reason = Option.value reason ~default:""
 end
 
 module Request = struct
@@ -76,6 +100,12 @@ module Request = struct
     { version; target; headers; meth; body; env }
   ;;
 
+  (* Since Httpaf does not implement a method to string for [Method.standard], we
+     implement it here. *)
+  let method_to_string (m : Httpaf.Method.standard) =
+    Format.asprintf "%a" Httpaf.Method.pp_hum (m :> Httpaf.Method.t)
+  ;;
+
   let sexp_of_t t =
     Sexplib0.Sexp.(
       List
@@ -88,7 +118,18 @@ module Request = struct
         ])
   ;;
 
+  let http_string_of_t t =
+    Printf.sprintf
+      "%s %s HTTP/%s\n%s\n\n%s\n"
+      (Pp.string_of_meth t.meth)
+      t.target
+      (Pp.string_of_version t.version)
+      (Pp.string_of_headers t.headers)
+      (Pp.string_of_body t.body)
+  ;;
+
   let pp_hum fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)
+  let pp_http fmt t = Format.fprintf fmt "%s\n%!" (http_string_of_t t)
 end
 
 module Response = struct
@@ -153,7 +194,18 @@ module Response = struct
         ])
   ;;
 
+  let http_string_of_t t =
+    Printf.sprintf
+      "HTTP/%s %s %s\n%s\n\n%s\n"
+      (Pp.string_of_version t.version)
+      (Pp.string_of_status t.status)
+      (Pp.string_of_reason t.reason)
+      (Pp.string_of_headers t.headers)
+      (Pp.string_of_body t.body)
+  ;;
+
   let pp_hum fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)
+  let pp_http fmt t = Format.fprintf fmt "%s\n%!" (http_string_of_t t)
 end
 
 module Handler = struct

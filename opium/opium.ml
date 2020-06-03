@@ -16,13 +16,7 @@ module App_export = struct
   let middleware = App.middleware
 end
 
-module Middleware = struct
-  (** Re-exports simple middleware that doesn't have auxiliary functions *)
-  let debug = Debug.debug
-
-  let trace = Debug.trace
-  let static = Static_serve.m
-end
+module Middleware = Middleware
 
 module Std = struct
   module Rock = Opium_kernel.Rock

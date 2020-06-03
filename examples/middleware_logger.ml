@@ -1,20 +1,9 @@
 open Opium.Std
 open Lwt.Infix
 
-(* This is done to demonstrate a usecase where the log reporter is returned via
-   a Lwt promise *)
+(* This is done to demonstrate a usecase where the log reporter is returned via a Lwt
+   promise *)
 let log_reporter () = Lwt.return (Logs_fmt.reporter ())
-
-let logger =
-  let filter handler req =
-    handler req
-    >|= fun response ->
-    let code = response.Response.status |> Httpaf.Status.to_code in
-    Logs.info (fun m -> m "Responded to '%s' with %d" req.Request.target code);
-    response
-  in
-  Rock.Middleware.create ~name:"Logger" ~filter
-;;
 
 let say_hello =
   get "/hello/:name" (fun req ->
@@ -25,14 +14,14 @@ let say_hello =
 ;;
 
 let () =
-  let app = App.empty |> say_hello |> middleware logger |> App.run_command' in
+  let app = App.empty |> say_hello |> middleware Middleware.logger |> App.run_command' in
   match app with
   | `Ok app ->
     let s =
       log_reporter ()
       >>= fun r ->
       Logs.set_reporter r;
-      Logs.set_level (Some Logs.Info);
+      Logs.set_level (Some Logs.Debug);
       app
     in
     Lwt.async (fun () -> s >>= fun _ -> Lwt.return_unit);
