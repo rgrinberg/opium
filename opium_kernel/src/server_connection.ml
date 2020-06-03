@@ -59,12 +59,7 @@ let read_httpaf_body body =
 
 let httpaf_request_to_request ?body req =
   let headers = req.Httpaf.Request.headers in
-  let meth =
-    match req.meth with
-    | #Httpaf.Method.standard as meth -> meth
-    | _ -> failwith "invalid method"
-  in
-  Rock.Request.make ~headers ?body req.target meth ()
+  Rock.Request.make ~headers ?body req.target req.meth ()
 ;;
 
 let run server_handler ?error_handler app =

@@ -1,4 +1,5 @@
 open Opium.Std
+open Lwt.Infix
 
 module Person = struct
   type t =
@@ -17,6 +18,15 @@ let print_person =
       Lwt.return (Response.of_json person))
 ;;
 
+let update_person =
+  patch "/person" (fun req ->
+      App.json_of_body_exn req
+      >|= fun json ->
+      let person = Person.t_of_yojson json in
+      Logs.info (fun m -> m "Received person: %s" person.Person.name);
+      Response.of_json (`Assoc [ "message", `String "Person saved" ]))
+;;
+
 let streaming =
   post "/hello/stream" (fun req ->
       let { Opium_kernel.Body.length; _ } = req.Request.body in
@@ -33,5 +43,10 @@ let print_param =
 let _ =
   Logs.set_reporter (Logs_fmt.reporter ());
   Logs.set_level (Some Logs.Debug);
-  App.empty |> streaming |> print_param |> print_person |> App.run_command
+  App.empty
+  |> streaming
+  |> print_param
+  |> print_person
+  |> update_person
+  |> App.run_command
 ;;

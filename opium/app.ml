@@ -30,7 +30,7 @@ type t =
   ; ssl : ([ `Crt_file_path of string ] * [ `Key_file_path of string ]) option
   ; debug : bool
   ; verbose : bool
-  ; routes : (Httpaf.Method.standard * Route.t * Rock.Handler.t) list
+  ; routes : (Httpaf.Method.t * Route.t * Rock.Handler.t) list
   ; middlewares : Rock.Middleware.t list
   ; name : string
   ; not_found : Rock.Handler.t
@@ -67,11 +67,8 @@ let empty =
 ;;
 
 let create_router routes =
-  let router = Router.create () in
-  routes
-  |> ListLabels.iter ~f:(fun (meth, route, action) ->
-         Router.add router ~meth ~route ~action);
-  router
+  ListLabels.fold_left routes ~init:Router.empty ~f:(fun router (meth, route, action) ->
+      Router.add router ~meth ~route ~action)
 ;;
 
 let attach_middleware { verbose; debug; routes; middlewares; _ } =
@@ -106,6 +103,10 @@ let get route action = register ~meth:`GET ~route:(Route.of_string route) ~actio
 let post route action = register ~meth:`POST ~route:(Route.of_string route) ~action
 let delete route action = register ~meth:`DELETE ~route:(Route.of_string route) ~action
 let put route action = register ~meth:`PUT ~route:(Route.of_string route) ~action
+
+let patch route action =
+  register ~meth:(`Other "PATCH") ~route:(Route.of_string route) ~action
+;;
 
 (* let patch route action = *)
 (* register ~meth:`PATCH ~route:(Route.of_string route) ~action *)
@@ -155,15 +156,17 @@ let hashtbl_add_multi tbl x y =
 let print_routes_f routes =
   let routes_tbl = Hashtbl.create 64 in
   routes
-  |> ListLabels.iter ~f:(fun (meth, route, _) ->
-         hashtbl_add_multi routes_tbl route (meth :> Httpaf.Method.t));
+  |> ListLabels.iter ~f:(fun (meth, route, _) -> hashtbl_add_multi routes_tbl route meth);
   Printf.printf "%d Routes:\n" (Hashtbl.length routes_tbl);
   Hashtbl.iter
     (fun key data ->
       Printf.printf
         "> %s (%s)\n"
         (Route.to_string key)
-        (data |> ListLabels.map ~f:Httpaf.Method.to_string |> String.concat " "))
+        (data
+        |> ListLabels.map ~f:(fun m ->
+               Httpaf.Method.to_string m |> String.uppercase_ascii)
+        |> String.concat " "))
     routes_tbl
 ;;
 

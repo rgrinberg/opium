@@ -83,7 +83,7 @@ module Request = struct
     { version : Httpaf.Version.t
     ; target : string
     ; headers : Httpaf.Headers.t
-    ; meth : Httpaf.Method.standard
+    ; meth : Httpaf.Method.t
     ; body : Body.t
     ; env : Hmap0.t
     }
@@ -102,9 +102,7 @@ module Request = struct
 
   (* Since Httpaf does not implement a method to string for [Method.standard], we
      implement it here. *)
-  let method_to_string (m : Httpaf.Method.standard) =
-    Format.asprintf "%a" Httpaf.Method.pp_hum (m :> Httpaf.Method.t)
-  ;;
+  let method_to_string (m : Httpaf.Method.t) = Format.asprintf "%a" Httpaf.Method.pp_hum m
 
   let sexp_of_t t =
     Sexplib0.Sexp.(

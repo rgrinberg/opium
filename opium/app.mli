@@ -33,6 +33,7 @@ val get : route
 val post : route
 val delete : route
 val put : route
+val patch : route
 
 (* val patch : route *)
 
@@ -42,13 +43,13 @@ val options : route
 val head : route
 
 (** any [methods] will bind a route to any http method inside of [methods] *)
-val any : Httpaf.Method.standard list -> route
+val any : Httpaf.Method.t list -> route
 
 (** all [methods] will bind a route to a URL regardless of the http method. You may escape
     the actual method used from the request passed. *)
 val all : route
 
-val action : Httpaf.Method.standard -> route
+val action : Httpaf.Method.t -> route
 val middleware : Middleware.t -> builder
 
 (** Convert an opium app to a rock app *)
