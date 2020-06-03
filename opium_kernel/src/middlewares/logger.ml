@@ -19,6 +19,8 @@ open Core.Rock
 
 let log_src = Logs.Src.create "opium.server"
 
+module Log = (val Logs.src_log log_src : Logs.LOG)
+
 let respond ?time_f handler req =
   let open Lwt.Infix in
   match time_f with
@@ -28,16 +30,16 @@ let respond ?time_f handler req =
     response_lwt
     >|= fun response ->
     let code = response.Response.status |> Httpaf.Status.to_string in
-    Logs.info ~src:log_src (fun m ->
+    Log.info (fun m ->
         m "Responded with HTTP code %s in %a" code Mtime.Span.pp span);
-    Logs.debug ~src:log_src (fun m -> m "%a" Response.pp_http response);
+    Log.debug (fun m -> m "%a" Response.pp_http response);
     response
   | None ->
     handler req
     >|= fun response ->
     let code = response.Response.status |> Httpaf.Status.to_string in
-    Logs.info ~src:log_src (fun m -> m "Responded with HTTP code %s" code);
-    Logs.debug ~src:log_src (fun m -> m "%a" Response.pp_http response);
+    Log.info (fun m -> m "Responded with HTTP code %s" code);
+    Log.debug (fun m -> m "%a" Response.pp_http response);
     response
 ;;
 
@@ -45,12 +47,12 @@ let m ?time_f () =
   let filter handler req =
     let meth = Request.method_to_string req.Request.meth in
     let uri = req.Request.target |> Uri.of_string |> Uri.path_and_query in
-    Logs.info ~src:log_src (fun m -> m "Received %s %S" meth uri);
-    Logs.debug ~src:log_src (fun m -> m "%a" Request.pp_http req);
+    Log.info (fun m -> m "Received %s %S" meth uri);
+    Log.debug (fun m -> m "%a" Request.pp_http req);
     Lwt.catch
       (fun () -> respond ?time_f handler req)
       (fun exn ->
-        Logs.err ~src:log_src (fun f -> f "%s" (Printexc.to_string exn));
+        Log.err (fun f -> f "%s" (Printexc.to_string exn));
         Lwt.fail exn)
   in
   Rock.Middleware.create ~name:"Logger" ~filter
