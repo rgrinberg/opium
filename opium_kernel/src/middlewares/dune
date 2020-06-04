@@ -1,4 +1,4 @@
 (library
  (name middlewares)
  (public_name opium_kernel.middlewares)
- (libraries opium_kernel.core logs mtime))
+ (libraries opium_kernel.core logs mtime yojson ppx_deriving_yojson.runtime))

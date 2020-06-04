@@ -1,12 +1,14 @@
 open Lwt.Infix
 open Core
 
+let log_src = Logs.Src.create "opium.server"
+
 let default_error_handler ?request:_ error start_response =
   let open Httpaf in
   let message =
     match error with
-    | `Exn _e ->
-      (* TODO: log error *)
+    | `Exn exn ->
+      Logs.err ~src:log_src (fun f -> f "%s" (Printexc.to_string exn));
       Status.default_reason_phrase `Internal_server_error
     | (#Status.server_error | #Status.client_error) as error ->
       Status.default_reason_phrase error

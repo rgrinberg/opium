@@ -199,4 +199,14 @@ module Middleware : sig
     :  ?time_f:((unit -> Rock.Response.t Lwt.t) -> Mtime.span * Rock.Response.t Lwt.t)
     -> unit
     -> Rock.Middleware.t
+
+  val html_error_handler
+    :  ?custom_handler:(Httpaf.Status.t -> Rock.Response.t option)
+    -> unit
+    -> Rock.Middleware.t
+
+  val json_error_handler
+    :  ?custom_handler:(Httpaf.Status.t -> Rock.Response.t option)
+    -> unit
+    -> Rock.Middleware.t
 end

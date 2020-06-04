@@ -44,15 +44,7 @@ let register app ~meth ~route ~action =
   { app with routes = (meth, route, action) :: app.routes }
 ;;
 
-let default_not_found _ =
-  Lwt.return
-    (Rock.Response.make
-       ~status:`Not_found
-       ~body:
-         (Opium_kernel.Body.of_string
-            "<html><body><h1>404 - Not found</h1></body></html>")
-       ())
-;;
+let default_not_found _ = Lwt.return (Rock.Response.make ~status:`Not_found ())
 
 let empty =
   { name = "Opium Default Name"

@@ -180,6 +180,10 @@ module Response = struct
       (body |> Yojson.Safe.to_string)
   ;;
 
+  let of_html ?version ?status ?reason ?headers ?env body =
+    of_string' ~content_type:"text/html" ?version ?status ?reason ?headers ?env body
+  ;;
+
   let sexp_of_t { version; status; reason; headers; body; env } =
     Sexplib0.Sexp.(
       List
