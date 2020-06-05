@@ -38,24 +38,44 @@ let add_opt_header_unless_exists headers k v =
 ;;
 
 let respond_with_file ?headers ~name () =
+  (* TODO: allow buffer size to be configurable *)
+  let bufsize = 4096 in
   Lwt.catch
     (fun () ->
       Lwt_unix.stat name
       >>= (fun s ->
             if Unix.(s.st_kind <> S_REG) then Lwt.fail Isnt_a_file else Lwt.return_unit)
       >>= fun () ->
-      Lwt_io.with_file ~mode:Lwt_io.input name (fun ic ->
-          Lwt_io.read ic
-          >>= fun body ->
-          let mime_type = Magic_mime.lookup name in
-          let headers = add_opt_header_unless_exists headers "content-type" mime_type in
-          let resp = Httpaf.Response.create ~headers `OK in
-          Lwt.return (resp, body)))
+      Lwt_io.open_file
+        ~buffer:(Lwt_bytes.create bufsize)
+        ~flags:[ O_RDONLY ]
+        ~mode:Lwt_io.input
+        name
+      >>= fun ic ->
+      Lwt_io.length ic
+      >>= fun size ->
+      let stream =
+        Lwt_stream.from (fun () ->
+            Lwt.catch
+              (fun () ->
+                Lwt_io.read ~count:bufsize ic
+                >|= function
+                | "" -> None
+                | buf -> Some buf)
+              (fun exn -> Lwt.return_none))
+      in
+      Lwt.on_success (Lwt_stream.closed stream) (fun () ->
+          Lwt.async (fun () -> Lwt_io.close ic));
+      let body = Opium_kernel.Body.of_stream ~length:size stream in
+      let mime_type = Magic_mime.lookup name in
+      let headers = add_opt_header_unless_exists headers "content-type" mime_type in
+      let resp = Httpaf.Response.create ~headers `OK in
+      Lwt.return (resp, body))
     (fun e ->
       match e with
       | Isnt_a_file ->
         let resp = Httpaf.Response.create `Not_found in
-        Lwt.return (resp, "")
+        Lwt.return (resp, Opium_kernel.Body.of_string "")
       | exn -> Lwt.fail exn)
 ;;
 
@@ -94,9 +114,7 @@ let public_serve
     else
       respond_with_file ~headers ~name:legal_path ()
       >|= fun (resp, body) ->
-      if resp.status = `Not_found
-      then `Not_found
-      else `Ok (Response.make ~body:(Opium_kernel.Body.of_string body) ())
+      if resp.status = `Not_found then `Not_found else `Ok (Response.make ~body ())
 ;;
 
 let is_prefix ~prefix s =
