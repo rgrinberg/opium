@@ -22,54 +22,17 @@ module Pp = struct
     Sexp.(
       List
         [ Atom "version"
-        ; List [ Atom "major"; sexp_of_int version.Httpaf.Version.major ]
+        ; List [ Atom "major"; sexp_of_int version.Version.major ]
         ; List [ Atom "minor"; sexp_of_int version.minor ]
         ])
   ;;
 
-  let string_of_version version =
-    Printf.sprintf "%d.%d" version.Httpaf.Version.major version.Httpaf.Version.minor
-  ;;
-
   let sexp_of_target target = Sexp.(List [ Atom "target"; sexp_of_string target ])
-
-  let sexp_of_headers headers =
-    let sexp_of_header = sexp_of_list (sexp_of_pair sexp_of_string sexp_of_string) in
-    Sexp.(List [ Atom "headers"; sexp_of_header (Httpaf.Headers.to_list headers) ])
-  ;;
-
-  let string_of_headers headers =
-    Httpaf.Headers.to_list headers
-    |> List.map (fun (header, value) -> Printf.sprintf "%s: %s" header value)
-    |> String.concat "\n"
-  ;;
-
-  let sexp_of_meth meth =
-    Sexp.(
-      List
-        [ Atom "method"
-        ; sexp_of_string (Httpaf.Method.to_string (meth :> Httpaf.Method.t))
-        ])
-  ;;
-
-  let string_of_meth meth = Httpaf.Method.to_string (meth :> Httpaf.Method.t)
+  let sexp_of_headers headers = Sexp.(List [ Atom "headers"; Headers.sexp_of_t headers ])
+  let sexp_of_meth meth = Sexp.(List [ Atom "method"; Method.sexp_of_t meth ])
   let sexp_of_body body = Sexp.(List [ Atom "body"; Body.sexp_of_t body ])
-
-  let string_of_body body =
-    match body.Body.content with
-    | `Empty -> ""
-    | `String s -> s
-    | `Bigstring b -> Bigstringaf.to_string b
-    | `Stream _ -> "<stream>"
-  ;;
-
   let sexp_of_env env = Sexp.(List [ Atom "env"; Hmap0.sexp_of_t env ])
-
-  let sexp_of_status status =
-    Sexp.(List [ Atom "status"; sexp_of_int (Httpaf.Status.to_code status) ])
-  ;;
-
-  let string_of_status status = string_of_int (Httpaf.Status.to_code status)
+  let sexp_of_status status = Sexp.(List [ Atom "status"; Status.sexp_of_t status ])
 
   let sexp_of_reason reason =
     Sexp.(List [ Atom "reason"; sexp_of_option sexp_of_string reason ])
@@ -80,19 +43,19 @@ end
 
 module Request = struct
   type t =
-    { version : Httpaf.Version.t
+    { version : Version.t
     ; target : string
-    ; headers : Httpaf.Headers.t
-    ; meth : Httpaf.Method.t
+    ; headers : Headers.t
+    ; meth : Method.t
     ; body : Body.t
     ; env : Hmap0.t
     }
 
   let make
-      ?(version = { Httpaf.Version.major = 1; minor = 1 })
+      ?(version = { Version.major = 1; minor = 1 })
       ?(body = Body.empty)
       ?(env = Hmap0.empty)
-      ?(headers = Httpaf.Headers.empty)
+      ?(headers = Headers.empty)
       target
       meth
       ()
@@ -100,9 +63,18 @@ module Request = struct
     { version; target; headers; meth; body; env }
   ;;
 
-  (* Since Httpaf does not implement a method to string for [Method.standard], we
-     implement it here. *)
-  let method_to_string (m : Httpaf.Method.t) = Format.asprintf "%a" Httpaf.Method.pp_hum m
+  let get_header t header = Headers.get t.headers header
+  let add_header t (k, v) = { t with headers = Headers.add t.headers k v }
+
+  let add_header_unless_exists t (k, v) =
+    { t with headers = Headers.add_unless_exists t.headers k v }
+  ;;
+
+  let add_headers t hs = { t with headers = Headers.add_list t.headers hs }
+
+  let add_headers_unless_exists t hs =
+    { t with headers = Headers.add_list_unless_exists t.headers hs }
+  ;;
 
   let sexp_of_t t =
     Sexplib0.Sexp.(
@@ -119,11 +91,11 @@ module Request = struct
   let http_string_of_t t =
     Printf.sprintf
       "%s %s HTTP/%s\n%s\n\n%s\n"
-      (Pp.string_of_meth t.meth)
+      (Method.string_of_t t.meth)
       t.target
-      (Pp.string_of_version t.version)
-      (Pp.string_of_headers t.headers)
-      (Pp.string_of_body t.body)
+      (Version.string_of_t t.version)
+      (Headers.string_of_t t.headers)
+      (Body.string_of_t t.body)
   ;;
 
   let pp_hum fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)
@@ -132,24 +104,37 @@ end
 
 module Response = struct
   type t =
-    { version : Httpaf.Version.t
-    ; status : Httpaf.Status.t
+    { version : Version.t
+    ; status : Status.t
     ; reason : string option
-    ; headers : Httpaf.Headers.t
+    ; headers : Headers.t
     ; body : Body.t
     ; env : Hmap0.t
     }
 
   let make
-      ?(version = { Httpaf.Version.major = 1; minor = 1 })
+      ?(version = { Version.major = 1; minor = 1 })
       ?(status = `OK)
       ?reason
-      ?(headers = Httpaf.Headers.empty)
+      ?(headers = Headers.empty)
       ?(body = Body.empty)
       ?(env = Hmap0.empty)
       ()
     =
     { version; status; reason; headers; body; env }
+  ;;
+
+  let get_header t header = Headers.get t.headers header
+  let add_header t (k, v) = { t with headers = Headers.add t.headers k v }
+
+  let add_header_unless_exists t (k, v) =
+    { t with headers = Headers.add_unless_exists t.headers k v }
+  ;;
+
+  let add_headers t hs = { t with headers = Headers.add_list t.headers hs }
+
+  let add_headers_unless_exists t hs =
+    { t with headers = Headers.add_list_unless_exists t.headers hs }
   ;;
 
   let of_string'
@@ -158,10 +143,10 @@ module Response = struct
       ?status
       ?reason
       ?env
-      ?(headers = Httpaf.Headers.empty)
+      ?(headers = Headers.empty)
       body
     =
-    let headers = Httpaf.Headers.add_unless_exists headers "Content-Type" content_type in
+    let headers = Headers.add_unless_exists headers "Content-Type" content_type in
     make ?version ?status ?reason ~headers ~body:(Body.of_string body) ?env ()
   ;;
 
@@ -195,11 +180,11 @@ module Response = struct
   let http_string_of_t t =
     Printf.sprintf
       "HTTP/%s %s %s\n%s\n\n%s\n"
-      (Pp.string_of_version t.version)
-      (Pp.string_of_status t.status)
+      (Version.string_of_t t.version)
+      (Status.string_of_t t.status)
       (Pp.string_of_reason t.reason)
-      (Pp.string_of_headers t.headers)
-      (Pp.string_of_body t.body)
+      (Headers.string_of_t t.headers)
+      (Body.string_of_t t.body)
   ;;
 
   let pp_hum fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)

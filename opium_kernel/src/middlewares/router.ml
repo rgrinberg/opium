@@ -52,11 +52,11 @@
 open Core
 
 module MethodMap = Map.Make (struct
-  type t = Httpaf.Method.t
+  type t = Method.t
 
   let compare a b =
-    let left = String.uppercase_ascii (Httpaf.Method.to_string a) in
-    let right = String.uppercase_ascii (Httpaf.Method.to_string b) in
+    let left = String.uppercase_ascii (Method.to_string a) in
+    let right = String.uppercase_ascii (Method.to_string b) in
     String.compare left right
   ;;
 end)
