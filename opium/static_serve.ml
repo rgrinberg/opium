@@ -2,6 +2,12 @@ module Server = Httpaf_lwt_unix.Server
 open Opium_kernel.Rock
 open Lwt.Infix
 
+let log_src =
+  Logs.Src.create ~doc:"Opium middleware to server static files" "opium.static_server"
+;;
+
+module Log = (val Logs.src_log log_src : Logs.LOG)
+
 type t =
   { prefix : string
   ; local_path : string
@@ -62,7 +68,10 @@ let respond_with_file ?headers ~name () =
                 >|= function
                 | "" -> None
                 | buf -> Some buf)
-              (fun exn -> Lwt.return_none))
+              (fun exn ->
+                Log.warn (fun m ->
+                    m "Error while reading file %s. %s" name (Printexc.to_string exn));
+                Lwt.return_none))
       in
       Lwt.on_success (Lwt_stream.closed stream) (fun () ->
           Lwt.async (fun () -> Lwt_io.close ic));
@@ -76,7 +85,10 @@ let respond_with_file ?headers ~name () =
       | Isnt_a_file ->
         let resp = Httpaf.Response.create `Not_found in
         Lwt.return (resp, Opium_kernel.Body.of_string "")
-      | exn -> Lwt.fail exn)
+      | exn ->
+        Logs.err (fun m ->
+            m "Unknown error while serving file %s. %s" name (Printexc.to_string exn));
+        Lwt.fail exn)
 ;;
 
 let public_serve
