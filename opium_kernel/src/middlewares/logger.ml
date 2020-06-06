@@ -22,20 +22,18 @@ let log_src = Logs.Src.create "opium.server"
 module Log = (val Logs.src_log log_src : Logs.LOG)
 
 let respond ?time_f handler req =
-  let open Lwt.Infix in
+  let open Lwt.Syntax in
   match time_f with
   | Some time_f ->
     let f () = handler req in
     let span, response_lwt = time_f f in
-    response_lwt
-    >|= fun response ->
+    let+ response = response_lwt in
     let code = response.Response.status |> Httpaf.Status.to_string in
     Log.info (fun m -> m "Responded with HTTP code %s in %a" code Mtime.Span.pp span);
     Log.debug (fun m -> m "%a" Response.pp_http response);
     response
   | None ->
-    handler req
-    >|= fun response ->
+    let+ response = handler req in
     let code = response.Response.status |> Httpaf.Status.to_string in
     Log.info (fun m -> m "Responded with HTTP code %s" code);
     Log.debug (fun m -> m "%a" Response.pp_http response);

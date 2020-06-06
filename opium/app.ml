@@ -3,7 +3,7 @@ module Router = Opium_kernel.Router
 module Route = Opium_kernel.Route
 module Server = Httpaf_lwt_unix.Server
 module Reqd = Httpaf.Reqd
-open Lwt.Infix
+open Lwt.Syntax
 
 let run_unix ?ssl t ~port =
   let _mode =
@@ -93,8 +93,8 @@ let action meth route action = register ~meth ~route:(Route.of_string route) ~ac
 
 let not_found action t =
   let action req =
-    action req
-    >|= fun (headers, body) -> Rock.Response.make ~headers ~body ~status:`Not_found ()
+    let+ headers, body = action req in
+    Rock.Response.make ~headers ~body ~status:`Not_found ()
   in
   { t with not_found = action }
 ;;
@@ -293,7 +293,9 @@ let run_command' app =
   let cmd = Cmds.term app in
   match Term.eval (cmd, Cmds.info app.name) with
   | `Ok a ->
-    Lwt.async (fun () -> a >>= fun _server -> Lwt.return_unit);
+    Lwt.async (fun () ->
+        let* _server = a in
+        Lwt.return_unit);
     let forever, _ = Lwt.wait () in
     `Ok forever
   | `Error _ -> `Error
@@ -303,7 +305,9 @@ let run_command' app =
 let run_command app =
   match app |> run_command' with
   | `Ok a ->
-    Lwt.async (fun () -> a >>= fun _server -> Lwt.return_unit);
+    Lwt.async (fun () ->
+        let* _server = a in
+        Lwt.return_unit);
     let forever, _ = Lwt.wait () in
     Lwt_main.run forever
   | `Error -> exit 1
@@ -312,13 +316,15 @@ let run_command app =
 
 module Request_helpers = struct
   let json_exn req =
-    Opium_kernel.Body.to_string req.Rock.Request.body >|= Yojson.Safe.from_string
+    let+ body = Opium_kernel.Body.to_string req.Rock.Request.body in
+    Yojson.Safe.from_string body
   ;;
 
   let string_exn req = Opium_kernel.Body.to_string req.Rock.Request.body
 
   let pairs_exn req =
-    Opium_kernel.Body.to_string req.Rock.Request.body >|= Uri.query_of_encoded
+    let+ body = Opium_kernel.Body.to_string req.Rock.Request.body in
+    Uri.query_of_encoded body
   ;;
 end
 

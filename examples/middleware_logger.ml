@@ -1,5 +1,5 @@
 open Opium.Std
-open Lwt.Infix
+open Lwt.Syntax
 
 (* This is done to demonstrate a usecase where the log reporter is returned via a Lwt
    promise *)
@@ -18,13 +18,14 @@ let () =
   match app with
   | `Ok app ->
     let s =
-      log_reporter ()
-      >>= fun r ->
+      let* r = log_reporter () in
       Logs.set_reporter r;
       Logs.set_level (Some Logs.Debug);
       app
     in
-    Lwt.async (fun () -> s >>= fun _ -> Lwt.return_unit);
+    Lwt.async (fun () ->
+        let* _ = s in
+        Lwt.return_unit);
     Lwt_main.run (fst (Lwt.wait ()))
   | `Error -> exit 1
   | `Not_running -> exit 0

@@ -1,5 +1,3 @@
-open Lwt.Infix
-
 type content =
   [ `Empty
   | `String of string
@@ -51,11 +49,12 @@ let drain { content; _ } =
 ;;
 
 let to_string { content; _ } =
+  let open Lwt.Syntax in
   match content with
   | `Stream content ->
     let buf = Buffer.create 1024 in
-    Lwt_stream.iter (fun s -> Buffer.add_string buf s) content
-    >|= fun () -> Buffer.contents buf
+    let+ () = Lwt_stream.iter (fun s -> Buffer.add_string buf s) content in
+    Buffer.contents buf
   | `String s -> Lwt.return s
   | `Bigstring b -> Lwt.return (Bigstringaf.to_string b)
   | `Empty -> Lwt.return ""
