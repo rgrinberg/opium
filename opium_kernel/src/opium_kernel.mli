@@ -32,6 +32,22 @@ module Body : sig
   val of_stream : ?length:Int64.t -> string Lwt_stream.t -> t
 end
 
+module Headers : sig
+  include module type of Core.Headers
+end
+
+module Method : sig
+  include module type of Core.Method
+end
+
+module Version : sig
+  include module type of Core.Version
+end
+
+module Status : sig
+  include module type of Core.Status
+end
+
 module Rock : sig
   (** A tiny clone of ruby's Rack protocol in OCaml. Which is slightly more general and
       inspired by Finagle. It's not imperative to have this to for such a tiny framework

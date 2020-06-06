@@ -1,4 +1,6 @@
-(test
- (name routes)
+(tests
+ (names core_route)
  (libraries alcotest opium_kernel)
- (package opium_kernel))
+ (package opium_kernel)
+ (action
+  (run %{test} -q --color=always)))
