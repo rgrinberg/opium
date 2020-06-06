@@ -13,7 +13,7 @@ let print_person =
   get "/person/:name/:age" (fun req ->
       let person =
         { Person.name = param req "name"; age = "age" |> param req |> int_of_string }
-        |> Person.yojson_of_t
+        |> Person.to_yojson
       in
       Lwt.return (Response.of_json person))
 ;;
@@ -21,7 +21,7 @@ let print_person =
 let update_person =
   patch "/person" (fun req ->
       let+ json = App.json_of_body_exn req in
-      let person = Person.t_of_yojson json in
+      let person = Person.of_yojson json |> Result.get_ok in
       Logs.info (fun m -> m "Received person: %s" person.Person.name);
       Response.of_json (`Assoc [ "message", `String "Person saved" ]))
 ;;
