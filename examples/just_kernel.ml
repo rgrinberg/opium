@@ -1,6 +1,6 @@
 open Opium_kernel
 open Rock
-open Lwt.Infix
+open Lwt.Syntax
 
 let make_router routes =
   routes
@@ -43,8 +43,10 @@ let run () =
     Opium_kernel.Server_connection.run f app
   in
   Lwt.async (fun () ->
-      Lwt_io.establish_server_with_client_socket listen_address connection_handler
-      >>= fun _ -> Lwt.return_unit);
+      let* _ =
+        Lwt_io.establish_server_with_client_socket listen_address connection_handler
+      in
+      Lwt.return_unit);
   let forever, _ = Lwt.wait () in
   Lwt_main.run forever
 ;;

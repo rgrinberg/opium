@@ -1,5 +1,5 @@
-open Lwt.Infix
 open Core
+open Lwt.Syntax
 
 let default_error_handler ?request:_ error start_response =
   let open Httpaf in
@@ -26,8 +26,7 @@ let create_error_handler handler =
       | Some req -> req.Httpaf.Request.headers
     in
     Lwt.async (fun () ->
-        handler req_headers error
-        >>= fun (headers, ({ Body.length; _ } as b)) ->
+        let* headers, ({ Body.length; _ } as b) = handler req_headers error in
         let headers =
           match length with
           | None -> headers
@@ -35,8 +34,12 @@ let create_error_handler handler =
             Httpaf.Headers.add_unless_exists headers "content-length" (Int64.to_string l)
         in
         let res_body = start_response headers in
-        Lwt_stream.iter (fun s -> Httpaf.Body.write_string res_body s) (Body.to_stream b)
-        >|= fun () -> Httpaf.Body.close_writer res_body)
+        let+ () =
+          Lwt_stream.iter
+            (fun s -> Httpaf.Body.write_string res_body s)
+            (Body.to_stream b)
+        in
+        Httpaf.Body.close_writer res_body)
   in
   error_handler
 ;;
@@ -89,8 +92,7 @@ let run server_handler ?error_handler app =
         let request = httpaf_request_to_request ~body req in
         Lwt.catch
           (fun () ->
-            service request
-            >>= fun { Rock.Response.body; headers; status; _ } ->
+            let* { Rock.Response.body; headers; status; _ } = service request in
             let { Body.content; length } = body in
             let headers =
               match length with
@@ -115,8 +117,8 @@ let run server_handler ?error_handler app =
                   reqd
                   (Httpaf.Response.create ~headers status)
               in
-              Lwt_stream.iter (fun s -> Httpaf.Body.write_string rb s) s
-              >|= fun () -> Httpaf.Body.flush rb (fun () -> Httpaf.Body.close_writer rb))
+              let+ () = Lwt_stream.iter (fun s -> Httpaf.Body.write_string rb s) s in
+              Httpaf.Body.flush rb (fun () -> Httpaf.Body.close_writer rb))
           (fun exn ->
             Httpaf.Reqd.report_exn reqd exn;
             Lwt.return_unit))

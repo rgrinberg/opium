@@ -1,5 +1,5 @@
 open Opium.Std
-open Lwt.Infix
+open Lwt.Syntax
 
 module Person = struct
   type t =
@@ -20,8 +20,7 @@ let print_person =
 
 let update_person =
   patch "/person" (fun req ->
-      App.json_of_body_exn req
-      >|= fun json ->
+      let+ json = App.json_of_body_exn req in
       let person = Person.t_of_yojson json in
       Logs.info (fun m -> m "Received person: %s" person.Person.name);
       Response.of_json (`Assoc [ "message", `String "Person saved" ]))

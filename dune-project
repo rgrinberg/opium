@@ -29,7 +29,8 @@
    (>= 1.11))
   hmap
   httpaf
-  lwt
+  (lwt
+   (>= 5.3.0))
   fieldslib
   sexplib0
   logs
@@ -53,7 +54,8 @@
   (opium_kernel
    (= :version))
   httpaf-lwt-unix
-  lwt
+  (lwt
+   (>= 5.3.0))
   logs
   mtime
   cmdliner

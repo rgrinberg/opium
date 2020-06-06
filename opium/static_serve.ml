@@ -1,6 +1,6 @@
 module Server = Httpaf_lwt_unix.Server
 open Opium_kernel.Rock
-open Lwt.Infix
+open Lwt.Syntax
 
 let log_src =
   Logs.Src.create ~doc:"Opium middleware to server static files" "opium.static_server"
@@ -48,24 +48,24 @@ let respond_with_file ?headers ~name () =
   let bufsize = 4096 in
   Lwt.catch
     (fun () ->
-      Lwt_unix.stat name
-      >>= (fun s ->
-            if Unix.(s.st_kind <> S_REG) then Lwt.fail Isnt_a_file else Lwt.return_unit)
-      >>= fun () ->
-      Lwt_io.open_file
-        ~buffer:(Lwt_bytes.create bufsize)
-        ~flags:[ O_RDONLY ]
-        ~mode:Lwt_io.input
-        name
-      >>= fun ic ->
-      Lwt_io.length ic
-      >>= fun size ->
+      let* s = Lwt_unix.stat name in
+      let* () =
+        if Unix.(s.st_kind <> S_REG) then Lwt.fail Isnt_a_file else Lwt.return_unit
+      in
+      let* ic =
+        Lwt_io.open_file
+          ~buffer:(Lwt_bytes.create bufsize)
+          ~flags:[ O_RDONLY ]
+          ~mode:Lwt_io.input
+          name
+      in
+      let* size = Lwt_io.length ic in
       let stream =
         Lwt_stream.from (fun () ->
             Lwt.catch
               (fun () ->
-                Lwt_io.read ~count:bufsize ic
-                >|= function
+                let+ b = Lwt_io.read ~count:bufsize ic in
+                match b with
                 | "" -> None
                 | buf -> Some buf)
               (fun exn ->
@@ -124,8 +124,7 @@ let public_serve
     if request_matches_etag
     then `Ok (Response.make ~status:`Not_modified ~headers ()) |> Lwt.return
     else
-      respond_with_file ~headers ~name:legal_path ()
-      >|= fun (resp, body) ->
+      let+ resp, body = respond_with_file ~headers ~name:legal_path () in
       if resp.status = `Not_found then `Not_found else `Ok (Response.make ~body ())
 ;;
 
@@ -151,14 +150,16 @@ let m ~local_path ~uri_prefix ?headers ?etag_of_fname () =
         let request_if_none_match =
           Httpaf.Headers.get req.Request.headers "If-None-Match"
         in
-        public_serve
-          local_map
-          ~requested:local_path
-          ~request_if_none_match
-          ?etag_of_fname
-          ?headers
-          ()
-        >>= function
+        let* res =
+          public_serve
+            local_map
+            ~requested:local_path
+            ~request_if_none_match
+            ?etag_of_fname
+            ?headers
+            ()
+        in
+        match res with
         | `Not_found -> handler req
         | `Ok x -> Lwt.return x)
       else handler req)
