@@ -14,8 +14,7 @@
     any previous middleware might change the request / response after [Logger] has been
     applied. *)
 
-open Core
-open Core.Rock
+open Rock
 
 let log_src = Logs.Src.create "opium.server"
 

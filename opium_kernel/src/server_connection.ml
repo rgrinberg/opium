@@ -1,4 +1,3 @@
-open Core
 open Lwt.Syntax
 
 let default_error_handler ?request:_ error start_response =

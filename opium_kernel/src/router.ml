@@ -49,8 +49,6 @@
     will redirect any URI containing two segments with the last segment containing "hello"
     to the handler defined in [Handler.hello_world]. *)
 
-open Core
-
 module MethodMap = Map.Make (struct
   type t = Method.t
 

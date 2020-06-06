@@ -22,7 +22,7 @@ val cmd_name : string -> builder
 
 (** [not_found] accepts a regular Opium handler that will be used instead of the default
     404 handler. *)
-val not_found : (Request.t -> (Httpaf.Headers.t * Opium_kernel.Body.t) Lwt.t) -> builder
+val not_found : (Request.t -> (Httpaf.Headers.t * Body.t) Lwt.t) -> builder
 
 (** A route is a function that returns a buidler that hooks up a handler to a url mapping *)
 type route = string -> Handler.t -> builder
