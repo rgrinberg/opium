@@ -11,11 +11,4 @@ let sexp_of_t headers =
   sexp_of_header (to_list headers)
 ;;
 
-let string_of_t headers =
-  to_list headers
-  |> List.map (fun (header, value) -> Printf.sprintf "%s: %s" header value)
-  |> String.concat "\n"
-;;
-
 let pp_hum fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)
-let pp_string fmt t = Format.fprintf fmt "%s" (string_of_t t)

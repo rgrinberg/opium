@@ -83,7 +83,7 @@ let format_error req exn =
 </html>
     |}
     style
-    (Printexc.to_string exn)
+    (Nifty.Exn.to_string exn)
     Request.pp_http
     req
 ;;
@@ -93,7 +93,7 @@ let m () =
     Lwt.catch
       (fun () -> handler req)
       (fun exn ->
-        Logs.err ~src:log_src (fun f -> f "%s" (Printexc.to_string exn));
+        Logs.err ~src:log_src (fun f -> f "%s" (Nifty.Exn.to_string exn));
         let body = format_error req exn |> Body.of_string in
         Lwt.return @@ Response.make ~status:`Internal_server_error ~body ())
   in
