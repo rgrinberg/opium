@@ -48,9 +48,7 @@ let default_not_found _ =
   Lwt.return
     (Rock.Response.make
        ~status:`Not_found
-       ~body:
-         (Opium_kernel.Body.of_string
-            "<html><body><h1>404 - Not found</h1></body></html>")
+       ~body:(Rock.Body.of_string "<html><body><h1>404 - Not found</h1></body></html>")
        ())
 ;;
 
@@ -316,14 +314,14 @@ let run_command app =
 
 module Request_helpers = struct
   let json_exn req =
-    let+ body = Opium_kernel.Body.to_string req.Rock.Request.body in
+    let+ body = Rock.Body.to_string req.Rock.Request.body in
     Yojson.Safe.from_string body
   ;;
 
-  let string_exn req = Opium_kernel.Body.to_string req.Rock.Request.body
+  let string_exn req = Rock.Body.to_string req.Rock.Request.body
 
   let pairs_exn req =
-    let+ body = Opium_kernel.Body.to_string req.Rock.Request.body in
+    let+ body = Rock.Body.to_string req.Rock.Request.body in
     Uri.query_of_encoded body
   ;;
 end

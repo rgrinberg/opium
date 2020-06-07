@@ -1,3 +1,9 @@
+module Body = Body
+module Status = Status
+module Version = Version
+module Headers = Headers
+module Method = Method
+
 module Service = struct
   type ('req, 'res) t = 'req -> 'res Lwt.t
 

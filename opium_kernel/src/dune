@@ -1,3 +1,3 @@
 (library
  (public_name opium_kernel)
- (libraries opium_kernel.core opium_kernel.middlewares))
+ (libraries bigstringaf hmap httpaf logs lwt mtime sexplib0 uri yojson))

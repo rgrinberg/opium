@@ -75,7 +75,7 @@ let respond_with_file ?headers ~name () =
       in
       Lwt.on_success (Lwt_stream.closed stream) (fun () ->
           Lwt.async (fun () -> Lwt_io.close ic));
-      let body = Opium_kernel.Body.of_stream ~length:size stream in
+      let body = Body.of_stream ~length:size stream in
       let mime_type = Magic_mime.lookup name in
       let headers = add_opt_header_unless_exists headers "content-type" mime_type in
       let resp = Httpaf.Response.create ~headers `OK in
@@ -84,7 +84,7 @@ let respond_with_file ?headers ~name () =
       match e with
       | Isnt_a_file ->
         let resp = Httpaf.Response.create `Not_found in
-        Lwt.return (resp, Opium_kernel.Body.of_string "")
+        Lwt.return (resp, Body.of_string "")
       | exn ->
         Logs.err (fun m ->
             m "Unknown error while serving file %s. %s" name (Printexc.to_string exn));

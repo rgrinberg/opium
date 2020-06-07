@@ -7,10 +7,7 @@ let log_reporter () = Lwt.return (Logs_fmt.reporter ())
 
 let say_hello =
   get "/hello/:name" (fun req ->
-      Lwt.return
-        (Response.make
-           ~body:(Opium_kernel.Body.of_string ("Hello " ^ param req "name"))
-           ()))
+      Lwt.return (Response.make ~body:(Body.of_string ("Hello " ^ param req "name")) ()))
 ;;
 
 let () =

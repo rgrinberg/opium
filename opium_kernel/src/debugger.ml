@@ -4,8 +4,7 @@
     It should only be used during development: you probably don't want to serve a detail
     of the error to your users in production. *)
 
-open Core
-open Core.Rock
+open Rock
 
 let log_src = Logs.Src.create "opium.server"
 

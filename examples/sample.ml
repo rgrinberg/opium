@@ -1,6 +1,6 @@
 open Opium.Std
 
-let response_of_string body = Response.make ~body:(Opium_kernel.Body.of_string body) ()
+let response_of_string body = Response.make ~body:(Body.of_string body) ()
 let e1 = get "/version" (fun _ -> response_of_string "testing" |> Lwt.return)
 
 let e2 =

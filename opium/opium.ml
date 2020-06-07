@@ -17,8 +17,6 @@ module App_export = struct
   let middleware = App.middleware
 end
 
-module Middleware = Middleware
-
 module Std = struct
   module Rock = Opium_kernel.Rock
   module Response = Rock.Response
@@ -26,6 +24,7 @@ module Std = struct
   module Router = Opium_kernel.Router
   module Route = Opium_kernel.Route
   module Middleware = Middleware
+  module Body = Rock.Body
   include App_export
 end
 
