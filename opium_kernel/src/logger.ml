@@ -48,7 +48,7 @@ let m ?time_f () =
     Lwt.catch
       (fun () -> respond ?time_f handler req)
       (fun exn ->
-        Logs.err ~src:log_src (fun f -> f "%s" (Printexc.to_string exn));
+        Logs.err ~src:log_src (fun f -> f "%s" (Nifty.Exn.to_string exn));
         Lwt.fail exn)
   in
   Rock.Middleware.create ~name:"Logger" ~filter

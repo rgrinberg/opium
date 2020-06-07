@@ -49,7 +49,6 @@ let string_of_t t =
 ;;
 
 let pp_hum fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)
-let pp_string fmt t = Format.fprintf fmt "%s" (string_of_t t)
 
 let drain { content; _ } =
   match content with

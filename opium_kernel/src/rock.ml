@@ -43,8 +43,6 @@ module Pp = struct
   let sexp_of_reason reason =
     Sexp.(List [ Atom "reason"; sexp_of_option sexp_of_string reason ])
   ;;
-
-  let string_of_reason reason = Option.value reason ~default:""
 end
 
 module Request = struct
@@ -97,10 +95,10 @@ module Request = struct
   let http_string_of_t t =
     Printf.sprintf
       "%s %s HTTP/%s\n%s\n\n%s\n"
-      (Method.string_of_t t.meth)
+      (Method.to_string t.meth)
       t.target
-      (Version.string_of_t t.version)
-      (Headers.string_of_t t.headers)
+      (Version.to_string t.version)
+      (Headers.to_string t.headers)
       (Body.string_of_t t.body)
   ;;
 
@@ -186,10 +184,10 @@ module Response = struct
   let http_string_of_t t =
     Printf.sprintf
       "HTTP/%s %s %s\n%s\n\n%s\n"
-      (Version.string_of_t t.version)
-      (Status.string_of_t t.status)
-      (Pp.string_of_reason t.reason)
-      (Headers.string_of_t t.headers)
+      (Version.to_string t.version)
+      (Status.to_string t.status)
+      (Option.value ~default:"" t.reason)
+      (Headers.to_string t.headers)
       (Body.string_of_t t.body)
   ;;
 

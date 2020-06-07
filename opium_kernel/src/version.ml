@@ -9,6 +9,4 @@ let sexp_of_t version =
     ]
 ;;
 
-let string_of_t version = Printf.sprintf "%d.%d" version.major version.minor
 let pp_hum fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)
-let pp_string fmt t = Format.fprintf fmt "%s" (string_of_t t)
