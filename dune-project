@@ -39,7 +39,8 @@
   bigstringaf
   re
   uri
-  (alcotest :with-test)))
+  (alcotest :with-test)
+  (alcotest-lwt :with-test)))
 
 (package
  (name opium)
@@ -62,4 +63,5 @@
   sexplib0
   re
   magic-mime
-  (alcotest :with-test)))
+  (alcotest :with-test)
+  (alcotest-lwt :with-test)))

@@ -27,6 +27,7 @@ depends: [
   "re"
   "magic-mime"
   "alcotest" {with-test}
+  "alcotest-lwt" {with-test}
 ]
 build: [
   ["dune" "subst"] {pinned}
