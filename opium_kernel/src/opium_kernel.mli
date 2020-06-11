@@ -221,4 +221,15 @@ module Middleware : sig
     :  ?time_f:((unit -> Rock.Response.t Lwt.t) -> Mtime.span * Rock.Response.t Lwt.t)
     -> unit
     -> Rock.Middleware.t
+
+  val allow_cors
+    :  ?origins:string list
+    -> ?credentials:bool
+    -> ?max_age:int
+    -> ?headers:string list
+    -> ?expose:string list
+    -> ?methods:Httpaf.Method.t list
+    -> ?send_preflight_response:bool
+    -> unit
+    -> Rock.Middleware.t
 end

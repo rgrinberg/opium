@@ -12,4 +12,5 @@ module Middleware = struct
   let router = Router.m
   let debugger = Debugger.m
   let logger = Logger.m
+  let allow_cors = Allow_cors.m
 end

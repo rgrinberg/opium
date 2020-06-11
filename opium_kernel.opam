@@ -24,6 +24,7 @@ depends: [
   "re"
   "uri"
   "alcotest" {with-test}
+  "alcotest-lwt" {with-test}
 ]
 build: [
   ["dune" "subst"] {pinned}
