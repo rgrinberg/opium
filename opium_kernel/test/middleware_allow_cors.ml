@@ -96,7 +96,8 @@ let test_allow_request_headers () =
             "/"
             `OPTIONS
             ~headers:
-              (Rock.Headers.of_list [ "access-control-request-headers", "header-1,header-2" ])
+              (Rock.Headers.of_list
+                 [ "access-control-request-headers", "header-1,header-2" ])
             ()
         in
         service req)
