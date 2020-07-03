@@ -7,6 +7,7 @@ open Lwt.Syntax
 
 let err_invalid_host host =
   Lwt.fail_invalid_arg ("Could not get host info for `" ^ host ^ "`")
+;;
 
 let run_unix ?ssl t ~host ~port =
   let _mode =
@@ -15,10 +16,12 @@ let run_unix ?ssl t ~host ~port =
     | Some (c, k) -> `TLS (c, k, `No_password, `Port port)
   in
   let* host_entry =
-    Lwt.catch (fun () -> Lwt_unix.gethostbyname host)
+    Lwt.catch
+      (fun () -> Lwt_unix.gethostbyname host)
       (function
         | Not_found -> err_invalid_host host
-        | exn -> Lwt.fail exn) in
+        | exn -> Lwt.fail exn)
+  in
   let inet_addr = host_entry.h_addr_list.(0) in
   let listen_address = Unix.ADDR_INET (inet_addr, port) in
   let connection_handler addr fd =
@@ -148,7 +151,11 @@ let start app =
   (* if app.verbose then *)
   (* Logs.info.(add_rule "*" Info); *)
   Logs.info (fun f ->
-      f "Starting Opium on %s:%d%s..." app.host app.port (if app.debug then " (debug)" else ""));
+      f
+        "Starting Opium on %s:%d%s..."
+        app.host
+        app.port
+        (if app.debug then " (debug)" else ""));
   let host = app.host in
   let port = app.port in
   let ssl = app.ssl in
