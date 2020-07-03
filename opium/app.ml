@@ -5,13 +5,22 @@ module Server = Httpaf_lwt_unix.Server
 module Reqd = Httpaf.Reqd
 open Lwt.Syntax
 
-let run_unix ?ssl t ~port =
+let err_invalid_host host =
+  Lwt.fail_invalid_arg ("Could not get host info for `" ^ host ^ "`")
+
+let run_unix ?ssl t ~host ~port =
   let _mode =
     match ssl with
     | None -> `TCP (`Port port)
     | Some (c, k) -> `TLS (c, k, `No_password, `Port port)
   in
-  let listen_address = Unix.(ADDR_INET (inet_addr_loopback, port)) in
+  let* host_entry =
+    Lwt.catch (fun () -> Lwt_unix.gethostbyname host)
+      (function
+        | Not_found -> err_invalid_host host
+        | exn -> Lwt.fail exn) in
+  let inet_addr = host_entry.h_addr_list.(0) in
+  let listen_address = Unix.ADDR_INET (inet_addr, port) in
   let connection_handler addr fd =
     let f ~request_handler ~error_handler =
       Httpaf_lwt_unix.Server.create_connection_handler
@@ -26,7 +35,8 @@ let run_unix ?ssl t ~port =
 ;;
 
 type t =
-  { port : int
+  { host : string
+  ; port : int
   ; ssl : ([ `Crt_file_path of string ] * [ `Key_file_path of string ]) option
   ; debug : bool
   ; verbose : bool
@@ -54,6 +64,7 @@ let default_not_found _ =
 
 let empty =
   { name = "Opium Default Name"
+  ; host = "0.0.0.0"
   ; port = 3000
   ; ssl = None
   ; debug = false
@@ -84,6 +95,7 @@ let attach_middleware { verbose; debug; routes; middlewares; _ } =
 ;;
 
 let port port t = { t with port }
+let host host t = { t with host }
 let ssl ~cert ~key t = { t with ssl = Some (`Crt_file_path cert, `Key_file_path key) }
 let cmd_name name t = { t with name }
 let middleware m app = { app with middlewares = m :: app.middlewares }
@@ -136,11 +148,12 @@ let start app =
   (* if app.verbose then *)
   (* Logs.info.(add_rule "*" Info); *)
   Logs.info (fun f ->
-      f "Running on port: %d%s" app.port (if app.debug then " (debug)" else ""));
+      f "Starting Opium on %s:%d%s..." app.host app.port (if app.debug then " (debug)" else ""));
+  let host = app.host in
   let port = app.port in
   let ssl = app.ssl in
   let app = Rock.App.create ~middlewares ~handler:app.not_found () in
-  run_unix ~port ?ssl app
+  run_unix ~host ~port ?ssl app
 ;;
 
 let hashtbl_add_multi tbl x y =
@@ -180,7 +193,7 @@ let cmd_run
     port
     ssl_cert
     ssl_key
-    _host
+    host
     print_routes
     print_middleware
     debug
@@ -200,7 +213,7 @@ let cmd_run
     | Some s, _ | None, Some s -> Some s
     | None, None -> None
   in
-  let app = { app with debug; verbose; port; ssl } in
+  let app = { app with debug; verbose; host; port; ssl } in
   let rock_app = to_rock app in
   if print_routes
   then (
@@ -243,9 +256,9 @@ module Cmds = struct
     Arg.(value & opt (some string) None & info [ "k"; "ssl-key" ] ~doc)
   ;;
 
-  let interface =
-    let doc = "interface" in
-    Arg.(value & opt string "0.0.0.0" & info [ "i"; "interface" ] ~doc)
+  let host default =
+    let doc = "host" in
+    Arg.(value & opt string default & info [ "h"; "host" ] ~doc)
   ;;
 
   let debug =
@@ -271,7 +284,7 @@ module Cmds = struct
       $ port app.port
       $ ssl_cert
       $ ssl_key
-      $ interface
+      $ host app.host
       $ routes
       $ middleware
       $ debug
