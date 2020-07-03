@@ -16,6 +16,7 @@ val empty : t
     Builders are usuallys composed with a base app using (|>) to create a full app *)
 type builder = t -> t
 
+val host : string -> builder
 val port : int -> builder
 val ssl : cert:string -> key:string -> builder
 val cmd_name : string -> builder
