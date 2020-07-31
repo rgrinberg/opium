@@ -12,7 +12,6 @@ type t =
   { prefix : string
   ; local_path : string
   }
-[@@deriving fields, sexp]
 
 let is_prefix ~prefix s =
   String.length prefix <= String.length s
