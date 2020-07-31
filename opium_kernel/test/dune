@@ -1,6 +1,4 @@
 (tests
  (names core_route middleware_allow_cors)
  (libraries alcotest alcotest-lwt lwt opium_kernel)
- (package opium_kernel)
- (action
-  (run %{test} -q --color=always)))
+ (package opium_kernel))

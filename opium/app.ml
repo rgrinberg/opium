@@ -48,7 +48,6 @@ type t =
   ; name : string
   ; not_found : Rock.Handler.t
   }
-[@@deriving fields]
 
 type builder = t -> t
 type route = string -> Rock.Handler.t -> builder
