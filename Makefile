@@ -41,7 +41,7 @@ watch:
 
 .PHONY: utop
 utop:
-	opam exec -- dune utop lib -- -implicit-bindings
+	opam exec -- dune utop . -- -implicit-bindings
 
 README.md: README.cpp.md $(wildcard examples/*.ml)
 	@cppo -n $< -o $@
