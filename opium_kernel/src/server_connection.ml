@@ -61,7 +61,7 @@ let read_httpaf_body body =
 
 let httpaf_request_to_request ?body req =
   let headers = req.Httpaf.Request.headers in
-  Rock.Request.make ~headers ?body req.target req.meth ()
+  Rock.Request.make ~headers ?body req.target req.meth
 ;;
 
 let run server_handler ?error_handler app =

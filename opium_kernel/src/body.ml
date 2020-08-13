@@ -81,3 +81,11 @@ let of_string s = { content = `String s; length = len (String.length s) }
 let of_bigstring b = { content = `Bigstring b; length = len (Bigstringaf.length b) }
 let empty = { content = `Empty; length = Some 0L }
 let of_stream ?length s = { content = `Stream s; length }
+
+let copy t =
+  match t.content with
+  | `Empty -> t
+  | `String _ -> t
+  | `Bigstring _ -> t
+  | `Stream stream -> { t with content = `Stream (Lwt_stream.clone stream) }
+;;

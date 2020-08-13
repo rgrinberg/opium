@@ -60,22 +60,103 @@ module Request = struct
       ?(headers = Headers.empty)
       target
       meth
-      ()
     =
     { version; target; headers; meth; body; env }
   ;;
 
-  let get_header t header = Headers.get t.headers header
-  let add_header t (k, v) = { t with headers = Headers.add t.headers k v }
+  let of_string'
+      ?(content_type = "text/plain")
+      ?version
+      ?env
+      ?(headers = Headers.empty)
+      target
+      meth
+      body
+    =
+    let headers = Headers.add_unless_exists headers "Content-Type" content_type in
+    make ?version ~headers ~body:(Body.of_string body) ?env target meth
+  ;;
 
-  let add_header_unless_exists t (k, v) =
+  let of_string ?version ?headers ?env ~body target meth =
+    of_string' ?version ?env ?headers target meth body
+  ;;
+
+  let of_json ?version ?headers ?env ~body target meth =
+    of_string'
+      ~content_type:"application/json"
+      ?version
+      ?headers
+      ?env
+      target
+      meth
+      (body |> Yojson.Safe.to_string)
+  ;;
+
+  let of_urlencoded ?version ?headers ?env ~body target meth =
+    of_string'
+      ~content_type:"application/x-www-form-urlencoded"
+      ?version
+      ?headers
+      ?env
+      target
+      meth
+      (body |> Uri.encoded_of_query)
+  ;;
+
+  let header header t = Headers.get t.headers header
+  let headers header t = Headers.get_multi t.headers header
+  let add_header (k, v) t = { t with headers = Headers.add t.headers k v }
+
+  let add_header_unless_exists (k, v) t =
     { t with headers = Headers.add_unless_exists t.headers k v }
   ;;
 
-  let add_headers t hs = { t with headers = Headers.add_list t.headers hs }
+  let add_headers hs t = { t with headers = Headers.add_list t.headers hs }
 
-  let add_headers_unless_exists t hs =
+  let add_headers_unless_exists hs t =
     { t with headers = Headers.add_list_unless_exists t.headers hs }
+  ;;
+
+  let content_type t = header "Content-Type" t
+  let set_content_type s t = add_header ("Content-Type", s) t
+
+  let find_in_query key query =
+    query
+    |> ListLabels.find_opt ~f:(fun (k, _) -> k = key)
+    |> Option.map (fun (_, r) -> r)
+    |> fun opt ->
+    Option.bind opt (fun x ->
+        try Some (List.hd x) with
+        | Not_found -> None)
+  ;;
+
+  let urlencoded' body key =
+    match body |> Uri.pct_decode |> Uri.query_of_encoded |> find_in_query key with
+    | None -> Lwt.return (Error (Printf.sprintf "Please provide a %s." key))
+    | Some value -> Lwt.return (Ok value)
+  ;;
+
+  let urlencoded key t =
+    let open Lwt.Syntax in
+    let* body = t.body |> Body.copy |> Body.to_string in
+    urlencoded' body key
+  ;;
+
+  let urlencoded2 key1 key2 t =
+    let open Lwt_result.Syntax in
+    let* body = t.body |> Body.copy |> Body.to_string |> Lwt_result.ok in
+    let* value1 = urlencoded' body key1 in
+    let+ value2 = urlencoded' body key2 in
+    value1, value2
+  ;;
+
+  let urlencoded3 key1 key2 key3 t =
+    let open Lwt_result.Syntax in
+    let* body = t.body |> Body.copy |> Body.to_string |> Lwt_result.ok in
+    let* value1 = urlencoded' body key1 in
+    let* value2 = urlencoded' body key2 in
+    let+ value3 = urlencoded' body key3 in
+    value1, value2, value3
   ;;
 
   let sexp_of_t t =
@@ -126,16 +207,68 @@ module Response = struct
     { version; status; reason; headers; body; env }
   ;;
 
-  let get_header t header = Headers.get t.headers header
-  let add_header t (k, v) = { t with headers = Headers.add t.headers k v }
+  let redirect_to
+      ?(status : Status.redirection = `Found)
+      ?version
+      ?reason
+      ?(headers = Headers.empty)
+      ?env
+      location
+    =
+    let headers = Headers.add_unless_exists headers "Location" location in
+    make ?version ~status:(status :> Status.t) ?reason ~headers ?env ()
+  ;;
 
-  let add_header_unless_exists t (k, v) =
+  let find_in_query key query =
+    query
+    |> ListLabels.find_opt ~f:(fun (k, _) -> k = key)
+    |> Option.map (fun (_, r) -> r)
+    |> fun opt ->
+    Option.bind opt (fun x ->
+        try Some (List.hd x) with
+        | Not_found -> None)
+  ;;
+
+  let urlencoded' body key =
+    match body |> Uri.pct_decode |> Uri.query_of_encoded |> find_in_query key with
+    | None -> Lwt.return (Error (Printf.sprintf "Please provide a %s." key))
+    | Some value -> Lwt.return (Ok value)
+  ;;
+
+  let urlencoded key t =
+    let open Lwt.Syntax in
+    let* body = t.body |> Body.copy |> Body.to_string in
+    urlencoded' body key
+  ;;
+
+  let urlencoded2 key1 key2 t =
+    let open Lwt_result.Syntax in
+    let* body = t.body |> Body.copy |> Body.to_string |> Lwt_result.ok in
+    let* value1 = urlencoded' body key1 in
+    let+ value2 = urlencoded' body key2 in
+    value1, value2
+  ;;
+
+  let urlencoded3 key1 key2 key3 t =
+    let open Lwt_result.Syntax in
+    let* body = t.body |> Body.copy |> Body.to_string |> Lwt_result.ok in
+    let* value1 = urlencoded' body key1 in
+    let* value2 = urlencoded' body key2 in
+    let+ value3 = urlencoded' body key3 in
+    value1, value2, value3
+  ;;
+
+  let header header t = Headers.get t.headers header
+  let headers header t = Headers.get_multi t.headers header
+  let add_header (k, v) t = { t with headers = Headers.add t.headers k v }
+
+  let add_header_unless_exists (k, v) t =
     { t with headers = Headers.add_unless_exists t.headers k v }
   ;;
 
-  let add_headers t hs = { t with headers = Headers.add_list t.headers hs }
+  let add_headers hs t = { t with headers = Headers.add_list t.headers hs }
 
-  let add_headers_unless_exists t hs =
+  let add_headers_unless_exists hs t =
     { t with headers = Headers.add_list_unless_exists t.headers hs }
   ;;
 
@@ -156,6 +289,10 @@ module Response = struct
     of_string' ?version ?status ?reason ?env ?headers body
   ;;
 
+  let of_html ?version ?status ?reason ?headers ?env body =
+    of_string' ~content_type:"text/html" ?version ?status ?reason ?env ?headers body
+  ;;
+
   let of_json ?version ?status ?reason ?headers ?env body =
     of_string'
       ~content_type:"application/json"
@@ -166,6 +303,9 @@ module Response = struct
       ?env
       (body |> Yojson.Safe.to_string)
   ;;
+
+  let content_type t = header "Content-Type" t
+  let set_content_type s t = add_header ("Content-Type", s) t
 
   let sexp_of_t { version; status; reason; headers; body; env } =
     Sexplib0.Sexp.(
