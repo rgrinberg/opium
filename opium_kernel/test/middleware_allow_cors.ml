@@ -26,7 +26,7 @@ let test_regular_request () =
   let open Lwt.Syntax in
   let+ res =
     with_service ~middlewares:[ Middleware.allow_cors () ] (fun service ->
-        let req = Rock.Request.make "/" `GET () in
+        let req = Rock.Request.make "/" `GET in
         service req)
   in
   check_response
@@ -49,7 +49,6 @@ let test_overwrite_origin () =
             "/"
             `GET
             ~headers:(Rock.Headers.of_list [ "origin", "http://example.com" ])
-            ()
         in
         service req)
   in
@@ -67,7 +66,7 @@ let test_return_204_for_options () =
   let open Lwt.Syntax in
   let+ res =
     with_service ~middlewares:[ Middleware.allow_cors () ] (fun service ->
-        let req = Rock.Request.make "/" `OPTIONS () in
+        let req = Rock.Request.make "/" `OPTIONS in
         service req)
   in
   check_response
@@ -98,7 +97,6 @@ let test_allow_request_headers () =
             ~headers:
               (Rock.Headers.of_list
                  [ "access-control-request-headers", "header-1,header-2" ])
-            ()
         in
         service req)
   in
