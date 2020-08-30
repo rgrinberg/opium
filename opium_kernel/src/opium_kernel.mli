@@ -21,7 +21,6 @@ module Rock : sig
 
   module Body : sig
     type content =
-      private
       [ `Empty
       | `String of string
       | `Bigstring of Bigstringaf.t
@@ -29,7 +28,7 @@ module Rock : sig
       ]
 
     (** [t] represents an HTTP message body. *)
-    type t = private
+    type t =
       { length : Int64.t option
       ; content : content
       }
