@@ -1,3 +1,4 @@
 (library
  (public_name opium_kernel)
- (libraries bigstringaf hmap httpaf logs lwt mtime sexplib0 uri yojson))
+ (libraries bigstringaf hmap httpaf logs lwt mtime magic-mime sexplib0 uri
+   yojson))

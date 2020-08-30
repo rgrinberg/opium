@@ -1,4 +1,3 @@
 (library
  (public_name opium)
- (libraries opium_kernel cmdliner httpaf httpaf-lwt-unix magic-mime logs
-   mtime.clock.os))
+ (libraries opium_kernel cmdliner httpaf httpaf-lwt-unix logs mtime.clock.os))

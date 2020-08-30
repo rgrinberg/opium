@@ -213,6 +213,18 @@ module Server_connection : sig
     -> 'a Lwt.t
 end
 
+module Static : sig
+  val serve
+    :  read:
+         (unit
+          -> (Rock.Body.t, [ Status.client_error | Status.server_error ]) Lwt_result.t)
+    -> ?mime_type:string
+    -> ?etag_of_fname:(string -> string option)
+    -> ?headers:Headers.t
+    -> string
+    -> Rock.Handler.t
+end
+
 module Middleware : sig
   val router : Rock.Handler.t Router.t -> Rock.Middleware.t
   val debugger : unit -> Rock.Middleware.t
@@ -228,8 +240,18 @@ module Middleware : sig
     -> ?max_age:int
     -> ?headers:string list
     -> ?expose:string list
-    -> ?methods:Httpaf.Method.t list
+    -> ?methods:Method.t list
     -> ?send_preflight_response:bool
+    -> unit
+    -> Rock.Middleware.t
+
+  val static
+    :  read:
+         (string
+          -> (Rock.Body.t, [ Status.client_error | Status.server_error ]) Lwt_result.t)
+    -> ?uri_prefix:string
+    -> ?headers:Headers.t
+    -> ?etag_of_fname:(string -> string option)
     -> unit
     -> Rock.Middleware.t
 end
