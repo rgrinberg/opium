@@ -104,8 +104,6 @@ module Router : sig
 
   val empty : 'action t
   val add : 'a t -> route:Route.t -> meth:Method.t -> action:'a -> 'a t
-  val param : Rock.Request.t -> string -> string
-  val splat : Rock.Request.t -> string list
   val m : Rock.Handler.t t -> Rock.Middleware.t
 end
 

@@ -11,16 +11,15 @@ end
 
 let print_person =
   get "/person/:name/:age" (fun req ->
-      let person =
-        { Person.name = param req "name"; age = "age" |> param req |> int_of_string }
-        |> Person.yojson_of_t
-      in
+      let name = Request.param "name" req |> Option.get in
+      let age = Request.param "age" req |> Option.get |> int_of_string in
+      let person = { Person.name; age } |> Person.yojson_of_t in
       Lwt.return (Response.of_json person))
 ;;
 
 let update_person =
   patch "/person" (fun req ->
-      let+ json = App.json_of_body_exn req in
+      let+ json = Request.json req in
       let person = Person.t_of_yojson json in
       Logs.info (fun m -> m "Received person: %s" person.Person.name);
       Response.of_json (`Assoc [ "message", `String "Person saved" ]))
@@ -36,7 +35,8 @@ let streaming =
 
 let print_param =
   get "/hello/:name" (fun req ->
-      Lwt.return (Response.of_string @@ Printf.sprintf "Hello, %s\n" (param req "name")))
+      Lwt.return
+        (Response.of_plain_text @@ Printf.sprintf "Hello, %s\n" (Request.param req "name")))
 ;;
 
 let _ =

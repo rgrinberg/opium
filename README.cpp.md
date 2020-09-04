@@ -93,7 +93,7 @@ You should see the greeting
 
 The two fundamental building blocks of opium are:
 
-* Handlers: `Rock.Request.t -> Rock.Response.t Lwt.t`
+* Handlers: `Request.t -> Response.t Lwt.t`
 * Middleware: `Rock.Handler.t -> Rock.Handler.t`
 
 Almost all of opium's functionality is assembled through various
