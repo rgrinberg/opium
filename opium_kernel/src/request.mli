@@ -1,3 +1,5 @@
+(** ??? *)
+
 type t =
   { version : Version.t
   ; target : string
@@ -161,37 +163,66 @@ val add_headers : (string * string) list -> t -> t
     See also {!add_header_unless_exists} to add a single header. *)
 val add_headers_unless_exists : (string * string) list -> t -> t
 
-(** [urlencoded key t] returns the value associated to [key] in the urlencoded request
-    [t].
+(** [urlencoded_list key t] returns all the values associated to [key] in the urlencoded
+    request [t].
 
-    Since the request can be a stream, the return value is a promise.
+    This function exist to offer a simple way to get all of the values associated to a
+    key, but most of the time, there is only one value per key. If you're not specifically
+    trying to decode a request with multiple values per key, it is recommended to use
+    {!urlencoded} instead.
 
-    If the key could not be found or if the request could not be parsed as urlencoded, an
-    error is returned. *)
+    The body of the request will be copied, so if it is a stream, it will not be drained
+    and you will still be able to process it afterward.
+
+    if the key could not be found or if the request could not be parsed as urlencoded, an
+    empty list is returned. *)
+val urlencoded_list : t -> (string * string list) list Lwt.t
+
+(** [urlencoded key t] returns the first value associated to [key] in the urlencoded
+    request [t].
+
+    The function only returns the first value for the given key, because in the great
+    majority of cases, there is only one parameter per key. If you want to return all the
+    values associated to the key, you can use {!urlencoded_list}.
+
+    The body of the request will be copied, so if it is a stream, it will not be drained
+    and you will still be able to process it afterward.
+
+    If the key could not be found or if the request could not be parsed as urlencoded,
+    [None] is returned. *)
 val urlencoded : string -> t -> string option Lwt.t
 
-(** [urlencoded2 key1 key2 t] returns the values respectively associated to [key1] and
-    [key2] in the urlencoded request [t].
+(** ??? *)
+val urlencoded_exn : string -> t -> string Lwt.t
 
-    Since the request can be a stream, the return value is a promise.
+(** [urlencoded2 key1 key2 t] returns the first values respectively associated to [key1]
+    and [key2] in the urlencoded request [t].
+
+    The body of the request will be copied, so if it is a stream, it will not be drained
+    and you will still be able to process it afterward.
 
     If one of the key could not be found or if the request could not be parsed as
-    urlencoded, an error is returned. *)
+    urlencoded, [None] is returned. *)
 val urlencoded2 : string -> string -> t -> (string * string) option Lwt.t
+  [@@alert
+    experimental "This function is experimental and might be removed in a later release."]
 
-(** [urlencoded2 key1 key2 key3 t] returns the values respectively associated to [key1],
-    [key2] and [key3] in the urlencoded request [t].
+(** [urlencoded2 key1 key2 key3 t] returns the first values respectively associated to
+    [key1], [key2] and [key3] in the urlencoded request [t].
 
-    Since the request can be a stream, the return value is a promise.
+    The body of the request will be copied, so if it is a stream, it will not be drained
+    and you will still be able to process it afterward.
 
     If one of the key could not be found or if the request could not be parsed as
-    urlencoded, an error is returned. *)
+    urlencoded, [None] is returned. *)
 val urlencoded3
   :  string
   -> string
   -> string
   -> t
   -> (string * string * string) option Lwt.t
+  [@@alert
+    experimental "This function is experimental and might be removed in a later release."]
 
 (** ??? *)
 val urlencoded4
@@ -201,6 +232,8 @@ val urlencoded4
   -> string
   -> t
   -> (string * string * string * string) option Lwt.t
+  [@@alert
+    experimental "This function is experimental and might be removed in a later release."]
 
 (** ??? *)
 val urlencoded5
@@ -211,15 +244,27 @@ val urlencoded5
   -> string
   -> t
   -> (string * string * string * string * string) option Lwt.t
+  [@@alert
+    experimental "This function is experimental and might be removed in a later release."]
 
 (** ??? *)
-val query : string -> t -> string option Lwt.t
+val query_list : t -> (string * string list) list
 
 (** ??? *)
-val query2 : string -> string -> t -> (string * string) option Lwt.t
+val query : string -> t -> string option
 
 (** ??? *)
-val query3 : string -> string -> string -> t -> (string * string * string) option Lwt.t
+val query_exn : string -> t -> string
+
+(** ??? *)
+val query2 : string -> string -> t -> (string * string) option
+  [@@alert
+    experimental "This function is experimental and might be removed in a later release."]
+
+(** ??? *)
+val query3 : string -> string -> string -> t -> (string * string * string) option
+  [@@alert
+    experimental "This function is experimental and might be removed in a later release."]
 
 (** ??? *)
 val query4
@@ -228,7 +273,9 @@ val query4
   -> string
   -> string
   -> t
-  -> (string * string * string * string) option Lwt.t
+  -> (string * string * string * string) option
+  [@@alert
+    experimental "This function is experimental and might be removed in a later release."]
 
 (** ??? *)
 val query5
@@ -238,16 +285,28 @@ val query5
   -> string
   -> string
   -> t
-  -> (string * string * string * string * string) option Lwt.t
+  -> (string * string * string * string * string) option
+  [@@alert
+    experimental "This function is experimental and might be removed in a later release."]
 
 (** ??? *)
-val param : string -> t -> string option Lwt.t
+val param_list : t -> (string * string) list
 
 (** ??? *)
-val param2 : string -> string -> t -> (string * string) option Lwt.t
+val param : string -> t -> string option
 
 (** ??? *)
-val param3 : string -> string -> string -> t -> (string * string * string) option Lwt.t
+val param_exn : string -> t -> string
+
+(** ??? *)
+val param2 : string -> string -> t -> (string * string) option
+  [@@alert
+    experimental "This function is experimental and might be removed in a later release."]
+
+(** ??? *)
+val param3 : string -> string -> string -> t -> (string * string * string) option
+  [@@alert
+    experimental "This function is experimental and might be removed in a later release."]
 
 (** ??? *)
 val param4
@@ -256,7 +315,9 @@ val param4
   -> string
   -> string
   -> t
-  -> (string * string * string * string) option Lwt.t
+  -> (string * string * string * string) option
+  [@@alert
+    experimental "This function is experimental and might be removed in a later release."]
 
 (** ??? *)
 val param5
@@ -266,14 +327,25 @@ val param5
   -> string
   -> string
   -> t
-  -> (string * string * string * string * string) option Lwt.t
+  -> (string * string * string * string * string) option
+  [@@alert
+    experimental "This function is experimental and might be removed in a later release."]
+
+(** ??? *)
+val json : t -> Yojson.Safe.t option Lwt.t
+
+(** ??? *)
+val json_exn : t -> Yojson.Safe.t Lwt.t
+
+(** ??? *)
+val string : t -> string Lwt.t
 
 (** [content_type request] returns the value of the header [Content-Type] of the request
-    [request]. *)
+    [t]. *)
 val content_type : t -> string option
 
-(** [set_content_type content_type request] returns a copy of [request] with the value of
-    the header [Content-Type] set to [content_type]. *)
+(** [set_content_type content_type request] returns a copy of [t] with the value of the
+    header [Content-Type] set to [content_type]. *)
 val set_content_type : string -> t -> t
 
 (** {3 Utilities} *)

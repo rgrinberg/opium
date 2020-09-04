@@ -84,33 +84,112 @@ let find_in_query key query =
       | Not_found -> None)
 ;;
 
-let urlencoded' body key =
-  match body |> Uri.pct_decode |> Uri.query_of_encoded |> find_in_query key with
-  | None -> Lwt.return None
-  | Some value -> Lwt.return (Some value)
+let urlencoded_list t =
+  let open Lwt.Syntax in
+  let* body = t.body |> Body.copy |> Body.to_string in
+  body |> Uri.query_of_encoded |> Lwt.return
 ;;
 
 let urlencoded key t =
   let open Lwt.Syntax in
-  let* body = t.body |> Body.copy |> Body.to_string in
-  urlencoded' body key
+  let* query = urlencoded_list t in
+  Lwt.return @@ find_in_query key query
 ;;
 
 let urlencoded2 key1 key2 t =
   let open Lwt.Syntax in
-  let* body = t.body |> Body.copy |> Body.to_string in
-  let* value1 = urlencoded' body key1 in
-  let+ value2 = urlencoded' body key2 in
-  value1, value2
+  let* query = urlencoded_list t in
+  let value1 = find_in_query key1 query in
+  let value2 = find_in_query key2 query in
+  match value1, value2 with
+  | Some value1, Some value2 -> Lwt.return @@ Some (value1, value2)
+  | _ -> Lwt.return None
 ;;
 
 let urlencoded3 key1 key2 key3 t =
   let open Lwt.Syntax in
-  let* body = t.body |> Body.copy |> Body.to_string in
-  let* value1 = urlencoded' body key1 in
-  let* value2 = urlencoded' body key2 in
-  let+ value3 = urlencoded' body key3 in
-  value1, value2, value3
+  let* query = urlencoded_list t in
+  let value1 = find_in_query key1 query in
+  let value2 = find_in_query key2 query in
+  let value3 = find_in_query key3 query in
+  match value1, value2, value3 with
+  | Some value1, Some value2, Some value3 -> Lwt.return @@ Some (value1, value2, value3)
+  | _ -> Lwt.return None
+;;
+
+let urlencoded4 key1 key2 key3 key4 t =
+  let open Lwt.Syntax in
+  let* query = urlencoded_list t in
+  let value1 = find_in_query key1 query in
+  let value2 = find_in_query key2 query in
+  let value3 = find_in_query key3 query in
+  let value4 = find_in_query key4 query in
+  match value1, value2, value3, value4 with
+  | Some value1, Some value2, Some value3, Some value4 ->
+    Lwt.return @@ Some (value1, value2, value3, value4)
+  | _ -> Lwt.return None
+;;
+
+let urlencoded5 key1 key2 key3 key4 key5 t =
+  let open Lwt.Syntax in
+  let* query = urlencoded_list t in
+  let value1 = find_in_query key1 query in
+  let value2 = find_in_query key2 query in
+  let value3 = find_in_query key3 query in
+  let value4 = find_in_query key4 query in
+  let value5 = find_in_query key5 query in
+  match value1, value2, value3, value4, value5 with
+  | Some value1, Some value2, Some value3, Some value4, Some value5 ->
+    Lwt.return @@ Some (value1, value2, value3, value4, value5)
+  | _ -> Lwt.return None
+;;
+
+let query_list t = t.target |> Uri.of_string |> Uri.query
+let query key t = query_list t |> find_in_query key
+
+let query2 key1 key2 t =
+  let query = query_list t in
+  let value1 = find_in_query key1 query in
+  let value2 = find_in_query key2 query in
+  match value1, value2 with
+  | Some value1, Some value2 -> Some (value1, value2)
+  | _ -> None
+;;
+
+let query3 key1 key2 key3 t =
+  let query = query_list t in
+  let value1 = find_in_query key1 query in
+  let value2 = find_in_query key2 query in
+  let value3 = find_in_query key3 query in
+  match value1, value2, value3 with
+  | Some value1, Some value2, Some value3 -> Some (value1, value2, value3)
+  | _ -> None
+;;
+
+let query4 key1 key2 key3 key4 t =
+  let query = query_list t in
+  let value1 = find_in_query key1 query in
+  let value2 = find_in_query key2 query in
+  let value3 = find_in_query key3 query in
+  let value4 = find_in_query key4 query in
+  match value1, value2, value3, value4 with
+  | Some value1, Some value2, Some value3, Some value4 ->
+    Some (value1, value2, value3, value4)
+  | _ -> None
+;;
+
+let query5 key1 key2 key3 key4 key5 t =
+  let query = query_list t in
+  let value1 = find_in_query key1 query in
+  let value2 = find_in_query key2 query in
+  let value3 = find_in_query key3 query in
+  let value4 = find_in_query key4 query in
+  let value5 = find_in_query key5 query in
+  match value1, value2, value3, value4, value5 with
+  | Some value1, Some value2, Some value3, Some value4, Some value5 ->
+    Some (value1, value2, value3, value4, value5)
+  | _ -> None
+;;
 
 let param_list t =
   let { Route.params; _ } = Hmap0.find_exn Router_env.key t.env in
@@ -138,6 +217,31 @@ let param3 key1 key2 key3 t =
   let value3 = List.assoc_opt key3 params in
   match value1, value2, value3 with
   | Some value1, Some value2, Some value3 -> Some (value1, value2, value3)
+  | _ -> None
+;;
+
+let param4 key1 key2 key3 key4 t =
+  let params = param_list t in
+  let value1 = List.assoc_opt key1 params in
+  let value2 = List.assoc_opt key2 params in
+  let value3 = List.assoc_opt key3 params in
+  let value4 = List.assoc_opt key4 params in
+  match value1, value2, value3, value4 with
+  | Some value1, Some value2, Some value3, Some value4 ->
+    Some (value1, value2, value3, value4)
+  | _ -> None
+;;
+
+let param5 key1 key2 key3 key4 key5 t =
+  let params = param_list t in
+  let value1 = List.assoc_opt key1 params in
+  let value2 = List.assoc_opt key2 params in
+  let value3 = List.assoc_opt key3 params in
+  let value4 = List.assoc_opt key4 params in
+  let value5 = List.assoc_opt key5 params in
+  match value1, value2, value3, value4, value5 with
+  | Some value1, Some value2, Some value3, Some value4, Some value5 ->
+    Some (value1, value2, value3, value4, value5)
   | _ -> None
 ;;
 
