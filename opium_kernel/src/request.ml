@@ -111,6 +111,34 @@ let urlencoded3 key1 key2 key3 t =
   let* value2 = urlencoded' body key2 in
   let+ value3 = urlencoded' body key3 in
   value1, value2, value3
+
+let param_list t =
+  let { Route.params; _ } = Hmap0.find_exn Router_env.key t.env in
+  params
+;;
+
+let param key t =
+  let params = param_list t in
+  List.assoc_opt key params
+;;
+
+let param2 key1 key2 t =
+  let params = param_list t in
+  let value1 = List.assoc_opt key1 params in
+  let value2 = List.assoc_opt key2 params in
+  match value1, value2 with
+  | Some value1, Some value2 -> Some (value1, value2)
+  | _ -> None
+;;
+
+let param3 key1 key2 key3 t =
+  let params = param_list t in
+  let value1 = List.assoc_opt key1 params in
+  let value2 = List.assoc_opt key2 params in
+  let value3 = List.assoc_opt key3 params in
+  match value1, value2, value3 with
+  | Some value1, Some value2, Some value3 -> Some (value1, value2, value3)
+  | _ -> None
 ;;
 
 let sexp_of_t { version; target; headers; meth; body; env } =
