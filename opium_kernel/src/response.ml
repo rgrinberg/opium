@@ -58,7 +58,7 @@ let of_string'
   make ?version ?status ?reason ~headers ~body:(Body.of_string body) ?env ()
 ;;
 
-let of_string ?version ?status ?reason ?headers ?env body =
+let of_plain_text ?version ?status ?reason ?headers ?env body =
   of_string' ?version ?status ?reason ?env ?headers body
 ;;
 
@@ -92,6 +92,8 @@ let of_json ?version ?status ?reason ?headers ?env body =
 
 let content_type t = header "Content-Type" t
 let set_content_type s t = add_header ("Content-Type", s) t
+let status t = t.status
+let set_status s t = { t with status = s }
 
 let sexp_of_t { version; status; reason; headers; body; env } =
   let open Sexplib0.Sexp_conv in
