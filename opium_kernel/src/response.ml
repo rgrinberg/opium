@@ -113,7 +113,11 @@ let http_string_of_t t =
     (Status.to_string t.status)
     (Option.value ~default:"" t.reason)
     (Headers.to_string t.headers)
-    (Body.string_of_t t.body)
+    (match t.body.content with
+    | `Empty -> ""
+    | `String s -> s
+    | `Bigstring b -> Bigstringaf.to_string b
+    | `Stream _ -> "<stream>")
 ;;
 
 let pp_hum fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)

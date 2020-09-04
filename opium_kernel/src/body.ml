@@ -40,14 +40,6 @@ let sexp_of_t { length; content } =
       ])
 ;;
 
-let string_of_t t =
-  match t.content with
-  | `Empty -> ""
-  | `String s -> s
-  | `Bigstring b -> Bigstringaf.to_string b
-  | `Stream _ -> "<stream>"
-;;
-
 let pp_hum fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)
 
 let drain { content; _ } =
