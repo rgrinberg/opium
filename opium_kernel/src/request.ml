@@ -96,6 +96,12 @@ let urlencoded key t =
   Lwt.return @@ find_in_query key query
 ;;
 
+let urlencoded_exn key t =
+  let open Lwt.Syntax in
+  let+ o = urlencoded key t in
+  Option.get o
+;;
+
 let urlencoded2 key1 key2 t =
   let open Lwt.Syntax in
   let* query = urlencoded_list t in
@@ -146,6 +152,7 @@ let urlencoded5 key1 key2 key3 key4 key5 t =
 
 let query_list t = t.target |> Uri.of_string |> Uri.query
 let query key t = query_list t |> find_in_query key
+let query_exn key t = query key t |> Option.get
 
 let query2 key1 key2 t =
   let query = query_list t in
@@ -201,6 +208,8 @@ let param key t =
   List.assoc_opt key params
 ;;
 
+let param_exn key t = param key t |> Option.get
+
 let param2 key1 key2 t =
   let params = param_list t in
   let value1 = List.assoc_opt key1 params in
@@ -244,6 +253,24 @@ let param5 key1 key2 key3 key4 key5 t =
     Some (value1, value2, value3, value4, value5)
   | _ -> None
 ;;
+
+let json_exn t =
+  let open Lwt.Syntax in
+  let* body = t.body |> Body.copy |> Body.to_string in
+  Lwt.return @@ Yojson.Safe.from_string body
+;;
+
+let json t =
+  let open Lwt.Syntax in
+  Lwt.catch
+    (fun () ->
+      let+ json = json_exn t in
+      Some json)
+    (function
+      | _ -> Lwt.return None)
+;;
+
+let string t = Body.copy t.body |> Body.to_string
 
 let sexp_of_t { version; target; headers; meth; body; env } =
   let open Sexplib0.Sexp_conv in
