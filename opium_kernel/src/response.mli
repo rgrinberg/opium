@@ -473,6 +473,49 @@ val cache_control : t -> string option
     of the header [Cache-Control] set to [cache_control]. *)
 val set_cache_control : string -> t -> t
 
+(** {3 [cookie]} *)
+
+(** ??? *)
+val cookie : ?signed_with:Cookie.Signer.t -> string -> t -> Cookie.t option
+
+(** {3 [cookies]} *)
+
+(** ??? *)
+val cookies : ?signed_with:Cookie.Signer.t -> t -> Cookie.t list
+
+(** {3 [add_cookie_or_replace]} *)
+
+(** ??? *)
+val add_cookie_or_replace
+  :  ?sign_with:Cookie.Signer.t
+  -> ?expires:Cookie.expires
+  -> ?scope:Uri.t
+  -> ?same_site:Cookie.same_site
+  -> ?secure:bool
+  -> ?http_only:bool
+  -> string * string
+  -> t
+  -> t
+
+(** {3 [add_cookie_unless_exists]} *)
+
+(** ??? *)
+val add_cookie_unless_exists
+  :  ?sign_with:Cookie.Signer.t
+  -> ?expires:Cookie.expires
+  -> ?scope:Uri.t
+  -> ?same_site:Cookie.same_site
+  -> ?secure:bool
+  -> ?http_only:bool
+  -> string * string
+  -> t
+  -> t
+
+(** {3 [remove_cookie]} *)
+
+(** ??? *)
+val remove_cookie : string -> t -> t
+
 (** {1 Utilities} *)
 
 (** {3 [sexp_of_t]} *)

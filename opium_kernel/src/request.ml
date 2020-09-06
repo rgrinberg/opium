@@ -109,6 +109,54 @@ let add_headers_unless_exists hs t =
 ;;
 
 let remove_header key t = { t with headers = Headers.remove t.headers key }
+
+let cookie ?signed_with cookie t =
+  Cookie.cookie_of_headers ?signed_with cookie (t.headers |> Headers.to_list)
+  |> Option.map fst
+;;
+
+let cookies ?signed_with t =
+  Cookie.cookies_of_headers ?signed_with (t.headers |> Headers.to_list)
+;;
+
+let replace_or_add_to_list ~f to_add l =
+  let rec aux acc l =
+    match l with
+    | [] -> to_add :: l |> List.rev
+    | el :: rest ->
+      if f el to_add then List.rev (to_add :: acc) @ rest else aux (el :: acc) rest
+  in
+  aux [] l
+;;
+
+let add_cookie_or_replace ?sign_with (k, v) t =
+  let cookies = cookies t in
+  let cookies =
+    replace_or_add_to_list ~f:(fun (k2, _v2) _ -> String.equal k k2) (k, v) cookies
+  in
+  let cookie_header =
+    cookies |> ListLabels.map ~f:(Cookie.make ?sign_with) |> Cookie.to_cookie_header
+  in
+  add_header_or_replace cookie_header t
+;;
+
+let add_cookie_unless_exists ?sign_with (k, v) t =
+  let cookies = cookies t in
+  if ListLabels.exists cookies ~f:(fun (k2, _v2) -> String.equal k2 k)
+  then t
+  else add_cookie_or_replace ?sign_with (k, v) t
+;;
+
+let remove_cookie key t =
+  let cookie_header =
+    cookies t
+    |> ListLabels.filter ~f:(fun (k, _) -> k != key)
+    |> List.map Cookie.make
+    |> Cookie.to_cookie_header
+  in
+  add_header_or_replace cookie_header t
+;;
+
 let content_type t = header "Content-Type" t
 let set_content_type s t = add_header ("Content-Type", s) t
 

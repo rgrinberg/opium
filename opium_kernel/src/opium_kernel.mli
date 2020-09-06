@@ -9,6 +9,7 @@ module Headers = Headers
 module Method = Method
 module Version = Version
 module Status = Status
+module Cookie = Cookie
 
 module Body : sig
   type content

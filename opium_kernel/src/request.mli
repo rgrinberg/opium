@@ -364,6 +364,33 @@ val content_type : t -> string option
     [Content-Type] set to [content_type]. *)
 val set_content_type : string -> t -> t
 
+(** {2 Cookies} *)
+
+(** {3 [cookie]} *)
+
+(** ??? *)
+val cookie : ?signed_with:Cookie.Signer.t -> string -> t -> string option
+
+(** {3 [cookies]} *)
+
+(** ??? *)
+val cookies : ?signed_with:Cookie.Signer.t -> t -> Cookie.cookie list
+
+(** {3 [add_cookie_or_replace]} *)
+
+(** ??? *)
+val add_cookie_or_replace : ?sign_with:Cookie.Signer.t -> Cookie.cookie -> t -> t
+
+(** {3 [add_cookie_unless_exists]} *)
+
+(** ??? *)
+val add_cookie_unless_exists : ?sign_with:Cookie.Signer.t -> Cookie.cookie -> t -> t
+
+(** {3 [remove_cookie]} *)
+
+(** ??? *)
+val remove_cookie : string -> t -> t
+
 (** {2 Body} *)
 
 (** {3 [urlencoded]} *)

@@ -11,6 +11,7 @@ module Router = Router
 module Static = Static
 module Request = Request
 module Response = Response
+module Cookie = Cookie
 
 module Middleware = struct
   let router = Router.m
