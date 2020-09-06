@@ -25,7 +25,6 @@ depends: [
   "cmdliner"
   "sexplib0"
   "re"
-  "magic-mime"
   "alcotest" {with-test}
   "alcotest-lwt" {with-test}
 ]

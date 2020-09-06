@@ -18,6 +18,7 @@ depends: [
   "fieldslib"
   "sexplib0"
   "logs"
+  "magic-mime"
   "mtime"
   "yojson"
   "bigstringaf"
