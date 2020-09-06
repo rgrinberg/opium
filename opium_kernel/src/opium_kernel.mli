@@ -10,12 +10,12 @@ module Hmap0 : sig
   val find_exn : 'a key -> t -> 'a
 end
 
+module Request = Request
+module Response = Response
 module Headers = Headers
 module Method = Method
 module Version = Version
 module Status = Status
-module Request = Request
-module Response = Response
 module Body = Body
 
 (** A tiny clone of ruby's Rack protocol in OCaml. Which is slightly more general and

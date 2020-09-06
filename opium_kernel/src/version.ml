@@ -9,4 +9,5 @@ let sexp_of_t version =
     ]
 ;;
 
-let pp_hum fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)
+let pp fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)
+let pp_hum fmt t = Format.fprintf fmt "%s" (to_string t)

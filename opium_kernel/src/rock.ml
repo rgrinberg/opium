@@ -1,11 +1,3 @@
-module Body = Body
-module Status = Status
-module Version = Version
-module Headers = Headers
-module Method = Method
-module Request = Request
-module Response = Response
-
 module Service = struct
   type ('req, 'res) t = 'req -> 'res Lwt.t
 

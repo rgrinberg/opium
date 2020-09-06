@@ -44,6 +44,12 @@ val drain : t -> unit Lwt.t
 (** [sexp_of_t t] converts the body [t] to an s-expression *)
 val sexp_of_t : t -> Sexplib0.Sexp.t
 
-(** [pp_hum] formats the body [t] as an s-expression *)
+(** [pp] formats the body [t] as an s-expression *)
+val pp : Format.formatter -> t -> unit
+  [@@ocaml.toplevel_printer]
+
+(** [pp_hum] formats the body [t] as an string.
+
+    If the body content is a stream, the pretty printer will output the value ["<stream>"]*)
 val pp_hum : Format.formatter -> t -> unit
   [@@ocaml.toplevel_printer]

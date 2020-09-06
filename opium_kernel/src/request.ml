@@ -31,7 +31,7 @@ let of_string'
   make ?version ~headers ~body:(Body.of_string body) ?env target meth
 ;;
 
-let of_string ?version ?headers ?env ~body target meth =
+let of_plain_text ?version ?headers ?env ~body target meth =
   of_string' ?version ?env ?headers target meth body
 ;;
 
@@ -61,16 +61,30 @@ let header header t = Headers.get t.headers header
 let headers header t = Headers.get_multi t.headers header
 let add_header (k, v) t = { t with headers = Headers.add t.headers k v }
 
+let add_header_or_replace (k, v) t =
+  { t with
+    headers =
+      (if Headers.mem t.headers k
+      then Headers.replace t.headers k v
+      else Headers.add t.headers k v)
+  }
+;;
+
 let add_header_unless_exists (k, v) t =
   { t with headers = Headers.add_unless_exists t.headers k v }
 ;;
 
 let add_headers hs t = { t with headers = Headers.add_list t.headers hs }
 
+let add_headers_or_replace hs t =
+  ListLabels.fold_left hs ~init:t ~f:(fun acc el -> add_header_or_replace el acc)
+;;
+
 let add_headers_unless_exists hs t =
   { t with headers = Headers.add_list_unless_exists t.headers hs }
 ;;
 
+let remove_header key t = { t with headers = Headers.remove t.headers key }
 let content_type t = header "Content-Type" t
 let set_content_type s t = add_header ("Content-Type", s) t
 
@@ -254,23 +268,23 @@ let param5 key1 key2 key3 key4 key5 t =
   | _ -> None
 ;;
 
-let json_exn t =
+let to_json_exn t =
   let open Lwt.Syntax in
   let* body = t.body |> Body.copy |> Body.to_string in
   Lwt.return @@ Yojson.Safe.from_string body
 ;;
 
-let json t =
+let to_json t =
   let open Lwt.Syntax in
   Lwt.catch
     (fun () ->
-      let+ json = json_exn t in
+      let+ json = to_json_exn t in
       Some json)
     (function
       | _ -> Lwt.return None)
 ;;
 
-let string t = Body.copy t.body |> Body.to_string
+let to_plain_text t = Body.copy t.body |> Body.to_string
 
 let sexp_of_t { version; target; headers; meth; body; env } =
   let open Sexplib0.Sexp_conv in
@@ -287,7 +301,7 @@ let sexp_of_t { version; target; headers; meth; body; env } =
 
 let http_string_of_t t =
   Printf.sprintf
-    "%s %s HTTP/%s\n%s\n\n%s\n"
+    "%s %s %s\n%s\n\n%s\n"
     (Method.to_string t.meth)
     t.target
     (Version.to_string t.version)
@@ -299,5 +313,5 @@ let http_string_of_t t =
     | `Stream _ -> "<stream>")
 ;;
 
-let pp_hum fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)
-let pp_http fmt t = Format.fprintf fmt "%s\n%!" (http_string_of_t t)
+let pp fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)
+let pp_hum fmt t = Format.fprintf fmt "%s\n%!" (http_string_of_t t)

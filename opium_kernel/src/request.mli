@@ -1,4 +1,19 @@
-(** ??? *)
+(** Module to create and work with HTTP requests.
+
+    It offers convenience functions to read headers, decode a request body or URI.
+
+    The requests are most likely provided to you by Opium when you are writing your
+    application, but this module contains all the constructors and setters that you need
+    to initialize new requests.
+
+    {3 Working with stream bodies}
+
+    All the functions in this module will clone the stream before reading from it, so you
+    can process the body multiple times if needed. Just make sure that you didn't drain
+    the body before calling a function that reads from it.
+
+    Functions from other modules may drain the body stream. You can use {!Body.copy} to
+    copy the body yourself. *)
 
 type t =
   { version : Version.t
@@ -9,10 +24,15 @@ type t =
   ; env : Hmap0.t
   }
 
-(** {3 Constructor} *)
+(** {1 Constructors} *)
+
+(** {3 [make]} *)
 
 (** [make ?version ?body ?env ?headers target method] creates a new request from the given
-    values. *)
+    values.
+
+    By default, the HTTP version will be set to 1.1 and the request will not contain any
+    header or body. *)
 val make
   :  ?version:Version.t
   -> ?body:Body.t
@@ -22,17 +42,19 @@ val make
   -> Method.t
   -> t
 
-(** [of_string ?version ?headers ?env ~body target method] creates a new request from the
-    given values and a string body.
+(** {3 [of_plain_text]} *)
+
+(** [of_plain_text ?version ?headers ?env ~body target method] creates a new request from
+    the given values and a string body.
 
     The content type of the request will be set to [text/plain] and the body will contain
     the string [body].
 
-    {4 Example}
+    {3 Example}
 
     The request initialized with:
 
-    {[ Request.of_string ~body:"Hello World" "/target" `POST () ]}
+    {[ Request.of_plain_text ~body:"Hello World" "/target" `POST ]}
 
     Will be represented as:
 
@@ -41,7 +63,7 @@ POST /target HTTP/HTTP/1.1
 Content-Type: text/plain
 
 Hello World </pre>%} *)
-val of_string
+val of_plain_text
   :  ?version:Version.t
   -> ?headers:Headers.t
   -> ?env:Hmap0.t
@@ -50,17 +72,19 @@ val of_string
   -> Method.t
   -> t
 
+(** {3 [of_json]} *)
+
 (** [of_json ?version ?headers ?env ~body target method] creates a new request from the
     given values and a json body.
 
     The content type of the request will be set to [application/json] and the body will
     contain the json payload [body].
 
-    {4 Example}
+    {3 Example}
 
     The request initialized with:
 
-    {[ Request.of_json ~body:(`Assoc [ "Hello", `String "World" ]) "/target" `POST () ]}
+    {[ Request.of_json ~body:(`Assoc [ "Hello", `String "World" ]) "/target" `POST ]}
 
     Will be represented as:
 
@@ -78,17 +102,19 @@ val of_json
   -> Method.t
   -> t
 
+(** {3 [of_urlencoded]} *)
+
 (** [of_urlencoded ?version ?headers ?env ~body target method] creates a new request from
     the given values and a urlencoded body.
 
     The content type of the request will be set to [application/x-www-form-urlencoded] and
     the body will contain the key value pairs [body] formatted in the urlencoded format.
 
-    {4 Example}
+    {3 Example}
 
     The request initialized with:
 
-    {[ Request.of_urlencoded ~body:[ "key", [ "value" ] ] "/target" `POST () ]}
+    {[ Request.of_urlencoded ~body:[ "key", [ "value" ] ] "/target" `POST ]}
 
     Will be represented as:
 
@@ -106,7 +132,86 @@ val of_urlencoded
   -> Method.t
   -> t
 
-(** {3 Getters and Setters} *)
+(** {1 Decoders} *)
+
+(** {3 [to_plain_text]} *)
+
+(** [to_plain_text t] parses the body of the request [t] as a string.
+
+    {3 Example}
+
+    {[
+      let request = Request.of_plain_text "Hello world!"
+      let body = Request.to_json request
+    ]}
+
+    [body] will be:
+
+    {[ "Hello world!" ]} *)
+val to_plain_text : t -> string Lwt.t
+
+(** {3 [to_json]} *)
+
+(** [to_json t] parses the body of the request [t] as a JSON structure.
+
+    If the body of the request cannot be parsed as a JSON structure, [None] is returned.
+    Use {!to_json_exn} to raise an exception instead.
+
+    {3 Example}
+
+    {[
+      let request = Request.of_json (`Assoc [ "Hello", `String "World" ])
+      let body = Request.to_json request
+    ]}
+
+    [body] will be:
+
+    {[ `Assoc [ "Hello", `String "World" ] ]} *)
+val to_json : t -> Yojson.Safe.t option Lwt.t
+
+(** {3 [to_json_exn]} *)
+
+(** [to_json_exn t] parses the body of the request [t] as a JSON structure.
+
+    If the body of the request cannot be parsed as a JSON structure, an [Invalid_argument]
+    exception is raised. Use {!to_json} to return an option instead. *)
+val to_json_exn : t -> Yojson.Safe.t Lwt.t
+
+(** {3 [to_urlencoded]} *)
+
+(** [to_urlencoded t] parses the body of the request [t] from a urlencoded format to a
+    list of key-values pairs.
+
+    This function exist to offer a simple way to get all of the key-values pairs, but most
+    of the time, you'll probably only want the value of a key given. If you don't need the
+    entire list of values, it is recommended to use {!urlencoded} instead.
+
+    If the body of the request cannot be parsed as a urlencoded string, an empty list is
+    returned.
+
+    {3 Example}
+
+    {[
+      let request =
+        Request.of_urlencoded
+          ~body:[ "username", [ "admin" ]; "password", [ "password" ] ]
+          "/"
+          `POST
+      ;;
+
+      let values = Request.to_urlencoded request
+    ]}
+
+    [values] will be:
+
+    {[ [ "username", [ "admin" ]; "password", [ "password" ] ] ]} *)
+val to_urlencoded : t -> (string * string list) list Lwt.t
+
+(** {1 Getters and Setters} *)
+
+(** {2 General Headers} *)
+
+(** {3 [header]} *)
 
 (** [header key t] returns the value of the header with key [key] in the request [t].
 
@@ -117,11 +222,15 @@ val of_urlencoded
     {!headers}. *)
 val header : string -> t -> string option
 
+(** {3 [headers]} *)
+
 (** [headers] returns the values of all headers with the key [key] in the request [t].
 
     If you want to return the value of only the first header with the key [key], you can
     use {!header}. *)
 val headers : string -> t -> string list
+
+(** {3 [add_header]} *)
 
 (** [add_header (key, value) t] adds a header with the key [key] and the value [value] to
     the request [t].
@@ -132,6 +241,20 @@ val headers : string -> t -> string list
 
     See also {!add_headers} to add multiple headers. *)
 val add_header : string * string -> t -> t
+
+(** {3 [add_header_or_replace]} *)
+
+(** [add_header_or_replace (key, value) t] adds a header with the key [key] and the value
+    [value] to the request [t].
+
+    If a header with the same key already exist, its value is replaced by [value]. If you
+    want to add the header only if it doesn't already exist, you can use
+    {!add_header_unless_exists}.
+
+    See also {!add_headers_or_replace} to add multiple headers. *)
+val add_header_or_replace : string * string -> t -> t
+
+(** {3 [add_header_unless_exists]} *)
 
 (** [add_header_unless_exists (key, value) t] adds a header with the key [key] and the
     value [value] to the request [t] if an header with the same key does not already
@@ -144,7 +267,9 @@ val add_header : string * string -> t -> t
     See also {!add_headers_unless_exists} to add multiple headers. *)
 val add_header_unless_exists : string * string -> t -> t
 
-(** [add_headers headers request] adds the headers [headers] to the request [t].
+(** {3 [add_headers]} *)
+
+(** [add_headers headers t] adds the headers [headers] to the request [t].
 
     The headers are added regardless of whether a header with the same key is already
     present. If you want to add the header only if an header with the same key could not
@@ -153,8 +278,21 @@ val add_header_unless_exists : string * string -> t -> t
     See also {!add_header} to add a single header. *)
 val add_headers : (string * string) list -> t -> t
 
-(** [add_headers_unless_exists headers request] adds the headers [headers] to the request
-    [t] if an header with the same key does not already exist.
+(** {3 [add_headers_or_replace]} *)
+
+(** [add_headers_or_replace (key, value) t] adds a headers [headers] to the request [t].
+
+    If a header with the same key already exist, its value is replaced by [value]. If you
+    want to add the header only if it doesn't already exist, you can use
+    {!add_headers_unless_exists}.
+
+    See also {!add_header_or_replace} to add a single header. *)
+val add_headers_or_replace : (string * string) list -> t -> t
+
+(** {3 [add_headers_unless_exists]} *)
+
+(** [add_headers_unless_exists headers t] adds the headers [headers] to the request [t] if
+    an header with the same key does not already exist.
 
     If a header with the same key already exist, the header is will not be added to the
     request. If you want to add the header regardless of whether the header is already
@@ -163,55 +301,104 @@ val add_headers : (string * string) list -> t -> t
     See also {!add_header_unless_exists} to add a single header. *)
 val add_headers_unless_exists : (string * string) list -> t -> t
 
-(** [urlencoded_list key t] returns all the values associated to [key] in the urlencoded
+(** {3 [remove_header]} *)
+
+(** [remove_header (key, value) t] removes all the headers with the key [key] from the
     request [t].
 
-    This function exist to offer a simple way to get all of the values associated to a
-    key, but most of the time, there is only one value per key. If you're not specifically
-    trying to decode a request with multiple values per key, it is recommended to use
-    {!urlencoded} instead.
+    If no header with the key [key] exist, the request remains unmodified. *)
+val remove_header : string -> t -> t
 
-    The body of the request will be copied, so if it is a stream, it will not be drained
-    and you will still be able to process it afterward.
+(** {2 Specific Headers} *)
 
-    if the key could not be found or if the request could not be parsed as urlencoded, an
-    empty list is returned. *)
-val urlencoded_list : t -> (string * string list) list Lwt.t
+(** {3 [content_type]} *)
 
-(** [urlencoded key t] returns the first value associated to [key] in the urlencoded
-    request [t].
+(** [content_type t] returns the value of the header [Content-Type] of the request [t]. *)
+val content_type : t -> string option
+
+(** {3 [set_content_type]} *)
+
+(** [set_content_type content_type t] returns a copy of [t] with the value of the header
+    [Content-Type] set to [content_type]. *)
+val set_content_type : string -> t -> t
+
+(** {2 Body} *)
+
+(** {3 [urlencoded]} *)
+
+(** [urlencoded key t] returns the first value associated to [key] in the urlencoded body
+    of the request [t].
 
     The function only returns the first value for the given key, because in the great
     majority of cases, there is only one parameter per key. If you want to return all the
-    values associated to the key, you can use {!urlencoded_list}.
-
-    The body of the request will be copied, so if it is a stream, it will not be drained
-    and you will still be able to process it afterward.
+    values associated to the key, you can use {!to_urlencoded}.
 
     If the key could not be found or if the request could not be parsed as urlencoded,
-    [None] is returned. *)
+    [None] is returned. Use {!urlencoded_exn} to raise an exception instead.
+
+    {3 Example}
+
+    {[
+      let request =
+        Request.of_urlencoded
+          ~body:[ "username", [ "admin" ]; "password", [ "password" ] ]
+          "/"
+          `POST
+      ;;
+
+      let username = Request.urlencoded "username" request
+    ]}
+
+    [username] will be:
+
+    {[ Some "admin" ]} *)
 val urlencoded : string -> t -> string option Lwt.t
 
-(** ??? *)
+(** {3 [urlencoded_exn]} *)
+
+(** [urlencoded_exn key t] returns the first value associated to [key] in the urlencoded
+    body of the request [t].
+
+    The function only returns the first value for the given key, because in the great
+    majority of cases, there is only one parameter per key. If you want to return all the
+    values associated to the key, you can use {!to_urlencoded}.
+
+    If the key could not be found or if the request could not be parsed as urlencoded, an
+    [Invalid_argument] exception is raised. Use {!urlencoded} to return an option instead. *)
 val urlencoded_exn : string -> t -> string Lwt.t
 
-(** [urlencoded2 key1 key2 t] returns the first values respectively associated to [key1]
-    and [key2] in the urlencoded request [t].
+(** {3 [urlencoded2]} *)
 
-    The body of the request will be copied, so if it is a stream, it will not be drained
-    and you will still be able to process it afterward.
+(** [urlencoded2 key1 key2 t] returns the first values respectively associated to [key1]
+    and [key2] in the urlencoded body of the request [t].
 
     If one of the key could not be found or if the request could not be parsed as
-    urlencoded, [None] is returned. *)
+    urlencoded, [None] is returned.
+
+    {3 Example}
+
+    {[
+      let request =
+        Request.of_urlencoded
+          ~body:[ "username", [ "admin" ]; "password", [ "password" ] ]
+          "/"
+          `POST
+      ;;
+
+      let values = Request.urlencoded2 "username" "password" request
+    ]}
+
+    [values] will be:
+
+    {[ Some ("admin", "password") ]} *)
 val urlencoded2 : string -> string -> t -> (string * string) option Lwt.t
   [@@alert
     experimental "This function is experimental and might be removed in a later release."]
 
-(** [urlencoded2 key1 key2 key3 t] returns the first values respectively associated to
-    [key1], [key2] and [key3] in the urlencoded request [t].
+(** {3 [urlencoded3]} *)
 
-    The body of the request will be copied, so if it is a stream, it will not be drained
-    and you will still be able to process it afterward.
+(** [urlencoded3 key1 key2 key3 t] returns the first values respectively associated to
+    [key1], [key2] and [key3] in the urlencoded body of the request [t].
 
     If one of the key could not be found or if the request could not be parsed as
     urlencoded, [None] is returned. *)
@@ -224,7 +411,13 @@ val urlencoded3
   [@@alert
     experimental "This function is experimental and might be removed in a later release."]
 
-(** ??? *)
+(** {3 [urlencoded4]} *)
+
+(** [urlencoded4 key1 key2 key3 key4 t] returns the first values respectively associated
+    to [key1], [key2], [key3] and [key4] in the urlencoded body of the request [t].
+
+    If one of the key could not be found or if the request could not be parsed as
+    urlencoded, [None] is returned. *)
 val urlencoded4
   :  string
   -> string
@@ -235,7 +428,14 @@ val urlencoded4
   [@@alert
     experimental "This function is experimental and might be removed in a later release."]
 
-(** ??? *)
+(** {3 [urlencoded5]} *)
+
+(** [urlencoded5 key1 key2 key3 key4 key5 t] returns the first values respectively
+    associated to [key1], [key2], [key3], [key4] and [key5] in the urlencoded body of the
+    request [t].
+
+    If one of the key could not be found or if the request could not be parsed as
+    urlencoded, [None] is returned. *)
 val urlencoded5
   :  string
   -> string
@@ -247,26 +447,92 @@ val urlencoded5
   [@@alert
     experimental "This function is experimental and might be removed in a later release."]
 
-(** ??? *)
-val query_list : t -> (string * string list) list
+(** {2 URI} *)
 
-(** ??? *)
+(** {3 [query]} *)
+
+(** [query key t] returns the first value associated to [key] in the URI query parameters
+    of the request [t].
+
+    The function only returns the first value for the given key, because in the great
+    majority of cases, there is only one parameter per key. If you want to return all the
+    values associated to the key, you can use {!query_list}.
+
+    If the key could not be found or if the request URI does not contain any query
+    parameter, [None] is returned. Use {!query_exn} to raise an exception instead.
+
+    {3 Example}
+
+    {[
+      let request = Request.make "/target?key=value" `GET
+      let query = Request.query "key" request
+    ]}
+
+    [query] will be:
+
+    {[ Some "value" ]} *)
 val query : string -> t -> string option
 
-(** ??? *)
+(** {3 [query_exn]} *)
+
+(** [query_exn key t] returns the first value associated to [key] in the URI query
+    parameters of the request [t].
+
+    The function only returns the first value for the given key, because in the great
+    majority of cases, there is only one parameter per key. If you want to return all the
+    values associated to the key, you can use {!to_urlencoded}.
+
+    If the key could not be found or if the request URI does not contain any query
+    parameter, an [Invalid_argument] exception is raised. Use {!query} to return an option
+    instead. *)
 val query_exn : string -> t -> string
 
-(** ??? *)
+(** {3 [query_list]} *)
+
+(** [query_list key t] returns all the values associated to [key] in the URI query
+    parameters of the request [t].
+
+    This function exist to offer a simple way to get all of the values associated to a
+    key, but most of the time, there is only one value per key. If you're not specifically
+    trying to decode a request with multiple values per key, it is recommended to use
+    {!query} instead.
+
+    If the key could not be found or if the request could not be parsed as query, an empty
+    list is returned.
+
+    {3 Example}
+
+    {[
+      let request = Request.make "/target?key=value&key2=value2" `GET
+      let values = Request.query_list request
+    ]}
+
+    [values] will be:
+
+    {[ [ "key", [ "value" ]; "key2", [ "value2" ] ] ]} *)
+val query_list : t -> (string * string list) list
+
+(** {3 [query2]} *)
+
+(** [query2 key1 key2 t] ??? *)
 val query2 : string -> string -> t -> (string * string) option
   [@@alert
     experimental "This function is experimental and might be removed in a later release."]
 
-(** ??? *)
+(** {3 [query3]} *)
+
+(** [query3 key1 key2 key3 t] returns the first values respectively associated to [key1],
+    [key2] and [key3] in the urlencoded body of the request [t].
+
+    If one of the key could not be found or if the request could not be parsed as
+    urlencoded, [None] is returned. *)
 val query3 : string -> string -> string -> t -> (string * string * string) option
   [@@alert
     experimental "This function is experimental and might be removed in a later release."]
 
-(** ??? *)
+(** {3 [query4]} *)
+
+(** [query4 key1 key2 key3 key4 t] *)
 val query4
   :  string
   -> string
@@ -277,7 +543,9 @@ val query4
   [@@alert
     experimental "This function is experimental and might be removed in a later release."]
 
-(** ??? *)
+(** {3 [query5]} *)
+
+(** [query5 key1 key2 key3 key4 key5 t] *)
 val query5
   :  string
   -> string
@@ -289,24 +557,38 @@ val query5
   [@@alert
     experimental "This function is experimental and might be removed in a later release."]
 
-(** ??? *)
-val param_list : t -> (string * string) list
+(** {2 Context} *)
+
+(** {3 [param]} *)
 
 (** ??? *)
 val param : string -> t -> string option
 
+(** {3 [param_exn]} *)
+
 (** ??? *)
 val param_exn : string -> t -> string
+
+(** {3 [param_list]} *)
+
+(** ??? *)
+val param_list : t -> (string * string) list
+
+(** {3 [param2]} *)
 
 (** ??? *)
 val param2 : string -> string -> t -> (string * string) option
   [@@alert
     experimental "This function is experimental and might be removed in a later release."]
 
+(** {3 [param3]} *)
+
 (** ??? *)
 val param3 : string -> string -> string -> t -> (string * string * string) option
   [@@alert
     experimental "This function is experimental and might be removed in a later release."]
+
+(** {3 [param4]} *)
 
 (** ??? *)
 val param4
@@ -318,6 +600,8 @@ val param4
   -> (string * string * string * string) option
   [@@alert
     experimental "This function is experimental and might be removed in a later release."]
+
+(** {3 [param5]} *)
 
 (** ??? *)
 val param5
@@ -331,32 +615,21 @@ val param5
   [@@alert
     experimental "This function is experimental and might be removed in a later release."]
 
-(** ??? *)
-val json : t -> Yojson.Safe.t option Lwt.t
+(** {1 Utilities} *)
 
-(** ??? *)
-val json_exn : t -> Yojson.Safe.t Lwt.t
-
-(** ??? *)
-val string : t -> string Lwt.t
-
-(** [content_type request] returns the value of the header [Content-Type] of the request
-    [t]. *)
-val content_type : t -> string option
-
-(** [set_content_type content_type request] returns a copy of [t] with the value of the
-    header [Content-Type] set to [content_type]. *)
-val set_content_type : string -> t -> t
-
-(** {3 Utilities} *)
+(** {3 [sexp_of_t]} *)
 
 (** [sexp_of_t t] converts the request [t] to an s-expression *)
 val sexp_of_t : t -> Sexplib0.Sexp.t
 
-(** [pp_hum] formats the request [t] as an s-expression *)
-val pp_hum : Format.formatter -> t -> unit
+(** {3 [pp]} *)
+
+(** [pp] formats the request [t] as an s-expression *)
+val pp : Format.formatter -> t -> unit
   [@@ocaml.toplevel_printer]
 
-(** [pp_http] formats the request [t] as a standard HTTP request *)
-val pp_http : Format.formatter -> t -> unit
+(** {3 [pp_hum]} *)
+
+(** [pp_hum] formats the request [t] as a standard HTTP request *)
+val pp_hum : Format.formatter -> t -> unit
   [@@ocaml.toplevel_printer]

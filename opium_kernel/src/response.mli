@@ -1,3 +1,7 @@
+(** Module to create and work with HTTP responses.
+
+    It offers convenience functions to create common responses and update them. *)
+
 type t =
   { version : Version.t
   ; status : Status.t
@@ -7,10 +11,15 @@ type t =
   ; env : Hmap0.t
   }
 
-(** {3 Constructors} *)
+(** {1 Constructors} *)
+
+(** {3 [make]} *)
 
 (** [make ?version ?status ?reason ?headers ?body ?env ()] creates a new response from the
-    given values. *)
+    given values.
+
+    By default, the HTTP version will be set to 1.1, the HTTP status to 200 and the
+    response will not contain any header or body. *)
 val make
   :  ?version:Version.t
   -> ?status:Status.t
@@ -21,38 +30,24 @@ val make
   -> unit
   -> t
 
-(** [redirect_to ?status ?version ?reason ?headers ?env target] creates a new Redirect
-    response from the given values.
+(** {3 [of_plain_text]} *)
 
-    The response will contain the header [Location] with the value [target] and a Redirect
-    HTTP status (a Redirect HTTP status starts with 3).
+(** [of_plain_text ?status ?version ?reason ?headers ?env body] creates a new response
+    from the given values and a string body.
 
-    By default, the HTTP status is [302 Found]. *)
-val redirect_to
-  :  ?status:Status.redirection
-  -> ?version:Httpaf.Version.t
-  -> ?reason:string
-  -> ?headers:Httpaf.Headers.t
-  -> ?env:Hmap0.t
-  -> string
-  -> t
-
-(** [of_plain_text ?status ?version ?reason ?headers ?env body] creates a new request from
-    the given values and a string body.
-
-    The content type of the request will be set to [text/plain] and the body will contain
+    The content type of the response will be set to [text/plain] and the body will contain
     the string [body].
 
-    {4 Example}
+    {3 Example}
 
-    The request initialized with:
+    The response initialized with:
 
     {[ Response.of_plain_text "Hello World" ]}
 
     Will be represented as:
 
     {%html: <pre>
-HTTP/HTTP/1.1 200 
+HTTP/1.1 200 
 Content-Type: text/plain
 
 Hello World </pre>%} *)
@@ -65,22 +60,24 @@ val of_plain_text
   -> string
   -> t
 
-(** [of_json ?status ?version ?reason ?headers ?env payload] creates a new request from
+(** {3 [of_json]} *)
+
+(** [of_json ?status ?version ?reason ?headers ?env payload] creates a new response from
     the given values and a JSON body.
 
-    The content type of the request will be set to [application/json] and the body will
+    The content type of the response will be set to [application/json] and the body will
     contain the json payload [body].
 
-    {4 Example}
+    {3 Example}
 
-    The request initialized with:
+    The response initialized with:
 
     {[ Response.of_json (`Assoc [ "Hello", `String "World" ]) ]}
 
     Will be represented as:
 
     {%html: <pre>
-HTTP/HTTP/1.1 200 
+HTTP/1.1 200 
 Content-Type: application/json
 
 {"Hello":"World"} </pre> %} *)
@@ -93,80 +90,243 @@ val of_json
   -> Yojson.Safe.t
   -> t
 
-(** [of_html ?status ?version ?reason ?headers ?env payload] creates a new request from
-    the given values and a HTML body.
+(** {3 [of_html]} *)
 
-    The content type of the request will be set to [text/html; charset=utf-8] and the body
-    will contain the HTML payload [body].
+(** [of_html ?status ?version ?reason ?headers ?env ?indent payload] creates a new
+    response from the given values and a HTML body.
+
+    The content type of the response will be set to [text/html; charset=utf-8] and the
+    body will contain the HTML payload [payload].
 
     The header [Connection] will be set to [Keep-Alive] to opimize for bandwitdh, since it
-    is assumed that users who request HTML content will be likely to make further
-    requests.
+    is assumed that users who response HTML content will be likely to make further
+    responses.
 
-    {4 Example}
+    {3 Example}
 
-    The request initialized with:
+    The response initialized with:
 
     {[
-      Response.of_html
-        "<html>\n\
-         <head>\n\
-        \  <title>Title</title>\n\
-         </head>\n\
-         <body>\n\
-        \  Hello World\n\
-         </body>\n\
-         </html>"
+      let my_page =
+        let open Tyxml.Html in
+        html (head (title (txt "Title")) []) (body [ h1 [ txt "Hello World!" ] ])
+      ;;
+
+      let res = Response.of_html ~indent:true my_page
     ]}
 
-    Will be represented as:
+    [res] will be represented as:
 
     {%html: <pre>
-HTTP/HTTP/1.1 200 
-Content-Type: text/html
+HTTP/1.1 200 
+Connection: Keep-Alive
+Content-Type: text/html; charset=utf-8
 
-&lt;html&gt;
-&lt;head&gt;
-  &lt;title&gt;Title&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-  Hello World
-&lt;/body&gt;
-&lt;/html&gt; </pre> %}
-
-    {4 Tyxml}
-
-    It is common to use [tyxml] to generate HTML. If that's your case, here's sample
-    function to create a [t] from a [\[ `Html \] Tyxml_html.elt]:
-
-    {[
-      let response_of_tyxml ?version ?status ?reason ?headers ?env body =
-        let body =
-          Format.asprintf "%a" (Tyxml.Html.pp ()) body |> Opium_kernel.Body.of_string
-        in
-        Opium_kernel.Response.of_html ?version ?status ?reason ?headers ?env body
-      ;;
-    ]}*)
+&lt;!DOCTYPE html&gt;
+&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;&lt;head&gt;&lt;title&gt;Title&lt;/title&gt;&lt;/head&gt;
+ &lt;body&gt;&lt;h1&gt;Hello World!&lt;/h1&gt;&lt;/body&gt;
+&lt;/html&gt; </pre> %} *)
 val of_html
   :  ?version:Version.t
   -> ?status:Status.t
   -> ?reason:string
   -> ?headers:Headers.t
   -> ?env:Hmap0.t
-  -> string
+  -> ?indent:bool
+  -> [ `Html ] Tyxml_html.elt
   -> t
 
-(** ??? *)
+(** {3 [of_xml]} *)
+
+(** [of_xml ?status ?version ?reason ?headers ?env ?indent payload] creates a new response
+    from the given values and a XML body.
+
+    The content type of the response will be set to [text/xml; charset=utf-8] and the body
+    will contain the XML payload [payload].
+
+    {3 Example}
+
+    The response initialized with:
+
+    {[
+      let xml =
+        let open Tyxml.Xml in
+        node
+          "note"
+          [ node "to" [ pcdata "Tove" ]
+          ; node "from" [ pcdata "Jani" ]
+          ; node "heading" [ pcdata "Reminder" ]
+          ; node "body" [ pcdata "Don't forget me this weekend!" ]
+          ]
+      ;;
+
+      let res = Response.of_xml ~indent:true xml
+    ]}
+
+    [res] will be represented as:
+
+    {%html: <pre>
+HTTP/1.1 200 
+Content-Type: application/xml charset=utf-8
+
+&lt;note&gt;&lt;to&gt;Tove&lt;/to&gt;&lt;from&gt;Jani&lt;/from&gt;&lt;heading&gt;Reminder&lt;/heading&gt;
+ &lt;body&gt;Don't forget me this weekend!&lt;/body&gt;
+&lt;/note&gt; </pre> %} *)
+val of_xml
+  :  ?version:Version.t
+  -> ?status:Status.t
+  -> ?reason:string
+  -> ?headers:Headers.t
+  -> ?env:Hmap0.t
+  -> ?indent:bool
+  -> Tyxml_xml.elt
+  -> t
+
+(** {3 [of_svg]} *)
+
+(** [of_svg ?status ?version ?reason ?headers ?env ?indent payload] creates a new response
+    from the given values and a SVG body.
+
+    The content type of the response will be set to [image/svg+xml] and the body will
+    contain the SVG payload [payload].
+
+    The header [Connection] will be set to [Keep-Alive] to opimize for bandwitdh, since it
+    is assumed that users who response SVG content will be likely to make further
+    responses.
+
+    {3 Example}
+
+    The response initialized with:
+
+    {[
+      let my_svg =
+        let open Tyxml.Svg in
+        svg
+          [ circle
+              ~a:
+                [ a_cx (50., None)
+                ; a_cy (50., None)
+                ; a_r (40., None)
+                ; a_fill (`Color ("black", None))
+                ]
+              []
+          ]
+      ;;
+
+      let res = Response.of_svg ~indent:true my_svg
+    ]}
+
+    [res] will be represented as:
+
+    {%html: <pre>
+HTTP/1.1 200 
+Connection: Keep-Alive
+Content-Type: image/svg+xml
+
+&lt;!DOCTYPE svg PUBLIC &quot;-//W3C//DTD SVG 1.1//EN&quot; &quot;http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd&quot;&gt;
+&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot;
+ xmlns:xlink=&quot;http://www.w3.org/1999/xlink&quot;&gt;
+ &lt;circle cx=&quot;50&quot; cy=&quot;50&quot; r=&quot;40&quot; fill=&quot;black&quot;&gt;&lt;/circle&gt;
+&lt;/svg&gt; </pre> %} *)
 val of_svg
   :  ?version:Version.t
   -> ?status:Status.t
   -> ?reason:string
   -> ?headers:Headers.t
   -> ?env:Hmap0.t
+  -> ?indent:bool
+  -> [ `Svg ] Tyxml_svg.elt
+  -> t
+
+(** {3 [redirect_to]} *)
+
+(** [redirect_to ?status ?version ?reason ?headers ?env target] creates a new Redirect
+    response from the given values.
+
+    The response will contain the header [Location] with the value [target] and a Redirect
+    HTTP status (a Redirect HTTP status starts with 3).
+
+    By default, the HTTP status is [302 Found].
+
+    The response initialized with:
+
+    {[ Response.redirect_to "/redirected" ]}
+
+    Will be represented as:
+
+    {%html: <pre>
+HTTP/1.1 302 
+Location: /redirected
+
+</pre>%}*)
+val redirect_to
+  :  ?status:Status.redirection
+  -> ?version:Version.t
+  -> ?reason:string
+  -> ?headers:Headers.t
+  -> ?env:Hmap0.t
   -> string
   -> t
 
-(** {3 Getters and Setters} *)
+(** {1 Decoders} *)
+
+(** {3 [to_json]} *)
+
+(** [to_json t] parses the body of the response [t] as a JSON structure.
+
+    If the body of the response cannot be parsed as a JSON structure, [None] is returned.
+    Use {!to_json_exn} to raise an exception instead.
+
+    {3 Example}
+
+    {[
+      let response = Response.of_json (`Assoc [ "Hello", `String "World" ])
+      let body = Response.to_json response
+    ]}
+
+    [body] will be:
+
+    {[ `Assoc [ "Hello", `String "World" ] ]} *)
+val to_json : t -> Yojson.Safe.t option Lwt.t
+
+(** {3 [to_json_exn]} *)
+
+(** [to_json_exn t] parses the body of the response [t] as a JSON structure.
+
+    If the body of the response cannot be parsed as a JSON structure, an
+    [Invalid_argument] exception is raised. Use {!to_json} to return an option instead. *)
+val to_json_exn : t -> Yojson.Safe.t Lwt.t
+
+(** {3 [to_plain_text]} *)
+
+(** [to_plain_text t] parses the body of the response [t] as a string.
+
+    {3 Example}
+
+    {[
+      let response = Response.of_plain_text "Hello world!"
+      let body = Response.to_json response
+    ]}
+
+    [body] will be:
+
+    {[ "Hello world!" ]} *)
+val to_plain_text : t -> string Lwt.t
+
+(** {1 Getters and Setters} *)
+
+(** {3 [status]} *)
+
+(** [status response] returns the HTTP status of the response [response]. *)
+val status : t -> Status.t
+
+(** {3 [set_status]} *)
+
+(** [set_status status response] returns a copy of [response] with the HTTP status set to
+    [content_type]. *)
+val set_status : Status.t -> t -> t
+
+(** {2 General Headers} *)
 
 (** [header key t] returns the value of the header with key [key] in the response [t].
 
@@ -177,11 +337,15 @@ val of_svg
     {!headers}. *)
 val header : string -> t -> string option
 
+(** {3 [headers]} *)
+
 (** [headers] returns the values of all headers with the key [key] in the response [t].
 
     If you want to return the value of only the first header with the key [key], you can
     use {!header}. *)
 val headers : string -> t -> string list
+
+(** {3 [add_header]} *)
 
 (** [add_header (key, value) t] adds a header with the key [key] and the value [value] to
     the response [t].
@@ -192,6 +356,20 @@ val headers : string -> t -> string list
 
     See also {!add_headers} to add multiple headers. *)
 val add_header : string * string -> t -> t
+
+(** {3 [add_header_or_replace]} *)
+
+(** [add_header_or_replace (key, value) t] adds a header with the key [key] and the value
+    [value] to the response [t].
+
+    If a header with the same key already exist, its value is replaced by [value]. If you
+    want to add the header only if it doesn't already exist, you can use
+    {!add_header_unless_exists}.
+
+    See also {!add_headers_or_replace} to add multiple headers. *)
+val add_header_or_replace : string * string -> t -> t
+
+(** {3 [add_header_unless_exists]} *)
 
 (** [add_header_unless_exists (key, value) t] adds a header with the key [key] and the
     value [value] to the response [t] if an header with the same key does not already
@@ -204,6 +382,8 @@ val add_header : string * string -> t -> t
     See also {!add_headers_unless_exists} to add multiple headers. *)
 val add_header_unless_exists : string * string -> t -> t
 
+(** {3 [add_headers]} *)
+
 (** [add_headers headers response] adds the headers [headers] to the response [t].
 
     The headers are added regardless of whether a header with the same key is already
@@ -212,6 +392,19 @@ val add_header_unless_exists : string * string -> t -> t
 
     See also {!add_header} to add a single header. *)
 val add_headers : (string * string) list -> t -> t
+
+(** {3 [add_headers_or_replace]} *)
+
+(** [add_headers_or_replace (key, value) t] adds a headers [headers] to the response [t].
+
+    If a header with the same key already exist, its value is replaced by [value]. If you
+    want to add the header only if it doesn't already exist, you can use
+    {!add_headers_unless_exists}.
+
+    See also {!add_header_or_replace} to add a single header. *)
+val add_headers_or_replace : (string * string) list -> t -> t
+
+(** {3 [add_headers_unless_exists]} *)
 
 (** [add_headers_unless_exists headers response] adds the headers [headers] to the
     response [t] if an header with the same key does not already exist.
@@ -223,30 +416,78 @@ val add_headers : (string * string) list -> t -> t
     See also {!add_header_unless_exists} to add a single header. *)
 val add_headers_unless_exists : (string * string) list -> t -> t
 
+(** {3 [remove_header]} *)
+
+(** [remove_header (key, value) t] removes all the headers with the key [key] from the
+    response [t].
+
+    If no header with the key [key] exist, the response remains unmodified. *)
+val remove_header : string -> t -> t
+
+(** {2 Specific Headers} *)
+
+(** {3 [content_type]} *)
+
 (** [content_type response] returns the value of the header [Content-Type] of the response
     [response]. *)
 val content_type : t -> string option
+
+(** {3 [set_content_type]} *)
 
 (** [set_content_type content_type response] returns a copy of [response] with the value
     of the header [Content-Type] set to [content_type]. *)
 val set_content_type : string -> t -> t
 
-(** [status response] returns the HTTP status of the response [response]. *)
-val status : t -> Status.t
+(** {3 [etag]} *)
 
-(** [set_status status response] returns a copy of [response] with the HTTP status set to
-    [content_type]. *)
-val set_status : Status.t -> t -> t
+(** [etag response] returns the value of the header [ETag] of the response [response]. *)
+val etag : t -> string option
 
-(** {3 Utilities} *)
+(** {3 [set_etag]} *)
+
+(** [set_etag etag response] returns a copy of [response] with the value of the header
+    [ETag] set to [etag]. *)
+val set_etag : string -> t -> t
+
+(** {3 [location]} *)
+
+(** [location response] returns the value of the header [Location] of the response
+    [response]. *)
+val location : t -> string option
+
+(** {3 [set_location]} *)
+
+(** [set_location location response] returns a copy of [response] with the value of the
+    header [Location] set to [location]. *)
+val set_location : string -> t -> t
+
+(** {3 [cache_control]} *)
+
+(** [cache_control response] returns the value of the header [Cache-Control] of the
+    response [response]. *)
+val cache_control : t -> string option
+
+(** {3 [set_cache_control]} *)
+
+(** [set_cache_control cache_control response] returns a copy of [response] with the value
+    of the header [Cache-Control] set to [cache_control]. *)
+val set_cache_control : string -> t -> t
+
+(** {1 Utilities} *)
+
+(** {3 [sexp_of_t]} *)
 
 (** [sexp_of_t t] converts the response [t] to an s-expression *)
 val sexp_of_t : t -> Sexplib0.Sexp.t
 
-(** [pp_hum] formats the response [t] as an s-expression *)
-val pp_hum : Format.formatter -> t -> unit
+(** {3 [pp]} *)
+
+(** [pp] formats the response [t] as an s-expression *)
+val pp : Format.formatter -> t -> unit
   [@@ocaml.toplevel_printer]
 
-(** [pp_http] formats the response [t] as a standard HTTP response *)
-val pp_http : Format.formatter -> t -> unit
+(** {3 [pp_hum]} *)
+
+(** [pp_hum] formats the response [t] as a standard HTTP response *)
+val pp_hum : Format.formatter -> t -> unit
   [@@ocaml.toplevel_printer]
