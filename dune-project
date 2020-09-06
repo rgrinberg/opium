@@ -34,6 +34,7 @@
   fieldslib
   sexplib0
   logs
+  magic-mime
   mtime
   yojson
   bigstringaf
@@ -62,6 +63,5 @@
   cmdliner
   sexplib0
   re
-  magic-mime
   (alcotest :with-test)
   (alcotest-lwt :with-test)))
