@@ -57,6 +57,30 @@ let of_urlencoded ?version ?headers ?env ~body target meth =
     (body |> Uri.encoded_of_query)
 ;;
 
+let to_json_exn t =
+  let open Lwt.Syntax in
+  let* body = t.body |> Body.copy |> Body.to_string in
+  Lwt.return @@ Yojson.Safe.from_string body
+;;
+
+let to_json t =
+  let open Lwt.Syntax in
+  Lwt.catch
+    (fun () ->
+      let+ json = to_json_exn t in
+      Some json)
+    (function
+      | _ -> Lwt.return None)
+;;
+
+let to_plain_text t = Body.copy t.body |> Body.to_string
+
+let to_urlencoded t =
+  let open Lwt.Syntax in
+  let* body = t.body |> Body.copy |> Body.to_string in
+  body |> Uri.query_of_encoded |> Lwt.return
+;;
+
 let header header t = Headers.get t.headers header
 let headers header t = Headers.get_multi t.headers header
 let add_header (k, v) t = { t with headers = Headers.add t.headers k v }
@@ -98,15 +122,9 @@ let find_in_query key query =
       | Not_found -> None)
 ;;
 
-let urlencoded_list t =
-  let open Lwt.Syntax in
-  let* body = t.body |> Body.copy |> Body.to_string in
-  body |> Uri.query_of_encoded |> Lwt.return
-;;
-
 let urlencoded key t =
   let open Lwt.Syntax in
-  let* query = urlencoded_list t in
+  let* query = to_urlencoded t in
   Lwt.return @@ find_in_query key query
 ;;
 
@@ -118,7 +136,7 @@ let urlencoded_exn key t =
 
 let urlencoded2 key1 key2 t =
   let open Lwt.Syntax in
-  let* query = urlencoded_list t in
+  let* query = to_urlencoded t in
   let value1 = find_in_query key1 query in
   let value2 = find_in_query key2 query in
   match value1, value2 with
@@ -128,7 +146,7 @@ let urlencoded2 key1 key2 t =
 
 let urlencoded3 key1 key2 key3 t =
   let open Lwt.Syntax in
-  let* query = urlencoded_list t in
+  let* query = to_urlencoded t in
   let value1 = find_in_query key1 query in
   let value2 = find_in_query key2 query in
   let value3 = find_in_query key3 query in
@@ -139,7 +157,7 @@ let urlencoded3 key1 key2 key3 t =
 
 let urlencoded4 key1 key2 key3 key4 t =
   let open Lwt.Syntax in
-  let* query = urlencoded_list t in
+  let* query = to_urlencoded t in
   let value1 = find_in_query key1 query in
   let value2 = find_in_query key2 query in
   let value3 = find_in_query key3 query in
@@ -152,7 +170,7 @@ let urlencoded4 key1 key2 key3 key4 t =
 
 let urlencoded5 key1 key2 key3 key4 key5 t =
   let open Lwt.Syntax in
-  let* query = urlencoded_list t in
+  let* query = to_urlencoded t in
   let value1 = find_in_query key1 query in
   let value2 = find_in_query key2 query in
   let value3 = find_in_query key3 query in
@@ -267,24 +285,6 @@ let param5 key1 key2 key3 key4 key5 t =
     Some (value1, value2, value3, value4, value5)
   | _ -> None
 ;;
-
-let to_json_exn t =
-  let open Lwt.Syntax in
-  let* body = t.body |> Body.copy |> Body.to_string in
-  Lwt.return @@ Yojson.Safe.from_string body
-;;
-
-let to_json t =
-  let open Lwt.Syntax in
-  Lwt.catch
-    (fun () ->
-      let+ json = to_json_exn t in
-      Some json)
-    (function
-      | _ -> Lwt.return None)
-;;
-
-let to_plain_text t = Body.copy t.body |> Body.to_string
 
 let sexp_of_t { version; target; headers; meth; body; env } =
   let open Sexplib0.Sexp_conv in
