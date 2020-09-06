@@ -58,5 +58,5 @@ let new_service = add_two_filter my_simple_service;;
 {1 API documentation}
 
 {!modules:
-Opium_kernel.Rock
+Opium_kernel
 }
