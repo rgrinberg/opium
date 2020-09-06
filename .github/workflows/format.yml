@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: avsm/setup-ocaml@v1
         with:
-          ocaml-version: 4.10.0
+          ocaml-version: 4.11.1
       - name: Install dependencies
         run: opam install dune ocamlformat
       - name: Format
