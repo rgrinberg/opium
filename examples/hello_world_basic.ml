@@ -6,7 +6,7 @@ let hello =
 
 let greet =
   get "/greet/:name" (fun req ->
-      let name = Request.param "name" req |> Option.get in
+      let name = Router.param req "name" in
       Lwt.return
         (Response.make ~body:(Body.of_string (Printf.sprintf "Hello, %s" name)) ()))
 ;;
