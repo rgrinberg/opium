@@ -42,8 +42,8 @@ jobs:
       - name: Install dependencies
         if: steps.cache-opam.outputs.cache-hit != 'true'
         run: |
-          opam install . --deps-only --with-doc --with-test --locked
-          opam install ppx_sexp_conv base64 ppx_yojson_conv
+          opam install . --deps-only --with-doc --with-test --locked --unlock-base
+          opam install ppx_sexp_conv base64 ppx_yojson_conv --skip-updates
 
       - name: Upgrade dependencies
         run: opam upgrade --fixup
