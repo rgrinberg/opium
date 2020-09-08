@@ -31,7 +31,12 @@ jobs:
           ocaml-version: ${{ matrix.ocaml-version }}
 
       - name: Install dependencies
-        run: opam install dune ocamlformat
+        if: steps.cache-opam.outputs.cache-hit != 'true'
+        run: opam install ocamlformat
+
+      - name: Upgrade dependencies
+        run: opam upgrade --fixup
+        if: steps.cache-opam.outputs.cache-hit == 'true'
 
       - name: Format
         run: opam exec -- dune build @fmt --auto-promote || true
