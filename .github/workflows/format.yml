@@ -1,21 +1,41 @@
 name: Format
+
 on:
   push:
     branches:
       - master
+
 jobs:
   build:
     name: Format OCaml code
+
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: avsm/setup-ocaml@v1
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Retrieve opam cache
+        uses: actions/cache@v2
+        if: runner.os != 'Windows'
+        id: cache-opam
         with:
-          ocaml-version: 4.11.1
+          path: ~/.opam
+          key: v1-${{ runner.os }}-opam-${{ matrix.ocaml-version }}-
+          restore-keys: |
+            v1-${{ runner.os }}-opam-${{ matrix.ocaml-version }}-
+
+      - name: Use OCaml ${{ matrix.ocaml-version }}
+        uses: avsm/setup-ocaml@v1
+        with:
+          ocaml-version: ${{ matrix.ocaml-version }}
+
       - name: Install dependencies
         run: opam install dune ocamlformat
+
       - name: Format
         run: opam exec -- dune build @fmt --auto-promote || true
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v1
         with:
