@@ -134,101 +134,9 @@ let urlencoded_exn key t =
   Option.get o
 ;;
 
-let urlencoded2 key1 key2 t =
-  let open Lwt.Syntax in
-  let* query = to_urlencoded t in
-  let value1 = find_in_query key1 query in
-  let value2 = find_in_query key2 query in
-  match value1, value2 with
-  | Some value1, Some value2 -> Lwt.return @@ Some (value1, value2)
-  | _ -> Lwt.return None
-;;
-
-let urlencoded3 key1 key2 key3 t =
-  let open Lwt.Syntax in
-  let* query = to_urlencoded t in
-  let value1 = find_in_query key1 query in
-  let value2 = find_in_query key2 query in
-  let value3 = find_in_query key3 query in
-  match value1, value2, value3 with
-  | Some value1, Some value2, Some value3 -> Lwt.return @@ Some (value1, value2, value3)
-  | _ -> Lwt.return None
-;;
-
-let urlencoded4 key1 key2 key3 key4 t =
-  let open Lwt.Syntax in
-  let* query = to_urlencoded t in
-  let value1 = find_in_query key1 query in
-  let value2 = find_in_query key2 query in
-  let value3 = find_in_query key3 query in
-  let value4 = find_in_query key4 query in
-  match value1, value2, value3, value4 with
-  | Some value1, Some value2, Some value3, Some value4 ->
-    Lwt.return @@ Some (value1, value2, value3, value4)
-  | _ -> Lwt.return None
-;;
-
-let urlencoded5 key1 key2 key3 key4 key5 t =
-  let open Lwt.Syntax in
-  let* query = to_urlencoded t in
-  let value1 = find_in_query key1 query in
-  let value2 = find_in_query key2 query in
-  let value3 = find_in_query key3 query in
-  let value4 = find_in_query key4 query in
-  let value5 = find_in_query key5 query in
-  match value1, value2, value3, value4, value5 with
-  | Some value1, Some value2, Some value3, Some value4, Some value5 ->
-    Lwt.return @@ Some (value1, value2, value3, value4, value5)
-  | _ -> Lwt.return None
-;;
-
 let query_list t = t.target |> Uri.of_string |> Uri.query
 let query key t = query_list t |> find_in_query key
 let query_exn key t = query key t |> Option.get
-
-let query2 key1 key2 t =
-  let query = query_list t in
-  let value1 = find_in_query key1 query in
-  let value2 = find_in_query key2 query in
-  match value1, value2 with
-  | Some value1, Some value2 -> Some (value1, value2)
-  | _ -> None
-;;
-
-let query3 key1 key2 key3 t =
-  let query = query_list t in
-  let value1 = find_in_query key1 query in
-  let value2 = find_in_query key2 query in
-  let value3 = find_in_query key3 query in
-  match value1, value2, value3 with
-  | Some value1, Some value2, Some value3 -> Some (value1, value2, value3)
-  | _ -> None
-;;
-
-let query4 key1 key2 key3 key4 t =
-  let query = query_list t in
-  let value1 = find_in_query key1 query in
-  let value2 = find_in_query key2 query in
-  let value3 = find_in_query key3 query in
-  let value4 = find_in_query key4 query in
-  match value1, value2, value3, value4 with
-  | Some value1, Some value2, Some value3, Some value4 ->
-    Some (value1, value2, value3, value4)
-  | _ -> None
-;;
-
-let query5 key1 key2 key3 key4 key5 t =
-  let query = query_list t in
-  let value1 = find_in_query key1 query in
-  let value2 = find_in_query key2 query in
-  let value3 = find_in_query key3 query in
-  let value4 = find_in_query key4 query in
-  let value5 = find_in_query key5 query in
-  match value1, value2, value3, value4, value5 with
-  | Some value1, Some value2, Some value3, Some value4, Some value5 ->
-    Some (value1, value2, value3, value4, value5)
-  | _ -> None
-;;
 
 let sexp_of_t { version; target; headers; meth; body; env } =
   let open Sexplib0.Sexp_conv in
@@ -243,19 +151,16 @@ let sexp_of_t { version; target; headers; meth; body; env } =
     ]
 ;;
 
-let http_string_of_t t =
-  Printf.sprintf
-    "%s %s %s\n%s\n\n%s\n"
+let pp fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)
+
+let pp_hum fmt t =
+  Format.fprintf
+    fmt
+    "%s %s %s\n%s\n\n%a\n%!"
     (Method.to_string t.meth)
     t.target
     (Version.to_string t.version)
     (Headers.to_string t.headers)
-    (match t.body.content with
-    | `Empty -> ""
-    | `String s -> s
-    | `Bigstring b -> Bigstringaf.to_string b
-    | `Stream _ -> "<stream>")
+    Body.pp_hum
+    t.body
 ;;
-
-let pp fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)
-let pp_hum fmt t = Format.fprintf fmt "%s\n%!" (http_string_of_t t)

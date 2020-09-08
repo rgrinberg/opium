@@ -11,6 +11,8 @@ type t =
   ; content : content
   }
 
+let length t = t.length
+
 let escape_html s =
   let b = Buffer.create 42 in
   for i = 0 to String.length s - 1 do

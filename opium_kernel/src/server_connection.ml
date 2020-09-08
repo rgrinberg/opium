@@ -25,9 +25,9 @@ let create_error_handler handler =
       | Some req -> req.Httpaf.Request.headers
     in
     Lwt.async (fun () ->
-        let* headers, ({ Body.length; _ } as b) = handler req_headers error in
+        let* headers, body = handler req_headers error in
         let headers =
-          match length with
+          match Body.length body with
           | None -> headers
           | Some l ->
             Httpaf.Headers.add_unless_exists headers "content-length" (Int64.to_string l)
@@ -36,7 +36,7 @@ let create_error_handler handler =
         let+ () =
           Lwt_stream.iter
             (fun s -> Httpaf.Body.write_string res_body s)
-            (Body.to_stream b)
+            (Body.to_stream body)
         in
         Httpaf.Body.close_writer res_body)
   in
@@ -102,14 +102,14 @@ let run server_handler ?error_handler app =
             let headers =
               match length with
               | None ->
-                Httpaf.Headers.add_unless_exists headers "transfer-encoding" "chunked"
+                Httpaf.Headers.add_unless_exists headers "Transfer-Encoding" "chunked"
               | Some l ->
                 Httpaf.Headers.add_unless_exists
                   headers
-                  "content-length"
+                  "Content-Length"
                   (Int64.to_string l)
             in
-            match content with
+            match body.content with
             | `Empty ->
               write_fixed_response ~headers Httpaf.Reqd.respond_with_string status ""
             | `String s ->
