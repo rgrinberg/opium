@@ -39,18 +39,6 @@ jobs:
         with:
           ocaml-version: ${{ matrix.ocaml-version }}
 
-      - name: Pin opium_kernel package
-        run: opam pin add opium_kernel.dev . --no-action
-
-      - name: Pin opium package
-        run: opam pin add opium.dev . --no-action
-
-      - name: Query and install external dependencies for opium_kernel
-        run: opam depext opium --yes --with-doc --with-test
-
-      - name: Query and install external dependencies for opium
-        run: opam depext opium --yes --with-doc --with-test
-
       - name: Install dependencies
         if: steps.cache-opam.outputs.cache-hit != 'true'
         run: |
