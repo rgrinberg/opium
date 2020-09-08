@@ -1,21 +1,24 @@
-name: Format
+name: CI
 
-on:
-  push:
-    branches:
-      - master
+on: [push, pull_request]
 
 jobs:
   build:
-    name: Format OCaml code
+    name: Build and test
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
+        os:
+          - macos-latest
+          - ubuntu-latest
         ocaml-version:
           - 4.11.1
+          - 4.10.1
+          - 4.09.1
+          - 4.08.1
 
     steps:
       - name: Checkout code
@@ -27,7 +30,7 @@ jobs:
         id: cache-opam
         with:
           path: ~/.opam
-          key: v1-${{ runner.os }}-opam-${{ matrix.ocaml-version }}-
+          key: v1-${{ runner.os }}-opam-${{ matrix.ocaml-version }}-${{ hashFiles('opium.opam.locked') }}-${{ hashFiles('opium_kernel.opam.locked') }}
           restore-keys: |
             v1-${{ runner.os }}-opam-${{ matrix.ocaml-version }}-
 
@@ -38,20 +41,19 @@ jobs:
 
       - name: Install dependencies
         if: steps.cache-opam.outputs.cache-hit != 'true'
-        run: opam install ocamlformat
+        run: |
+          opam install . --deps-only --with-doc --with-test --locked --unlock-base
+          opam install ppx_sexp_conv base64 ppx_yojson_conv --skip-updates
 
       - name: Upgrade dependencies
         run: opam upgrade --fixup
         if: steps.cache-opam.outputs.cache-hit == 'true'
 
-      - name: Format
-        run: opam exec -- dune build @fmt --auto-promote || true
+      - name: Build
+        run: make build
 
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: ocamlformat fixes
-          title: 'style: run ocamlformat'
-          body: This is an auto-generated PR with fixes by ocamlformat.
-          labels: ocamlformat, automated pr
+      - name: Run tests
+        run: make test
+
+      - name: Build examples
+        run: opam exec -- dune build @examples
