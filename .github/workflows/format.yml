@@ -11,6 +11,12 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    strategy:
+      fail-fast: false
+      matrix:
+        ocaml-version:
+          - 4.11.1
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
