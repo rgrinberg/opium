@@ -2,14 +2,7 @@
 
     [Opium_kernel] is a Sinatra like web toolkit for OCaml, based on Httpaf and Lwt. *)
 
-module Hmap0 : sig
-  include Hmap.S with type 'a Key.info = string * ('a -> Sexplib0.Sexp.t)
-
-  val sexp_of_t : t -> Sexplib0.Sexp.t
-  val pp_hum : Format.formatter -> t -> unit [@@ocaml.toplevel_printer]
-  val find_exn : 'a key -> t -> 'a
-end
-
+module Hmap0 = Hmap0
 module Request = Request
 module Response = Response
 module Headers = Headers
@@ -104,6 +97,8 @@ module Router : sig
 
   val empty : 'action t
   val add : 'a t -> route:Route.t -> meth:Method.t -> action:'a -> 'a t
+  val param : Request.t -> string -> string
+  val splat : Request.t -> string list
   val m : Rock.Handler.t t -> Rock.Middleware.t
 end
 
@@ -122,9 +117,7 @@ end
 
 module Static : sig
   val serve
-    :  read:
-         (unit
-          -> (Body.t, [ Status.client_error | Status.server_error ]) Lwt_result.t)
+    :  read:(unit -> (Body.t, [ Status.client_error | Status.server_error ]) Lwt_result.t)
     -> ?mime_type:string
     -> ?etag_of_fname:(string -> string option)
     -> ?headers:Headers.t
@@ -154,8 +147,7 @@ module Middleware : sig
 
   val static
     :  read:
-         (string
-          -> (Body.t, [ Status.client_error | Status.server_error ]) Lwt_result.t)
+         (string -> (Body.t, [ Status.client_error | Status.server_error ]) Lwt_result.t)
     -> ?uri_prefix:string
     -> ?headers:Headers.t
     -> ?etag_of_fname:(string -> string option)

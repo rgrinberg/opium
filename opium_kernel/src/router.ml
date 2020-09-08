@@ -93,8 +93,19 @@ let matching_endpoint endpoints meth uri =
     endpoints
 ;;
 
-let splat req =
-  Hmap0.find_exn Router_env.key req.Request.env |> fun route -> route.Route.splat
+module Env = struct
+  let key : Route.matches Hmap0.key =
+    Hmap0.Key.create ("path_params", Route.sexp_of_matches)
+  ;;
+end
+
+let splat req = Hmap0.find_exn Env.key req.Request.env |> fun route -> route.Route.splat
+
+(* not param_exn since if the endpoint was selected it's likely that the parameter is
+   already there *)
+let param req param =
+  let { Route.params; _ } = Hmap0.find_exn Env.key req.Request.env in
+  List.assoc param params
 ;;
 
 let m endpoints =
@@ -102,7 +113,7 @@ let m endpoints =
     match matching_endpoint endpoints req.Request.meth req.Request.target with
     | None -> default req
     | Some (endpoint, params) ->
-      let env_with_params = Hmap0.add Router_env.key params req.Request.env in
+      let env_with_params = Hmap0.add Env.key params req.Request.env in
       (snd endpoint) { req with Request.env = env_with_params }
   in
   Rock.Middleware.create ~name:"Router" ~filter
