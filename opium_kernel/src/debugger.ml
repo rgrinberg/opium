@@ -95,7 +95,7 @@ let m () =
       (fun exn ->
         Logs.err ~src:log_src (fun f -> f "%s" (Nifty.Exn.to_string exn));
         let body = format_error req exn |> Body.of_string in
-        Lwt.return @@ Response.make ~status:`Internal_server_error ~body ())
+        halt (Response.make ~status:`Internal_server_error ~body ()))
   in
   Middleware.create ~name:"Debugger" ~filter
 ;;

@@ -174,6 +174,20 @@ module Rock : sig
     val append_middleware : t -> Middleware.t -> t
     val create : ?middlewares:Middleware.t list -> handler:Handler.t -> unit -> t
   end
+
+  (** The Halt exception can be raised to stop the interrupt the normal processing flow of
+      a request.
+
+      The exception will be handled by the main run function (in {!Server_connection.run})
+      and the response will be sent to the client directly.
+
+      This is especially useful when you want to make sure that no other middleware will
+      be able to modify the response. *)
+  exception Halt of Response.t
+
+  (** Raises a Halt exception to interrupt the processing of the connection and trigger an
+      early response. *)
+  val halt : Response.t -> unit
 end
 
 module Route : sig

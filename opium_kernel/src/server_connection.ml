@@ -91,7 +91,13 @@ let run server_handler ?error_handler app =
         let request = httpaf_request_to_request ~body req in
         Lwt.catch
           (fun () ->
-            let* { Rock.Response.body; headers; status; _ } = service request in
+            let* { Rock.Response.body; headers; status; _ } =
+              Lwt.catch
+                (fun () -> service request)
+                (function
+                  | Rock.Halt response -> Lwt.return response
+                  | exn -> Lwt.fail exn)
+            in
             let { Body.content; length } = body in
             let headers =
               match length with
