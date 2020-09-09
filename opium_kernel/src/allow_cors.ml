@@ -26,10 +26,10 @@ let default_headers =
 let default_expose = []
 let default_methods = [ `GET; `POST; `PUT; `DELETE; `OPTIONS; `Other "PATCH" ]
 let default_send_preflight_response = true
-let request_origin request = Request.get_header request "origin"
+let request_origin request = Request.header "origin" request
 
 let request_vary request =
-  match Request.get_header request "vary" with
+  match Request.header "vary" request with
   | None -> []
   | Some s -> String.split_on_char ',' s
 ;;
@@ -65,8 +65,7 @@ let allowed_headers ~headers request =
   let value =
     match headers with
     | [ "*" ] ->
-      Request.get_header request "access-control-request-headers"
-      |> Option.value ~default:""
+      Request.header "access-control-request-headers" request |> Option.value ~default:""
     | headers -> String.concat "," headers
   in
   [ "access-control-allow-headers", value ]

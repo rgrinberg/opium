@@ -84,7 +84,7 @@ let format_error req exn =
     |}
     style
     (Nifty.Exn.to_string exn)
-    Request.pp_http
+    Request.pp_hum
     req
 ;;
 

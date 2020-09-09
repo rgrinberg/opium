@@ -6,6 +6,13 @@ type content =
     `Stream of string Lwt_stream.t
   ]
 
+type t =
+  { length : Int64.t option
+  ; content : content
+  }
+
+let length t = t.length
+
 let escape_html s =
   let b = Buffer.create 42 in
   for i = 0 to String.length s - 1 do
@@ -25,11 +32,6 @@ let sexp_of_content content =
   | `Stream s -> sexp_of_opaque s
 ;;
 
-type t =
-  { length : Int64.t option
-  ; content : content
-  }
-
 let sexp_of_t { length; content } =
   let open Sexplib0 in
   let len = Sexp_conv.sexp_of_option Sexp_conv.sexp_of_int64 in
@@ -39,16 +41,6 @@ let sexp_of_t { length; content } =
       ; List [ Atom "content"; sexp_of_content content ]
       ])
 ;;
-
-let string_of_t t =
-  match t.content with
-  | `Empty -> ""
-  | `String s -> s
-  | `Bigstring b -> Bigstringaf.to_string b
-  | `Stream _ -> "<stream>"
-;;
-
-let pp_hum fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)
 
 let drain { content; _ } =
   match content with
@@ -81,3 +73,24 @@ let of_string s = { content = `String s; length = len (String.length s) }
 let of_bigstring b = { content = `Bigstring b; length = len (Bigstringaf.length b) }
 let empty = { content = `Empty; length = Some 0L }
 let of_stream ?length s = { content = `Stream s; length }
+
+let copy t =
+  match t.content with
+  | `Empty -> t
+  | `String _ -> t
+  | `Bigstring _ -> t
+  | `Stream stream -> { t with content = `Stream (Lwt_stream.clone stream) }
+;;
+
+let pp fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)
+
+let pp_hum fmt t =
+  Format.fprintf
+    fmt
+    "%s"
+    (match t.content with
+    | `Empty -> ""
+    | `String s -> s
+    | `Bigstring b -> Bigstringaf.to_string b
+    | `Stream _ -> "<stream>")
+;;

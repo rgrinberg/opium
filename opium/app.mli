@@ -4,7 +4,7 @@
     - Re-exporting common functions needed in handlers
     - Easy handling of routes and bodies
     - Automatic generation of a command line app *)
-open Opium_kernel.Rock
+open Opium_kernel
 
 (** An opium app is a simple builder wrapper around a rock app *)
 type t
@@ -23,10 +23,10 @@ val cmd_name : string -> builder
 
 (** [not_found] accepts a regular Opium handler that will be used instead of the default
     404 handler. *)
-val not_found : (Request.t -> (Httpaf.Headers.t * Body.t) Lwt.t) -> builder
+val not_found : (Request.t -> (Headers.t * Body.t) Lwt.t) -> builder
 
 (** A route is a function that returns a buidler that hooks up a handler to a url mapping *)
-type route = string -> Handler.t -> builder
+type route = string -> Rock.Handler.t -> builder
 
 (** Method specific routes *)
 val get : route
@@ -44,14 +44,14 @@ val options : route
 val head : route
 
 (** any [methods] will bind a route to any http method inside of [methods] *)
-val any : Httpaf.Method.t list -> route
+val any : Method.t list -> route
 
 (** all [methods] will bind a route to a URL regardless of the http method. You may escape
     the actual method used from the request passed. *)
 val all : route
 
-val action : Httpaf.Method.t -> route
-val middleware : Middleware.t -> builder
+val action : Method.t -> route
+val middleware : Rock.Middleware.t -> builder
 
 (** Convert an opium app to a rock app *)
 val to_rock : t -> Opium_kernel.Rock.App.t
@@ -66,13 +66,3 @@ val run_command : t -> unit
    returned if the command line arguments are incorrect. `Not_running is returned if the
    command was completed without the server being launched *)
 val run_command' : t -> [> `Ok of unit Lwt.t | `Error | `Not_running ]
-val json_of_body_exn : Request.t -> Yojson.Safe.t Lwt.t
-val string_of_body_exn : Request.t -> string Lwt.t
-
-(** Parse a request body encoded according to the [application/x-www-form-urlencoded]
-    content type (typically from POST requests with form data) into an association list of
-    key-value pairs. An exception is raised on invalid data. *)
-val urlencoded_pairs_of_body : Request.t -> (string * string list) list Lwt.t
-
-val param : Request.t -> string -> string
-val splat : Request.t -> string list

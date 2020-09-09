@@ -43,7 +43,7 @@ module Static = struct
         in
         Lwt.on_success (Lwt_stream.closed stream) (fun () ->
             Lwt.async (fun () -> Lwt_io.close ic));
-        Ok (Opium_kernel.Rock.Body.of_stream ~length:size stream))
+        Ok (Opium_kernel.Body.of_stream ~length:size stream))
       (fun e ->
         match e with
         | Isnt_a_file -> Lwt.return (Error `Not_found)

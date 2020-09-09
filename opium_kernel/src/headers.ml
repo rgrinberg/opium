@@ -11,4 +11,5 @@ let sexp_of_t headers =
   sexp_of_header (to_list headers)
 ;;
 
-let pp_hum fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)
+let pp fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)
+let pp_hum fmt t = Format.fprintf fmt "%s" (to_string t)

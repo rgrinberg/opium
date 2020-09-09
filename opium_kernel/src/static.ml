@@ -48,12 +48,12 @@ let respond_with_file ?mime_type ?headers ~read name =
   match body with
   | Error status ->
     let headers = Option.value headers ~default:Httpaf.Headers.empty in
-    let resp = Rock.Response.make ~headers ~status:(status :> Httpaf.Status.t) () in
+    let resp = Response.make ~headers ~status:(status :> Httpaf.Status.t) () in
     Lwt.return resp
   | Ok body ->
     let mime_type = mime_type |> Option.value ~default:(Magic_mime.lookup name) in
     let headers = add_opt_header_unless_exists headers "Content-Type" mime_type in
-    let resp = Rock.Response.make ~headers ~status:`OK ~body () in
+    let resp = Response.make ~headers ~status:`OK ~body () in
     Lwt.return resp
 ;;
 
@@ -72,7 +72,7 @@ let serve ~read ?mime_type ?etag_of_fname ?(headers = Httpaf.Headers.empty) fnam
     | None -> headers
   in
   let request_if_none_match =
-    Httpaf.Headers.get req.Rock.Request.headers "If-None-Match"
+    Httpaf.Headers.get req.Request.headers "If-None-Match"
   in
   let request_matches_etag =
     match request_if_none_match, etag_quoted with
@@ -83,13 +83,13 @@ let serve ~read ?mime_type ?etag_of_fname ?(headers = Httpaf.Headers.empty) fnam
     | _ -> false
   in
   if request_matches_etag
-  then Lwt.return @@ Rock.Response.make ~status:`Not_modified ~headers ()
+  then Lwt.return @@ Response.make ~status:`Not_modified ~headers ()
   else respond_with_file ~read ?mime_type ~headers fname
 ;;
 
 let m ~read ?(uri_prefix = "/") ?headers ?etag_of_fname () =
   let filter handler req =
-    if req.Rock.Request.meth = `GET
+    if req.Request.meth = `GET
     then (
       let local_path = req.target in
       if local_path |> is_prefix ~prefix:uri_prefix

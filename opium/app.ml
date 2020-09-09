@@ -57,10 +57,11 @@ let register app ~meth ~route ~action =
 ;;
 
 let default_not_found _ =
+  let open Opium_kernel in
   Lwt.return
-    (Rock.Response.make
+    (Response.make
        ~status:`Not_found
-       ~body:(Rock.Body.of_string "<html><body><h1>404 - Not found</h1></body></html>")
+       ~body:(Body.of_string "<html><body><h1>404 - Not found</h1></body></html>")
        ())
 ;;
 
@@ -104,9 +105,10 @@ let middleware m app = { app with middlewares = m :: app.middlewares }
 let action meth route action = register ~meth ~route:(Route.of_string route) ~action
 
 let not_found action t =
+  let open Opium_kernel in
   let action req =
     let+ headers, body = action req in
-    Rock.Response.make ~headers ~body ~status:`Not_found ()
+    Response.make ~headers ~body ~status:`Not_found ()
   in
   { t with not_found = action }
 ;;
@@ -330,23 +332,3 @@ let run_command app =
   | `Error -> exit 1
   | `Not_running -> exit 0
 ;;
-
-module Request_helpers = struct
-  let json_exn req =
-    let+ body = Rock.Body.to_string req.Rock.Request.body in
-    Yojson.Safe.from_string body
-  ;;
-
-  let string_exn req = Rock.Body.to_string req.Rock.Request.body
-
-  let pairs_exn req =
-    let+ body = Rock.Body.to_string req.Rock.Request.body in
-    Uri.query_of_encoded body
-  ;;
-end
-
-let json_of_body_exn = Request_helpers.json_exn
-let string_of_body_exn = Request_helpers.string_exn
-let urlencoded_pairs_of_body = Request_helpers.pairs_exn
-let param = Router.param
-let splat = Router.splat

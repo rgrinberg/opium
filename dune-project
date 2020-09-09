@@ -37,9 +37,11 @@
   magic-mime
   mtime
   yojson
+  tyxml
   bigstringaf
   re
   uri
+  magic-mime
   (alcotest :with-test)
   (alcotest-lwt :with-test)))
 

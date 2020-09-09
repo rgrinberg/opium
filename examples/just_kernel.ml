@@ -1,5 +1,4 @@
 open Opium_kernel
-open Rock
 open Lwt.Syntax
 
 let make_router routes =
@@ -11,14 +10,15 @@ let make_router routes =
 
 let router =
   make_router
-    [ (`GET, "/", fun _req -> Lwt.return (Response.of_string "Hello world\n"))
+    [ (`GET, "/", fun _req -> Lwt.return (Response.of_plain_text "Hello world\n"))
     ; ( `GET
       , "/sum/:a/:b"
       , fun req ->
           let a = Router.param req "a" |> int_of_string in
           let b = Router.param req "b" |> int_of_string in
           Lwt.return
-            (Response.of_string (Printf.sprintf "Sum of %d and %d = %d\n" a b (a + b))) )
+            (Response.of_plain_text
+               (Printf.sprintf "Sum of %d and %d = %d\n" a b (a + b))) )
     ]
 ;;
 
@@ -26,7 +26,7 @@ let app =
   Opium_kernel.Rock.App.create
     ~middlewares:[ router ]
     ~handler:(fun _ ->
-      Lwt.return (Response.of_string ~status:`Not_found "No route found\n"))
+      Lwt.return (Response.of_plain_text ~status:`Not_found "No route found\n"))
     ()
 ;;
 

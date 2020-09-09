@@ -148,7 +148,7 @@ let test_query_params_dont_impact_match () =
 
 let () =
   Alcotest.run
-    "Core :: Route"
+    "Route"
     [ ( "match"
       , [ "test match no param", `Quick, test_match_no_param
         ; "test match 1", `Quick, simple_route1

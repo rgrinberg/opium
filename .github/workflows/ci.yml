@@ -30,9 +30,9 @@ jobs:
         id: cache-opam
         with:
           path: ~/.opam
-          key: v1-${{ runner.os }}-opam-${{ matrix.ocaml-version }}-${{ hashFiles('opium.opam.locked') }}-${{ hashFiles('opium_kernel.opam.locked') }}
+          key: v2-${{ runner.os }}-opam-${{ matrix.ocaml-version }}-${{ hashFiles('opium.opam.locked') }}-${{ hashFiles('opium_kernel.opam.locked') }}
           restore-keys: |
-            v1-${{ runner.os }}-opam-${{ matrix.ocaml-version }}-
+            v2-${{ runner.os }}-opam-${{ matrix.ocaml-version }}-
 
       - name: Use OCaml ${{ matrix.ocaml-version }}
         uses: avsm/setup-ocaml@v1

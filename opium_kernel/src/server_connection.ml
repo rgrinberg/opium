@@ -25,9 +25,9 @@ let create_error_handler handler =
       | Some req -> req.Httpaf.Request.headers
     in
     Lwt.async (fun () ->
-        let* headers, ({ Body.length; _ } as b) = handler req_headers error in
+        let* headers, body = handler req_headers error in
         let headers =
-          match length with
+          match Body.length body with
           | None -> headers
           | Some l ->
             Httpaf.Headers.add_unless_exists headers "content-length" (Int64.to_string l)
@@ -36,7 +36,7 @@ let create_error_handler handler =
         let+ () =
           Lwt_stream.iter
             (fun s -> Httpaf.Body.write_string res_body s)
-            (Body.to_stream b)
+            (Body.to_stream body)
         in
         Httpaf.Body.close_writer res_body)
   in
@@ -61,7 +61,7 @@ let read_httpaf_body body =
 
 let httpaf_request_to_request ?body req =
   let headers = req.Httpaf.Request.headers in
-  Rock.Request.make ~headers ?body req.target req.meth ()
+  Request.make ~headers ?body req.target req.meth
 ;;
 
 let run server_handler ?error_handler app =
@@ -91,25 +91,25 @@ let run server_handler ?error_handler app =
         let request = httpaf_request_to_request ~body req in
         Lwt.catch
           (fun () ->
-            let* { Rock.Response.body; headers; status; _ } =
+            let* { Response.body; headers; status; _ } =
               Lwt.catch
                 (fun () -> service request)
                 (function
                   | Rock.Halt response -> Lwt.return response
                   | exn -> Lwt.fail exn)
             in
-            let { Body.content; length } = body in
+            let { Body.length; _ } = body in
             let headers =
               match length with
               | None ->
-                Httpaf.Headers.add_unless_exists headers "transfer-encoding" "chunked"
+                Httpaf.Headers.add_unless_exists headers "Transfer-Encoding" "chunked"
               | Some l ->
                 Httpaf.Headers.add_unless_exists
                   headers
-                  "content-length"
+                  "Content-Length"
                   (Int64.to_string l)
             in
-            match content with
+            match body.content with
             | `Empty ->
               write_fixed_response ~headers Httpaf.Reqd.respond_with_string status ""
             | `String s ->

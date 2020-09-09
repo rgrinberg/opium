@@ -1,11 +1,11 @@
 open Opium_kernel
 
-let request = Alcotest.of_pp Rock.Request.pp_hum
-let response = Alcotest.of_pp Rock.Response.pp_hum
+let request = Alcotest.of_pp Request.pp_hum
+let response = Alcotest.of_pp Response.pp_hum
 
 let with_service ?middlewares ?handler f =
   let handler =
-    Option.value handler ~default:(fun _req -> Lwt.return @@ Rock.Response.make ())
+    Option.value handler ~default:(fun _req -> Lwt.return @@ Response.make ())
   in
   let middlewares = Option.value middlewares ~default:[] in
   let app = Rock.App.create ~middlewares ~handler () in
@@ -16,9 +16,7 @@ let with_service ?middlewares ?handler f =
 ;;
 
 let check_response ?headers ?status res =
-  let expected =
-    Rock.Response.make ?status ?headers:(Option.map Rock.Headers.of_list headers) ()
-  in
+  let expected = Response.make ?status ?headers:(Option.map Headers.of_list headers) () in
   Alcotest.(check response) "same response" expected res
 ;;
 
@@ -26,7 +24,7 @@ let test_regular_request () =
   let open Lwt.Syntax in
   let+ res =
     with_service ~middlewares:[ Middleware.allow_cors () ] (fun service ->
-        let req = Rock.Request.make "/" `GET () in
+        let req = Request.make "/" `GET in
         service req)
   in
   check_response
@@ -45,11 +43,10 @@ let test_overwrite_origin () =
       ~middlewares:[ Middleware.allow_cors ~origins:[ "http://example.com" ] () ]
       (fun service ->
         let req =
-          Rock.Request.make
+          Request.make
             "/"
             `GET
-            ~headers:(Rock.Headers.of_list [ "origin", "http://example.com" ])
-            ()
+            ~headers:(Headers.of_list [ "origin", "http://example.com" ])
         in
         service req)
   in
@@ -67,7 +64,7 @@ let test_return_204_for_options () =
   let open Lwt.Syntax in
   let+ res =
     with_service ~middlewares:[ Middleware.allow_cors () ] (fun service ->
-        let req = Rock.Request.make "/" `OPTIONS () in
+        let req = Request.make "/" `OPTIONS in
         service req)
   in
   check_response
@@ -92,13 +89,11 @@ let test_allow_request_headers () =
       ~middlewares:[ Middleware.allow_cors ~headers:[ "*" ] () ]
       (fun service ->
         let req =
-          Rock.Request.make
+          Request.make
             "/"
             `OPTIONS
             ~headers:
-              (Rock.Headers.of_list
-                 [ "access-control-request-headers", "header-1,header-2" ])
-            ()
+              (Headers.of_list [ "access-control-request-headers", "header-1,header-2" ])
         in
         service req)
   in
