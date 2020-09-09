@@ -5,7 +5,7 @@ let make_router routes =
   routes
   |> ListLabels.fold_left ~init:Router.empty ~f:(fun router (meth, route, action) ->
          Router.add router ~route:(Route.of_string route) ~meth ~action)
-  |> Router.m
+  |> Middleware.router
 ;;
 
 let router =
