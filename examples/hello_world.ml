@@ -27,7 +27,7 @@ let update_person =
 
 let streaming =
   post "/hello/stream" (fun req ->
-      let { Body.length; _ } = req.Request.body in
+      let length = Body.length req.body in
       let content = Body.to_stream req.Request.body in
       let body = Lwt_stream.map String.uppercase_ascii content in
       Response.make ~body:(Body.of_stream ?length body) () |> Lwt.return)
