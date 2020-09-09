@@ -1,5 +1,4 @@
-(** A middleware that adds Cross-Origin Resource Sharing (CORS) header to the
-    responses. *)
+(** A middleware that adds Cross-Origin Resource Sharing (CORS) header to the responses. *)
 
 open Rock
 
