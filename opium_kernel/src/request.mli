@@ -15,13 +15,21 @@
     Functions from other modules may drain the body stream. You can use {!Body.copy} to
     copy the body yourself. *)
 
+module Context : sig
+  include Hmap.S with type 'a Key.info = string * ('a -> Sexplib0.Sexp.t)
+
+  val sexp_of_t : t -> Sexplib0.Sexp.t
+  val pp_hum : Format.formatter -> t -> unit [@@ocaml.toplevel_printer]
+  val find_exn : 'a key -> t -> 'a
+end
+
 type t =
   { version : Version.t
   ; target : string
   ; headers : Headers.t
   ; meth : Method.t
   ; body : Body.t
-  ; env : Hmap0.t
+  ; env : Context.t
   }
 
 (** {1 Constructors} *)
@@ -36,7 +44,7 @@ type t =
 val make
   :  ?version:Version.t
   -> ?body:Body.t
-  -> ?env:Hmap0.t
+  -> ?env:Context.t
   -> ?headers:Headers.t
   -> string
   -> Method.t
@@ -66,7 +74,7 @@ Hello World </pre>%} *)
 val of_plain_text
   :  ?version:Version.t
   -> ?headers:Headers.t
-  -> ?env:Hmap0.t
+  -> ?env:Context.t
   -> body:string
   -> string
   -> Method.t
@@ -96,7 +104,7 @@ Content-Type: application/json
 val of_json
   :  ?version:Version.t
   -> ?headers:Headers.t
-  -> ?env:Hmap0.t
+  -> ?env:Context.t
   -> body:Yojson.Safe.t
   -> string
   -> Method.t
@@ -126,7 +134,7 @@ key=value </pre> %} *)
 val of_urlencoded
   :  ?version:Version.t
   -> ?headers:Headers.t
-  -> ?env:Hmap0.t
+  -> ?env:Context.t
   -> body:(string * string list) list
   -> string
   -> Method.t

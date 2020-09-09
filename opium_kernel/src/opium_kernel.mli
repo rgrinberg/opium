@@ -2,7 +2,6 @@
 
     [Opium_kernel] is a Sinatra like web toolkit for OCaml, based on Httpaf and Lwt. *)
 
-module Hmap0 = Hmap0
 module Request = Request
 module Response = Response
 module Headers = Headers

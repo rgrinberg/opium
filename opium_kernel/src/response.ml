@@ -4,7 +4,6 @@ type t =
   ; reason : string option
   ; headers : Headers.t
   ; body : Body.t
-  ; env : Hmap0.t
   }
 
 let make
@@ -13,10 +12,9 @@ let make
     ?reason
     ?(headers = Headers.empty)
     ?(body = Body.empty)
-    ?(env = Hmap0.empty)
     ()
   =
-  { version; status; reason; headers; body; env }
+  { version; status; reason; headers; body }
 ;;
 
 let redirect_to
@@ -24,11 +22,10 @@ let redirect_to
     ?version
     ?reason
     ?(headers = Headers.empty)
-    ?env
     location
   =
   let headers = Headers.add_unless_exists headers "Location" location in
-  make ?version ~status:(status :> Status.t) ?reason ~headers ?env ()
+  make ?version ~status:(status :> Status.t) ?reason ~headers ()
 ;;
 
 let header header t = Headers.get t.headers header
@@ -65,19 +62,18 @@ let of_string'
     ?version
     ?status
     ?reason
-    ?env
     ?(headers = Headers.empty)
     body
   =
   let headers = Headers.add_unless_exists headers "Content-Type" content_type in
-  make ?version ?status ?reason ~headers ~body:(Body.of_string body) ?env ()
+  make ?version ?status ?reason ~headers ~body:(Body.of_string body) ()
 ;;
 
-let of_plain_text ?version ?status ?reason ?headers ?env body =
-  of_string' ?version ?status ?reason ?env ?headers body
+let of_plain_text ?version ?status ?reason ?headers body =
+  of_string' ?version ?status ?reason ?headers body
 ;;
 
-let of_html ?version ?status ?reason ?(headers = Headers.empty) ?env ?indent body =
+let of_html ?version ?status ?reason ?(headers = Headers.empty) ?indent body =
   let body = Format.asprintf "%a" (Tyxml_html.pp ?indent ()) body in
   let headers = Headers.add_unless_exists headers "Connection" "Keep-Alive" in
   of_string'
@@ -85,37 +81,34 @@ let of_html ?version ?status ?reason ?(headers = Headers.empty) ?env ?indent bod
     ?version
     ?status
     ?reason
-    ?env
     ~headers
     body
 ;;
 
-let of_xml ?version ?status ?reason ?(headers = Headers.empty) ?env ?indent body =
+let of_xml ?version ?status ?reason ?(headers = Headers.empty) ?indent body =
   let body = Format.asprintf "%a" (Tyxml.Xml.pp ?indent ()) body in
   of_string'
     ~content_type:"application/xml charset=utf-8"
     ?version
     ?status
     ?reason
-    ?env
     ~headers
     body
 ;;
 
-let of_svg ?version ?status ?reason ?(headers = Headers.empty) ?env ?indent body =
+let of_svg ?version ?status ?reason ?(headers = Headers.empty) ?indent body =
   let body = Format.asprintf "%a" (Tyxml.Svg.pp ?indent ()) body in
   let headers = Headers.add_unless_exists headers "Connection" "Keep-Alive" in
-  of_string' ~content_type:"image/svg+xml" ?version ?status ?reason ?env ~headers body
+  of_string' ~content_type:"image/svg+xml" ?version ?status ?reason ~headers body
 ;;
 
-let of_json ?version ?status ?reason ?headers ?env body =
+let of_json ?version ?status ?reason ?headers body =
   of_string'
     ~content_type:"application/json"
     ?version
     ?status
     ?reason
     ?headers
-    ?env
     (body |> Yojson.Safe.to_string)
 ;;
 
@@ -148,7 +141,7 @@ let to_json t =
 
 let to_plain_text t = Body.copy t.body |> Body.to_string
 
-let sexp_of_t { version; status; reason; headers; body; env } =
+let sexp_of_t { version; status; reason; headers; body } =
   let open Sexplib0.Sexp_conv in
   let open Sexplib0.Sexp in
   List
@@ -157,7 +150,6 @@ let sexp_of_t { version; status; reason; headers; body; env } =
     ; List [ Atom "reason"; sexp_of_option sexp_of_string reason ]
     ; List [ Atom "headers"; Headers.sexp_of_t headers ]
     ; List [ Atom "body"; Body.sexp_of_t body ]
-    ; List [ Atom "env"; Hmap0.sexp_of_t env ]
     ]
 ;;
 

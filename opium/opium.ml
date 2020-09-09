@@ -25,5 +25,3 @@ module Std = struct
   module Body = Opium_kernel.Body
   include App_export
 end
-
-module Hmap = Opium_kernel.Hmap0

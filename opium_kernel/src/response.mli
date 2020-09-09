@@ -8,14 +8,13 @@ type t =
   ; reason : string option
   ; headers : Headers.t
   ; body : Body.t
-  ; env : Hmap0.t
   }
 
 (** {1 Constructors} *)
 
 (** {3 [make]} *)
 
-(** [make ?version ?status ?reason ?headers ?body ?env ()] creates a new response from the
+(** [make ?version ?status ?reason ?headers ?body ()] creates a new response from the
     given values.
 
     By default, the HTTP version will be set to 1.1, the HTTP status to 200 and the
@@ -26,14 +25,13 @@ val make
   -> ?reason:string
   -> ?headers:Headers.t
   -> ?body:Body.t
-  -> ?env:Hmap0.t
   -> unit
   -> t
 
 (** {3 [of_plain_text]} *)
 
-(** [of_plain_text ?status ?version ?reason ?headers ?env body] creates a new response
-    from the given values and a string body.
+(** [of_plain_text ?status ?version ?reason ?headers body] creates a new response from the
+    given values and a string body.
 
     The content type of the response will be set to [text/plain] and the body will contain
     the string [body].
@@ -56,14 +54,13 @@ val of_plain_text
   -> ?status:Status.t
   -> ?reason:string
   -> ?headers:Headers.t
-  -> ?env:Hmap0.t
   -> string
   -> t
 
 (** {3 [of_json]} *)
 
-(** [of_json ?status ?version ?reason ?headers ?env payload] creates a new response from
-    the given values and a JSON body.
+(** [of_json ?status ?version ?reason ?headers payload] creates a new response from the
+    given values and a JSON body.
 
     The content type of the response will be set to [application/json] and the body will
     contain the json payload [body].
@@ -86,14 +83,13 @@ val of_json
   -> ?status:Status.t
   -> ?reason:string
   -> ?headers:Headers.t
-  -> ?env:Hmap0.t
   -> Yojson.Safe.t
   -> t
 
 (** {3 [of_html]} *)
 
-(** [of_html ?status ?version ?reason ?headers ?env ?indent payload] creates a new
-    response from the given values and a HTML body.
+(** [of_html ?status ?version ?reason ?headers ?indent payload] creates a new response
+    from the given values and a HTML body.
 
     The content type of the response will be set to [text/html; charset=utf-8] and the
     body will contain the HTML payload [payload].
@@ -131,15 +127,14 @@ val of_html
   -> ?status:Status.t
   -> ?reason:string
   -> ?headers:Headers.t
-  -> ?env:Hmap0.t
   -> ?indent:bool
   -> [ `Html ] Tyxml_html.elt
   -> t
 
 (** {3 [of_xml]} *)
 
-(** [of_xml ?status ?version ?reason ?headers ?env ?indent payload] creates a new response
-    from the given values and a XML body.
+(** [of_xml ?status ?version ?reason ?headers ?indent payload] creates a new response from
+    the given values and a XML body.
 
     The content type of the response will be set to [text/xml; charset=utf-8] and the body
     will contain the XML payload [payload].
@@ -177,15 +172,14 @@ val of_xml
   -> ?status:Status.t
   -> ?reason:string
   -> ?headers:Headers.t
-  -> ?env:Hmap0.t
   -> ?indent:bool
   -> Tyxml_xml.elt
   -> t
 
 (** {3 [of_svg]} *)
 
-(** [of_svg ?status ?version ?reason ?headers ?env ?indent payload] creates a new response
-    from the given values and a SVG body.
+(** [of_svg ?status ?version ?reason ?headers ?indent payload] creates a new response from
+    the given values and a SVG body.
 
     The content type of the response will be set to [image/svg+xml] and the body will
     contain the SVG payload [payload].
@@ -233,15 +227,14 @@ val of_svg
   -> ?status:Status.t
   -> ?reason:string
   -> ?headers:Headers.t
-  -> ?env:Hmap0.t
   -> ?indent:bool
   -> [ `Svg ] Tyxml_svg.elt
   -> t
 
 (** {3 [redirect_to]} *)
 
-(** [redirect_to ?status ?version ?reason ?headers ?env target] creates a new Redirect
-    response from the given values.
+(** [redirect_to ?status ?version ?reason ?headers target] creates a new Redirect response
+    from the given values.
 
     The response will contain the header [Location] with the value [target] and a Redirect
     HTTP status (a Redirect HTTP status starts with 3).
@@ -264,7 +257,6 @@ val redirect_to
   -> ?version:Version.t
   -> ?reason:string
   -> ?headers:Headers.t
-  -> ?env:Hmap0.t
   -> string
   -> t
 

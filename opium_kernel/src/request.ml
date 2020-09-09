@@ -1,16 +1,43 @@
+module Context = struct
+  include Hmap.Make (struct
+    type 'a t = string * ('a -> Sexplib0.Sexp.t)
+  end)
+
+  let sexp_of_t m =
+    let open Sexplib0.Sexp in
+    let l =
+      fold
+        (fun (B (k, v)) l ->
+          let name, to_sexp = Key.info k in
+          List [ Atom name; to_sexp v ] :: l)
+        m
+        []
+    in
+    List l
+  ;;
+
+  let pp_hum fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)
+
+  let find_exn t k =
+    match find t k with
+    | None -> raise Not_found
+    | Some s -> s
+  ;;
+end
+
 type t =
   { version : Version.t
   ; target : string
   ; headers : Headers.t
   ; meth : Method.t
   ; body : Body.t
-  ; env : Hmap0.t
+  ; env : Context.t
   }
 
 let make
     ?(version = { Version.major = 1; minor = 1 })
     ?(body = Body.empty)
-    ?(env = Hmap0.empty)
+    ?(env = Context.empty)
     ?(headers = Headers.empty)
     target
     meth
@@ -147,7 +174,7 @@ let sexp_of_t { version; target; headers; meth; body; env } =
     ; List [ Atom "method"; Method.sexp_of_t meth ]
     ; List [ Atom "headers"; Headers.sexp_of_t headers ]
     ; List [ Atom "body"; Body.sexp_of_t body ]
-    ; List [ Atom "env"; Hmap0.sexp_of_t env ]
+    ; List [ Atom "env"; Context.sexp_of_t env ]
     ]
 ;;
 
