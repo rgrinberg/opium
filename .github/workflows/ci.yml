@@ -30,7 +30,7 @@ jobs:
         id: cache-opam
         with:
           path: ~/.opam
-          key: v2-${{ runner.os }}-opam-${{ matrix.ocaml-version }}-${{ hashFiles('opium.opam.locked') }}-${{ hashFiles('opium_kernel.opam.locked') }}
+          key: v1-${{ runner.os }}-opam-${{ matrix.ocaml-version }}-${{ hashFiles('*.opam.locked') }}
           restore-keys: |
             v2-${{ runner.os }}-opam-${{ matrix.ocaml-version }}-
 
@@ -45,9 +45,9 @@ jobs:
           opam install . --deps-only --with-doc --with-test --locked --unlock-base
           opam install ppx_sexp_conv base64 ppx_yojson_conv --skip-updates
 
-      - name: Upgrade dependencies
-        run: opam upgrade --fixup
+      - name: Recover from an Opam broken state
         if: steps.cache-opam.outputs.cache-hit == 'true'
+        run: opam upgrade --fixup
 
       - name: Build
         run: make build
