@@ -27,9 +27,9 @@ jobs:
         id: cache-opam
         with:
           path: ~/.opam
-          key: v1-${{ runner.os }}-opam-${{ matrix.ocaml-version }}-
+          key: v1-${{ runner.os }}-opam-${{ matrix.ocaml-version }}
           restore-keys: |
-            v1-${{ runner.os }}-opam-${{ matrix.ocaml-version }}-
+            v1-${{ runner.os }}-opam-${{ matrix.ocaml-version }}
 
       - name: Use OCaml ${{ matrix.ocaml-version }}
         uses: avsm/setup-ocaml@v1
@@ -40,9 +40,9 @@ jobs:
         if: steps.cache-opam.outputs.cache-hit != 'true'
         run: opam install ocamlformat
 
-      - name: Upgrade dependencies
-        run: opam upgrade --fixup
+      - name: Recover from an Opam broken state
         if: steps.cache-opam.outputs.cache-hit == 'true'
+        run: opam upgrade --fixup
 
       - name: Format
         run: opam exec -- dune build @fmt --auto-promote || true
