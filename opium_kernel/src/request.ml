@@ -112,7 +112,10 @@ let remove_header key t = { t with headers = Headers.remove t.headers key }
 let content_type t = header "Content-Type" t
 let set_content_type s t = add_header ("Content-Type", s) t
 
-let to_multipart_form_data ?(callback = fun ~name:_ ~filename:_ _line -> Lwt.return_unit) t =
+let to_multipart_form_data
+    ?(callback = fun ~name:_ ~filename:_ _line -> Lwt.return_unit)
+    t
+  =
   match t.meth, content_type t with
   | `POST, Some content_type
     when String.length content_type > 30
