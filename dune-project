@@ -55,6 +55,7 @@
    (>= 4.08))
   (dune
    (>= 1.11))
+  opium_kernel
   alcotest
   alcotest-lwt))
 
