@@ -1,0 +1,79 @@
+{0 Opium Testing}
+
+[opium-testing] provides helpers to easily test Opium applications with Alcotest.
+
+{1 Installation}
+
+To install [opium-testing], you can add it to your [dune-project]'s package stanza:
+
+{%html: <pre>
+(package
+ (name my_app)
+ (depends
+  (ocaml
+   (>= 4.08))
+  (dune
+   (>= 2.0))
+  opium_kernel
+  (alcotest :with-test)
+  (alcotest-lwt :with-test)
+  (opium-testing :with-test)))
+</pre>%}
+
+And let Dune generate the Opam file for you. Or you can add it directly to your [.opam] file:
+
+{%html: <pre>
+depends: [
+  "alcotest" {with-test}
+  "alcotest-lwt" {with-test}
+  "opium-testing" {with-test}
+]
+</pre>%}
+
+{1 Usage}
+
+Here's a sample unit test that tests if the response is the one expected.
+
+{[
+open Alcotest
+open Lwt.Syntax
+open Opium_kernel
+open Opium_testing
+
+let test_case n f = Alcotest_lwt.test_case n `Quick (fun _switch () -> f ())
+
+let handle_request = handle_request My_app.app
+
+let suite =
+  [ ( "POST /create-user"
+    , [ test_case "redirects to show when data is valid" (fun () ->
+            let req =
+              Request.of_json
+                ~body:(`Assoc [ "name", `String "Tom" ])
+                "/create-user"
+                `POST
+            in
+            let+ res = handle_request req in
+            check_status `Found res.status)
+      ; test_case "renders errors when data is invalid" (fun () ->
+            let req =
+              Request.of_json
+                ~body:(`Assoc [ "invalid-key", `String "invald-value" ])
+                "/create-user"
+                `POST
+            in
+            let+ res = handle_request req in
+            check_status `Bad_request res.status;
+            assert_body_contains "Invalid data" res.body)
+      ] )
+  ]
+;;
+
+let () = Lwt_main.run @@ Alcotest_lwt.run "User Handler" suite
+]}
+
+{1 API documentation}
+
+{!modules:
+Opium_testing
+}

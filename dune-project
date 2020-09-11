@@ -46,6 +46,19 @@
   (alcotest-lwt :with-test)))
 
 (package
+ (name opium-testing)
+ (synopsis "Testing library for Opium")
+ (description
+   "A library that provides helpers to easily test your Opium applications.")
+ (depends
+  (ocaml
+   (>= 4.08))
+  (dune
+   (>= 1.11))
+  alcotest
+  alcotest-lwt))
+
+(package
  (name opium)
  (synopsis "Sinatra like web toolkit based on Lwt + Cohttp")
  (description
