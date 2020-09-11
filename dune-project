@@ -42,6 +42,7 @@
   re
   uri
   magic-mime
+  multipart-form-data
   (alcotest :with-test)
   (alcotest-lwt :with-test)))
 
