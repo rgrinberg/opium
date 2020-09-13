@@ -64,7 +64,7 @@ let suite =
             in
             let+ res = handle_request req in
             check_status `Bad_request res.status;
-            assert_body_contains "Invalid data" res.body)
+            check_body_contains "Invalid data" res.body)
       ] )
   ]
 ;;

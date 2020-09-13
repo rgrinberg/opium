@@ -143,7 +143,7 @@ val check_response'
   -> actual:Opium_kernel.Response.t
   -> unit
 
-(** {3 [assert_body_contains]} *)
+(** {3 [check_body_contains]} *)
 
 (** [check_body_contains ?msg s t] checks that the body [t] contains the string [s]. *)
 val check_body_contains : ?msg:string -> string -> Opium_kernel.Body.t -> unit Lwt.t

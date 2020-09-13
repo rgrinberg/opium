@@ -1,10 +1,10 @@
 module Testable = struct
-  let status = Alcotest.of_pp Opium_kernel.Status.pp_hum
-  let meth = Alcotest.of_pp Opium_kernel.Method.pp_hum
-  let version = Alcotest.of_pp Opium_kernel.Version.pp_hum
-  let body = Alcotest.of_pp Opium_kernel.Body.pp_hum
-  let request = Alcotest.of_pp Opium_kernel.Request.pp_hum
-  let response = Alcotest.of_pp Opium_kernel.Response.pp_hum
+  let status = Alcotest.of_pp Opium_kernel.Status.pp
+  let meth = Alcotest.of_pp Opium_kernel.Method.pp
+  let version = Alcotest.of_pp Opium_kernel.Version.pp
+  let body = Alcotest.of_pp Opium_kernel.Body.pp
+  let request = Alcotest.of_pp Opium_kernel.Request.pp
+  let response = Alcotest.of_pp Opium_kernel.Response.pp
 end
 
 let handle_request app =
