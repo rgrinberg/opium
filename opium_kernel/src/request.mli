@@ -207,6 +207,48 @@ val to_json_exn : t -> Yojson.Safe.t Lwt.t
     {[ [ "username", [ "admin" ]; "password", [ "password" ] ] ]} *)
 val to_urlencoded : t -> (string * string list) list Lwt.t
 
+(** {3 [to_multipart_form_data]} *)
+
+(** [to_multipart_form_data ?callback t] parses the body of the request [t] from a
+    [multipart/form-data] format to a list of key-values pairs.
+
+    The request has to to contain a [Content-Type] header with a value
+    [multipart/form-data] and the HTTP method has to be [POST], otherwise the request will
+    not be parsed an [None] will be returned. See {!to_multipart_form_data_exn} to raise
+    an exception instead.
+
+    If the body of the request cannot be parsed as a [multipart/form-data] string, an
+    empty list is returned.
+
+    When provided, the callback is a function of type
+    [val _ : ~filename:string ~name:string string -> Lwt.unit] that is called for each
+    part of the body. *)
+val to_multipart_form_data
+  :  ?callback:(name:string -> filename:string -> string -> unit Lwt.t)
+  -> t
+  -> (string * string) list option Lwt.t
+
+(** {3 [to_multipart_form_data_exn]} *)
+
+(** [to_multipart_form_data_exn ?callback t] parses the body of the request [t] from a
+    [multipart/form-data] format to a list of key-values pairs.
+
+    The request has to to contain a [Content-Type] header with a value
+    [multipart/form-data] and the HTTP method has to be [POST], otherwise the request will
+    not be parsed and an [Invalid_argument] exception will be raised. See
+    {!to_multipart_form_data} to return an option instead.
+
+    If the body of the request cannot be parsed as a [multipart/form-data] string, an
+    empty list is returned.
+
+    When provided, the callback is a function of type
+    [val _ : ~filename:string ~name:string string -> Lwt.unit] that is called for each
+    part of the body. *)
+val to_multipart_form_data_exn
+  :  ?callback:(name:string -> filename:string -> string -> unit Lwt.t)
+  -> t
+  -> (string * string) list Lwt.t
+
 (** {1 Getters and Setters} *)
 
 (** {2 General Headers} *)

@@ -112,6 +112,30 @@ let remove_header key t = { t with headers = Headers.remove t.headers key }
 let content_type t = header "Content-Type" t
 let set_content_type s t = add_header ("Content-Type", s) t
 
+let to_multipart_form_data
+    ?(callback = fun ~name:_ ~filename:_ _line -> Lwt.return_unit)
+    t
+  =
+  match t.meth, content_type t with
+  | `POST, Some content_type
+    when String.length content_type > 30
+         && String.sub content_type 0 30 = "multipart/form-data; boundary=" ->
+    let open Lwt.Syntax in
+    let body = t.body |> Body.copy |> Body.to_stream in
+    let* result = Multipart_form_data.parse ~stream:body ~content_type ~callback in
+    Lwt.return @@ Some result
+  | _ -> Lwt.return None
+;;
+
+let to_multipart_form_data_exn ?callback t =
+  let open Lwt.Syntax in
+  let* result = to_multipart_form_data ?callback t in
+  match result with
+  | Some r -> Lwt.return r
+  | None ->
+    raise (Invalid_argument "The request is not a valid multipart/form-data request.")
+;;
+
 let find_in_query key query =
   query
   |> ListLabels.find_opt ~f:(fun (k, _) -> k = key)
