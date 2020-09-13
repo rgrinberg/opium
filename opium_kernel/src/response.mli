@@ -498,8 +498,8 @@ val cookies : ?signed_with:Cookie.Signer.t -> t -> Cookie.t list
 
 (** {3 [add_cookie]} *)
 
-(** [add_cookie ?sign_with ?expires ?scope ?same_site ?secure ?http_only value
-    t] adds a cookie with value [value] to the response [t].
+(** [add_cookie ?sign_with ?expires ?scope ?same_site ?secure ?http_only value t] adds a
+    cookie with value [value] to the response [t].
 
     If a cookie with the same key already exists, its value will be replaced with the new
     value of [value].
