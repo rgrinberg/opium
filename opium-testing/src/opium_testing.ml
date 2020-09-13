@@ -5,6 +5,7 @@ module Testable = struct
   let body = Alcotest.of_pp Opium_kernel.Body.pp
   let request = Alcotest.of_pp Opium_kernel.Request.pp
   let response = Alcotest.of_pp Opium_kernel.Response.pp
+  let cookie = Alcotest.of_pp Opium_kernel.Cookie.pp
 end
 
 let handle_request app =
@@ -112,3 +113,14 @@ let check_body_contains ?msg s body =
   let+ body = body |> Opium_kernel.Body.copy |> Opium_kernel.Body.to_string in
   Alcotest.check Alcotest.bool message true (string_contains body s)
 ;;
+
+let check_cookie ?msg expected t =
+  let message =
+    match msg with
+    | Some msg -> msg
+    | None -> "cookies are equal"
+  in
+  Alcotest.check Testable.cookie message expected t
+;;
+
+let check_cookie' ?msg ~expected ~actual = check_cookie ?msg expected actual

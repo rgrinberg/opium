@@ -113,7 +113,7 @@ type t =
     - {!type:scope} - None
     - {!type:same_site} - `Lax
     - [secure] - false
-    - [http_only] - true
+    - [http_only] - false
 
     Note that if no value is given for [scope], the browsers might use a default value.
     For instance, if the cookie is set from the response of
@@ -188,3 +188,16 @@ val cookie_of_headers : ?signed_with:Signer.t -> string -> header list -> value 
 
     If no header is not a valid [Cookie] header, an empty list is returned. *)
 val cookies_of_headers : ?signed_with:Signer.t -> header list -> value list
+
+(** {1 Utilities} *)
+
+(** {3 [sexp_of_t]} *)
+
+(** [sexp_of_t t] converts the cookie [t] to an s-expression. *)
+val sexp_of_t : t -> Sexplib0.Sexp.t
+
+(** {3 [pp]} *)
+
+(** [pp] formats the cookie [t] as an s-expression. *)
+val pp : Format.formatter -> t -> unit
+  [@@ocaml.toplevel_printer]

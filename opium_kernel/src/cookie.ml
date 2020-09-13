@@ -294,7 +294,7 @@ type same_site =
   | `Lax
   ]
 
-type cookie = string * string
+type value = string * string
 
 type t =
   { expires : expires
@@ -302,7 +302,7 @@ type t =
   ; same_site : same_site
   ; secure : bool
   ; http_only : bool
-  ; value : cookie
+  ; value : value
   }
 
 let make
@@ -310,7 +310,7 @@ let make
     ?(scope = Uri.empty)
     ?(same_site = `Lax)
     ?(secure = false)
-    ?(http_only = true)
+    ?(http_only = false)
     ?sign_with
     (key, value)
   =
@@ -520,3 +520,31 @@ let cookies_of_headers ?signed_with headers =
       let cookies = cookies_of_header ?signed_with header in
       acc @ cookies)
 ;;
+
+let sexp_of_t t =
+  let open Sexplib0.Sexp_conv in
+  let open Sexplib0.Sexp in
+  List
+    [ List
+        [ Atom "expires"
+        ; (match t.expires with
+          | `Session -> List [ Atom "session" ]
+          | `Max_age a -> List [ Atom "max_age"; Atom (Int64.to_string a) ]
+          | `Date d -> List [ Atom "date"; Atom (Format.asprintf "%a" Ptime.pp d) ])
+        ]
+    ; List [ Atom "scope"; sexp_of_string (Format.asprintf "%a" Uri.pp t.scope) ]
+    ; List
+        [ Atom "same_site"
+        ; sexp_of_string
+            (match t.same_site with
+            | `None -> "none"
+            | `Strict -> "strict"
+            | `Lax -> "lax")
+        ]
+    ; List [ Atom "secure"; sexp_of_bool t.secure ]
+    ; List [ Atom "http_only"; sexp_of_bool t.http_only ]
+    ; List [ Atom "value"; (sexp_of_pair sexp_of_string sexp_of_string) t.value ]
+    ]
+;;
+
+let pp fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)

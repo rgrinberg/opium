@@ -18,6 +18,22 @@ let make
   { version; target; headers; meth; body; env }
 ;;
 
+let get ?version ?body ?env ?headers target =
+  make ?version ?body ?env ?headers target `GET
+;;
+
+let post ?version ?body ?env ?headers target =
+  make ?version ?body ?env ?headers target `POST
+;;
+
+let put ?version ?body ?env ?headers target =
+  make ?version ?body ?env ?headers target `PUT
+;;
+
+let delete ?version ?body ?env ?headers target =
+  make ?version ?body ?env ?headers target `DELETE
+;;
+
 let of_string'
     ?(content_type = "text/plain")
     ?version
@@ -112,7 +128,7 @@ let remove_header key t = { t with headers = Headers.remove t.headers key }
 
 let cookie ?signed_with cookie t =
   Cookie.cookie_of_headers ?signed_with cookie (t.headers |> Headers.to_list)
-  |> Option.map fst
+  |> Option.map snd
 ;;
 
 let cookies ?signed_with t =
@@ -120,22 +136,33 @@ let cookies ?signed_with t =
 ;;
 
 let replace_or_add_to_list ~f to_add l =
+  let found = ref false in
   let rec aux acc l =
     match l with
-    | [] -> to_add :: l |> List.rev
+    | [] -> if not !found then to_add :: acc |> List.rev else List.rev acc
     | el :: rest ->
-      if f el to_add then List.rev (to_add :: acc) @ rest else aux (el :: acc) rest
+      if f el to_add
+      then (
+        found := true;
+        aux (to_add :: acc) rest)
+      else aux (el :: acc) rest
   in
   aux [] l
 ;;
 
-let add_cookie_or_replace ?sign_with (k, v) t =
+let add_cookie ?sign_with (k, v) t =
   let cookies = cookies t in
   let cookies =
-    replace_or_add_to_list ~f:(fun (k2, _v2) _ -> String.equal k k2) (k, v) cookies
+    replace_or_add_to_list
+      ~f:(fun (k2, _v2) _ -> String.equal k k2)
+      ( k
+      , match sign_with with
+        | Some signer -> Cookie.Signer.sign signer v
+        | None -> v )
+      cookies
   in
   let cookie_header =
-    cookies |> ListLabels.map ~f:(Cookie.make ?sign_with) |> Cookie.to_cookie_header
+    cookies |> ListLabels.map ~f:Cookie.make |> Cookie.to_cookie_header
   in
   add_header_or_replace cookie_header t
 ;;
@@ -144,13 +171,13 @@ let add_cookie_unless_exists ?sign_with (k, v) t =
   let cookies = cookies t in
   if ListLabels.exists cookies ~f:(fun (k2, _v2) -> String.equal k2 k)
   then t
-  else add_cookie_or_replace ?sign_with (k, v) t
+  else add_cookie ?sign_with (k, v) t
 ;;
 
 let remove_cookie key t =
   let cookie_header =
     cookies t
-    |> ListLabels.filter ~f:(fun (k, _) -> k != key)
+    |> ListLabels.filter ~f:(fun (k, _) -> not (String.equal k key))
     |> List.map Cookie.make
     |> Cookie.to_cookie_header
   in

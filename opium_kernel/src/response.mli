@@ -496,16 +496,16 @@ val cookie : ?signed_with:Cookie.Signer.t -> string -> t -> Cookie.t option
     If the response does not contain a valid [Set-Cookie], [None] will be returned. *)
 val cookies : ?signed_with:Cookie.Signer.t -> t -> Cookie.t list
 
-(** {3 [add_cookie_or_replace]} *)
+(** {3 [add_cookie]} *)
 
-(** [add_cookie_or_replace ?sign_with ?expires ?scope ?same_site ?secure ?http_only value
+(** [add_cookie ?sign_with ?expires ?scope ?same_site ?secure ?http_only value
     t] adds a cookie with value [value] to the response [t].
 
     If a cookie with the same key already exists, its value will be replaced with the new
     value of [value].
 
     If [sign_with] is provided, the cookie will be signed with the given Signer. *)
-val add_cookie_or_replace
+val add_cookie
   :  ?sign_with:Cookie.Signer.t
   -> ?expires:Cookie.expires
   -> ?scope:Uri.t

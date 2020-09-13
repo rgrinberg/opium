@@ -42,6 +42,66 @@ val make
   -> Method.t
   -> t
 
+(** {3 [get]} *)
+
+(** [get ?version ?body ?env ?headers target] creates a new [GET] request from the given
+    values.
+
+    By default, the HTTP version will be set to 1.1 and the request will not contain any
+    header or body. *)
+val get
+  :  ?version:Version.t
+  -> ?body:Body.t
+  -> ?env:Hmap0.t
+  -> ?headers:Headers.t
+  -> string
+  -> t
+
+(** {3 [post]} *)
+
+(** [post ?version ?body ?env ?headers target] creates a new [POST] request from the given
+    values.
+
+    By default, the HTTP version will be set to 1.1 and the request will not contain any
+    header or body. *)
+val post
+  :  ?version:Version.t
+  -> ?body:Body.t
+  -> ?env:Hmap0.t
+  -> ?headers:Headers.t
+  -> string
+  -> t
+
+(** {3 [put]} *)
+
+(** [put ?version ?body ?env ?headers target] creates a new [PUT] request from the given
+    values.
+
+    By default, the HTTP version will be set to 1.1 and the request will not contain any
+    header or body. *)
+val put
+  :  ?version:Version.t
+  -> ?body:Body.t
+  -> ?env:Hmap0.t
+  -> ?headers:Headers.t
+  -> string
+  -> t
+
+(** {3 [delete]} *)
+
+(** [delete ?version ?body ?env ?headers target] creates a new [DELETE] request from the
+    given values.
+
+    By default, the HTTP version will be set to 1.1 and the request will not contain any
+    header or body. *)
+val delete
+  :  ?version:Version.t
+  -> ?body:Body.t
+  -> ?env:Hmap0.t
+  -> ?headers:Headers.t
+  -> string
+  -> t
+
 (** {3 [of_plain_text]} *)
 
 (** [of_plain_text ?version ?headers ?env ~body target method] creates a new request from
@@ -389,16 +449,16 @@ val cookie : ?signed_with:Cookie.Signer.t -> string -> t -> string option
     If the request does not contain a valid [Cookie], [None] will be returned. *)
 val cookies : ?signed_with:Cookie.Signer.t -> t -> Cookie.value list
 
-(** {3 [add_cookie_or_replace]} *)
+(** {3 [add_cookie]} *)
 
-(** [add_cookie_or_replace ?sign_with ?expires ?scope ?same_site ?secure ?http_only value
+(** [add_cookie ?sign_with ?expires ?scope ?same_site ?secure ?http_only value
     t] adds a cookie with value [value] to the request [t].
 
     If a cookie with the same key already exists, its value will be replaced with the new
     value of [value].
 
     If [sign_with] is provided, the cookie will be signed with the given Signer. *)
-val add_cookie_or_replace : ?sign_with:Cookie.Signer.t -> Cookie.value -> t -> t
+val add_cookie : ?sign_with:Cookie.Signer.t -> Cookie.value -> t -> t
 
 (** {3 [add_cookie_unless_exists]} *)
 
