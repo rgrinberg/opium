@@ -368,27 +368,52 @@ val set_content_type : string -> t -> t
 
 (** {3 [cookie]} *)
 
-(** ??? *)
+(** [cookie ?signed_with key t] returns the value of the cookie with key [key] in the
+    [Cookie] header of the request [t].
+
+    If [signed_with] is provided, the cookies will be unsigned with the given Signer and
+    only a cookie with a valid signature will be returned.
+
+    If the request does not contain a valid [Cookie] or if no cookie with the key [key]
+    exist, [None] will be returned. *)
 val cookie : ?signed_with:Cookie.Signer.t -> string -> t -> string option
 
 (** {3 [cookies]} *)
 
-(** ??? *)
-val cookies : ?signed_with:Cookie.Signer.t -> t -> Cookie.cookie list
+(** [cookies ?signed_with t] returns all the value of the cookies in the [Cookie] header
+    of the request [t].
+
+    If [signed_with] is provided, the cookies will be unsigned with the given Signer and
+    only the cookies with a valid signature will be returned.
+
+    If the request does not contain a valid [Cookie], [None] will be returned. *)
+val cookies : ?signed_with:Cookie.Signer.t -> t -> Cookie.value list
 
 (** {3 [add_cookie_or_replace]} *)
 
-(** ??? *)
-val add_cookie_or_replace : ?sign_with:Cookie.Signer.t -> Cookie.cookie -> t -> t
+(** [add_cookie_or_replace ?sign_with ?expires ?scope ?same_site ?secure ?http_only value
+    t] adds a cookie with value [value] to the request [t].
+
+    If a cookie with the same key already exists, its value will be replaced with the new
+    value of [value].
+
+    If [sign_with] is provided, the cookie will be signed with the given Signer. *)
+val add_cookie_or_replace : ?sign_with:Cookie.Signer.t -> Cookie.value -> t -> t
 
 (** {3 [add_cookie_unless_exists]} *)
 
-(** ??? *)
-val add_cookie_unless_exists : ?sign_with:Cookie.Signer.t -> Cookie.cookie -> t -> t
+(** [add_cookie_unless_exists ?sign_with ?expires ?scope ?same_site ?secure ?http_only
+    value t] adds a cookie with value [value] to the request [t].
+
+    If a cookie with the same key already exists, it will remain untouched.
+
+    If [sign_with] is provided, the cookie will be signed with the given Signer. *)
+val add_cookie_unless_exists : ?sign_with:Cookie.Signer.t -> Cookie.value -> t -> t
 
 (** {3 [remove_cookie]} *)
 
-(** ??? *)
+(** [remove_cookie key t] removes the cookie of key [key] from the [Cookie] header of the
+    request [t]. *)
 val remove_cookie : string -> t -> t
 
 (** {2 Body} *)

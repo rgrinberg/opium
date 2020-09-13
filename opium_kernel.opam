@@ -20,7 +20,6 @@ depends: [
   "mtime"
   "ptime"
   "magic-mime"
-  "uri"
   "yojson"
   "tyxml"
   "sexplib0"

@@ -36,7 +36,6 @@
   mtime
   ptime
   magic-mime
-  uri
   yojson
   tyxml
   sexplib0
@@ -76,13 +75,11 @@
    (>= 1.11))
   (opium_kernel
    (= :version))
-  httpaf-lwt-unix
   (lwt
    (>= 5.3.0))
+  httpaf-lwt-unix
   logs
   mtime
   cmdliner
-  sexplib0
-  re
   (alcotest :with-test)
   (alcotest-lwt :with-test)))

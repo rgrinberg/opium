@@ -29,9 +29,20 @@
    STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
    THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. *)
 
-(** ??? *)
+(** Cookie management for both requests and responses. *)
 
-(** ??? *)
+(** Sign an unsign cookies with secret.
+
+    Beware that signing a cookie is not the same as encrypting it! The value of a signed
+    cookie is still visible to anyone, so don't store any sensitive information in it.
+
+    When signing a cookie, a hash of its value is generated using the Signer's secret. The
+    generated string is appended to the Cookie's value. So, for instance, if you have a
+    Cookie [key=value], the signed cookie will look like [key=value.xRt15vh].
+
+    When reading the cookie value, the hash will be regenerated again and compared with
+    the sent value. If the values are not the same, the cookie has been tempered with, and
+    we discard it. *)
 module Signer : sig
   type t
 
@@ -39,7 +50,7 @@ module Signer : sig
 
   (** {3 [make]} *)
 
-  (** [make secret] returns a new signer that will sign values with [secret] *)
+  (** [make ?salt secret] returns a new signer that will sign values with [secret] *)
   val make : ?salt:string -> string -> t
 
   (** {1 Signing functions} *)
@@ -51,7 +62,10 @@ module Signer : sig
 
   (** {3 [unsign]} *)
 
-  (** [unsign signer value] unsigns a signed string [value] with [signer] *)
+  (** [unsign signer value] unsigns a signed string [value] with [signer].Httpaf
+
+      To avoid time attacks, this function is constant time, it will iterate through all
+      the characters of [value], even if it is not the same. *)
   val unsign : t -> string -> string option
 end
 
@@ -75,8 +89,8 @@ type same_site =
   | `Lax
   ]
 
-(** The [cookie] type is a tuple of [(name, value)] *)
-type cookie = string * string
+(** The value of a cookie is a tuple of [(name, value)] *)
+type value = string * string
 
 type t =
   { expires : expires
@@ -84,20 +98,28 @@ type t =
   ; same_site : same_site
   ; secure : bool
   ; http_only : bool
-  ; value : string * string
+  ; value : value
   }
 
 (** {1 Constructors} *)
 
 (** {3 [make]} *)
 
-(** [make] creates a cookie, it will default to the following values:
+(** [make cookie] creates a cookie with the key-value pair [cookie]
+
+    It will default to the following values:
 
     - {!type:expires} - `Session
     - {!type:scope} - None
     - {!type:same_site} - `Lax
     - [secure] - false
-    - [http_only] - true *)
+    - [http_only] - true
+
+    Note that if no value is given for [scope], the browsers might use a default value.
+    For instance, if the cookie is set from the response of
+    [http://example.com/users/login] and does not specify a scope, some browsers will use
+    [/users] as a scope. If you want the cookie to be valid for every endpoint of your
+    application, you need to use ["/"] as the scope of your cookie. *)
 val make
   :  ?expires:expires
   -> ?scope:Uri.t
@@ -105,12 +127,15 @@ val make
   -> ?secure:bool
   -> ?http_only:bool
   -> ?sign_with:Signer.t
-  -> cookie
+  -> value
   -> t
 
 (** {3 [of_set_cookie_header]} *)
 
-(** ??? *)
+(** [of_set_cookie_header ?signed_with ?origin header] creates a cookie from a
+    [Set-Cookie] header [header].
+
+    If the header is not a valid [Set-Cookie] header, [None] is returned. *)
 val of_set_cookie_header : ?signed_with:Signer.t -> ?origin:string -> header -> t option
 
 (** {3 [to_set_cookie_header]} *)
@@ -119,32 +144,47 @@ val of_set_cookie_header : ?signed_with:Signer.t -> ?origin:string -> header -> 
 
 (** {3 to_set_cookie_header} *)
 
-(** ??? *)
+(** [to_set_cookie_header t] creates an HTTP header for the cookie [t]. *)
 val to_set_cookie_header : t -> header
 
 (** {3 [to_cookie_header]} *)
 
-(** ??? *)
+(** [to_cookie_header ?now ?elapsed ?scope cookies] creates an HTTP header for the list of
+    cookies [cookies]. *)
 val to_cookie_header : ?now:Ptime.t -> ?elapsed:int64 -> ?scope:Uri.t -> t list -> header
 
 (** {1 Decoders} *)
 
 (** {3 [cookie_of_header]} *)
 
-(** ??? *)
-val cookie_of_header : ?signed_with:Signer.t -> string -> header -> cookie option
+(** [cookie_of_header ?signed_with key header] returns the value of a the cookie with the
+    key [key] in the header [header].
+
+    If the cookie with the key [key] does not exist, or if the header is not a valid
+    [Cookie] header, [None] will be returned. *)
+val cookie_of_header : ?signed_with:Signer.t -> string -> header -> value option
 
 (** {3 [cookies_of_header]} *)
 
-(** ??? *)
-val cookies_of_header : ?signed_with:Signer.t -> header -> cookie list
+(** [cookies_of_header ?signed_with header] returns the list of cookie values in the
+    header [header].
+
+    If the header is not a valid [Cookie] header, an empty list is returned. *)
+val cookies_of_header : ?signed_with:Signer.t -> header -> value list
 
 (** {3 [cookie_of_headers]} *)
 
-(** ??? *)
-val cookie_of_headers : ?signed_with:Signer.t -> string -> header list -> cookie option
+(** [cookie_of_headers ?signed_with key headers] returns the value of a the cookie with
+    the key [key] in the headers [headers].
+
+    If the cookie with the key [key] does not exist, or if no header is not a valid
+    [Cookie] header, [None] will be returned. *)
+val cookie_of_headers : ?signed_with:Signer.t -> string -> header list -> value option
 
 (** {3 [cookies_of_headers]} *)
 
-(** ??? *)
-val cookies_of_headers : ?signed_with:Signer.t -> header list -> cookie list
+(** [cookies_of_headers ?signed_with headers] returns the list of cookie values in the
+    headers [headers].
+
+    If no header is not a valid [Cookie] header, an empty list is returned. *)
+val cookies_of_headers : ?signed_with:Signer.t -> header list -> value list
