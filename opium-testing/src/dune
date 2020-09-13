@@ -1,0 +1,4 @@
+(library
+ (name opium_testing)
+ (public_name opium-testing)
+ (libraries opium_kernel lwt alcotest alcotest-lwt))
