@@ -473,6 +473,74 @@ val cache_control : t -> string option
     of the header [Cache-Control] set to [cache_control]. *)
 val set_cache_control : string -> t -> t
 
+(** {3 [cookie]} *)
+
+(** [cookie ?signed_with key t] returns the value of the cookie with key [key] in the
+    [Set-Cookie] header of the response [t].
+
+    If [signed_with] is provided, the cookies will be unsigned with the given Signer and
+    only a cookie with a valid signature will be returned.
+
+    If the response does not contain a valid [Set-Cookie] or if no cookie with the key
+    [key] exist, [None] will be returned. *)
+val cookie : ?signed_with:Cookie.Signer.t -> string -> t -> Cookie.t option
+
+(** {3 [cookies]} *)
+
+(** [cookies ?signed_with t] returns all the value of the cookies in the [Set-Cookie]
+    header of the response [t].
+
+    If [signed_with] is provided, the cookies will be unsigned with the given Signer and
+    only the cookies with a valid signature will be returned.
+
+    If the response does not contain a valid [Set-Cookie], [None] will be returned. *)
+val cookies : ?signed_with:Cookie.Signer.t -> t -> Cookie.t list
+
+(** {3 [add_cookie]} *)
+
+(** [add_cookie ?sign_with ?expires ?scope ?same_site ?secure ?http_only value
+    t] adds a cookie with value [value] to the response [t].
+
+    If a cookie with the same key already exists, its value will be replaced with the new
+    value of [value].
+
+    If [sign_with] is provided, the cookie will be signed with the given Signer. *)
+val add_cookie
+  :  ?sign_with:Cookie.Signer.t
+  -> ?expires:Cookie.expires
+  -> ?scope:Uri.t
+  -> ?same_site:Cookie.same_site
+  -> ?secure:bool
+  -> ?http_only:bool
+  -> Cookie.value
+  -> t
+  -> t
+
+(** {3 [add_cookie_unless_exists]} *)
+
+(** [add_cookie_unless_exists ?sign_with ?expires ?scope ?same_site ?secure ?http_only
+    value t] adds a cookie with value [value] to the response [t].
+
+    If a cookie with the same key already exists, it will remain untouched.
+
+    If [sign_with] is provided, the cookie will be signed with the given Signer. *)
+val add_cookie_unless_exists
+  :  ?sign_with:Cookie.Signer.t
+  -> ?expires:Cookie.expires
+  -> ?scope:Uri.t
+  -> ?same_site:Cookie.same_site
+  -> ?secure:bool
+  -> ?http_only:bool
+  -> Cookie.value
+  -> t
+  -> t
+
+(** {3 [remove_cookie]} *)
+
+(** [remove_cookie key t] removes the cookie of key [key] from the [Set-Cookie] header of
+    the response [t]. *)
+val remove_cookie : string -> t -> t
+
 (** {1 Utilities} *)
 
 (** {3 [sexp_of_t]} *)

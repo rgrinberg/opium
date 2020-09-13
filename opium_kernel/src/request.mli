@@ -42,6 +42,66 @@ val make
   -> Method.t
   -> t
 
+(** {3 [get]} *)
+
+(** [get ?version ?body ?env ?headers target] creates a new [GET] request from the given
+    values.
+
+    By default, the HTTP version will be set to 1.1 and the request will not contain any
+    header or body. *)
+val get
+  :  ?version:Version.t
+  -> ?body:Body.t
+  -> ?env:Hmap0.t
+  -> ?headers:Headers.t
+  -> string
+  -> t
+
+(** {3 [post]} *)
+
+(** [post ?version ?body ?env ?headers target] creates a new [POST] request from the given
+    values.
+
+    By default, the HTTP version will be set to 1.1 and the request will not contain any
+    header or body. *)
+val post
+  :  ?version:Version.t
+  -> ?body:Body.t
+  -> ?env:Hmap0.t
+  -> ?headers:Headers.t
+  -> string
+  -> t
+
+(** {3 [put]} *)
+
+(** [put ?version ?body ?env ?headers target] creates a new [PUT] request from the given
+    values.
+
+    By default, the HTTP version will be set to 1.1 and the request will not contain any
+    header or body. *)
+val put
+  :  ?version:Version.t
+  -> ?body:Body.t
+  -> ?env:Hmap0.t
+  -> ?headers:Headers.t
+  -> string
+  -> t
+
+(** {3 [delete]} *)
+
+(** [delete ?version ?body ?env ?headers target] creates a new [DELETE] request from the
+    given values.
+
+    By default, the HTTP version will be set to 1.1 and the request will not contain any
+    header or body. *)
+val delete
+  :  ?version:Version.t
+  -> ?body:Body.t
+  -> ?env:Hmap0.t
+  -> ?headers:Headers.t
+  -> string
+  -> t
+
 (** {3 [of_plain_text]} *)
 
 (** [of_plain_text ?version ?headers ?env ~body target method] creates a new request from
@@ -363,6 +423,58 @@ val content_type : t -> string option
 (** [set_content_type content_type t] returns a copy of [t] with the value of the header
     [Content-Type] set to [content_type]. *)
 val set_content_type : string -> t -> t
+
+(** {2 Cookies} *)
+
+(** {3 [cookie]} *)
+
+(** [cookie ?signed_with key t] returns the value of the cookie with key [key] in the
+    [Cookie] header of the request [t].
+
+    If [signed_with] is provided, the cookies will be unsigned with the given Signer and
+    only a cookie with a valid signature will be returned.
+
+    If the request does not contain a valid [Cookie] or if no cookie with the key [key]
+    exist, [None] will be returned. *)
+val cookie : ?signed_with:Cookie.Signer.t -> string -> t -> string option
+
+(** {3 [cookies]} *)
+
+(** [cookies ?signed_with t] returns all the value of the cookies in the [Cookie] header
+    of the request [t].
+
+    If [signed_with] is provided, the cookies will be unsigned with the given Signer and
+    only the cookies with a valid signature will be returned.
+
+    If the request does not contain a valid [Cookie], [None] will be returned. *)
+val cookies : ?signed_with:Cookie.Signer.t -> t -> Cookie.value list
+
+(** {3 [add_cookie]} *)
+
+(** [add_cookie ?sign_with ?expires ?scope ?same_site ?secure ?http_only value
+    t] adds a cookie with value [value] to the request [t].
+
+    If a cookie with the same key already exists, its value will be replaced with the new
+    value of [value].
+
+    If [sign_with] is provided, the cookie will be signed with the given Signer. *)
+val add_cookie : ?sign_with:Cookie.Signer.t -> Cookie.value -> t -> t
+
+(** {3 [add_cookie_unless_exists]} *)
+
+(** [add_cookie_unless_exists ?sign_with ?expires ?scope ?same_site ?secure ?http_only
+    value t] adds a cookie with value [value] to the request [t].
+
+    If a cookie with the same key already exists, it will remain untouched.
+
+    If [sign_with] is provided, the cookie will be signed with the given Signer. *)
+val add_cookie_unless_exists : ?sign_with:Cookie.Signer.t -> Cookie.value -> t -> t
+
+(** {3 [remove_cookie]} *)
+
+(** [remove_cookie key t] removes the cookie of key [key] from the [Cookie] header of the
+    request [t]. *)
+val remove_cookie : string -> t -> t
 
 (** {2 Body} *)
 

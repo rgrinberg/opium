@@ -21,6 +21,9 @@ module Testable : sig
 
   (** An {!Alcotest.testable} for {!Opium_kernel.Response.t} instances. *)
   val response : Opium_kernel.Response.t Alcotest.testable
+
+  (** An {!Alcotest.testable} for {!Opium_kernel.Cookie.t} instances. *)
+  val cookie : Opium_kernel.Cookie.t Alcotest.testable
 end
 
 (** {3 [handle_request]} *)
@@ -141,6 +144,22 @@ val check_response'
   :  ?msg:string
   -> expected:Opium_kernel.Response.t
   -> actual:Opium_kernel.Response.t
+  -> unit
+
+(** {3 [check_cookie]} *)
+
+(** [check_cookie ?msg t1 t2] checks that the cookie [t1] and [t2] are equal. *)
+val check_cookie : ?msg:string -> Opium_kernel.Cookie.t -> Opium_kernel.Cookie.t -> unit
+
+(** {3 [check_cookie']} *)
+
+(** [check_cookie' ?msg t1 t2] checks that the cookie [t1] and [t2] are equal.
+
+    This is a labeled variant of {!check_cookie} *)
+val check_cookie'
+  :  ?msg:string
+  -> expected:Opium_kernel.Cookie.t
+  -> actual:Opium_kernel.Cookie.t
   -> unit
 
 (** {3 [check_body_contains]} *)

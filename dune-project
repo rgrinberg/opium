@@ -27,18 +27,21 @@
    (>= 4.08))
   (dune
    (>= 1.11))
-  hmap
-  httpaf
   (lwt
    (>= 5.3.0))
-  fieldslib
-  sexplib0
+  httpaf
+  bigstringaf
+  hmap
   logs
-  magic-mime
   mtime
+  ptime
+  magic-mime
   yojson
   tyxml
-  bigstringaf
+  sexplib0
+  mirage-crypto
+  base64
+  astring
   re
   uri
   magic-mime
@@ -72,13 +75,11 @@
    (>= 1.11))
   (opium_kernel
    (= :version))
-  httpaf-lwt-unix
   (lwt
    (>= 5.3.0))
+  httpaf-lwt-unix
   logs
   mtime
   cmdliner
-  sexplib0
-  re
   (alcotest :with-test)
   (alcotest-lwt :with-test)))

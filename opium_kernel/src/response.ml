@@ -60,6 +60,81 @@ let add_headers_unless_exists hs t =
 
 let remove_header key t = { t with headers = Headers.remove t.headers key }
 
+let cookie ?signed_with key t =
+  let cookie_opt =
+    headers "Set-Cookie" t
+    |> ListLabels.map ~f:(fun v ->
+           Cookie.of_set_cookie_header ?signed_with ("Set-Cookie", v))
+    |> ListLabels.find_opt ~f:(function
+           | Some Cookie.{ value = k, _; _ } when String.equal k key -> true
+           | _ -> false)
+  in
+  Option.bind cookie_opt (fun x -> x)
+;;
+
+let cookies ?signed_with t =
+  headers "Set-Cookie" t
+  |> ListLabels.map ~f:(fun v ->
+         Cookie.of_set_cookie_header ?signed_with ("Set-Cookie", v))
+  |> ListLabels.filter_map ~f:(fun x -> x)
+;;
+
+let replace_or_add_to_list ~f to_add l =
+  let found = ref false in
+  let rec aux acc l =
+    match l with
+    | [] -> if not !found then to_add :: acc |> List.rev else List.rev acc
+    | el :: rest ->
+      if f el to_add
+      then (
+        found := true;
+        aux (to_add :: acc) rest)
+      else aux (el :: acc) rest
+  in
+  aux [] l
+;;
+
+let add_cookie ?sign_with ?expires ?scope ?same_site ?secure ?http_only value t =
+  let cookie_header =
+    Cookie.make ?sign_with ?expires ?scope ?same_site ?secure ?http_only value
+    |> Cookie.to_set_cookie_header
+  in
+  let headers =
+    replace_or_add_to_list
+      ~f:(fun (k, v) _ ->
+        match k, v with
+        | k, v
+          when String.equal (String.lowercase_ascii k) "set-cookie"
+               && String.length v > String.length (fst value)
+               && String.equal
+                    (StringLabels.sub v ~pos:0 ~len:(String.length (fst value)))
+                    (fst value) -> true
+        | _ -> false)
+      cookie_header
+      (Headers.to_list t.headers)
+  in
+  { t with headers = Headers.of_list headers }
+;;
+
+let add_cookie_unless_exists
+    ?sign_with
+    ?expires
+    ?scope
+    ?same_site
+    ?secure
+    ?http_only
+    (k, v)
+    t
+  =
+  let cookies = cookies t in
+  if ListLabels.exists cookies ~f:(fun Cookie.{ value = cookie, _; _ } ->
+         String.equal cookie k)
+  then t
+  else add_cookie ?sign_with ?expires ?scope ?same_site ?secure ?http_only (k, v) t
+;;
+
+let remove_cookie key t = add_cookie ~expires:(`Max_age 0L) (key, "") t
+
 let of_string'
     ?(content_type = "text/plain")
     ?version
