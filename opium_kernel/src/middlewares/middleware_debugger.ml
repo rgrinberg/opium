@@ -1,11 +1,3 @@
-(** [Debugger] catches any error that occurs when processing the request and pretty prints
-    the error in an an HTML page.
-
-    It should only be used during development: you probably don't want to serve a detail
-    of the error to your users in production. *)
-
-open Rock
-
 let log_src = Logs.Src.create "opium.server"
 
 let style =
@@ -13,6 +5,8 @@ let style =
 ;;
 
 let format_error req exn =
+  let open Lwt.Syntax in
+  let+ request_string = Middleware_logger.request_to_string req in
   Format.asprintf
     {|
 <!doctype html>
@@ -72,7 +66,7 @@ let format_error req exn =
         </div>
         <div class="relative bg-gray-500">
           <div class="block">
-            <pre class="block scrollbar-none m-0 p-0 overflow-auto text-white text-sm bg-gray-800 leading-normal"><code class="inline-block p-4 scrolling-touch subpixel-antialiased">%a</code></pre>
+            <pre class="block scrollbar-none m-0 p-0 overflow-auto text-white text-sm bg-gray-800 leading-normal"><code class="inline-block p-4 scrolling-touch subpixel-antialiased">%s</code></pre>
           </div>
         </div>
       </div>
@@ -84,18 +78,21 @@ let format_error req exn =
     |}
     style
     (Nifty.Exn.to_string exn)
-    Request.pp_hum
-    req
+    request_string
 ;;
 
 let m () =
+  let open Lwt.Syntax in
   let filter handler req =
+    (* We copy the body here to be sure we have the original body if it is a stream. *)
+    let body = Body.copy req.Request.body in
     Lwt.catch
       (fun () -> handler req)
       (fun exn ->
         Logs.err ~src:log_src (fun f -> f "%s" (Nifty.Exn.to_string exn));
-        let body = format_error req exn |> Body.of_string in
-        halt (Response.make ~status:`Internal_server_error ~body ()))
+        let* res_string = format_error { req with body } exn in
+        let body = Body.of_string res_string in
+        Rock.halt (Response.make ~status:`Internal_server_error ~body ()))
   in
-  Middleware.create ~name:"Debugger" ~filter
+  Rock.Middleware.create ~name:"Debugger" ~filter
 ;;

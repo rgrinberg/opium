@@ -11,7 +11,7 @@ let default_error_handler ?request:_ error start_response =
       Status.default_reason_phrase error
   in
   let len = Int.to_string (String.length message) in
-  let headers = Headers.of_list [ "content-length", len ] in
+  let headers = Headers.of_list [ "Content-Length", len ] in
   let body = start_response headers in
   Body.write_string body message;
   Body.close_writer body
@@ -30,7 +30,7 @@ let create_error_handler handler =
           match Body.length body with
           | None -> headers
           | Some l ->
-            Httpaf.Headers.add_unless_exists headers "content-length" (Int64.to_string l)
+            Httpaf.Headers.add_unless_exists headers "Content-Length" (Int64.to_string l)
         in
         let res_body = start_response headers in
         let+ () =
@@ -60,7 +60,9 @@ let read_httpaf_body body =
 ;;
 
 let httpaf_request_to_request ?body req =
-  let headers = req.Httpaf.Request.headers in
+  let headers =
+    req.Httpaf.Request.headers |> Httpaf.Headers.to_list |> Httpaf.Headers.of_rev_list
+  in
   Request.make ~headers ?body req.target req.meth
 ;;
 
@@ -97,17 +99,6 @@ let run server_handler ?error_handler app =
                 (function
                   | Rock.Halt response -> Lwt.return response
                   | exn -> Lwt.fail exn)
-            in
-            let { Body.length; _ } = body in
-            let headers =
-              match length with
-              | None ->
-                Httpaf.Headers.add_unless_exists headers "Transfer-Encoding" "chunked"
-              | Some l ->
-                Httpaf.Headers.add_unless_exists
-                  headers
-                  "Content-Length"
-                  (Int64.to_string l)
             in
             match body.content with
             | `Empty ->

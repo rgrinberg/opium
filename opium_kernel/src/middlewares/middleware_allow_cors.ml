@@ -1,7 +1,3 @@
-(** A middleware that adds Cross-Origin Resource Sharing (CORS) header to the responses. *)
-
-open Rock
-
 let default_origin = [ "*" ]
 let default_credentials = true
 let default_max_age = 1_728_000
@@ -25,10 +21,10 @@ let default_headers =
 let default_expose = []
 let default_methods = [ `GET; `POST; `PUT; `DELETE; `OPTIONS; `Other "PATCH" ]
 let default_send_preflight_response = true
-let request_origin request = Request.header "origin" request
+let request_origin request = Request.header "Origin" request
 
 let request_vary request =
-  match Request.header "vary" request with
+  match Request.header "Vary" request with
   | None -> []
   | Some s -> String.split_on_char ',' s
 ;;
@@ -46,16 +42,16 @@ let vary_headers allowed_origin hs =
   match allowed_origin, vary_header with
   | Some "*", _ -> []
   | None, _ -> []
-  | _, [] -> [ "vary", "Origin" ]
-  | _, headers -> [ "vary", "Origin" :: headers |> String.concat "," ]
+  | _, [] -> [ "Vary", "Origin" ]
+  | _, headers -> [ "Vary", "Origin" :: headers |> String.concat "," ]
 ;;
 
 let cors_headers ~origins ~credentials ~expose request =
   let allowed_origin = allowed_origin origins request in
   let vary_headers = vary_headers allowed_origin request in
-  [ "access-control-allow-origin", allowed_origin |> Option.value ~default:""
-  ; "access-control-expose-headers", String.concat "," expose
-  ; "access-control-allow-credentials", Bool.to_string credentials
+  [ "Access-Control-Allow-Origin", allowed_origin |> Option.value ~default:""
+  ; "Access-Control-Expose-Headers", String.concat "," expose
+  ; "Access-Control-Allow-Credentials", Bool.to_string credentials
   ]
   @ vary_headers
 ;;
@@ -64,16 +60,16 @@ let allowed_headers ~headers request =
   let value =
     match headers with
     | [ "*" ] ->
-      Request.header "access-control-request-headers" request |> Option.value ~default:""
+      Request.header "Access-Control-Request-Headers" request |> Option.value ~default:""
     | headers -> String.concat "," headers
   in
-  [ "access-control-allow-headers", value ]
+  [ "Access-Control-Allow-Headers", value ]
 ;;
 
 let options_cors_headers ~max_age ~headers ~methods request =
   let methods = ListLabels.map methods ~f:Method.to_string in
-  [ "access-control-max-age", string_of_int max_age
-  ; "access-control-allow-methods", String.concat "," methods
+  [ "Access-Control-Max-Age", string_of_int max_age
+  ; "Access-Control-Allow-Methods", String.concat "," methods
   ]
   @ allowed_headers ~headers request
 ;;
@@ -104,5 +100,5 @@ let m
         headers = Headers.add_list response.Response.headers (hs |> List.rev)
       }
   in
-  Middleware.create ~name:"Allow CORS" ~filter
+  Rock.Middleware.create ~name:"Allow CORS" ~filter
 ;;
