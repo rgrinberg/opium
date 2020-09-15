@@ -19,7 +19,7 @@ let chop_prefix ~prefix s =
   String.sub s (String.length prefix) String.(length s - length prefix)
 ;;
 
-let add_opt_header_unless_exists headers k v =
+let _add_opt_header_unless_exists headers k v =
   match headers with
   | Some h -> Httpaf.Headers.add_unless_exists h k v
   | None -> Httpaf.Headers.of_list [ k, v ]
