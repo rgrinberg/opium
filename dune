@@ -1,5 +1,8 @@
 (rule
  (mode promote)
- (deps (:dep README.cpp.md) (glob_files examples/*.ml))
+ (deps
+  (:dep README.cpp.md)
+  (glob_files examples/*.ml))
  (target README.md)
- (action (run cppo -n %{dep} -o %{target})))
+ (action
+  (run cppo -n %{dep} -o %{target})))
