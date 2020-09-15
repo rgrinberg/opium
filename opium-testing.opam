@@ -3,8 +3,8 @@ opam-version: "2.0"
 synopsis: "Testing library for Opium"
 description:
   "A library that provides helpers to easily test your Opium applications."
-maintainer: ["Rudi Grinberg <rudi.grinberg@gmail>"]
-authors: ["Rudi Grinberg"]
+maintainer: ["Rudi Grinberg <me@rgrinberg.com>"]
+authors: ["Rudi Grinberg" "Anurag Soni" "Thibaut Mattio"]
 license: "MIT"
 homepage: "https://github.com/rgrinberg/opium"
 doc: "https://rgrinberg.github.io/opium/"

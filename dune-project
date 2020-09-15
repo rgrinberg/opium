@@ -9,9 +9,12 @@
 (source
  (github rgrinberg/opium))
 
-(authors "Rudi Grinberg")
+(authors
+ "Rudi Grinberg"
+ "Anurag Soni"
+ "Thibaut Mattio")
 
-(maintainers "Rudi Grinberg <rudi.grinberg@gmail>")
+(maintainers "Rudi Grinberg <me@rgrinberg.com>")
 
 (documentation https://rgrinberg.github.io/opium/)
 
@@ -19,7 +22,7 @@
 
 (package
  (name opium_kernel)
- (synopsis "Sinatra like web toolkit based on Lwt + Cohttp")
+ (synopsis "Sinatra like web toolkit based on Httpaf + Cohttp")
  (description
    "Opium_kernel is the Unix indpendent core of Opium. Useful for extremely portable environments such as mirage.")
  (depends
@@ -65,7 +68,7 @@
 
 (package
  (name opium)
- (synopsis "Sinatra like web toolkit based on Lwt + Cohttp")
+ (synopsis "Sinatra like web toolkit based on Lwt + Httpaf")
  (description
    "Opium is a minimalistic library for quickly binding functions to http routes. Its features include (but not limited to):\n\n    Middleware system for app independent components\n    A simple router for matching urls and parsing parameters\n    Request/Response pretty printing for easier debugging\n  ")
  (depends
