@@ -1,4 +1,4 @@
-module MethodMap = Map.Make (struct
+module Method_map = Map.Make (struct
   type t = Method.t
 
   let compare a b =
@@ -8,18 +8,18 @@ module MethodMap = Map.Make (struct
   ;;
 end)
 
-type 'a t = (Route.t * 'a) list MethodMap.t
+type 'a t = (Route.t * 'a) list Method_map.t
 
-let empty = MethodMap.empty
+let empty = Method_map.empty
 
 let get t meth =
-  match MethodMap.find_opt meth t with
+  match Method_map.find_opt meth t with
   | None -> []
   | Some xs -> List.rev xs
 ;;
 
 let add t ~route ~meth ~action =
-  MethodMap.update
+  Method_map.update
     meth
     (function
       | None -> Some [ route, action ]
