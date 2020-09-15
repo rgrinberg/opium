@@ -1,4 +1,4 @@
-module Hmap0 = Hmap0
+module Hmap = Hmap0
 module Headers = Headers
 module Body = Body
 module Method = Method
