@@ -48,9 +48,7 @@ module Env = struct
   ;;
 end
 
-let splat req =
-  Context.find_exn Env.key req.Request.env |> fun route -> route.Route.splat
-;;
+let splat req = Context.find_exn Env.key req.Request.env |> fun route -> route.Route.splat
 
 (* not param_exn since if the endpoint was selected it's likely that the parameter is
    already there *)

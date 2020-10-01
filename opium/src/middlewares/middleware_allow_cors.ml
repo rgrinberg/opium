@@ -94,8 +94,7 @@ let m
       else hs
     in
     match send_preflight_response, req.Request.meth with
-    | true, `OPTIONS ->
-      Response.make ~status:`No_content ~headers:(Headers.of_list hs) ()
+    | true, `OPTIONS -> Response.make ~status:`No_content ~headers:(Headers.of_list hs) ()
     | _ ->
       { response with
         headers = Headers.add_list response.Response.headers (hs |> List.rev)
