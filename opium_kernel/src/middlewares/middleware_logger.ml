@@ -11,7 +11,7 @@ let body_to_string ?(content_type = "text/plain") ?(max_len = 1000) body =
   in
   match lhs, rhs with
   | "text", _ | "application", "json" | "application", "x-www-form-urlencoded" ->
-    let+ s = Body.to_string body in
+    let+ s = Body.copy body |> Body.to_string in
     if String.length s > max_len
     then
       String.sub s 0 (min (String.length s) max_len)
