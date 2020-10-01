@@ -29,7 +29,7 @@ $ opam install opium
 ### Master
 
 ```
-$ opam pin add opium_kernel --dev-repo
+$ opam pin add rock --dev-repo
 $ opam pin add opium --dev-repo
 ```
 

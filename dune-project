@@ -9,10 +9,7 @@
 (source
  (github rgrinberg/opium))
 
-(authors
- "Rudi Grinberg"
- "Anurag Soni"
- "Thibaut Mattio")
+(authors "Rudi Grinberg" "Anurag Soni" "Thibaut Mattio")
 
 (maintainers "Rudi Grinberg <me@rgrinberg.com>")
 
@@ -21,10 +18,10 @@
 (license MIT)
 
 (package
- (name opium_kernel)
+ (name rock)
  (synopsis "Sinatra like web toolkit based on Httpaf + Cohttp")
  (description
-   "Opium_kernel is the Unix indpendent core of Opium. Useful for extremely portable environments such as mirage.")
+   "Rock is the Unix indpendent core of Opium. Useful for extremely portable environments such as mirage.")
  (depends
   (ocaml
    (>= 4.08))
@@ -32,22 +29,39 @@
    (>= 1.11))
   (lwt
    (>= 5.3.0))
-  httpaf
   bigstringaf
   hmap
+  httpaf
+  lwt
+  sexplib0))
+
+(package
+ (name opium)
+ (synopsis "Sinatra like web toolkit based on Lwt + Httpaf")
+ (description
+   "Opium is a minimalistic library for quickly binding functions to http routes. Its features include (but not limited to):\n\n    Middleware system for app independent components\n    A simple router for matching urls and parsing parameters\n    Request/Response pretty printing for easier debugging\n  ")
+ (depends
+  (ocaml
+   (>= 4.08))
+  (dune
+   (>= 1.11))
+  (rock
+   (= :version))
+  (lwt
+   (>= 5.3.0))
+  httpaf-lwt-unix
   logs
   mtime
+  cmdliner
   ptime
   magic-mime
   yojson
   tyxml
-  sexplib0
   mirage-crypto
   base64
   astring
   re
   uri
-  magic-mime
   multipart-form-data
   (alcotest :with-test)
   (alcotest-lwt :with-test)))
@@ -62,27 +76,6 @@
    (>= 4.08))
   (dune
    (>= 1.11))
-  opium_kernel
+  opium
   alcotest
   alcotest-lwt))
-
-(package
- (name opium)
- (synopsis "Sinatra like web toolkit based on Lwt + Httpaf")
- (description
-   "Opium is a minimalistic library for quickly binding functions to http routes. Its features include (but not limited to):\n\n    Middleware system for app independent components\n    A simple router for matching urls and parsing parameters\n    Request/Response pretty printing for easier debugging\n  ")
- (depends
-  (ocaml
-   (>= 4.08))
-  (dune
-   (>= 1.11))
-  (opium_kernel
-   (= :version))
-  (lwt
-   (>= 5.3.0))
-  httpaf-lwt-unix
-  logs
-  mtime
-  cmdliner
-  (alcotest :with-test)
-  (alcotest-lwt :with-test)))

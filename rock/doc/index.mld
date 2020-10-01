@@ -1,0 +1,62 @@
+{0 Rock}
+
+Rock provides finagle inspired Service/Filter abstractions to write HTTP services.
+
+{2 Services}
+
+Services are simple functions that work on a request, and returns a promise representing the eventual result (or failure).
+Its represented with the following type:
+
+{[
+type ('req, 'res) t = 'req -> 'res Lwt.t
+]}
+
+Services can be used to represent any operation and not necessarily something related to HTTP.
+As an example we can have a service that works on integers and returns a string response:
+
+{[
+let my_simple_service : (int, string) Service.t =
+  fun request -> Lwt.return (string_of_int request)
+;;
+]}
+
+In Rock HTTP handlers are also represented as services. They have the type:
+
+{[
+type handler = (Request.t, Response.t) Service.t
+]}
+
+With this type, one can have an HTTP server like:
+{[
+open Rock.Rock
+
+let http_service req =
+  Lwt.return (Response.of_string "Hello World\n")
+;;
+]}
+
+Services (For web services these are Rock.Handler) are used to implement an application's business logic.
+
+{2 Filters}
+
+Filters are also functions, instead of a request they work on services. They can be used to
+transform a service by performing some specific functions on the request or response, before/after the user's http service.
+This can be useful to enhance your application with some functionality that needs to shared by multiple services, things like
+logging, compression, authentication etc.
+
+Example of a simple filter working on the service defined earlier in the page:
+
+{[
+let add_two_filter service =
+  fun req ->
+    service (req + 2)
+;;
+
+let new_service = add_two_filter my_simple_service;;
+]}
+
+{1 API documentation}
+
+{!modules:
+Rock
+}

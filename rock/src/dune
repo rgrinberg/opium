@@ -1,0 +1,3 @@
+(library
+ (public_name rock)
+ (libraries bigstringaf hmap httpaf lwt sexplib0))

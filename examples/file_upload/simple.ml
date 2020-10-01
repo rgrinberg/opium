@@ -1,4 +1,4 @@
-open Opium_kernel
+open Rock
 
 let layout ~title:title_ children =
   let open Tyxml.Html in

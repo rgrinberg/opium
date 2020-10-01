@@ -1,4 +1,4 @@
-open Opium_kernel
+open Rock
 open Lwt.Syntax
 
 let make_router routes =
@@ -23,7 +23,7 @@ let router =
 ;;
 
 let app =
-  Opium_kernel.Rock.App.create
+  Rock.App.create
     ~middlewares:[ router ]
     ~handler:(fun _ ->
       Lwt.return (Response.of_plain_text ~status:`Not_found "No route found\n"))
@@ -40,7 +40,7 @@ let run () =
         addr
         fd
     in
-    Opium_kernel.Server_connection.run f app
+    Rock.Server_connection.run f app
   in
   Lwt.async (fun () ->
       let* _ =

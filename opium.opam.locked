@@ -57,7 +57,7 @@ depends: [
   "ocamlbuild" {= "0.14.0"}
   "ocamlfind" {= "1.8.1"}
   "ocplib-endian" {= "1.1"}
-  "opium_kernel" {= "0.18.0"}
+  "rock" {= "0.18.0"}
   "ppx_derivers" {= "1.2.1"}
   "ppx_tools_versioned" {= "5.4.0"}
   "ptime" {= "0.8.5"}

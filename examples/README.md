@@ -34,7 +34,7 @@ This directory includes the following examples:
   resources.
 - [uppercase_middleware.ml](uppercase_middleware.ml): A simple middleware that
   uppercases responses.
-- [just_kernel.ml](just_kernel.ml): Example of using `Opium_kernel` directly with httpaf.
-  This can be useful to demonstrate that opium_kernel can be used directly if one needs
+- [just_kernel.ml](just_kernel.ml): Example of using `Rock` directly with httpaf.
+  This can be useful to demonstrate that rock can be used directly if one needs
   to avoid using the interface provided by `Opium.App` module.
 

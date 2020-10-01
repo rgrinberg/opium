@@ -14,7 +14,7 @@ To install [opium-testing], you can add it to your [dune-project]'s package stan
    (>= 4.08))
   (dune
    (>= 2.0))
-  opium_kernel
+  rock
   (alcotest :with-test)
   (alcotest-lwt :with-test)
   (opium-testing :with-test)))
@@ -37,7 +37,7 @@ Here's a sample unit test that tests if the response is the one expected.
 {[
 open Alcotest
 open Lwt.Syntax
-open Opium_kernel
+open Rock
 open Opium_testing
 
 let test_case n f = Alcotest_lwt.test_case n `Quick (fun _switch () -> f ())
