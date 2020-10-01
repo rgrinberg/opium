@@ -1,10 +1,10 @@
-module Context = Rock.Context
-module Headers = Rock.Headers
+module Context = Context
+module Headers = Headers
 module Cookie = Cookie
-module Method = Rock.Method
-module Version = Rock.Version
-module Status = Rock.Status
-module Body = Rock.Body
+module Method = Method
+module Version = Version
+module Status = Status
+module Body = Body
 module Request = Request
 module Response = Response
 module App = App
@@ -12,7 +12,7 @@ module Route = Route
 module Router = Middleware_router
 
 module Handler = struct
-  let serve = Middleware_static.serve
+  let serve = Handler_serve.h
 end
 
 module Middleware = struct

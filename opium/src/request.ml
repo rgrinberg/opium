@@ -203,3 +203,30 @@ let urlencoded_exn key t =
 let query_list t = t.target |> Uri.of_string |> Uri.query
 let query key t = query_list t |> find_in_query key
 let query_exn key t = query key t |> Option.get
+
+let sexp_of_t { version; target; headers; meth; body; env } =
+  let open Sexplib0.Sexp_conv in
+  let open Sexplib0.Sexp in
+  List
+    [ List [ Atom "version"; Version.sexp_of_t version ]
+    ; List [ Atom "target"; sexp_of_string target ]
+    ; List [ Atom "method"; Method.sexp_of_t meth ]
+    ; List [ Atom "headers"; Headers.sexp_of_t headers ]
+    ; List [ Atom "body"; Body.sexp_of_t body ]
+    ; List [ Atom "env"; Context.sexp_of_t env ]
+    ]
+;;
+
+let pp fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)
+
+let pp_hum fmt t =
+  Format.fprintf
+    fmt
+    "%s %s %s\n%s\n\n%a\n%!"
+    (Method.to_string t.meth)
+    t.target
+    (Version.to_string t.version)
+    (Headers.to_string t.headers)
+    Body.pp_hum
+    t.body
+;;

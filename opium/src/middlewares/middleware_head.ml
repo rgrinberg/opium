@@ -12,15 +12,15 @@ let m =
       | _ -> req
     in
     let* response = handler req in
-    let body_length = Rock.Body.length response.Response.body in
+    let body_length = Body.length response.Response.body in
     let response =
       match body_length with
       | Some l ->
-        { response with body = Rock.Body.empty }
+        { response with body = Body.empty }
         |> Response.add_header_or_replace ("Content-Length", Int64.to_string l)
         |> Response.remove_header "Content-Encoding"
       | None ->
-        { response with body = Rock.Body.empty }
+        { response with body = Body.empty }
         |> Response.remove_header "Content-Length"
         |> Response.remove_header "Content-Encoding"
     in

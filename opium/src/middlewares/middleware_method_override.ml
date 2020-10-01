@@ -11,7 +11,7 @@ let m =
       let method_ =
         match method_result with
         | Some m ->
-          (match Rock.Method.of_string m with
+          (match Method.of_string m with
           | (`PUT | `DELETE | `Other "PATCH") as m -> m
           | _ -> req.meth)
         | None -> req.meth

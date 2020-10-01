@@ -11,7 +11,7 @@ let body_to_string ?(content_type = "text/plain") ?(max_len = 1000) body =
   in
   match lhs, rhs with
   | "text", _ | "application", "json" | "application", "x-www-form-urlencoded" ->
-    let+ s = Rock.Body.to_string body in
+    let+ s = Body.to_string body in
     if String.length s > max_len
     then
       String.sub s 0 (min (String.length s) max_len)
@@ -26,10 +26,10 @@ let request_to_string (request : Request.t) =
   let+ body_string = body_to_string ?content_type request.body in
   Format.asprintf
     "%s %s %s\n%s\n\n%s\n%!"
-    (Rock.Method.to_string request.meth)
+    (Method.to_string request.meth)
     request.target
-    (Rock.Version.to_string request.version)
-    (Rock.Headers.to_string request.headers)
+    (Version.to_string request.version)
+    (Headers.to_string request.headers)
     body_string
 ;;
 
@@ -39,12 +39,12 @@ let response_to_string (response : Response.t) =
   let+ body_string = body_to_string ?content_type response.body in
   Format.asprintf
     "%a %a %s\n%a\n%s\n%!"
-    Rock.Version.pp_hum
+    Version.pp_hum
     response.version
-    Rock.Status.pp_hum
+    Status.pp_hum
     response.status
     (Option.value ~default:"" response.reason)
-    Rock.Headers.pp_hum
+    Headers.pp_hum
     response.headers
     body_string
 ;;
@@ -56,14 +56,14 @@ let respond ?time_f handler req =
     let f () = handler req in
     let span, response_lwt = time_f f in
     let* response = response_lwt in
-    let code = response.Response.status |> Rock.Status.to_string in
+    let code = response.Response.status |> Status.to_string in
     Log.info (fun m -> m "Responded with HTTP code %s in %a" code Mtime.Span.pp span);
     let+ response_string = response_to_string response in
     Log.debug (fun m -> m "%s" response_string);
     response
   | None ->
     let* response = handler req in
-    let code = response.Response.status |> Rock.Status.to_string in
+    let code = response.Response.status |> Status.to_string in
     Log.info (fun m -> m "Responded with HTTP code %s" code);
     let+ response_string = response_to_string response in
     Log.debug (fun m -> m "%s" response_string);
@@ -73,7 +73,7 @@ let respond ?time_f handler req =
 let m ?time_f () =
   let open Lwt.Syntax in
   let filter handler req =
-    let meth = Rock.Method.to_string req.Request.meth in
+    let meth = Method.to_string req.Request.meth in
     let uri = req.Request.target |> Uri.of_string |> Uri.path_and_query in
     Logs.info ~src:log_src (fun m -> m "Received %s %S" meth uri);
     let* request_string = request_to_string req in

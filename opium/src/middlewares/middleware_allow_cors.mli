@@ -4,7 +4,7 @@ val m
   -> ?max_age:int
   -> ?headers:string list
   -> ?expose:string list
-  -> ?methods:Rock.Method.t list
+  -> ?methods:Method.t list
   -> ?send_preflight_response:bool
   -> unit
   -> Rock.Middleware.t

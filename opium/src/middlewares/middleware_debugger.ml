@@ -85,13 +85,13 @@ let m () =
   let open Lwt.Syntax in
   let filter handler req =
     (* We copy the body here to be sure we have the original body if it is a stream. *)
-    let body = Rock.Body.copy req.Request.body in
+    let body = Body.copy req.Request.body in
     Lwt.catch
       (fun () -> handler req)
       (fun exn ->
         Logs.err ~src:log_src (fun f -> f "%s" (Nifty.Exn.to_string exn));
         let* res_string = format_error { req with body } exn in
-        let body = Rock.Body.of_string res_string in
+        let body = Body.of_string res_string in
         Rock.Server_connection.halt
           (Response.make ~status:`Internal_server_error ~body ()))
   in

@@ -67,7 +67,7 @@ let allowed_headers ~headers request =
 ;;
 
 let options_cors_headers ~max_age ~headers ~methods request =
-  let methods = ListLabels.map methods ~f:Rock.Method.to_string in
+  let methods = ListLabels.map methods ~f:Method.to_string in
   [ "Access-Control-Max-Age", string_of_int max_age
   ; "Access-Control-Allow-Methods", String.concat "," methods
   ]
@@ -95,10 +95,10 @@ let m
     in
     match send_preflight_response, req.Request.meth with
     | true, `OPTIONS ->
-      Response.make ~status:`No_content ~headers:(Rock.Headers.of_list hs) ()
+      Response.make ~status:`No_content ~headers:(Headers.of_list hs) ()
     | _ ->
       { response with
-        headers = Rock.Headers.add_list response.Response.headers (hs |> List.rev)
+        headers = Headers.add_list response.Response.headers (hs |> List.rev)
       }
   in
   Rock.Middleware.create ~name:"Allow CORS" ~filter

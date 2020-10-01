@@ -1,24 +1,24 @@
 module Testable = struct
-  let status = Alcotest.of_pp Rock.Status.pp
-  let meth = Alcotest.of_pp Rock.Method.pp
-  let version = Alcotest.of_pp Rock.Version.pp
-  let body = Alcotest.of_pp Rock.Body.pp
-  let request = Alcotest.of_pp Rock.Request.pp
-  let response = Alcotest.of_pp Rock.Response.pp
+  let status = Alcotest.of_pp Opium.Status.pp
+  let meth = Alcotest.of_pp Opium.Method.pp
+  let version = Alcotest.of_pp Opium.Version.pp
+  let body = Alcotest.of_pp Opium.Body.pp
+  let request = Alcotest.of_pp Opium.Request.pp
+  let response = Alcotest.of_pp Opium.Response.pp
   let cookie = Alcotest.of_pp Opium.Cookie.pp
 end
 
 let handle_request app =
-  let open Rock in
   let open Lwt.Syntax in
   let service = Opium.App.to_handler app in
   let request_handler request =
-    let+ ({ Response.body; headers; _ } as response) = service request in
-    let length = Body.length body in
+    let+ ({ Opium.Response.body; headers; _ } as response) = service request in
+    let length = Opium.Body.length body in
     let headers =
       match length with
-      | None -> Headers.add_unless_exists headers "Transfer-Encoding" "chunked"
-      | Some l -> Headers.add_unless_exists headers "Content-Length" (Int64.to_string l)
+      | None -> Opium.Headers.add_unless_exists headers "Transfer-Encoding" "chunked"
+      | Some l ->
+        Opium.Headers.add_unless_exists headers "Content-Length" (Int64.to_string l)
     in
     { response with headers }
   in
@@ -29,7 +29,7 @@ let check_status ?msg expected t =
   let message =
     match msg with
     | Some msg -> msg
-    | None -> Format.asprintf "HTTP status is %d" (Rock.Status.to_code expected)
+    | None -> Format.asprintf "HTTP status is %d" (Opium.Status.to_code expected)
   in
   Alcotest.check Testable.status message expected t
 ;;
@@ -40,7 +40,7 @@ let check_meth ?msg expected t =
   let message =
     match msg with
     | Some msg -> msg
-    | None -> Format.asprintf "HTTP method is %s" (Rock.Method.to_string expected)
+    | None -> Format.asprintf "HTTP method is %s" (Opium.Method.to_string expected)
   in
   Alcotest.check Testable.meth message expected t
 ;;
@@ -51,7 +51,7 @@ let check_version ?msg expected t =
   let message =
     match msg with
     | Some msg -> msg
-    | None -> Format.asprintf "HTTP version is %s" (Rock.Version.to_string expected)
+    | None -> Format.asprintf "HTTP version is %s" (Opium.Version.to_string expected)
   in
   Alcotest.check Testable.version message expected t
 ;;
@@ -107,7 +107,7 @@ let check_body_contains ?msg s body =
     | None -> "response body contains" ^ s
   in
   let open Lwt.Syntax in
-  let+ body = body |> Rock.Body.copy |> Rock.Body.to_string in
+  let+ body = body |> Opium.Body.copy |> Opium.Body.to_string in
   Alcotest.check Alcotest.bool message true (string_contains body s)
 ;;
 

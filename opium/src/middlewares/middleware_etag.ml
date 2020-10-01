@@ -9,7 +9,7 @@ let etag_of_body body =
     |> Cstruct.to_string
     |> Base64.encode_exn
   in
-  match body.Rock.Body.content with
+  match body.Body.content with
   | `String s -> Some (encode s)
   | `Bigstring b -> Some (b |> Bigstringaf.to_string |> encode)
   | `Empty -> Some (encode "")

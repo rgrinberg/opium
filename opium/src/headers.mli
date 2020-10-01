@@ -1,4 +1,8 @@
-include module type of Httpaf.Version
+type t = Httpaf.Headers.t
+
+include module type of Httpaf.Headers with type t := t
+
+val add_list_unless_exists : t -> (name * name) list -> t
 
 (** {2 Utilities} *)
 

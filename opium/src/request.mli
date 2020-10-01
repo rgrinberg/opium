@@ -16,12 +16,12 @@
     copy the body yourself. *)
 
 type t = Rock.Request.t =
-  { version : Rock.Version.t
+  { version : Version.t
   ; target : string
-  ; headers : Rock.Headers.t
-  ; meth : Rock.Method.t
-  ; body : Rock.Body.t
-  ; env : Rock.Context.t
+  ; headers : Headers.t
+  ; meth : Method.t
+  ; body : Body.t
+  ; env : Context.t
   }
 
 (** {1 Constructors} *)
@@ -34,12 +34,12 @@ type t = Rock.Request.t =
     By default, the HTTP version will be set to 1.1 and the request will not contain any
     header or body. *)
 val make
-  :  ?version:Rock.Version.t
-  -> ?body:Rock.Body.t
-  -> ?env:Rock.Context.t
-  -> ?headers:Rock.Headers.t
+  :  ?version:Version.t
+  -> ?body:Body.t
+  -> ?env:Context.t
+  -> ?headers:Headers.t
   -> string
-  -> Rock.Method.t
+  -> Method.t
   -> t
 
 (** {3 [get]} *)
@@ -50,10 +50,10 @@ val make
     By default, the HTTP version will be set to 1.1 and the request will not contain any
     header or body. *)
 val get
-  :  ?version:Rock.Version.t
-  -> ?body:Rock.Body.t
-  -> ?env:Rock.Context.t
-  -> ?headers:Rock.Headers.t
+  :  ?version:Version.t
+  -> ?body:Body.t
+  -> ?env:Context.t
+  -> ?headers:Headers.t
   -> string
   -> t
 
@@ -65,10 +65,10 @@ val get
     By default, the HTTP version will be set to 1.1 and the request will not contain any
     header or body. *)
 val post
-  :  ?version:Rock.Version.t
-  -> ?body:Rock.Body.t
-  -> ?env:Rock.Context.t
-  -> ?headers:Rock.Headers.t
+  :  ?version:Version.t
+  -> ?body:Body.t
+  -> ?env:Context.t
+  -> ?headers:Headers.t
   -> string
   -> t
 
@@ -80,10 +80,10 @@ val post
     By default, the HTTP version will be set to 1.1 and the request will not contain any
     header or body. *)
 val put
-  :  ?version:Rock.Version.t
-  -> ?body:Rock.Body.t
-  -> ?env:Rock.Context.t
-  -> ?headers:Rock.Headers.t
+  :  ?version:Version.t
+  -> ?body:Body.t
+  -> ?env:Context.t
+  -> ?headers:Headers.t
   -> string
   -> t
 
@@ -95,10 +95,10 @@ val put
     By default, the HTTP version will be set to 1.1 and the request will not contain any
     header or body. *)
 val delete
-  :  ?version:Rock.Version.t
-  -> ?body:Rock.Body.t
-  -> ?env:Rock.Context.t
-  -> ?headers:Rock.Headers.t
+  :  ?version:Version.t
+  -> ?body:Body.t
+  -> ?env:Context.t
+  -> ?headers:Headers.t
   -> string
   -> t
 
@@ -124,12 +124,12 @@ Content-Type: text/plain
 
 Hello World </pre>%} *)
 val of_plain_text
-  :  ?version:Rock.Version.t
-  -> ?headers:Rock.Headers.t
-  -> ?env:Rock.Context.t
+  :  ?version:Version.t
+  -> ?headers:Headers.t
+  -> ?env:Context.t
   -> body:string
   -> string
-  -> Rock.Method.t
+  -> Method.t
   -> t
 
 (** {3 [of_json]} *)
@@ -154,12 +154,12 @@ Content-Type: application/json
 
 {"Hello":"World"} </pre> %} *)
 val of_json
-  :  ?version:Rock.Version.t
-  -> ?headers:Rock.Headers.t
-  -> ?env:Rock.Context.t
+  :  ?version:Version.t
+  -> ?headers:Headers.t
+  -> ?env:Context.t
   -> body:Yojson.Safe.t
   -> string
-  -> Rock.Method.t
+  -> Method.t
   -> t
 
 (** {3 [of_urlencoded]} *)
@@ -184,12 +184,12 @@ Content-Type: application/x-www-form-urlencoded
 
 key=value </pre> %} *)
 val of_urlencoded
-  :  ?version:Rock.Version.t
-  -> ?headers:Rock.Headers.t
-  -> ?env:Rock.Context.t
+  :  ?version:Version.t
+  -> ?headers:Headers.t
+  -> ?env:Context.t
   -> body:(string * string list) list
   -> string
-  -> Rock.Method.t
+  -> Method.t
   -> t
 
 (** {1 Decoders} *)

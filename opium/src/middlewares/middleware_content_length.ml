@@ -2,7 +2,7 @@ let m =
   let open Lwt.Syntax in
   let filter handler req =
     let+ res = handler req in
-    let length = Rock.Body.length res.Response.body in
+    let length = Body.length res.Response.body in
     match length with
     | None ->
       res

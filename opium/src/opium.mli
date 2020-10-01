@@ -1,10 +1,10 @@
-module Context = Rock.Context
-module Headers = Rock.Headers
+module Context = Context
+module Headers = Headers
 module Cookie = Cookie
-module Method = Rock.Method
-module Version = Rock.Version
-module Status = Rock.Status
-module Body = Rock.Body
+module Method = Method
+module Version = Version
+module Status = Status
+module Body = Body
 module Request = Request
 module Response = Response
 module App = App
@@ -37,7 +37,7 @@ module Handler : sig
   (** [serve ?mime_type ?etag ?headers read] returns a handler that will serve the result
       of [read ()].
 
-      It is typically use to serve static file by providing a read function, either
+      It is typically used to serve static file by providing a read function, either
       reading from the local filesystem, or from a remote one such as Amazon S3.
 
       The response will contain an ETag header and a the HTTP code [304] will be returned

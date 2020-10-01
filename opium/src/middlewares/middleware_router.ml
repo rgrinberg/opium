@@ -1,9 +1,9 @@
 module Method_map = Map.Make (struct
-  type t = Rock.Method.t
+  type t = Method.t
 
   let compare a b =
-    let left = String.uppercase_ascii (Rock.Method.to_string a) in
-    let right = String.uppercase_ascii (Rock.Method.to_string b) in
+    let left = String.uppercase_ascii (Method.to_string a) in
+    let right = String.uppercase_ascii (Method.to_string b) in
     String.compare left right
   ;;
 end)
@@ -43,19 +43,19 @@ let matching_endpoint endpoints meth uri =
 ;;
 
 module Env = struct
-  let key : Route.matches Rock.Context.key =
-    Rock.Context.Key.create ("path_params", Route.sexp_of_matches)
+  let key : Route.matches Context.key =
+    Context.Key.create ("path_params", Route.sexp_of_matches)
   ;;
 end
 
 let splat req =
-  Rock.Context.find_exn Env.key req.Request.env |> fun route -> route.Route.splat
+  Context.find_exn Env.key req.Request.env |> fun route -> route.Route.splat
 ;;
 
 (* not param_exn since if the endpoint was selected it's likely that the parameter is
    already there *)
 let param req param =
-  let { Route.params; _ } = Rock.Context.find_exn Env.key req.Request.env in
+  let { Route.params; _ } = Context.find_exn Env.key req.Request.env in
   List.assoc param params
 ;;
 
@@ -64,7 +64,7 @@ let m endpoints =
     match matching_endpoint endpoints req.Request.meth req.Request.target with
     | None -> default req
     | Some (endpoint, params) ->
-      let env_with_params = Rock.Context.add Env.key params req.Request.env in
+      let env_with_params = Context.add Env.key params req.Request.env in
       (snd endpoint) { req with Request.env = env_with_params }
   in
   Rock.Middleware.create ~name:"Router" ~filter
