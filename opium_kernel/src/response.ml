@@ -99,6 +99,15 @@ let add_cookie ?sign_with ?expires ?scope ?same_site ?secure ?http_only value t 
     Cookie.make ?sign_with ?expires ?scope ?same_site ?secure ?http_only value
     |> Cookie.to_set_cookie_header
   in
+  add_header cookie_header t
+;;
+
+let add_cookie_or_replace ?sign_with ?expires ?scope ?same_site ?secure ?http_only value t
+  =
+  let cookie_header =
+    Cookie.make ?sign_with ?expires ?scope ?same_site ?secure ?http_only value
+    |> Cookie.to_set_cookie_header
+  in
   let headers =
     replace_or_add_to_list
       ~f:(fun (k, v) _ ->

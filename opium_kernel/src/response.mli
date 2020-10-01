@@ -516,6 +516,26 @@ val add_cookie
   -> t
   -> t
 
+(** {3 [add_cookie_or_replace]} *)
+
+(** [add_cookie_or_replace ?sign_with ?expires ?scope ?same_site ?secure ?http_only value
+    t] adds a cookie with value [value] to the response [t].
+
+    If a cookie with the same key already exists, its value will be replaced with the new
+    value of [value].
+
+    If [sign_with] is provided, the cookie will be signed with the given Signer. *)
+val add_cookie_or_replace
+  :  ?sign_with:Cookie.Signer.t
+  -> ?expires:Cookie.expires
+  -> ?scope:Uri.t
+  -> ?same_site:Cookie.same_site
+  -> ?secure:bool
+  -> ?http_only:bool
+  -> Cookie.value
+  -> t
+  -> t
+
 (** {3 [add_cookie_unless_exists]} *)
 
 (** [add_cookie_unless_exists ?sign_with ?expires ?scope ?same_site ?secure ?http_only
