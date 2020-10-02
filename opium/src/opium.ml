@@ -21,6 +21,7 @@ module Middleware = struct
   let logger = Middleware_logger.m
   let allow_cors = Middleware_allow_cors.m
   let static = Middleware_static.m
+  let static_unix = Middleware_static_unix.m
   let content_length = Middleware_content_length.m
   let method_override = Middleware_method_override.m
   let etag = Middleware_etag.m

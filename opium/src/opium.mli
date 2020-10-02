@@ -162,6 +162,17 @@ module Middleware : sig
     -> unit
     -> Rock.Middleware.t
 
+  (** {3 [static_unix]} *)
+
+  (** ??? *)
+  val static_unix
+    :  local_path:string
+    -> ?uri_prefix:string
+    -> ?headers:Headers.t
+    -> ?etag_of_fname:(string -> string option)
+    -> unit
+    -> Rock.Middleware.t
+
   (** {3 [content_length]} *)
 
   (** [content_length] is middleware that overrides the request's [POST] method with the
