@@ -1,4 +1,4 @@
-(** Middleware is a named, simple filter, that only works on rock requests/response *)
+(** Middleware is a named, simple filter, that only works on rock requests/response. *)
 
 type t = private
   { filter : (Request.t, Response.t) Filter.simple

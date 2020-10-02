@@ -1,3 +1,5 @@
+(** Represents an HTTP request or response body. *)
+
 type content =
   [ `Empty
   | `String of string

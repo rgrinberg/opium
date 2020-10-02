@@ -1,7 +1,17 @@
+(** Represents an HTTP request or response body. *)
+
+type content =
+  [ `Empty
+  | `String of string
+  | `Bigstring of Bigstringaf.t
+  | (* TODO: switch to a iovec based stream *)
+    `Stream of string Lwt_stream.t
+  ]
+
 (** [t] represents an HTTP message body. *)
 type t = Rock.Body.t =
   { length : Int64.t option
-  ; content : Rock.Body.content
+  ; content : content
   }
 
 (** {1 Constructor} *)
