@@ -1,14 +1,17 @@
-open Opium.Std
+open Opium
 
-let hello =
-  get "/" (fun _ -> Lwt.return (Response.make ~body:(Body.of_string "Hello World") ()))
+let hello _req = Response.of_plain_text "Hello World" |> Lwt.return
+
+let greet req =
+  let name = Router.param req "name" in
+  Printf.sprintf "Hello, %s" name |> Response.of_plain_text |> Lwt.return
 ;;
 
-let greet =
-  get "/greet/:name" (fun req ->
-      let name = Router.param req "name" in
-      Lwt.return
-        (Response.make ~body:(Body.of_string (Printf.sprintf "Hello, %s" name)) ()))
+let () =
+  let open App in
+  App.empty
+  |> App.get "/" hello
+  |> App.get "/greet/:name" greet
+  |> App.run_command
+  |> ignore
 ;;
-
-let () = App.empty |> hello |> greet |> App.run_command |> ignore
