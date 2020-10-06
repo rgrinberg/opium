@@ -100,6 +100,17 @@ let run server_handler ?error_handler app =
                   | Rock.Halt response -> Lwt.return response
                   | exn -> Lwt.fail exn)
             in
+            let { Body.length; _ } = body in
+            let headers =
+              match length with
+              | None ->
+                Httpaf.Headers.add_unless_exists headers "Transfer-Encoding" "chunked"
+              | Some l ->
+                Httpaf.Headers.add_unless_exists
+                  headers
+                  "Content-Length"
+                  (Int64.to_string l)
+            in
             match body.content with
             | `Empty ->
               write_fixed_response ~headers Httpaf.Reqd.respond_with_string status ""
