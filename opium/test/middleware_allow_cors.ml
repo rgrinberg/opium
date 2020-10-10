@@ -1,4 +1,4 @@
-open Rock
+open Opium
 
 let request = Alcotest.of_pp Request.pp_hum
 let response = Alcotest.of_pp Response.pp_hum

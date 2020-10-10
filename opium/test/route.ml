@@ -1,5 +1,5 @@
 open Sexplib0
-module Route = Rock.Route
+module Route = Opium.Route
 
 let slist t = Alcotest.slist t compare
 let params = slist Alcotest.(pair string string)

@@ -1,5 +1,5 @@
 open Alcotest
-open Rock
+open Opium
 open Opium_testing
 
 let test_case n = test_case n `Quick
@@ -100,12 +100,38 @@ let () =
                    ()
                    ~headers:(Headers.of_list [ "Set-Cookie", "cookie=value" ]))
                 response )
-        ; ( "replaces the value of an existing cookie"
+        ; ( "does not replace the value of an existing cookie"
           , fun () ->
               let response =
                 Response.make ()
                 |> Response.add_cookie ("cookie", "value")
                 |> Response.add_cookie ("cookie", "value2")
+              in
+              check_response
+                (Response.make
+                   ()
+                   ~headers:
+                     (Headers.of_list
+                        [ "Set-Cookie", "cookie=value"; "Set-Cookie", "cookie=value2" ]))
+                response )
+        ] )
+    ; ( "add_cookie_or_replace"
+      , [ ( "adds a cookie to the response"
+          , fun () ->
+              let response =
+                Response.make () |> Response.add_cookie_or_replace ("cookie", "value")
+              in
+              check_response
+                (Response.make
+                   ()
+                   ~headers:(Headers.of_list [ "Set-Cookie", "cookie=value" ]))
+                response )
+        ; ( "replaces the value of an existing cookie"
+          , fun () ->
+              let response =
+                Response.make ()
+                |> Response.add_cookie_or_replace ("cookie", "value")
+                |> Response.add_cookie_or_replace ("cookie", "value2")
               in
               check_response
                 (Response.make

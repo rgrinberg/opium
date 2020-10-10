@@ -87,9 +87,9 @@ val rem : 'a key -> t -> t
 (** [find k m] is the value of [k]'s binding in [m], if any. *)
 val find : 'a key -> t -> 'a option
 
-(** {3 [create]} *)
+(** {3 [find_exn]} *)
 
-(** [get k m] is the value of [k]'s binding find_exn [m].
+(** [find_exn k m] is the value of [k]'s binding find_exn [m].
 
     @raise Invalid_argument if [k] is not bound in [m]. *)
 val find_exn : 'a key -> t -> 'a

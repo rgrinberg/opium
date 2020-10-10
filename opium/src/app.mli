@@ -4,7 +4,6 @@
     - Re-exporting common functions needed in handlers
     - Easy handling of routes and bodies
     - Automatic generation of a command line app *)
-open Rock
 
 (** An opium app is a simple builder wrapper around a rock app *)
 type t

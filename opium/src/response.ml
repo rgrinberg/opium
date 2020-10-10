@@ -1,4 +1,3 @@
-open Rock
 include Rock.Response
 
 let redirect_to
@@ -124,7 +123,7 @@ let add_cookie_unless_exists
   else add_cookie ?sign_with ?expires ?scope ?same_site ?secure ?http_only (k, v) t
 ;;
 
-let remove_cookie key t = add_cookie ~expires:(`Max_age 0L) (key, "") t
+let remove_cookie key t = add_cookie_or_replace ~expires:(`Max_age 0L) (key, "") t
 
 let of_string'
     ?(content_type = "text/plain")

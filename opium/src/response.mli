@@ -2,8 +2,6 @@
 
     It offers convenience functions to create common responses and update them. *)
 
-open Rock
-
 type t = Rock.Response.t =
   { version : Version.t
   ; status : Status.t

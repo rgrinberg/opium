@@ -55,7 +55,6 @@ let register app ~meth ~route ~action =
 ;;
 
 let default_not_found _ =
-  let open Rock in
   Lwt.return
     (Response.make
        ~status:`Not_found
@@ -113,7 +112,6 @@ let middleware m app = { app with middlewares = m :: app.middlewares }
 let action meth route action = register ~meth ~route:(Route.of_string route) ~action
 
 let not_found action t =
-  let open Rock in
   let action req =
     let+ headers, body = action req in
     Response.make ~headers ~body ~status:`Not_found ()

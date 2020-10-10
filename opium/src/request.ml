@@ -1,4 +1,3 @@
-open Rock
 include Rock.Request
 
 let of_string'

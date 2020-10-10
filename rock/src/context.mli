@@ -47,62 +47,62 @@ module Key : sig
   val compare : t -> t -> int
 end
 
-(** {2:maps Maps} *)
+(** {1:maps Maps} *)
 
 (** The type for heterogeneous value maps. *)
 type t
 
-(** {3 [empty]} *)
-
 (** [empty] is the empty map. *)
 val empty : t
-
-(** {3 [is_empty]} *)
 
 (** [is_empty m] is [true] iff [m] is empty. *)
 val is_empty : t -> bool
 
-(** {3 [mem]} *)
-
 (** [mem k m] is [true] iff [k] is bound in [m]. *)
 val mem : 'a key -> t -> bool
-
-(** {3 [add]} *)
 
 (** [add k v m] is [m] with [k] bound to [v]. *)
 val add : 'a key -> 'a -> t -> t
 
-(** {3 [singleton]} *)
-
 (** [singleton k v] is [add k v empty]. *)
 val singleton : 'a key -> 'a -> t
-
-(** {3 [rem]} *)
 
 (** [rem k m] is [m] with [k] unbound. *)
 val rem : 'a key -> t -> t
 
-(** {3 [find]} *)
-
 (** [find k m] is the value of [k]'s binding in [m], if any. *)
 val find : 'a key -> t -> 'a option
 
-(** {3 [create]} *)
-
-(** [get k m] is the value of [k]'s binding find_exn [m].
+(** [get k m] is the value of [k]'s binding in [m].
 
     @raise Invalid_argument if [k] is not bound in [m]. *)
-val find_exn : 'a key -> t -> 'a
+val get : 'a key -> t -> 'a
 
-(** {2:utilities Utilities} *)
+(** The type for bindings. *)
+type binding = B : 'a key * 'a -> binding
 
-(** {3 [sexp_of_t]} *)
+(** [iter f m] applies [f] to all bindings of [m]. *)
+val iter : (binding -> unit) -> t -> unit
 
-(** [sexp_of_t t] converts the request [t] to an s-expression *)
-val sexp_of_t : t -> Sexplib0.Sexp.t
+(** [fold f m acc] folds over the bindings of [m] with [f], starting with [acc] *)
+val fold : (binding -> 'a -> 'a) -> t -> 'a -> 'a
 
-(** {3 [pp_hum]} *)
+(** [for_all p m] is [true] iff all bindings of [m] satisfy [p]. *)
+val for_all : (binding -> bool) -> t -> bool
 
-(** [pp_hum] formats the request [t] as a standard HTTP request *)
-val pp_hum : Format.formatter -> t -> unit
-  [@@ocaml.toplevel_printer]
+(** [exists p m] is [true] iff there exists a bindings of [m] that satisfies [p]. *)
+val exists : (binding -> bool) -> t -> bool
+
+(** [filter p m] are the bindings of [m] that satisfy [p]. *)
+val filter : (binding -> bool) -> t -> t
+
+(** [cardinal m] is the number of bindings in [m]. *)
+val cardinal : t -> int
+
+(** [any_binding m] is a binding of [m] (if not empty). *)
+val any_binding : t -> binding option
+
+(** [get_any_binding m] is a binding of [m].
+
+    @raise Invalid_argument if [m] is empty. *)
+val get_any_binding : t -> binding

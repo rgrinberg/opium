@@ -1,5 +1,5 @@
 open Alcotest
-open Rock
+open Opium
 open Opium_testing
 
 let test_case n = test_case n `Quick
