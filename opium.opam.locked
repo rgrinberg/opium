@@ -1,22 +1,18 @@
 opam-version: "2.0"
 name: "opium"
 version: "0.18.0"
-synopsis: "Sinatra like web toolkit based on Lwt + Cohttp"
-description: """
-Opium is a minimalistic library for quickly binding functions to http routes. Its features include (but not limited to):
-
-    Middleware system for app independent components
-    A simple router for matching urls and parsing parameters
-    Request/Response pretty printing for easier debugging"""
-maintainer: "Rudi Grinberg <rudi.grinberg@gmail>"
-authors: "Rudi Grinberg"
+synopsis: "OCaml web framework"
+description:
+  "Opium is a web framework for OCaml that provides everything you need to build safe, fast and extensible web applications."
+maintainer: "Rudi Grinberg <me@rgrinberg.com>"
+authors: ["Rudi Grinberg" "Anurag Soni" "Thibaut Mattio"]
 license: "MIT"
 homepage: "https://github.com/rgrinberg/opium"
 doc: "https://rgrinberg.github.io/opium/"
 bug-reports: "https://github.com/rgrinberg/opium/issues"
 depends: [
-  "alcotest" {= "1.2.2" & with-test}
-  "alcotest-lwt" {= "1.2.2" & with-test}
+  "alcotest" {= "1.2.3" & with-test}
+  "alcotest-lwt" {= "1.2.3" & with-test}
   "angstrom" {= "0.14.1"}
   "astring" {= "0.8.5"}
   "base-bytes" {= "base"}
@@ -30,8 +26,8 @@ depends: [
   "conf-m4" {= "1"}
   "conf-pkg-config" {= "1.3"}
   "cppo" {= "1.6.6"}
-  "csexp" {= "1.3.1"}
-  "cstruct" {= "5.2.0"}
+  "csexp" {= "1.3.2"}
+  "cstruct" {= "6.0.0"}
   "dune" {= "2.7.1"}
   "dune-configurator" {= "2.7.1"}
   "easy-format" {= "1.3.2"}
@@ -39,7 +35,7 @@ depends: [
   "faraday" {= "0.7.2"}
   "faraday-lwt" {= "0.7.2"}
   "faraday-lwt-unix" {= "0.7.2"}
-  "fmt" {= "0.8.8"}
+  "fmt" {= "0.8.9"}
   "hmap" {= "0.8.1"}
   "httpaf" {= "0.6.6"}
   "httpaf-lwt-unix" {= "0.6.6"}
@@ -57,17 +53,17 @@ depends: [
   "ocamlbuild" {= "0.14.0"}
   "ocamlfind" {= "1.8.1"}
   "ocplib-endian" {= "1.1"}
-  "rock" {= "0.18.0"}
   "ppx_derivers" {= "1.2.1"}
   "ppx_tools_versioned" {= "5.4.0"}
   "ptime" {= "0.8.5"}
   "re" {= "1.9.0"}
   "result" {= "1.5"}
+  "rock" {= "0.18.0"}
   "seq" {= "base"}
   "sexplib0" {= "v0.14.0"}
   "stdlib-shims" {= "0.1.0"}
   "stringext" {= "1.6.0"}
-  "topkg" {= "1.0.2"}
+  "topkg" {= "1.0.3"}
   "tyxml" {= "4.4.0"}
   "uchar" {= "0.0.2"}
   "uri" {= "3.1.0"}
