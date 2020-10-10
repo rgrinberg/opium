@@ -70,7 +70,8 @@ let httpaf_request_to_request ?body req =
   Request.make ~headers ?body req.target req.meth
 ;;
 
-let run server_handler ?error_handler ?(middlewares = []) handler =
+let run server_handler ?error_handler app =
+  let { App.middlewares; handler } = app in
   let filters = ListLabels.map ~f:(fun m -> m.Middleware.filter) middlewares in
   let service = Filter.apply_all filters handler in
   let request_handler reqd =

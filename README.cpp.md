@@ -68,7 +68,7 @@ Here's a simple hello world example to get your feet wet:
 `$ cat hello_world.ml`
 
 ``` ocaml
-#include "examples/hello_world.ml"
+#include "example/hello_world/main.ml"
 ```
 
 compile and run with:
@@ -105,13 +105,13 @@ Here's how you'd create a simple middleware turning away everyone's
 favourite browser.
 
 ``` ocaml
-#include "examples/middleware_ua.ml"
+#include "example/simple_middleware/main.ml"
 ```
 
 Compile with:
 
 ```sh
-$ dune build examples/middleware_ua.ml
+$ dune build example/simple_middleware/main.ml
 ```
 
 Here we also use the ability of Opium to generate a cmdliner term to run your
@@ -120,5 +120,5 @@ For example:
 
 ```
 # run in debug mode on port 9000
-$ dune exec examples/middleware_ua.exe -- -p 9000 -d
+$ dune exec dune build example/simple_middleware/main.exe -- -p 9000 -d
 ```

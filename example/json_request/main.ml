@@ -1,4 +1,4 @@
-open Opium.Std
+open Opium
 
 let print_json req =
   req
@@ -6,4 +6,4 @@ let print_json req =
   |> fun _json -> Lwt.return (Response.make ~body:(Body.of_string "Received response") ())
 ;;
 
-let _ = App.empty |> post "/" print_json |> App.run_command
+let _ = App.empty |> App.post "/" print_json |> App.run_command

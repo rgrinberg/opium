@@ -1,16 +1,14 @@
 (* How to clean up and exit an opium app *)
 
-open Opium.Std
+open Opium
 
-let hello =
-  get "/" (fun _ -> Lwt.return (Response.make ~body:(Body.of_string "Hello World\n") ()))
-;;
+let hello_handler _ = Lwt.return @@ Response.of_plain_text "Hello World\n"
 
 let () =
-  let app = App.empty |> hello |> App.run_command' in
+  let app = App.empty |> App.get "/" hello_handler |> App.run_command' in
   match app with
   | `Ok app ->
-    Lwt_main.at_exit (fun () -> Lwt.return (print_endline "Testing"));
+    Lwt_main.at_exit (fun () -> Lwt.return (print_endline "Bye!"));
     let s = Lwt.join [ app; Lwt_unix.sleep 2.0 |> Lwt.map (fun _ -> Lwt.cancel app) ] in
     ignore (Lwt_main.run s)
   | `Error -> exit 1

@@ -1,0 +1,6 @@
+(alias
+ (name example)
+ (deps hello_world/main.exe exit_hook/main.exe file_upload/main.exe
+   file_upload/simple.exe html_response/main.exe json_request/main.exe
+   rock_server/main.exe simple_middleware/main.exe static_serve/main.exe
+   user_auth/main.exe))

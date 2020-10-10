@@ -1,4 +1,4 @@
-open Opium.Std
+open Opium
 open Sexplib0.Sexp_conv
 
 module Auth = struct
@@ -61,7 +61,7 @@ module Env = struct
   (* or use type nonrec *)
   type user' = user
 
-  let key : user' Opium.Hmap.key = Opium.Hmap.Key.create ("user", [%sexp_of: user])
+  let key : user' Opium.Context.key = Opium.Context.Key.create ("user", [%sexp_of: user])
 end
 
 (* Usually middleware gets its own module so the middleware constructor function is
@@ -86,11 +86,11 @@ let m auth =
       | None -> failwith "TODO: bad username/password pair"
       | Some user ->
         (* we have a user. let's add him to req *)
-        let env = Opium.Hmap.add Env.key user env in
+        let env = Opium.Context.add Env.key user env in
         let req = { req with Request.env } in
         handler req)
   in
   Rock.Middleware.create ~name:"http basic auth" ~filter
 ;;
 
-let user { Request.env; _ } = Opium.Hmap.find Env.key env
+let user { Request.env; _ } = Opium.Context.find Env.key env

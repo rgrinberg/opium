@@ -81,7 +81,7 @@ let format_error req exn =
     request_string
 ;;
 
-let m () =
+let m =
   let open Lwt.Syntax in
   let filter handler req =
     (* We copy the body here to be sure we have the original body if it is a stream. *)

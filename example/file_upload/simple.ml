@@ -1,4 +1,4 @@
-open Rock
+open Opium
 
 let layout ~title:title_ children =
   let open Tyxml.Html in
@@ -46,12 +46,8 @@ let upload_handler request =
 ;;
 
 let _ =
-  let open Opium.Std in
-  Logs.set_reporter (Logs_fmt.reporter ());
-  Logs.set_level (Some Logs.Debug);
   App.empty
-  |> get "/" index_handler
-  |> post "/upload" upload_handler
-  |> middleware Middleware.logger
+  |> App.get "/" index_handler
+  |> App.post "/upload" upload_handler
   |> App.run_command
 ;;

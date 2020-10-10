@@ -1,7 +1,7 @@
-# Opium Example - File Upload
+# File Upload Example
 
 ```
-dune exec examples/file_upload/main.exe
+dune exec example/file_upload/main.exe
 ```
 
 This is an example of a simple file upload.

@@ -91,16 +91,16 @@ module Middleware : sig
 
   (** {3 [debugger]} *)
 
-  (** [debugger ()] creates a middleware that that catches any error that occurs when
+  (** [debugger] creates a middleware that that catches any error that occurs when
       processing the request and pretty prints the error in an an HTML page.
 
       It should only be used during development: you probably don't want to serve a detail
       of the error to your users in production. *)
-  val debugger : unit -> Rock.Middleware.t
+  val debugger : Rock.Middleware.t
 
   (** {3 [logger]} *)
 
-  (** [logger ?time_f ()] creates a middleware that logs the requests and their response.
+  (** [logger] creates a middleware that logs the requests and their response.
 
       The request's target URL and the HTTP method are logged with the "info" verbosity.
       Once the request has been processed successfully, the response's HTTP code is logged
@@ -115,10 +115,7 @@ module Middleware : sig
       Note that this middleware is best used as the first middleware of the pipeline
       because any previous middleware might change the request / response after [Logger]
       has been applied. *)
-  val logger
-    :  ?time_f:((unit -> Response.t Lwt.t) -> Mtime.span * Response.t Lwt.t)
-    -> unit
-    -> Rock.Middleware.t
+  val logger : Rock.Middleware.t
 
   (** {3 [allow_cors]} *)
 

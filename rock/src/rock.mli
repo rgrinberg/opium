@@ -2,6 +2,7 @@
     inspired by Finagle. It's not imperative to have this to for such a tiny framework but
     it makes extensions a lot more straightforward *)
 
+module App = App
 module Context = Context
 module Request = Request
 module Response = Response

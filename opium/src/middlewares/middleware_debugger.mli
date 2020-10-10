@@ -1,1 +1,1 @@
-val m : unit -> Rock.Middleware.t
+val m : Rock.Middleware.t

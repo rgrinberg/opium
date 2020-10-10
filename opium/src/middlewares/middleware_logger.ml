@@ -49,28 +49,26 @@ let response_to_string (response : Response.t) =
     body_string
 ;;
 
-let respond ?time_f handler req =
+let respond handler req =
+  let time_f f =
+    let t1 = Mtime_clock.now () in
+    let x = f () in
+    let t2 = Mtime_clock.now () in
+    let span = Mtime.span t1 t2 in
+    span, x
+  in
   let open Lwt.Syntax in
-  match time_f with
-  | Some time_f ->
-    let f () = handler req in
-    let span, response_lwt = time_f f in
-    let* response = response_lwt in
-    let code = response.Response.status |> Status.to_string in
-    Log.info (fun m -> m "Responded with HTTP code %s in %a" code Mtime.Span.pp span);
-    let+ response_string = response_to_string response in
-    Log.debug (fun m -> m "%s" response_string);
-    response
-  | None ->
-    let* response = handler req in
-    let code = response.Response.status |> Status.to_string in
-    Log.info (fun m -> m "Responded with HTTP code %s" code);
-    let+ response_string = response_to_string response in
-    Log.debug (fun m -> m "%s" response_string);
-    response
+  let f () = handler req in
+  let span, response_lwt = time_f f in
+  let* response = response_lwt in
+  let code = response.Response.status |> Status.to_string in
+  Log.info (fun m -> m "Responded with HTTP code %s in %a" code Mtime.Span.pp span);
+  let+ response_string = response_to_string response in
+  Log.debug (fun m -> m "%s" response_string);
+  response
 ;;
 
-let m ?time_f () =
+let m =
   let open Lwt.Syntax in
   let filter handler req =
     let meth = Method.to_string req.Request.meth in
@@ -79,7 +77,7 @@ let m ?time_f () =
     let* request_string = request_to_string req in
     Logs.debug ~src:log_src (fun m -> m "%s" request_string);
     Lwt.catch
-      (fun () -> respond ?time_f handler req)
+      (fun () -> respond handler req)
       (fun exn ->
         Logs.err ~src:log_src (fun f -> f "%s" (Nifty.Exn.to_string exn));
         Lwt.fail exn)

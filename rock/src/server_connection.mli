@@ -8,8 +8,7 @@ val run
       -> error_handler:Httpaf.Server_connection.error_handler
       -> 'a Lwt.t)
   -> ?error_handler:error_handler
-  -> ?middlewares:Middleware.t list
-  -> Handler.t
+  -> App.t
   -> 'a Lwt.t
 
 (** The Halt exception can be raised to interrupt the normal processing flow of a request.
