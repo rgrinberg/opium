@@ -2,7 +2,7 @@
 
 This directory contains small, self-contained, examples of Opium applications.
 
-These examples showcase specific features of Opium, if you are looking for an example of a more complete Opium app, you can take look at: https://github.com/tmattio/opium-starter.
+These examples showcase specific features of Opium, they do not demonstrate how to build a full-fledged web servers.
 
 - [`hello_world`](./hello_world): Demonstration of simple Opium application
 - [`exit_hook`](./exit_hook): How to clean up an and exit an Opium app

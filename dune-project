@@ -19,9 +19,10 @@
 
 (package
  (name rock)
- (synopsis "Sinatra like web toolkit based on Httpaf + Cohttp")
+ (synopsis
+   "Minimalist framework to build extensible HTTP servers and clients")
  (description
-   "Rock is the Unix indpendent core of Opium. Useful for extremely portable environments such as mirage.")
+   "Rock is a Unix indpendent API to build extensible HTTP servers and clients. It provides building blocks such as middlewares and handlers (a.k.a controllers).")
  (depends
   (ocaml
    (>= 4.08))
@@ -37,9 +38,9 @@
 
 (package
  (name opium)
- (synopsis "Sinatra like web toolkit based on Lwt + Httpaf")
+ (synopsis "OCaml web framework")
  (description
-   "Opium is a minimalistic library for quickly binding functions to http routes. Its features include (but not limited to):\n\n    Middleware system for app independent components\n    A simple router for matching urls and parsing parameters\n    Request/Response pretty printing for easier debugging\n  ")
+   "Opium is a web framework for OCaml that provides everything you need to build safe, fast and extensible web applications.")
  (depends
   (ocaml
    (>= 4.08))
