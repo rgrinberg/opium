@@ -521,6 +521,15 @@ val urlencoded : string -> t -> string option Lwt.t
     [Invalid_argument] exception is raised. Use {!urlencoded} to return an option instead. *)
 val urlencoded_exn : string -> t -> string Lwt.t
 
+(** {3 [urlencoded_list]} *)
+
+(** [urlencoded_list key t] returns all the values associated to [key] in the urlencoded
+    body of the request [t].
+
+    If the key could not be found or if the request could not be parsed as urlencoded, an
+    empty list [[]] is returned instead. *)
+val urlencoded_list : string -> t -> string list Lwt.t
+
 (** {2 URI} *)
 
 (** {3 [query]} *)
@@ -554,7 +563,7 @@ val query : string -> t -> string option
 
     The function only returns the first value for the given key, because in the great
     majority of cases, there is only one parameter per key. If you want to return all the
-    values associated to the key, you can use {!to_urlencoded}.
+    values associated to the key, you can use {!query_list}.
 
     If the key could not be found or if the request URI does not contain any query
     parameter, an [Invalid_argument] exception is raised. Use {!query} to return an option

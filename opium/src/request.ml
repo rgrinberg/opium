@@ -187,10 +187,23 @@ let find_in_query key query =
       | Not_found -> None)
 ;;
 
+let find_list_in_query key query =
+  query
+  |> ListLabels.find_all ~f:(fun (k, _) -> k = key)
+  |> List.map (fun (_, v) -> v)
+  |> List.concat
+;;
+
 let urlencoded key t =
   let open Lwt.Syntax in
   let* query = to_urlencoded t in
   Lwt.return @@ find_in_query key query
+;;
+
+let urlencoded_list key t =
+  let open Lwt.Syntax in
+  let* query = to_urlencoded t in
+  Lwt.return @@ find_list_in_query key query
 ;;
 
 let urlencoded_exn key t =
