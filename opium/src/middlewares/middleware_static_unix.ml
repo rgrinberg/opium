@@ -43,7 +43,7 @@ let read ~local_path fname =
       Ok (Body.of_stream ~length:size stream))
     (fun e ->
       match e with
-      | Isnt_a_file -> Lwt.return (Error `Not_found)
+      | Isnt_a_file | Unix.Unix_error (Unix.ENOENT, _, _) -> Lwt.return (Error `Not_found)
       | exn ->
         Logs.err (fun m ->
             m "Unknown error while serving file %s. %s" fname (Printexc.to_string exn));
