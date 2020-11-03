@@ -59,4 +59,4 @@ jobs:
         run: make test
 
       - name: Build examples
-        run: opam exec -- dune build @examples
+        run: opam exec -- dune build @example

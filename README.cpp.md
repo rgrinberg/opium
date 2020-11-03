@@ -55,8 +55,8 @@ and the simple examples below.
 
 ## Examples
 
-Assuming the necessary dependencies are installed, `$ dune build @examples` will
-compile all examples. The binaries are located in `_build/default/examples/`.
+Assuming the necessary dependencies are installed, `$ dune build @example` will
+compile all examples. The binaries are located in `_build/default/example/`.
 
 You can execute these binaries directly, though in the examples below we use
 `dune exec` to run them.
