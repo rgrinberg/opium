@@ -29,7 +29,7 @@ $ opam install opium
 ### Master
 
 ```
-$ opam pin add opium_kernel --dev-repo
+$ opam pin add rock --dev-repo
 $ opam pin add opium --dev-repo
 ```
 
@@ -56,7 +56,7 @@ and the simple examples below.
 ## Examples
 
 Assuming the necessary dependencies are installed, `$ dune build @examples` will
-compile all examples. The binaries are located in `_build/default/examples/`.
+compile all examples. The binaries are located in `_build/default/example/`.
 
 You can execute these binaries directly, though in the examples below we use
 `dune exec` to run them.
@@ -68,8 +68,7 @@ Here's a simple hello world example to get your feet wet:
 `$ cat hello_world.ml`
 
 ``` ocaml
-open Opium.Std
-open Lwt.Syntax
+open Opium
 
 module Person = struct
   type t =
@@ -79,44 +78,40 @@ module Person = struct
   [@@deriving yojson]
 end
 
-let print_person =
-  get "/person/:name/:age" (fun req ->
-      let name = Router.param req "name" in
-      let age = Router.param req "age" |> int_of_string in
-      let person = { Person.name; age } |> Person.yojson_of_t in
-      Lwt.return (Response.of_json person))
+let print_person_handler req =
+  let name = Router.param req "name" in
+  let age = Router.param req "age" |> int_of_string in
+  let person = { Person.name; age } |> Person.yojson_of_t in
+  Lwt.return (Response.of_json person)
 ;;
 
-let update_person =
-  patch "/person" (fun req ->
-      let+ json = Request.to_json_exn req in
-      let person = Person.t_of_yojson json in
-      Logs.info (fun m -> m "Received person: %s" person.Person.name);
-      Response.of_json (`Assoc [ "message", `String "Person saved" ]))
+let update_person_handler req =
+  let open Lwt.Syntax in
+  let+ json = Request.to_json_exn req in
+  let person = Person.t_of_yojson json in
+  Logs.info (fun m -> m "Received person: %s" person.Person.name);
+  Response.of_json (`Assoc [ "message", `String "Person saved" ])
 ;;
 
-let streaming =
-  post "/hello/stream" (fun req ->
-      let length = Body.length req.body in
-      let content = Body.to_stream req.Request.body in
-      let body = Lwt_stream.map String.uppercase_ascii content in
-      Response.make ~body:(Body.of_stream ?length body) () |> Lwt.return)
+let streaming_handler req =
+  let length = Body.length req.Request.body in
+  let content = Body.to_stream req.Request.body in
+  let body = Lwt_stream.map String.uppercase_ascii content in
+  Response.make ~body:(Body.of_stream ?length body) () |> Lwt.return
 ;;
 
-let print_param =
-  get "/hello/:name" (fun req ->
-      Lwt.return
-        (Response.of_plain_text @@ Printf.sprintf "Hello, %s\n" (Router.param req "name")))
+let print_param_handler req =
+  Printf.sprintf "Hello, %s\n" (Router.param req "name")
+  |> Response.of_plain_text
+  |> Lwt.return
 ;;
 
 let _ =
-  Logs.set_reporter (Logs_fmt.reporter ());
-  Logs.set_level (Some Logs.Debug);
   App.empty
-  |> streaming
-  |> print_param
-  |> print_person
-  |> update_person
+  |> App.post "/hello/stream" streaming_handler
+  |> App.get "/hello/:name" print_param_handler
+  |> App.get "/person/:name/:age" print_person_handler
+  |> App.patch "/person" update_person_handler
   |> App.run_command
 ;;
 ```
@@ -155,32 +150,32 @@ Here's how you'd create a simple middleware turning away everyone's
 favourite browser.
 
 ``` ocaml
-open Opium.Std
+open Opium
 
-let is_substring ~substring =
-  let re = Re.compile (Re.str substring) in
-  Re.execp re
-;;
+module Reject_user_agent = struct
+  let is_ua_msie =
+    let re = Re.compile (Re.str "MSIE") in
+    Re.execp re
+  ;;
 
-let reject_ua ~f =
-  let filter handler req =
-    match Httpaf.Headers.get req.Request.headers "user-agent" with
-    | Some ua when f ua ->
-      Response.make
-        ~status:`Bad_request
-        ~body:(Body.of_string "Please upgrade your browser\n")
-        ()
-      |> Lwt.return
-    | _ -> handler req
-  in
-  Rock.Middleware.create ~filter ~name:"reject_ua"
-;;
+  let m =
+    let filter handler req =
+      match Request.header "user-agent" req with
+      | Some ua when is_ua_msie ua ->
+        Response.of_plain_text ~status:`Bad_request "Please upgrade your browser"
+        |> Lwt.return
+      | _ -> handler req
+    in
+    Rock.Middleware.create ~filter ~name:"Reject User-Agent"
+  ;;
+end
+
+let index_handler _request = Response.of_plain_text "Hello World!" |> Lwt.return
 
 let _ =
   App.empty
-  |> get "/" (fun _ ->
-         Response.make ~body:(Body.of_string "Hello World\n") () |> Lwt.return)
-  |> middleware (reject_ua ~f:(is_substring ~substring:"MSIE"))
+  |> App.get "/" index_handler
+  |> App.middleware Reject_user_agent.m
   |> App.cmd_name "Reject UA"
   |> App.run_command
 ;;
@@ -189,7 +184,7 @@ let _ =
 Compile with:
 
 ```sh
-$ dune build examples/middleware_ua.ml
+$ dune build example/simple_middleware/main.ml
 ```
 
 Here we also use the ability of Opium to generate a cmdliner term to run your
@@ -198,5 +193,5 @@ For example:
 
 ```
 # run in debug mode on port 9000
-$ dune exec examples/middleware_ua.exe -- -p 9000 -d
+$ dune exec dune build example/simple_middleware/main.exe -- -p 9000 -d
 ```

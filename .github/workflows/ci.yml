@@ -32,7 +32,7 @@ jobs:
           path: ~/.opam
           key: v1-${{ runner.os }}-opam-${{ matrix.ocaml-version }}-${{ hashFiles('*.opam.locked') }}
           restore-keys: |
-            v2-${{ runner.os }}-opam-${{ matrix.ocaml-version }}-
+            v1-${{ runner.os }}-opam-${{ matrix.ocaml-version }}-
 
       - name: Use OCaml ${{ matrix.ocaml-version }}
         uses: avsm/setup-ocaml@v1
@@ -43,7 +43,7 @@ jobs:
         if: steps.cache-opam.outputs.cache-hit != 'true'
         run: |
           opam install . --deps-only --with-doc --with-test --locked --unlock-base
-          opam install ppx_sexp_conv base64 ppx_yojson_conv --skip-updates
+          opam install ocamlformat ppx_sexp_conv ppx_yojson_conv --skip-updates
 
       - name: Recover from an Opam broken state
         if: steps.cache-opam.outputs.cache-hit == 'true'
@@ -52,8 +52,11 @@ jobs:
       - name: Build
         run: make build
 
+      - name: Check formatting
+        run: make format
+
       - name: Run tests
         run: make test
 
       - name: Build examples
-        run: opam exec -- dune build @examples
+        run: opam exec -- dune build @example

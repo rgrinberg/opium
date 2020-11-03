@@ -1,0 +1,7 @@
+(library
+ (public_name opium)
+ (libraries rock cmdliner httpaf httpaf-lwt-unix logs logs.fmt mtime.clock.os
+   ptime yojson tyxml mirage-crypto base64 astring re uri magic-mime
+   multipart-form-data))
+
+(include_subdirs unqualified)

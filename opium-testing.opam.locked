@@ -1,19 +1,19 @@
 opam-version: "2.0"
 name: "opium-testing"
-version: "~dev"
+version: "0.18.0"
 synopsis: "Testing library for Opium"
 description:
   "A library that provides helpers to easily test your Opium applications."
-maintainer: "Rudi Grinberg <rudi.grinberg@gmail>"
-authors: "Rudi Grinberg"
+maintainer: "Rudi Grinberg <me@rgrinberg.com>"
+authors: ["Rudi Grinberg" "Anurag Soni" "Thibaut Mattio"]
 license: "MIT"
 homepage: "https://github.com/rgrinberg/opium"
 doc: "https://rgrinberg.github.io/opium/"
 bug-reports: "https://github.com/rgrinberg/opium/issues"
 depends: [
-  "alcotest" {= "1.2.2"}
-  "alcotest-lwt" {= "1.2.2"}
-  "angstrom" {= "0.14.1"}
+  "alcotest" {= "1.2.3"}
+  "alcotest-lwt" {= "1.2.3"}
+  "angstrom" {= "0.15.0"}
   "astring" {= "0.8.5"}
   "base-bytes" {= "base"}
   "base-threads" {= "base"}
@@ -26,44 +26,49 @@ depends: [
   "conf-m4" {= "1"}
   "conf-pkg-config" {= "1.3"}
   "cppo" {= "1.6.6"}
-  "csexp" {= "1.3.1"}
-  "cstruct" {= "5.2.0"}
+  "csexp" {= "1.3.2"}
+  "cstruct" {= "6.0.0"}
   "dune" {= "2.7.1"}
   "dune-configurator" {= "2.7.1"}
   "easy-format" {= "1.3.2"}
   "eqaf" {= "0.7"}
   "faraday" {= "0.7.2"}
-  "fmt" {= "0.8.8"}
+  "faraday-lwt" {= "0.7.2"}
+  "faraday-lwt-unix" {= "0.7.2"}
+  "fmt" {= "0.8.9"}
   "hmap" {= "0.8.1"}
   "httpaf" {= "0.6.6"}
+  "httpaf-lwt-unix" {= "0.6.6"}
   "logs" {= "0.7.0"}
   "lwt" {= "5.3.0"}
   "lwt_ppx" {= "2.0.1"}
   "magic-mime" {= "1.1.2"}
-  "mirage-crypto" {= "0.8.5"}
+  "mirage-crypto" {= "0.8.6"}
   "mmap" {= "1.1.0"}
   "mtime" {= "1.2.0"}
   "multipart-form-data" {= "0.3.0"}
   "ocaml" {= "4.11.1"}
   "ocaml-config" {= "1"}
-  "ocaml-migrate-parsetree" {= "1.7.3"}
+  "ocaml-migrate-parsetree" {= "1.8.0"}
+  "ocaml-syntax-shims" {= "1.0.0"}
   "ocamlbuild" {= "0.14.0"}
   "ocamlfind" {= "1.8.1"}
   "ocplib-endian" {= "1.1"}
-  "opium_kernel" {= "0.18.0"}
+  "opium" {= "0.18.0"}
   "ppx_derivers" {= "1.2.1"}
   "ppx_tools_versioned" {= "5.4.0"}
   "ptime" {= "0.8.5"}
   "re" {= "1.9.0"}
   "result" {= "1.5"}
+  "rock" {= "0.18.0"}
   "seq" {= "base"}
   "sexplib0" {= "v0.14.0"}
   "stdlib-shims" {= "0.1.0"}
   "stringext" {= "1.6.0"}
-  "topkg" {= "1.0.2"}
+  "topkg" {= "1.0.3"}
   "tyxml" {= "4.4.0"}
   "uchar" {= "0.0.2"}
-  "uri" {= "3.1.0"}
+  "uri" {= "4.0.0"}
   "uuidm" {= "0.9.7"}
   "uutf" {= "1.0.2"}
   "yojson" {= "1.7.0"}

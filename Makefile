@@ -11,6 +11,10 @@ dev:
 build:
 	opam exec -- dune build
 
+.PHONY: example
+example:
+	opam exec -- dune build @example
+
 .PHONY: install
 install:
 	opam exec -- dune install

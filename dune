@@ -2,7 +2,7 @@
  (mode promote)
  (deps
   (:dep README.cpp.md)
-  (glob_files examples/*.ml))
+  (source_tree example/))
  (target README.md)
  (action
   (run cppo -n %{dep} -o %{target})))

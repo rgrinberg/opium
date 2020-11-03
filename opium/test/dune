@@ -1,0 +1,4 @@
+(tests
+ (names middleware_allow_cors request response route)
+ (libraries alcotest alcotest-lwt lwt opium opium_testing)
+ (package opium))

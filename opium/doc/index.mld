@@ -1,0 +1,74 @@
+{0 Opium}
+
+Welcome to Opium's documentation!
+
+{1 Overview}
+
+Opium is a web framework for OCaml. 
+
+{1 Installation}
+
+In order to build an Opium app, you will need to install a few dependencies on your system. You can use either Esy to Opam for this.
+
+{2 Install with Opam}
+
+To install Opium with [opam], you can run [opam install opium]. You can then run [opam info opium] to make sure the library has been installed correctly.
+
+{2 Install with Esy}
+
+To install Opium with [esy], you can run [esy add @opam/opium], this will add an entry ["@opam/opium": "*"] to your [package.json] and install the dependency. You can then run [esy ls-modules] to make sure the library has been installed correctly.
+
+{2 Use in a Dune project}
+
+To use Opium in your dune project, you can add [opium] to the [libraries] stanza in your dune file.
+
+If you are building a library, this will look like this:
+
+{[
+(library
+  (public_name mylib)
+  (libraries opium))
+]}
+
+And for an executable:
+
+{[
+(executable
+  (public_name myexe)
+  (libraries opium))
+]}
+
+That's it, you can now start using [Opium]!
+
+{1 Getting Started}
+
+Here is an example of a simple Opium application:
+
+{[
+open Opium
+
+let hello _req = Response.of_plain_text "Hello World" |> Lwt.return
+
+let greet req =
+  let name = Router.param req "name" in
+  Printf.sprintf "Hello, %s" name |> Response.of_plain_text |> Lwt.return
+
+let () =
+  let open App in
+  App.empty
+  |> App.get "/" hello
+  |> App.get "/greet/:name" greet
+  |> App.run_command
+  |> ignore
+]}
+
+When run, the executable will start an HTTP server with two endpoints:
+
+- [/] will return a [text/plain] response with the content ["Hello World"]
+- [/greet/:name] will return a [text/plain] response with a greeting of the name passed in the URL
+
+{1 API documentation}
+
+{!modules:
+Opium
+}
