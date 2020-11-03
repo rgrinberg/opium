@@ -161,7 +161,11 @@ module Middleware : sig
 
   (** {3 [static_unix]} *)
 
-  (** ??? *)
+  (** [static_unix ~local_path ?uri_prefix ?headers ?etag_of_fname ()] creates a
+      middleware that is used to serve static content from a local filesystem.
+
+      The behaviour of the middleware is the same as {!static}, since the latter is used
+      with a [read] function that reads from the local filesystem. *)
   val static_unix
     :  local_path:string
     -> ?uri_prefix:string

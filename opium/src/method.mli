@@ -65,10 +65,10 @@ val is_idempotent : standard -> bool
 
 (** {2 Utilities} *)
 
-(** ??? *)
+(** [to_string t] returns a string representation of the method [t]. *)
 val to_string : t -> string
 
-(** ??? *)
+(** [of_string s] returns a method from its string representation [s]. *)
 val of_string : string -> t
 
 (** [sexp_of_t t] converts the request [t] to an s-expression *)

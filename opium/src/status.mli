@@ -140,10 +140,10 @@ val is_error : t -> bool
 
 (** {2 Utilities} *)
 
-(** ??? *)
+(** [to_string t] returns a string representation of the status [t]. *)
 val to_string : t -> string
 
-(** ??? *)
+(** [of_string s] returns a status from its string representation [s]. *)
 val of_string : string -> t
 
 (** [sexp_of_t t] converts the request [t] to an s-expression *)

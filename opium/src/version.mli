@@ -19,13 +19,15 @@ type t = Httpaf.Version.t =
   ; minor : int
   }
 
-(** [compare] ??? *)
+(** [compare x y] returns [0] if version [x] is equal to version [y], a negative integer
+    if version [x] is less than version [y], and a positive integer if version [x] is
+    greater than version [y]. *)
 val compare : t -> t -> int
 
-(** [to_string] ??? *)
+(** [to_string t] returns a string representation of the version [t]. *)
 val to_string : t -> string
 
-(** [of_string] ??? *)
+(** [of_string s] returns a version from its string representation [s]. *)
 val of_string : string -> t
 
 (** {2 Utilities} *)

@@ -145,7 +145,7 @@ val fold : f:(name -> value -> 'a -> 'a) -> init:'a -> t -> 'a
 
 (** {2 Utilities} *)
 
-(** ??? *)
+(** [to_string t] returns a string representation of the headers [t]. *)
 val to_string : t -> string
 
 (** [sexp_of_t t] converts the request [t] to an s-expression *)
