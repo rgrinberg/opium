@@ -1,6 +1,6 @@
 opam-version: "2.0"
 name: "opium-testing"
-version: "~dev"
+version: "0.18.0"
 synopsis: "Testing library for Opium"
 description:
   "A library that provides helpers to easily test your Opium applications."
@@ -13,7 +13,7 @@ bug-reports: "https://github.com/rgrinberg/opium/issues"
 depends: [
   "alcotest" {= "1.2.3"}
   "alcotest-lwt" {= "1.2.3"}
-  "angstrom" {= "0.14.1"}
+  "angstrom" {= "0.15.0"}
   "astring" {= "0.8.5"}
   "base-bytes" {= "base"}
   "base-threads" {= "base"}
@@ -43,13 +43,14 @@ depends: [
   "lwt" {= "5.3.0"}
   "lwt_ppx" {= "2.0.1"}
   "magic-mime" {= "1.1.2"}
-  "mirage-crypto" {= "0.8.5"}
+  "mirage-crypto" {= "0.8.6"}
   "mmap" {= "1.1.0"}
   "mtime" {= "1.2.0"}
   "multipart-form-data" {= "0.3.0"}
   "ocaml" {= "4.11.1"}
   "ocaml-config" {= "1"}
-  "ocaml-migrate-parsetree" {= "1.7.3"}
+  "ocaml-migrate-parsetree" {= "1.8.0"}
+  "ocaml-syntax-shims" {= "1.0.0"}
   "ocamlbuild" {= "0.14.0"}
   "ocamlfind" {= "1.8.1"}
   "ocplib-endian" {= "1.1"}
@@ -67,7 +68,7 @@ depends: [
   "topkg" {= "1.0.3"}
   "tyxml" {= "4.4.0"}
   "uchar" {= "0.0.2"}
-  "uri" {= "3.1.0"}
+  "uri" {= "4.0.0"}
   "uuidm" {= "0.9.7"}
   "uutf" {= "1.0.2"}
   "yojson" {= "1.7.0"}

@@ -11,7 +11,7 @@ homepage: "https://github.com/rgrinberg/opium"
 doc: "https://rgrinberg.github.io/opium/"
 bug-reports: "https://github.com/rgrinberg/opium/issues"
 depends: [
-  "angstrom" {= "0.14.1"}
+  "angstrom" {= "0.15.0"}
   "base-bytes" {= "base"}
   "base-threads" {= "base"}
   "base-unix" {= "base"}
@@ -29,6 +29,7 @@ depends: [
   "mmap" {= "1.1.0"}
   "ocaml" {= "4.11.1"}
   "ocaml-config" {= "1"}
+  "ocaml-syntax-shims" {= "1.0.0"}
   "ocamlbuild" {= "0.14.0"}
   "ocamlfind" {= "1.8.1"}
   "ocplib-endian" {= "1.1"}

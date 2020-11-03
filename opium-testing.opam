@@ -12,7 +12,7 @@ bug-reports: "https://github.com/rgrinberg/opium/issues"
 depends: [
   "ocaml" {>= "4.08"}
   "dune" {>= "1.11"}
-  "opium"
+  "opium" {= version}
   "alcotest"
   "alcotest-lwt"
 ]

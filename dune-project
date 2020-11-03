@@ -77,6 +77,7 @@
    (>= 4.08))
   (dune
    (>= 1.11))
-  opium
+  (opium
+   (= :version))
   alcotest
   alcotest-lwt))
