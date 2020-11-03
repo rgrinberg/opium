@@ -32,7 +32,7 @@ jobs:
           path: ~/.opam
           key: v1-${{ runner.os }}-opam-${{ matrix.ocaml-version }}-${{ hashFiles('*.opam.locked') }}
           restore-keys: |
-            v2-${{ runner.os }}-opam-${{ matrix.ocaml-version }}-
+            v1-${{ runner.os }}-opam-${{ matrix.ocaml-version }}-
 
       - name: Use OCaml ${{ matrix.ocaml-version }}
         uses: avsm/setup-ocaml@v1
