@@ -1,6 +1,8 @@
 Opium
 =====
 
+**Warning:** This branch is for the Cohttp version of Opium. It is in maintenance mode and every new feature will be added in the Httpaf-based version of Opium (version 0.19.0 and above).
+
 ## Executive Summary
 
 Sinatra like web toolkit for OCaml based on [cohttp](https://github.com/mirage/ocaml-cohttp/) & [lwt](https://github.com/ocsigen/lwt)

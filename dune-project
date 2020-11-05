@@ -28,8 +28,8 @@
   (dune
    (>= 1.11))
   hmap
-  cohttp
-  cohttp-lwt
+  (cohttp (< 3.0))
+  (cohttp-lwt (< 3.0))
   lwt
   fieldslib
   sexplib
@@ -49,7 +49,7 @@
   (dune
    (>= 1.11))
   opium_kernel
-  cohttp-lwt-unix
+  (cohttp-lwt-unix (< 3.0))
   ezjsonm
   lwt
   logs

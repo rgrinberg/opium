@@ -1,3 +1,7 @@
+# 0.18.1
+
+* Add an upper bound for Cohttp. Opium is only compatible with Cohttp < 3.0.
+
 # 0.18.0
 
 * Make examples easier to find and add documentation related to features used in them. (#125, @shonfeder)
