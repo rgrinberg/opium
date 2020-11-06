@@ -19,6 +19,11 @@ val empty : t
 type builder = t -> t
 
 val host : string -> builder
+
+(** [backlog] specifies the maximum number of clients that can have a pending connection
+    request to the Opium server. *)
+val backlog : int -> builder
+
 val port : int -> builder
 val ssl : cert:string -> key:string -> builder
 val cmd_name : string -> builder
