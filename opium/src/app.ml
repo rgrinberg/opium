@@ -6,7 +6,7 @@ let err_invalid_host host =
   Lwt.fail_invalid_arg ("Could not get host info for `" ^ host ^ "`")
 ;;
 
-let run_unix ?ssl ?middlewares ~host ~port handler =
+let run_unix ?backlog ?ssl ?middlewares ~host ~port handler =
   let _mode =
     match ssl with
     | None -> `TCP (`Port port)
@@ -32,12 +32,13 @@ let run_unix ?ssl ?middlewares ~host ~port handler =
     let app = Rock.App.create ?middlewares ~handler () in
     Rock.Server_connection.run f app
   in
-  Lwt_io.establish_server_with_client_socket listen_address connection_handler
+  Lwt_io.establish_server_with_client_socket ?backlog listen_address connection_handler
 ;;
 
 type t =
   { host : string
   ; port : int
+  ; backlog : int option
   ; ssl : ([ `Crt_file_path of string ] * [ `Key_file_path of string ]) option
   ; debug : bool
   ; quiet : bool
@@ -66,6 +67,7 @@ let empty =
   { name = "Opium Default Name"
   ; host = "0.0.0.0"
   ; port = 3000
+  ; backlog = None
   ; ssl = None
   ; debug = false
   ; quiet = false
@@ -105,6 +107,7 @@ let to_handler app =
 ;;
 
 let port port t = { t with port }
+let backlog backlog t = { t with backlog = Some backlog }
 let host host t = { t with host }
 let ssl ~cert ~key t = { t with ssl = Some (`Crt_file_path cert, `Key_file_path key) }
 let cmd_name name t = { t with name }
@@ -162,7 +165,13 @@ let start app =
         app.host
         app.port
         (if app.debug then " (debug)" else ""));
-  run_unix ?ssl:app.ssl ~middlewares ~host:app.host ~port:app.port app.not_found
+  run_unix
+    ?backlog:app.backlog
+    ?ssl:app.ssl
+    ~middlewares
+    ~host:app.host
+    ~port:app.port
+    app.not_found
 ;;
 
 let hashtbl_add_multi tbl x y =
