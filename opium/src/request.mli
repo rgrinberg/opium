@@ -527,7 +527,7 @@ val urlencoded_exn : string -> t -> string Lwt.t
     body of the request [t].
 
     If the key could not be found or if the request could not be parsed as urlencoded, an
-    empty list [[]] is returned instead. *)
+    empty list [\[\]] is returned instead. *)
 val urlencoded_list : string -> t -> string list Lwt.t
 
 (** {2 URI} *)
