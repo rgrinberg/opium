@@ -102,9 +102,12 @@ type t =
   ]
 
 (** [default_reason_phrase standard] is the example reason phrase provided by RFC7231 for
-    the [standard] status code. The RFC allows servers to use reason phrases besides these
-    in responses. *)
-val default_reason_phrase : standard -> string
+    the [t] status code. The RFC allows servers to use reason phrases besides these in
+    responses. *)
+val default_reason_phrase : t -> string
+
+(** [long_reason_phrase standard] is an explanation of the the [t] status code. *)
+val long_reason_phrase : t -> string
 
 (** [to_code t] is the integer representation of [t]. *)
 val to_code : t -> int
