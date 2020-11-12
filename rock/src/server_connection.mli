@@ -22,4 +22,4 @@ exception Halt of Response.t
 
 (** Raises a Halt exception to interrupt the processing of the connection and trigger an
     early response. *)
-val halt : Response.t -> Response.t Lwt.t
+val halt : Response.t -> 'a
