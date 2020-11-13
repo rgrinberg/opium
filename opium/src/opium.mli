@@ -1,3 +1,9 @@
+module Private : sig
+  module Router : module type of struct
+    include Router
+  end
+end
+
 module Context = Context
 module Headers = Headers
 module Cookie = Cookie
@@ -8,14 +14,14 @@ module Body = Body
 module Request = Request
 module Response = Response
 module App = App
-module Route = Route
 module Auth = Auth
+module Route = Router.Route
 
 module Router : sig
-  type 'action t
+  type t
 
-  val empty : 'action t
-  val add : 'a t -> route:Route.t -> meth:Method.t -> action:'a -> 'a t
+  val empty : t
+  val add : t -> route:Route.t -> meth:Method.t -> action:Rock.Handler.t -> t
   val param : Request.t -> string -> string
   val splat : Request.t -> string list
 end
@@ -88,7 +94,7 @@ module Middleware : sig
 
       will redirect any URI containing two segments with the last segment containing
       "hello" to the handler defined in [Handler.hello_world]. *)
-  val router : Rock.Handler.t Router.t -> Rock.Middleware.t
+  val router : Router.t -> Rock.Middleware.t
 
   (** {3 [debugger]} *)
 

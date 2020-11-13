@@ -1,4 +1,13 @@
 (tests
- (names middleware_allow_cors request response route cookie)
- (libraries alcotest alcotest-lwt lwt opium)
+ (names middleware_allow_cors request response)
+ (libraries alcotest alcotest-lwt lwt opium opium_testing)
+ (modules :standard \ opium_router_tests)
  (package opium))
+
+(library
+ (name opium_tests)
+ (libraries opium)
+ (preprocess
+  (pps ppx_expect))
+ (inline_tests)
+ (modules opium_router_tests))

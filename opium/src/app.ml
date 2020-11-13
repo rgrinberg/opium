@@ -2,6 +2,7 @@ open Import
 module Server = Httpaf_lwt_unix.Server
 module Reqd = Httpaf.Reqd
 open Lwt.Syntax
+module Route = Router.Route
 
 let err_invalid_host host =
   Lwt.fail_invalid_arg ("Could not get host info for `" ^ host ^ "`")
