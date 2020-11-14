@@ -6,6 +6,7 @@ module App = App
 module Context = Context
 module Request = Request
 module Response = Response
+module Io_stream = Io_stream
 module Body = Body
 module Service = Service
 module Filter = Filter
