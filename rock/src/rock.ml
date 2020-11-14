@@ -1,6 +1,5 @@
 module App = App
 module Context = Context
-module Io_stream = Io_stream
 module Body = Body
 module Request = Request
 module Response = Response

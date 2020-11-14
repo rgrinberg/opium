@@ -81,3 +81,13 @@
    (= :version))
   alcotest
   alcotest-lwt))
+
+(package
+  (name io_stream)
+  (synopsis "Streaming I/O")
+  (depends
+    (ocaml
+      (>= 4.08))
+    (dune
+      (>= 1.11))
+    lwt))

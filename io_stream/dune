@@ -1,0 +1,4 @@
+(library
+ (name io_stream)
+ (public_name io_stream)
+ (libraries lwt))
