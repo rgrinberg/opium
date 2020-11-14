@@ -1,3 +1,5 @@
+open Import
+
 let default_origin = [ "*" ]
 let default_credentials = true
 let default_max_age = 1_728_000
@@ -26,15 +28,15 @@ let request_origin request = Request.header "Origin" request
 let request_vary request =
   match Request.header "Vary" request with
   | None -> []
-  | Some s -> String.split_on_char ',' s
+  | Some s -> String.split_on_char ~sep:',' s
 ;;
 
 let allowed_origin origins request =
   let request_origin = request_origin request in
   match request_origin with
-  | Some request_origin when List.exists (String.equal request_origin) origins ->
+  | Some request_origin when List.exists ~f:(String.equal request_origin) origins ->
     Some request_origin
-  | _ -> if List.exists (String.equal "*") origins then Some "*" else None
+  | _ -> if List.exists ~f:(String.equal "*") origins then Some "*" else None
 ;;
 
 let vary_headers allowed_origin hs =
@@ -43,14 +45,14 @@ let vary_headers allowed_origin hs =
   | Some "*", _ -> []
   | None, _ -> []
   | _, [] -> [ "Vary", "Origin" ]
-  | _, headers -> [ "Vary", "Origin" :: headers |> String.concat "," ]
+  | _, headers -> [ "Vary", "Origin" :: headers |> String.concat ~sep:"," ]
 ;;
 
 let cors_headers ~origins ~credentials ~expose request =
   let allowed_origin = allowed_origin origins request in
   let vary_headers = vary_headers allowed_origin request in
   [ "Access-Control-Allow-Origin", allowed_origin |> Option.value ~default:""
-  ; "Access-Control-Expose-Headers", String.concat "," expose
+  ; "Access-Control-Expose-Headers", String.concat ~sep:"," expose
   ; "Access-Control-Allow-Credentials", Bool.to_string credentials
   ]
   @ vary_headers
@@ -61,15 +63,15 @@ let allowed_headers ~headers request =
     match headers with
     | [ "*" ] ->
       Request.header "Access-Control-Request-Headers" request |> Option.value ~default:""
-    | headers -> String.concat "," headers
+    | headers -> String.concat ~sep:"," headers
   in
   [ "Access-Control-Allow-Headers", value ]
 ;;
 
 let options_cors_headers ~max_age ~headers ~methods request =
-  let methods = ListLabels.map methods ~f:Method.to_string in
+  let methods = List.map methods ~f:Method.to_string in
   [ "Access-Control-Max-Age", string_of_int max_age
-  ; "Access-Control-Allow-Methods", String.concat "," methods
+  ; "Access-Control-Allow-Methods", String.concat ~sep:"," methods
   ]
   @ allowed_headers ~headers request
 ;;

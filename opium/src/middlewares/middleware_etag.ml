@@ -1,3 +1,5 @@
+open Import
+
 (* TODO: The non-cached responses should include Cache-Control, Content-Location, Date,
    ETag, Expires, and Vary *)
 
@@ -39,8 +41,7 @@ let m =
         | Some request_etags, Some etag_quoted ->
           request_etags
           |> Stringext.split ~on:','
-          |> ListLabels.exists ~f:(fun request_etag ->
-                 String.trim request_etag = etag_quoted)
+          |> List.exists ~f:(fun request_etag -> String.trim request_etag = etag_quoted)
         | _ -> false
       in
       if request_matches_etag

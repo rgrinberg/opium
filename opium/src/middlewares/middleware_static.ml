@@ -1,3 +1,5 @@
+open Import
+
 let log_src =
   Logs.Src.create ~doc:"Opium middleware to server static files" "opium.static_server"
 ;;
@@ -16,7 +18,7 @@ let is_prefix ~prefix s =
 
 let chop_prefix ~prefix s =
   assert (is_prefix ~prefix s);
-  String.sub s (String.length prefix) String.(length s - length prefix)
+  String.sub s ~pos:(String.length prefix) ~len:String.(length s - length prefix)
 ;;
 
 let _add_opt_header_unless_exists headers k v =

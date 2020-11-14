@@ -1,3 +1,5 @@
+open Import
+
 type path_segment =
   | Match of string
   | Param of string
@@ -11,7 +13,6 @@ type matches =
   }
 
 let sexp_of_matches { params; splat } =
-  let open Sexplib0 in
   let splat' = Sexp_conv.sexp_of_list Sexp_conv.sexp_of_string splat in
   let sexp_of_param (a, b) = Sexp_conv.sexp_of_list Sexp_conv.sexp_of_string [ a; b ] in
   Sexp.List
@@ -37,7 +38,7 @@ let parse_param s =
 let of_list l =
   let last_i = List.length l - 1 in
   l
-  |> ListLabels.mapi ~f:(fun i s ->
+  |> List.mapi ~f:(fun i s ->
          match parse_param s with
          | FullSplat when i <> last_i -> invalid_arg "** is only allowed at the end"
          | x -> x)
@@ -48,7 +49,7 @@ let split_slash_delim =
   fun path ->
     path
     |> Re.split_full re
-    |> ListLabels.map ~f:(function
+    |> List.map ~f:(function
            | `Text s -> `Text s
            | `Delim _ -> `Delim)
 ;;
@@ -56,7 +57,7 @@ let split_slash_delim =
 let split_slash path =
   path
   |> split_slash_delim
-  |> ListLabels.map ~f:(function
+  |> List.map ~f:(function
          | `Text s -> s
          | `Delim -> "/")
 ;;
@@ -66,13 +67,13 @@ let of_string path = path |> split_slash |> of_list
 let to_string l =
   let r =
     l
-    |> ListLabels.filter_map ~f:(function
+    |> List.filter_map ~f:(function
            | Match s -> Some s
            | Param s -> Some (":" ^ s)
            | Splat -> Some "*"
            | FullSplat -> Some "**"
            | Slash -> None)
-    |> String.concat "/"
+    |> String.concat ~sep:"/"
   in
   "/" ^ r
 ;;
@@ -99,7 +100,7 @@ let match_url t url =
   let path =
     match String.index_opt url '?' with
     | None -> url
-    | Some i -> String.sub url 0 i
+    | Some i -> String.sub url ~pos:0 ~len:i
   in
   let path = path |> split_slash_delim in
   match_url t path { params = []; splat = [] }

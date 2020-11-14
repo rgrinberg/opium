@@ -1,3 +1,4 @@
+open Import
 include Rock.Response
 
 let redirect_to
@@ -32,7 +33,7 @@ let add_header_unless_exists (k, v) t =
 let add_headers hs t = { t with headers = Headers.add_list t.headers hs }
 
 let add_headers_or_replace hs t =
-  ListLabels.fold_left hs ~init:t ~f:(fun acc el -> add_header_or_replace el acc)
+  List.fold_left hs ~init:t ~f:(fun acc el -> add_header_or_replace el acc)
 ;;
 
 let add_headers_unless_exists hs t =
@@ -44,9 +45,8 @@ let remove_header key t = { t with headers = Headers.remove t.headers key }
 let cookie ?signed_with key t =
   let cookie_opt =
     headers "Set-Cookie" t
-    |> ListLabels.map ~f:(fun v ->
-           Cookie.of_set_cookie_header ?signed_with ("Set-Cookie", v))
-    |> ListLabels.find_opt ~f:(function
+    |> List.map ~f:(fun v -> Cookie.of_set_cookie_header ?signed_with ("Set-Cookie", v))
+    |> List.find_opt ~f:(function
            | Some Cookie.{ value = k, _; _ } when String.equal k key -> true
            | _ -> false)
   in
@@ -55,9 +55,8 @@ let cookie ?signed_with key t =
 
 let cookies ?signed_with t =
   headers "Set-Cookie" t
-  |> ListLabels.map ~f:(fun v ->
-         Cookie.of_set_cookie_header ?signed_with ("Set-Cookie", v))
-  |> ListLabels.filter_map ~f:(fun x -> x)
+  |> List.map ~f:(fun v -> Cookie.of_set_cookie_header ?signed_with ("Set-Cookie", v))
+  |> List.filter_map ~f:(fun x -> x)
 ;;
 
 let replace_or_add_to_list ~f to_add l =
@@ -117,8 +116,7 @@ let add_cookie_unless_exists
     t
   =
   let cookies = cookies t in
-  if ListLabels.exists cookies ~f:(fun Cookie.{ value = cookie, _; _ } ->
-         String.equal cookie k)
+  if List.exists cookies ~f:(fun Cookie.{ value = cookie, _; _ } -> String.equal cookie k)
   then t
   else add_cookie ?sign_with ?expires ?scope ?same_site ?secure ?http_only (k, v) t
 ;;

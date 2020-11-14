@@ -1,3 +1,4 @@
+open Import
 include Rock.Request
 
 let of_string'
@@ -83,7 +84,7 @@ let add_header_unless_exists (k, v) t =
 let add_headers hs t = { t with headers = Headers.add_list t.headers hs }
 
 let add_headers_or_replace hs t =
-  ListLabels.fold_left hs ~init:t ~f:(fun acc el -> add_header_or_replace el acc)
+  List.fold_left hs ~init:t ~f:(fun acc el -> add_header_or_replace el acc)
 ;;
 
 let add_headers_unless_exists hs t =
@@ -127,15 +128,13 @@ let add_cookie ?sign_with (k, v) t =
         | None -> v )
       cookies
   in
-  let cookie_header =
-    cookies |> ListLabels.map ~f:Cookie.make |> Cookie.to_cookie_header
-  in
+  let cookie_header = cookies |> List.map ~f:Cookie.make |> Cookie.to_cookie_header in
   add_header_or_replace cookie_header t
 ;;
 
 let add_cookie_unless_exists ?sign_with (k, v) t =
   let cookies = cookies t in
-  if ListLabels.exists cookies ~f:(fun (k2, _v2) -> String.equal k2 k)
+  if List.exists cookies ~f:(fun (k2, _v2) -> String.equal k2 k)
   then t
   else add_cookie ?sign_with (k, v) t
 ;;
@@ -143,8 +142,8 @@ let add_cookie_unless_exists ?sign_with (k, v) t =
 let remove_cookie key t =
   let cookie_header =
     cookies t
-    |> ListLabels.filter ~f:(fun (k, _) -> not (String.equal k key))
-    |> List.map Cookie.make
+    |> List.filter ~f:(fun (k, _) -> not (String.equal k key))
+    |> List.map ~f:Cookie.make
     |> Cookie.to_cookie_header
   in
   add_header_or_replace cookie_header t
@@ -160,7 +159,7 @@ let to_multipart_form_data
   match t.meth, content_type t with
   | `POST, Some content_type
     when String.length content_type > 30
-         && String.sub content_type 0 30 = "multipart/form-data; boundary=" ->
+         && String.sub content_type ~pos:0 ~len:30 = "multipart/form-data; boundary=" ->
     let open Lwt.Syntax in
     let body = t.body |> Body.copy |> Body.to_stream in
     let* result = Multipart_form_data.parse ~stream:body ~content_type ~callback in
@@ -179,7 +178,7 @@ let to_multipart_form_data_exn ?callback t =
 
 let find_in_query key query =
   query
-  |> ListLabels.find_opt ~f:(fun (k, _) -> k = key)
+  |> List.find_opt ~f:(fun (k, _) -> k = key)
   |> Option.map (fun (_, r) -> r)
   |> fun opt ->
   Option.bind opt (fun x ->
@@ -189,8 +188,8 @@ let find_in_query key query =
 
 let find_list_in_query key query =
   query
-  |> ListLabels.find_all ~f:(fun (k, _) -> k = key)
-  |> List.map (fun (_, v) -> v)
+  |> List.find_all ~f:(fun (k, _) -> k = key)
+  |> List.map ~f:(fun (_, v) -> v)
   |> List.concat
 ;;
 
@@ -217,8 +216,8 @@ let query key t = query_list t |> find_in_query key
 let query_exn key t = query key t |> Option.get
 
 let sexp_of_t { version; target; headers; meth; body; env } =
-  let open Sexplib0.Sexp_conv in
-  let open Sexplib0.Sexp in
+  let open Sexp_conv in
+  let open Sexp in
   List
     [ List [ Atom "version"; Version.sexp_of_t version ]
     ; List [ Atom "target"; sexp_of_string target ]
