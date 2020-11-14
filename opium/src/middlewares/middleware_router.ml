@@ -1,3 +1,5 @@
+open Import
+
 module Method_map = Map.Make (struct
   type t = Method.t
 

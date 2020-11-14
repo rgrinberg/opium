@@ -1,3 +1,5 @@
+open Import
+
 let log_src = Logs.Src.create "opium.server"
 
 module Log = (val Logs.src_log log_src : Logs.LOG)
@@ -5,7 +7,7 @@ module Log = (val Logs.src_log log_src : Logs.LOG)
 let body_to_string ?(content_type = "text/plain") ?(max_len = 1000) body =
   let open Lwt.Syntax in
   let lhs, rhs =
-    match String.split_on_char '/' content_type with
+    match String.split_on_char ~sep:'/' content_type with
     | [ lhs; rhs ] -> lhs, rhs
     | _ -> "application", "octet-stream"
   in
@@ -14,7 +16,7 @@ let body_to_string ?(content_type = "text/plain") ?(max_len = 1000) body =
     let+ s = Body.copy body |> Body.to_string in
     if String.length s > max_len
     then
-      String.sub s 0 (min (String.length s) max_len)
+      String.sub s ~pos:0 ~len:(min (String.length s) max_len)
       ^ Format.asprintf " [truncated %d characters]" (String.length s - max_len)
     else s
   | _ -> Lwt.return ("<" ^ content_type ^ ">")

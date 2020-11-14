@@ -1,3 +1,4 @@
+open Import
 include Httpaf.Status
 
 let rec default_reason_phrase status =
@@ -153,10 +154,9 @@ let rec long_reason_phrase status =
 ;;
 
 let sexp_of_t status =
-  let open Sexplib0 in
   let open Sexp_conv in
   sexp_of_int (to_code status)
 ;;
 
-let pp fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)
+let pp fmt t = Sexp.pp_hum fmt (sexp_of_t t)
 let pp_hum fmt t = Format.fprintf fmt "%s" (to_string t)

@@ -1,3 +1,4 @@
+open Import
 module Server = Httpaf_lwt_unix.Server
 module Reqd = Httpaf.Reqd
 open Lwt.Syntax
@@ -78,7 +79,7 @@ let empty =
 ;;
 
 let create_router routes =
-  ListLabels.fold_left
+  List.fold_left
     routes
     ~init:Middleware_router.empty
     ~f:(fun router (meth, route, action) ->
@@ -92,7 +93,7 @@ let attach_middleware { quiet; debug; routes; middlewares; _ } =
     | Some x :: l -> x :: filter_opt l
   in
   [ Some (routes |> create_router |> Middleware_router.m) ]
-  @ ListLabels.map ~f:Option.some middlewares
+  @ List.map ~f:Option.some middlewares
   @ [ (if not quiet then Some Middleware_logger.m else None)
     ; (if debug then Some Middleware_debugger.m else None)
     ]
@@ -101,7 +102,7 @@ let attach_middleware { quiet; debug; routes; middlewares; _ } =
 
 let to_handler app =
   let middlewares = attach_middleware app in
-  let filters = ListLabels.map ~f:(fun m -> m.Rock.Middleware.filter) middlewares in
+  let filters = List.map ~f:(fun m -> m.Rock.Middleware.filter) middlewares in
   let service = Rock.Filter.apply_all filters app.not_found in
   service
 ;;
@@ -144,8 +145,7 @@ let any methods route action t =
           route);
   let route = Route.of_string route in
   methods
-  |> ListLabels.fold_left ~init:t ~f:(fun app meth ->
-         app |> register ~meth ~route ~action)
+  |> List.fold_left ~init:t ~f:(fun app meth -> app |> register ~meth ~route ~action)
 ;;
 
 let all = any [ `GET; `POST; `DELETE; `PUT; `HEAD; `OPTIONS ]
@@ -184,8 +184,7 @@ let hashtbl_add_multi tbl x y =
 
 let print_routes_f routes =
   let routes_tbl = Hashtbl.create 64 in
-  routes
-  |> ListLabels.iter ~f:(fun (meth, route, _) -> hashtbl_add_multi routes_tbl route meth);
+  routes |> List.iter ~f:(fun (meth, route, _) -> hashtbl_add_multi routes_tbl route meth);
   Printf.printf "%d Routes:\n" (Hashtbl.length routes_tbl);
   Hashtbl.iter
     (fun key data ->
@@ -193,17 +192,16 @@ let print_routes_f routes =
         "> %s (%s)\n"
         (Route.to_string key)
         (data
-        |> ListLabels.map ~f:(fun m ->
-               Httpaf.Method.to_string m |> String.uppercase_ascii)
-        |> String.concat " "))
+        |> List.map ~f:(fun m -> Httpaf.Method.to_string m |> String.uppercase_ascii)
+        |> String.concat ~sep:" "))
     routes_tbl
 ;;
 
 let print_middleware_f middlewares =
   print_endline "Active middleware:";
   middlewares
-  |> ListLabels.map ~f:(fun m -> m.Rock.Middleware.name)
-  |> ListLabels.iter ~f:(Printf.printf "> %s \n")
+  |> List.map ~f:(fun m -> m.Rock.Middleware.name)
+  |> List.iter ~f:(Printf.printf "> %s \n")
 ;;
 
 let cmd_run
