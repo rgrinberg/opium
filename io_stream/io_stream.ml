@@ -1,6 +1,6 @@
 open Lwt.Syntax
 
-module Input = struct
+module In = struct
   type 'a t = unit -> 'a option Lwt.t
 
   let create f = f
@@ -15,18 +15,18 @@ module Input = struct
       iter f t
   ;;
 
-  let singleton item =
-    let finished = ref false in
+  let of_list xs =
+    let xs = ref xs in
     fun () ->
-      if !finished
-      then Lwt.return_none
-      else (
-        finished := true;
-        Lwt.return (Some item))
+      match !xs with
+      | [] -> Lwt.return_none
+      | x :: xs' ->
+        xs := xs';
+        Lwt.return_some x
   ;;
 end
 
-module Output = struct
+module Out = struct
   type 'a t = 'a option -> unit Lwt.t
 
   let create f =
@@ -45,10 +45,10 @@ module Output = struct
   let write i f = f i
 end
 
-let transfer input output =
+let connect input output =
   let rec loop () =
-    let* item = Input.read input in
-    let* () = Output.write item output in
+    let* item = In.read input in
+    let* () = Out.write item output in
     match item with
     | None -> Lwt.return_unit
     | Some _ -> loop ()
