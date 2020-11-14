@@ -2,6 +2,7 @@ module Input : sig
   type 'a t
 
   val create : (unit -> 'a option Lwt.t) -> 'a t
+  val singleton : 'a -> 'a t
   val read : 'a t -> 'a option Lwt.t
   val iter : ('a -> unit Lwt.t) -> 'a t -> unit Lwt.t
 end

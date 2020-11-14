@@ -14,6 +14,16 @@ module Input = struct
       let* () = f item in
       iter f t
   ;;
+
+  let singleton item =
+    let finished = ref false in
+    fun () ->
+      if !finished
+      then Lwt.return_none
+      else (
+        finished := true;
+        Lwt.return (Some item))
+  ;;
 end
 
 module Output = struct
