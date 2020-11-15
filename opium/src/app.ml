@@ -87,17 +87,12 @@ let create_router routes =
 ;;
 
 let attach_middleware { quiet; debug; routes; middlewares; _ } =
-  let rec filter_opt = function
-    | [] -> []
-    | None :: l -> filter_opt l
-    | Some x :: l -> x :: filter_opt l
-  in
   [ Some (routes |> create_router |> Middleware_router.m) ]
   @ List.map ~f:Option.some middlewares
   @ [ (if not quiet then Some Middleware_logger.m else None)
     ; (if debug then Some Middleware_debugger.m else None)
     ]
-  |> filter_opt
+  |> List.filter_opt
 ;;
 
 let to_handler app =
