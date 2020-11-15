@@ -32,16 +32,8 @@ let add t ~route ~meth ~action =
 (** finds matching endpoint and returns it with the parsed list of parameters *)
 let matching_endpoint endpoints meth uri =
   let endpoints = get endpoints meth in
-  let rec find_map ~f = function
-    | [] -> None
-    | x :: l ->
-      (match f x with
-      | Some _ as result -> result
-      | None -> find_map ~f l)
-  in
-  find_map
-    ~f:(fun ep -> uri |> Route.match_url (fst ep) |> Option.map (fun p -> ep, p))
-    endpoints
+  List.find_map endpoints ~f:(fun ep ->
+      uri |> Route.match_url (fst ep) |> Option.map (fun p -> ep, p))
 ;;
 
 module Env = struct
