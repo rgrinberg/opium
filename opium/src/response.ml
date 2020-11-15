@@ -43,20 +43,17 @@ let add_headers_unless_exists hs t =
 let remove_header key t = { t with headers = Headers.remove t.headers key }
 
 let cookie ?signed_with key t =
-  let cookie_opt =
-    headers "Set-Cookie" t
-    |> List.map ~f:(fun v -> Cookie.of_set_cookie_header ?signed_with ("Set-Cookie", v))
-    |> List.find_opt ~f:(function
-           | Some Cookie.{ value = k, _; _ } when String.equal k key -> true
-           | _ -> false)
-  in
-  Option.bind cookie_opt (fun x -> x)
+  headers "Set-Cookie" t
+  |> List.find_map ~f:(fun v ->
+         match Cookie.of_set_cookie_header ?signed_with ("Set-Cookie", v) with
+         | Some (Cookie.{ value = k, _; _ } as c) when String.equal k key -> Some c
+         | _ -> None)
 ;;
 
 let cookies ?signed_with t =
   headers "Set-Cookie" t
-  |> List.map ~f:(fun v -> Cookie.of_set_cookie_header ?signed_with ("Set-Cookie", v))
-  |> List.filter_map ~f:(fun x -> x)
+  |> List.filter_map ~f:(fun v ->
+         Cookie.of_set_cookie_header ?signed_with ("Set-Cookie", v))
 ;;
 
 let replace_or_add_to_list ~f to_add l =
@@ -212,8 +209,8 @@ let to_json t =
 let to_plain_text t = Body.copy t.body |> Body.to_string
 
 let sexp_of_t { version; status; reason; headers; body; env } =
-  let open Sexplib0.Sexp_conv in
-  let open Sexplib0.Sexp in
+  let open Sexp_conv in
+  let open Sexp in
   List
     [ List [ Atom "version"; Version.sexp_of_t version ]
     ; List [ Atom "status"; Status.sexp_of_t status ]
@@ -238,5 +235,5 @@ let http_string_of_t t =
     t.body
 ;;
 
-let pp fmt t = Sexplib0.Sexp.pp_hum fmt (sexp_of_t t)
-let pp_hum fmt t = Format.fprintf fmt "%s\n%!" (http_string_of_t t)
+let pp fmt t = Sexp.pp_hum fmt (sexp_of_t t)
+let pp_hum fmt t = Format.fprintf fmt "%s@." (http_string_of_t t)
