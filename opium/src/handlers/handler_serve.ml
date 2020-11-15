@@ -1,3 +1,5 @@
+open Import
+
 let respond_with_file ?headers ~read =
   let open Lwt.Syntax in
   let* body = read () in
@@ -33,8 +35,8 @@ let h ?mime_type ?etag ?(headers = Httpaf.Headers.empty) read req =
     match request_if_none_match, etag_quoted with
     | Some request_etags, Some etag_quoted ->
       request_etags
-      |> Stringext.split ~on:','
-      |> ListLabels.exists ~f:(fun request_etag -> String.trim request_etag = etag_quoted)
+      |> String.split_on_char ~sep:','
+      |> List.exists ~f:(fun request_etag -> String.trim request_etag = etag_quoted)
     | _ -> false
   in
   if request_matches_etag

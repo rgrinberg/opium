@@ -40,7 +40,7 @@ let m =
         match request_if_none_match, etag_quoted with
         | Some request_etags, Some etag_quoted ->
           request_etags
-          |> Stringext.split ~on:','
+          |> String.split_on_char ~sep:','
           |> List.exists ~f:(fun request_etag -> String.trim request_etag = etag_quoted)
         | _ -> false
       in
