@@ -158,8 +158,7 @@ let to_multipart_form_data
   =
   match t.meth, content_type t with
   | `POST, Some content_type
-    when String.length content_type > 30
-         && String.sub content_type ~pos:0 ~len:30 = "multipart/form-data; boundary=" ->
+    when String.is_prefix content_type ~prefix:"multipart/form-data; boundary=" ->
     let open Lwt.Syntax in
     let body = t.body |> Body.copy |> Body.to_stream in
     let* result = Multipart_form_data.parse ~stream:body ~content_type ~callback in
