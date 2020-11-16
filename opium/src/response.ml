@@ -56,21 +56,6 @@ let cookies ?signed_with t =
          Cookie.of_set_cookie_header ?signed_with ("Set-Cookie", v))
 ;;
 
-let replace_or_add_to_list ~f to_add l =
-  let found = ref false in
-  let rec aux acc l =
-    match l with
-    | [] -> if not !found then to_add :: acc |> List.rev else List.rev acc
-    | el :: rest ->
-      if f el to_add
-      then (
-        found := true;
-        aux (to_add :: acc) rest)
-      else aux (el :: acc) rest
-  in
-  aux [] l
-;;
-
 let add_cookie ?sign_with ?expires ?scope ?same_site ?secure ?http_only value t =
   let cookie_header =
     Cookie.make ?sign_with ?expires ?scope ?same_site ?secure ?http_only value
@@ -86,7 +71,7 @@ let add_cookie_or_replace ?sign_with ?expires ?scope ?same_site ?secure ?http_on
     |> Cookie.to_set_cookie_header
   in
   let headers =
-    replace_or_add_to_list
+    List.replace_or_add_to_list
       ~f:(fun (k, v) _ ->
         match k, v with
         | k, v

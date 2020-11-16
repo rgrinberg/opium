@@ -102,25 +102,10 @@ let cookies ?signed_with t =
   Cookie.cookies_of_headers ?signed_with (t.headers |> Headers.to_list)
 ;;
 
-let replace_or_add_to_list ~f to_add l =
-  let found = ref false in
-  let rec aux acc l =
-    match l with
-    | [] -> if not !found then to_add :: acc |> List.rev else List.rev acc
-    | el :: rest ->
-      if f el to_add
-      then (
-        found := true;
-        aux (to_add :: acc) rest)
-      else aux (el :: acc) rest
-  in
-  aux [] l
-;;
-
 let add_cookie ?sign_with (k, v) t =
   let cookies = cookies t in
   let cookies =
-    replace_or_add_to_list
+    List.replace_or_add_to_list
       ~f:(fun (k2, _v2) _ -> String.equal k k2)
       ( k
       , match sign_with with
