@@ -127,8 +127,8 @@ let add_cookie_unless_exists ?sign_with (k, v) t =
 let remove_cookie key t =
   let cookie_header =
     cookies t
-    |> List.filter ~f:(fun (k, _) -> not (String.equal k key))
-    |> List.map ~f:Cookie.make
+    |> List.filter_map ~f:(fun (k, v) ->
+           if not (String.equal k key) then Some (Cookie.make (k, v)) else None)
     |> Cookie.to_cookie_header
   in
   add_header_or_replace cookie_header t
@@ -162,19 +162,15 @@ let to_multipart_form_data_exn ?callback t =
 
 let find_in_query key query =
   query
-  |> List.find_opt ~f:(fun (k, _) -> k = key)
-  |> Option.map (fun (_, r) -> r)
+  |> List.assoc_opt key
   |> fun opt ->
-  Option.bind opt (fun x ->
-      try Some (List.hd x) with
-      | Not_found -> None)
+  Option.bind opt (function
+      | [] -> None
+      | x :: _ -> Some x)
 ;;
 
 let find_list_in_query key query =
-  query
-  |> List.find_all ~f:(fun (k, _) -> k = key)
-  |> List.map ~f:(fun (_, v) -> v)
-  |> List.concat
+  query |> List.concat_map ~f:(fun (k, v) -> if k = key then v else [])
 ;;
 
 let urlencoded key t =
