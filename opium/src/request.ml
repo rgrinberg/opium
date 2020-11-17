@@ -105,7 +105,7 @@ let cookies ?signed_with t =
 let add_cookie ?sign_with (k, v) t =
   let cookies = cookies t in
   let cookies =
-    List.replace_or_add_to_list
+    List.replace_or_add
       ~f:(fun (k2, _v2) _ -> String.equal k k2)
       ( k
       , match sign_with with

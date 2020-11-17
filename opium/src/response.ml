@@ -71,7 +71,7 @@ let add_cookie_or_replace ?sign_with ?expires ?scope ?same_site ?secure ?http_on
     |> Cookie.to_set_cookie_header
   in
   let headers =
-    List.replace_or_add_to_list
+    List.replace_or_add
       ~f:(fun (k, v) _ ->
         match k, v with
         | k, v

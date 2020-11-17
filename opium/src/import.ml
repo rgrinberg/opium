@@ -17,7 +17,7 @@ module List = struct
       | None -> find_map ~f l)
   ;;
 
-  let replace_or_add_to_list ~f to_add l =
+  let replace_or_add ~f to_add l =
     let rec aux acc l found =
       match l with
       | [] -> rev (if not found then to_add :: acc else acc)
