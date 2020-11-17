@@ -76,10 +76,7 @@ let add_cookie_or_replace ?sign_with ?expires ?scope ?same_site ?secure ?http_on
         match k, v with
         | k, v
           when String.equal (String.lowercase_ascii k) "set-cookie"
-               && String.length v > String.length (fst value)
-               && String.equal
-                    (StringLabels.sub v ~pos:0 ~len:(String.length (fst value)))
-                    (fst value) -> true
+               && String.is_prefix v ~prefix:(fst value) -> true
         | _ -> false)
       cookie_header
       (Headers.to_list t.headers)
