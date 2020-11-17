@@ -102,25 +102,10 @@ let cookies ?signed_with t =
   Cookie.cookies_of_headers ?signed_with (t.headers |> Headers.to_list)
 ;;
 
-let replace_or_add_to_list ~f to_add l =
-  let found = ref false in
-  let rec aux acc l =
-    match l with
-    | [] -> if not !found then to_add :: acc |> List.rev else List.rev acc
-    | el :: rest ->
-      if f el to_add
-      then (
-        found := true;
-        aux (to_add :: acc) rest)
-      else aux (el :: acc) rest
-  in
-  aux [] l
-;;
-
 let add_cookie ?sign_with (k, v) t =
   let cookies = cookies t in
   let cookies =
-    replace_or_add_to_list
+    List.replace_or_add
       ~f:(fun (k2, _v2) _ -> String.equal k k2)
       ( k
       , match sign_with with
@@ -142,8 +127,8 @@ let add_cookie_unless_exists ?sign_with (k, v) t =
 let remove_cookie key t =
   let cookie_header =
     cookies t
-    |> List.filter ~f:(fun (k, _) -> not (String.equal k key))
-    |> List.map ~f:Cookie.make
+    |> List.filter_map ~f:(fun (k, v) ->
+           if not (String.equal k key) then Some (Cookie.make (k, v)) else None)
     |> Cookie.to_cookie_header
   in
   add_header_or_replace cookie_header t
@@ -158,8 +143,7 @@ let to_multipart_form_data
   =
   match t.meth, content_type t with
   | `POST, Some content_type
-    when String.length content_type > 30
-         && String.sub content_type ~pos:0 ~len:30 = "multipart/form-data; boundary=" ->
+    when String.is_prefix content_type ~prefix:"multipart/form-data; boundary=" ->
     let open Lwt.Syntax in
     let body = t.body |> Body.copy |> Body.to_stream in
     let* result = Multipart_form_data.parse ~stream:body ~content_type ~callback in
@@ -178,19 +162,15 @@ let to_multipart_form_data_exn ?callback t =
 
 let find_in_query key query =
   query
-  |> List.find_opt ~f:(fun (k, _) -> k = key)
-  |> Option.map (fun (_, r) -> r)
+  |> List.assoc_opt key
   |> fun opt ->
-  Option.bind opt (fun x ->
-      try Some (List.hd x) with
-      | Not_found -> None)
+  Option.bind opt (function
+      | [] -> None
+      | x :: _ -> Some x)
 ;;
 
 let find_list_in_query key query =
-  query
-  |> List.find_all ~f:(fun (k, _) -> k = key)
-  |> List.map ~f:(fun (_, v) -> v)
-  |> List.concat
+  query |> List.concat_map ~f:(fun (k, v) -> if k = key then v else [])
 ;;
 
 let urlencoded key t =

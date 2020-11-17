@@ -16,6 +16,28 @@ module List = struct
       | Some _ as result -> result
       | None -> find_map ~f l)
   ;;
+
+  let replace_or_add ~f to_add l =
+    let rec aux acc l found =
+      match l with
+      | [] -> rev (if not found then to_add :: acc else acc)
+      | el :: rest ->
+        if f el to_add then aux (to_add :: acc) rest true else aux (el :: acc) rest found
+    in
+    aux [] l false
+  ;;
 end
 
-module String = StringLabels
+module String = struct
+  include StringLabels
+
+  let rec check_prefix s ~prefix len i =
+    i = len || (s.[i] = prefix.[i] && check_prefix s ~prefix len (i + 1))
+  ;;
+
+  let is_prefix s ~prefix =
+    let len = length s in
+    let prefix_len = length prefix in
+    len >= prefix_len && check_prefix s ~prefix prefix_len 0
+  ;;
+end
