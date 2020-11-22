@@ -42,7 +42,7 @@ type t =
   ; backlog : int option
   ; ssl : ([ `Crt_file_path of string ] * [ `Key_file_path of string ]) option
   ; debug : bool
-  ; quiet : bool
+  ; verbose : bool
   ; routes : (Httpaf.Method.t * Route.t * Rock.Handler.t) list
   ; middlewares : Rock.Middleware.t list
   ; name : string
@@ -71,7 +71,7 @@ let empty =
   ; backlog = None
   ; ssl = None
   ; debug = false
-  ; quiet = false
+  ; verbose = false
   ; routes = []
   ; middlewares = []
   ; not_found = default_not_found
@@ -86,10 +86,10 @@ let create_router routes =
       Middleware_router.add router ~meth ~route ~action)
 ;;
 
-let attach_middleware { quiet; debug; routes; middlewares; _ } =
+let attach_middleware { verbose; debug; routes; middlewares; _ } =
   [ Some (routes |> create_router |> Middleware_router.m) ]
   @ List.map ~f:Option.some middlewares
-  @ [ (if not quiet then Some Middleware_logger.m else None)
+  @ [ (if verbose then Some Middleware_logger.m else None)
     ; (if debug then Some Middleware_debugger.m else None)
     ]
   |> List.filter_opt
@@ -149,7 +149,7 @@ let start app =
   (* We initialize the middlewares first, because the logger middleware initializes the
      logger. *)
   let middlewares = attach_middleware app in
-  if not app.quiet
+  if app.verbose
   then (
     Logs.set_reporter (Logs_fmt.reporter ());
     Logs.set_level (Some Logs.Info));
@@ -208,7 +208,7 @@ let cmd_run
     print_routes
     print_middleware
     debug
-    quiet
+    verbose
     _errors
   =
   let map2 ~f a b =
@@ -224,7 +224,7 @@ let cmd_run
     | Some s, _ | None, Some s -> Some s
     | None, None -> None
   in
-  let app = { app with debug; quiet; host; port; ssl } in
+  let app = { app with debug; verbose; host; port; ssl } in
   if print_routes
   then (
     let routes = app.routes in
@@ -276,9 +276,9 @@ module Cmds = struct
     Arg.(value & flag & info [ "d"; "debug" ] ~doc)
   ;;
 
-  let quiet =
-    let doc = "disable verbose mode" in
-    Arg.(value & flag & info [ "q"; "quiet" ] ~doc)
+  let verbose =
+    let doc = "enable verbose mode" in
+    Arg.(value & flag & info [ "v"; "verbose" ] ~doc)
   ;;
 
   let errors =
@@ -298,7 +298,7 @@ module Cmds = struct
       $ routes
       $ middleware
       $ debug
-      $ quiet
+      $ verbose
       $ errors
   ;;
 
