@@ -52,6 +52,7 @@
    (>= 5.3.0))
   httpaf-lwt-unix
   logs
+  fmt
   mtime
   cmdliner
   ptime
