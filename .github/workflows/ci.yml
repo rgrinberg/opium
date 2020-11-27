@@ -14,6 +14,7 @@ jobs:
         os:
           - macos-latest
           - ubuntu-latest
+          - windows-latest
         ocaml-version:
           - 4.11.1
           - 4.10.1
@@ -38,6 +39,9 @@ jobs:
         uses: avsm/setup-ocaml@v1
         with:
           ocaml-version: ${{ matrix.ocaml-version }}
+
+      - name: Print OCaml version
+        run: opam exec -- ocaml --version
 
       - name: Update opam repository
         if: steps.cache-opam.outputs.cache-hit != 'true'
