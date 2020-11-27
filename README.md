@@ -29,8 +29,8 @@ $ opam install opium
 ### Master
 
 ```
-$ opam pin add rock --dev-repo
-$ opam pin add opium --dev-repo
+$ opam pin add rock.~dev https://github.com/rgrinberg/opium.git
+$ opam pin add opium.~dev https://github.com/rgrinberg/opium.git
 ```
 
 ## Documentation
