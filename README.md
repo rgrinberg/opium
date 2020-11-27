@@ -102,7 +102,7 @@ let streaming_handler req =
 
 let print_param_handler req =
   Printf.sprintf "Hello, %s\n" (Router.param req "name")
-  |> Response.of_plain_text
+  |> Response.of_string_body
   |> Lwt.return
 ;;
 
