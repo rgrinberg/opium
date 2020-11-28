@@ -64,7 +64,7 @@ jobs:
         run: make build
 
       - name: Check formatting
-        run: make format
+        run: make fmt
 
       - name: Run tests
         run: make test
