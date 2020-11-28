@@ -26,6 +26,16 @@ module List = struct
     in
     aux [] l false
   ;;
+
+  let concat_map ~f l =
+    let rec aux f acc = function
+      | [] -> rev acc
+      | x :: l ->
+        let xs = f x in
+        aux f (rev_append xs acc) l
+    in
+    aux f [] l
+  ;;
 end
 
 module String = struct

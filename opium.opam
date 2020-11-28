@@ -10,12 +10,13 @@ homepage: "https://github.com/rgrinberg/opium"
 doc: "https://rgrinberg.github.io/opium/"
 bug-reports: "https://github.com/rgrinberg/opium/issues"
 depends: [
+  "dune" {>= "2.0"}
   "ocaml" {>= "4.08"}
-  "dune" {>= "1.11"}
   "rock" {= version}
   "lwt" {>= "5.3.0"}
   "httpaf-lwt-unix"
   "logs"
+  "fmt"
   "mtime"
   "cmdliner"
   "ptime"

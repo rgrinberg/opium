@@ -29,6 +29,19 @@
    STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
    THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. *)
 
+(* Stdlib List superset for compatiblity with OCaml < 4.10.0 *)
+module List = struct
+  include List
+
+  let rec find_map f = function
+    | [] -> None
+    | x :: l ->
+      (match f x with
+      | Some _ as result -> result
+      | None -> find_map f l)
+  ;;
+end
+
 module Signer = struct
   type t =
     { secret : string
@@ -475,7 +488,7 @@ let cookie_of_header ?signed_with cookie_key (key, value) =
   | "Cookie" | "cookie" ->
     String.split_on_char ';' value
     |> List.map (Astring.String.cut ~sep:"=")
-    |> ListLabels.find_map ~f:(function
+    |> List.find_map (function
            | Some (k, value) when k = cookie_key ->
              let value =
                match signed_with with
