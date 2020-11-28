@@ -1,6 +1,4 @@
-(lang dune 1.11)
-
-(using fmt 1.2)
+(lang dune 2.0)
 
 (name opium)
 
@@ -26,8 +24,6 @@
  (depends
   (ocaml
    (>= 4.08))
-  (dune
-   (>= 1.11))
   (lwt
    (>= 5.3.0))
   bigstringaf
@@ -44,8 +40,6 @@
  (depends
   (ocaml
    (>= 4.08))
-  (dune
-   (>= 1.11))
   (rock
    (= :version))
   (lwt
@@ -76,8 +70,6 @@
  (depends
   (ocaml
    (>= 4.08))
-  (dune
-   (>= 1.11))
   (opium
    (= :version))
   alcotest

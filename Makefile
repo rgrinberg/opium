@@ -35,8 +35,8 @@ doc:
 doc-path:
 	@echo "_build/default/_doc/_html/index.html"
 
-.PHONY: format
-format:
+.PHONY: fmt
+fmt:
 	opam exec -- dune build @fmt --auto-promote
 
 .PHONY: watch
