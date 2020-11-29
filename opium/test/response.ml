@@ -1,6 +1,5 @@
 open Alcotest
 open Opium
-open Opium_testing
 
 let test_case n = test_case n `Quick
 
@@ -17,6 +16,27 @@ let signer =
 
 let signer_2 =
   Cookie.Signer.make "Qp0d+6wRcos7rsuEPxGWNlaKRERh7GYrzMrG8DB3aqrFkFN69TFBrF0n0TbYUq9t"
+;;
+
+let response = Alcotest.of_pp Opium.Response.pp
+let cookie = Alcotest.of_pp Opium.Cookie.pp
+
+let check_cookie ?msg expected t =
+  let message =
+    match msg with
+    | Some msg -> msg
+    | None -> "cookies are equal"
+  in
+  Alcotest.check cookie message expected t
+;;
+
+let check_response ?msg expected t =
+  let message =
+    match msg with
+    | Some msg -> msg
+    | None -> "responses are equal"
+  in
+  Alcotest.check response message expected t
 ;;
 
 let () =
@@ -49,12 +69,12 @@ let () =
               let cookie_value =
                 Response.cookie ~signed_with:signer_2 "cookie" response
               in
-              check (option Testable.cookie) "cookie is None" None cookie_value )
+              check (option cookie) "cookie is None" None cookie_value )
         ; ( "does not return a cookie if the response does not have a Cookie header"
           , fun () ->
               let response = Response.make () in
               let cookie_value = Response.cookie "cookie" response in
-              check (option Testable.cookie) "cookie is None" None cookie_value )
+              check (option cookie) "cookie is None" None cookie_value )
         ] )
     ; ( "cookies"
       , [ ( "returns all the cookies of the response"
@@ -67,7 +87,7 @@ let () =
               in
               let cookies = Response.cookies response in
               check
-                (list Testable.cookie)
+                (list cookie)
                 "cookies are the same"
                 [ Cookie.make ("cookie", "value")
                 ; Cookie.make ("signed_cookie", "value2.duQApNVJrAZ2a/dMYQUN3zzSBrk=")
@@ -84,7 +104,7 @@ let () =
               in
               let cookies = Response.cookies ~signed_with:signer response in
               check
-                (list Testable.cookie)
+                (list cookie)
                 "cookies are the same"
                 [ Cookie.make ("signed_cookie", "value2") ]
                 cookies )
