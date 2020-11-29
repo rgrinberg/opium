@@ -1,7 +1,6 @@
 open Alcotest
 open Alcotest_lwt
 open Opium
-open Opium_testing
 open Lwt.Syntax
 
 let test_case n f = test_case n `Quick (fun _switch () -> f ())
@@ -20,6 +19,15 @@ let signer =
 
 let signer_2 =
   Cookie.Signer.make "Qp0d+6wRcos7rsuEPxGWNlaKRERh7GYrzMrG8DB3aqrFkFN69TFBrF0n0TbYUq9t"
+;;
+
+let check_request ?msg expected t =
+  let message =
+    match msg with
+    | Some msg -> msg
+    | None -> "requests are equal"
+  in
+  Alcotest.check (Alcotest.of_pp Opium.Request.pp) message expected t
 ;;
 
 let () =
