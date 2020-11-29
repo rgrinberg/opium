@@ -202,7 +202,7 @@ module Middleware : sig
   (** {3 [method_required]} *)
 
   (** [method_required] creates a middleware that filters the requests by method and
-      respond with a [`Method_not_allowed] status ([HTTP 304]) if the method is not
+      respond with a [`Method_not_allowed] status ([HTTP 405]) if the method is not
       allowed. *)
   val method_required : ?allowed_methods:Method.t list -> unit -> Rock.Middleware.t
 
