@@ -25,7 +25,6 @@ val host : string -> builder
 val backlog : int -> builder
 
 val port : int -> builder
-val ssl : cert:string -> key:string -> builder
 val cmd_name : string -> builder
 
 (** [not_found] accepts a regular Opium handler that will be used instead of the default

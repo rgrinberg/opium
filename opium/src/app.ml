@@ -7,12 +7,7 @@ let err_invalid_host host =
   Lwt.fail_invalid_arg ("Could not get host info for `" ^ host ^ "`")
 ;;
 
-let run_unix ?backlog ?ssl ?middlewares ~host ~port handler =
-  let _mode =
-    match ssl with
-    | None -> `TCP (`Port port)
-    | Some (c, k) -> `TLS (c, k, `No_password, `Port port)
-  in
+let run_unix ?backlog ?middlewares ~host ~port handler =
   let* host_entry =
     Lwt.catch
       (fun () -> Lwt_unix.gethostbyname host)
@@ -40,7 +35,6 @@ type t =
   { host : string
   ; port : int
   ; backlog : int option
-  ; ssl : ([ `Crt_file_path of string ] * [ `Key_file_path of string ]) option
   ; debug : bool
   ; verbose : bool
   ; routes : (Httpaf.Method.t * Route.t * Rock.Handler.t) list
@@ -69,7 +63,6 @@ let empty =
   ; host = "0.0.0.0"
   ; port = 3000
   ; backlog = None
-  ; ssl = None
   ; debug = false
   ; verbose = false
   ; routes = []
@@ -105,7 +98,6 @@ let to_handler app =
 let port port t = { t with port }
 let backlog backlog t = { t with backlog = Some backlog }
 let host host t = { t with host }
-let ssl ~cert ~key t = { t with ssl = Some (`Crt_file_path cert, `Key_file_path key) }
 let cmd_name name t = { t with name }
 let middleware m app = { app with middlewares = m :: app.middlewares }
 let action meth route action = register ~meth ~route:(Route.of_string route) ~action
@@ -160,13 +152,7 @@ let start app =
         app.host
         app.port
         (if app.debug then " (debug)" else ""));
-  run_unix
-    ?backlog:app.backlog
-    ?ssl:app.ssl
-    ~middlewares
-    ~host:app.host
-    ~port:app.port
-    app.not_found
+  run_unix ?backlog:app.backlog ~middlewares ~host:app.host ~port:app.port app.not_found
 ;;
 
 let hashtbl_add_multi tbl x y =
@@ -199,32 +185,8 @@ let print_middleware_f middlewares =
   |> List.iter ~f:(Printf.printf "> %s \n")
 ;;
 
-let cmd_run
-    app
-    port
-    ssl_cert
-    ssl_key
-    host
-    print_routes
-    print_middleware
-    debug
-    verbose
-    _errors
-  =
-  let map2 ~f a b =
-    match a, b with
-    | Some x, Some y -> Some (f x y)
-    | _ -> None
-  in
-  let ssl =
-    let cmd_ssl =
-      map2 ssl_cert ssl_key ~f:(fun c k -> `Crt_file_path c, `Key_file_path k)
-    in
-    match cmd_ssl, app.ssl with
-    | Some s, _ | None, Some s -> Some s
-    | None, None -> None
-  in
-  let app = { app with debug; verbose; host; port; ssl } in
+let cmd_run app port host print_routes print_middleware debug verbose _errors =
+  let app = { app with debug; verbose; host; port } in
   if print_routes
   then (
     let routes = app.routes in
@@ -256,16 +218,6 @@ module Cmds = struct
     Arg.(value & opt int default & info [ "p"; "port" ] ~doc)
   ;;
 
-  let ssl_cert =
-    let doc = "SSL certificate file" in
-    Arg.(value & opt (some string) None & info [ "s"; "ssl-cert" ] ~doc)
-  ;;
-
-  let ssl_key =
-    let doc = "SSL key file" in
-    Arg.(value & opt (some string) None & info [ "k"; "ssl-key" ] ~doc)
-  ;;
-
   let host default =
     let doc = "host" in
     Arg.(value & opt string default & info [ "h"; "host" ] ~doc)
@@ -292,8 +244,6 @@ module Cmds = struct
       pure cmd_run
       $ pure app
       $ port app.port
-      $ ssl_cert
-      $ ssl_key
       $ host app.host
       $ routes
       $ middleware
