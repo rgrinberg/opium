@@ -36,6 +36,7 @@ depends: [
   "faraday-lwt" {= "0.7.2"}
   "faraday-lwt-unix" {= "0.7.2"}
   "fmt" {= "0.8.9"}
+  "fpath" {= "0.7.3" & with-doc}
   "hmap" {= "0.8.1"}
   "httpaf" {= "0.6.6"}
   "httpaf-lwt-unix" {= "0.6.6"}
@@ -54,6 +55,7 @@ depends: [
   "ocamlbuild" {= "0.14.0"}
   "ocamlfind" {= "1.8.1"}
   "ocplib-endian" {= "1.1"}
+  "odoc" {= "1.5.2" & with-doc}
   "opium" {= "0.18.0"}
   "ppx_derivers" {= "1.2.1"}
   "ppx_tools_versioned" {= "5.4.0"}
