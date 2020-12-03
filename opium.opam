@@ -31,6 +31,7 @@ depends: [
   "multipart-form-data"
   "alcotest" {with-test}
   "alcotest-lwt" {with-test}
+  "odoc" {with-doc}
 ]
 build: [
   ["dune" "subst"] {pinned}
