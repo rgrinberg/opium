@@ -86,12 +86,12 @@ let m auth =
         handler req
       | Some (`Basic (username, password)) ->
         (match auth ~username ~password with
-         | None -> failwith "TODO: bad username/password pair"
-         | Some user ->
-           (* we have a user. let's add him to req *)
-           let env = Opium.Context.add Env.key user env in
-           let req = { req with Request.env } in
-           handler req)
+        | None -> failwith "TODO: bad username/password pair"
+        | Some user ->
+          (* we have a user. let's add him to req *)
+          let env = Opium.Context.add Env.key user env in
+          let req = { req with Request.env } in
+          handler req)
     in
     match resp.Response.status with
     | `Unauthorized ->
@@ -105,17 +105,20 @@ let user { Request.env; _ } = Opium.Context.find Env.key env
 
 let index_handler request =
   match user request with
-  | None ->
-    Response.of_plain_text ~status:`Unauthorized "Unauthorized!\n" |> Lwt.return
+  | None -> Response.of_plain_text ~status:`Unauthorized "Unauthorized!\n" |> Lwt.return
   | Some { username } ->
     Response.of_plain_text (Printf.sprintf "Welcome back, %s!\n" username) |> Lwt.return
+;;
 
-let stupid_auth ~username ~password = match username, password with
+let stupid_auth ~username ~password =
+  match username, password with
   | "admin", "admin" -> Some { username }
   | _ -> None
+;;
 
 let _ =
   App.empty
   |> App.middleware (m stupid_auth)
   |> App.get "/" index_handler
   |> App.run_command
+;;
