@@ -18,6 +18,7 @@ depends: [
   "httpaf"
   "lwt"
   "sexplib0"
+  "odoc" {with-doc}
 ]
 build: [
   ["dune" "subst"] {pinned}

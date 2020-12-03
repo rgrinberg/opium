@@ -15,6 +15,7 @@ depends: [
   "opium" {= version}
   "alcotest"
   "alcotest-lwt"
+  "odoc" {with-doc}
 ]
 build: [
   ["dune" "subst"] {pinned}

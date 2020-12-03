@@ -29,6 +29,7 @@ depends: [
   "re"
   "uri"
   "multipart-form-data"
+  "odoc" {with-doc}
   "alcotest" {with-test}
   "alcotest-lwt" {with-test}
 ]
