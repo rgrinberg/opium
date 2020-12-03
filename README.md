@@ -75,7 +75,14 @@ module Person = struct
     { name : string
     ; age : int
     }
-  [@@deriving yojson]
+
+  let yojson_of_t t = `Assoc [ "name", `String t.name; "age", `Int t.age ]
+
+  let t_of_yojson yojson =
+    match yojson with
+    | `Assoc [ ("name", `String name); ("age", `Int age) ] -> { name; age }
+    | _ -> failwith "invalid person json"
+  ;;
 end
 
 let print_person_handler req =
