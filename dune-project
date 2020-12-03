@@ -30,7 +30,8 @@
   hmap
   httpaf
   lwt
-  sexplib0))
+  sexplib0
+  (odoc :with-doc)))
 
 (package
  (name opium)
@@ -59,6 +60,7 @@
   re
   uri
   multipart-form-data
+  (odoc :with-doc)
   (alcotest :with-test)
   (alcotest-lwt :with-test)))
 
@@ -73,4 +75,5 @@
   (opium
    (= :version))
   alcotest
-  alcotest-lwt))
+  alcotest-lwt
+  (odoc :with-doc)))
