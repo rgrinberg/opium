@@ -94,3 +94,23 @@ let m auth =
 ;;
 
 let user { Request.env; _ } = Opium.Context.find Env.key env
+
+let index_handler request =
+  let challenge = `Basic "something" in
+  match user request with
+  | None ->
+    Response.of_plain_text ~status:`Unauthorized "Unauthorized!\n"
+    |> Response.add_header ("www-authenticate", Auth.string_of_challenge challenge)
+    |> Lwt.return
+  | Some { username } ->
+    Response.of_plain_text (Printf.sprintf "Welcome back, %s!\n" username) |> Lwt.return
+
+let stupid_auth ~username ~password = match username, password with
+  | "admin", "admin" -> Some { username }
+  | _ -> None
+
+let _ =
+  App.empty
+  |> App.middleware (m stupid_auth)
+  |> App.get "/" index_handler
+  |> App.run_command
