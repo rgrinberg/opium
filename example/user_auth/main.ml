@@ -71,24 +71,32 @@ end
    represent our database model. E.g. it would do some lookup in the db and fetch the
    user. *)
 let m auth =
+  let challenge = `Basic "something" in
   let filter handler ({ Request.headers; env; _ } as req) =
-    match
-      Option.map Auth.credential_of_string (Httpaf.Headers.get headers "authorization")
-    with
-    | None ->
-      (* could redirect here, but we return user as an option type *)
-      handler req
-    | Some (`Other _) ->
-      (* handle other, non-basic authentication mechanisms *)
-      handler req
-    | Some (`Basic (username, password)) ->
-      (match auth ~username ~password with
-      | None -> failwith "TODO: bad username/password pair"
-      | Some user ->
-        (* we have a user. let's add him to req *)
-        let env = Opium.Context.add Env.key user env in
-        let req = { req with Request.env } in
-        handler req)
+    let open Lwt.Syntax in
+    let+ resp =
+      match
+        Option.map Auth.credential_of_string (Httpaf.Headers.get headers "authorization")
+      with
+      | None ->
+        (* could redirect here, but we return user as an option type *)
+        handler req
+      | Some (`Other _) ->
+        (* handle other, non-basic authentication mechanisms *)
+        handler req
+      | Some (`Basic (username, password)) ->
+        (match auth ~username ~password with
+         | None -> failwith "TODO: bad username/password pair"
+         | Some user ->
+           (* we have a user. let's add him to req *)
+           let env = Opium.Context.add Env.key user env in
+           let req = { req with Request.env } in
+           handler req)
+    in
+    match resp.Response.status with
+    | `Unauthorized ->
+      Response.add_header ("www-authenticate", Auth.string_of_challenge challenge) resp
+    | _ -> resp
   in
   Rock.Middleware.create ~name:"http basic auth" ~filter
 ;;
@@ -96,12 +104,9 @@ let m auth =
 let user { Request.env; _ } = Opium.Context.find Env.key env
 
 let index_handler request =
-  let challenge = `Basic "something" in
   match user request with
   | None ->
-    Response.of_plain_text ~status:`Unauthorized "Unauthorized!\n"
-    |> Response.add_header ("www-authenticate", Auth.string_of_challenge challenge)
-    |> Lwt.return
+    Response.of_plain_text ~status:`Unauthorized "Unauthorized!\n" |> Lwt.return
   | Some { username } ->
     Response.of_plain_text (Printf.sprintf "Welcome back, %s!\n" username) |> Lwt.return
 
