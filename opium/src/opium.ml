@@ -9,6 +9,7 @@ module Request = Request
 module Response = Response
 module App = App
 module Route = Route
+module Auth = Auth
 module Router = Middleware_router
 
 module Handler = struct
@@ -27,4 +28,5 @@ module Middleware = struct
   let etag = Middleware_etag.m
   let method_required = Middleware_method_required.m
   let head = Middleware_head.m
+  let basic_auth = Middleware_basic_auth.m
 end

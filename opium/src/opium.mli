@@ -9,6 +9,7 @@ module Request = Request
 module Response = Response
 module App = App
 module Route = Route
+module Auth = Auth
 
 module Router : sig
   type 'action t
@@ -221,4 +222,22 @@ module Middleware : sig
       request to the handler, and removes the body of the response before sending it to
       the client. *)
   val head : Rock.Middleware.t
+
+  (** {3 [basic_auth]} *)
+
+  (** [basic_auth ?unauthorized_handler ~key ~real ~auth_callback] creates a middleware
+      that proctects handlers with an authentication mechanism.
+
+      The requests have to provide an [Authorization] header with the format
+      [Basic = <credentials>]. [auth_callback] is called with the username and password
+      extracted from the credentials. If the user does not contain a valid [Authorization]
+      header, or if the [auth_callback] returns [None], the request is redirected to
+      [unauthorized_handler] (by default, returns a "Forbidden access" message). *)
+  val basic_auth
+    :  ?unauthorized_handler:Rock.Handler.t
+    -> key:'a Context.key
+    -> realm:string
+    -> auth_callback:(username:string -> password:string -> 'a option)
+    -> unit
+    -> Rock.Middleware.t
 end

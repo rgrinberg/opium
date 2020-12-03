@@ -424,6 +424,17 @@ val content_type : t -> string option
     [Content-Type] set to [content_type]. *)
 val set_content_type : string -> t -> t
 
+(** {3 [authorization]} *)
+
+(** [authorization t] returns the value of the header [Authorization] of the request [t]. *)
+val authorization : t -> Auth.Credential.t option
+
+(** {3 [set_authorization]} *)
+
+(** [set_authorization authorization t] returns a copy of [t] with the value of the header
+    [Authorization] set to [authorization]. *)
+val set_authorization : Auth.Credential.t -> t -> t
+
 (** {2 Cookies} *)
 
 (** {3 [cookie]} *)
