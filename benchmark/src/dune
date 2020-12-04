@@ -1,0 +1,9 @@
+(executable
+ (name opium)
+ (modules opium)
+ (libraries opium))
+
+(executable
+ (name httpaf)
+ (modules httpaf)
+ (libraries httpaf-lwt-unix))
