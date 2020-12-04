@@ -8,6 +8,8 @@ pid=$!
 # Wait for the server to start
 sleep 1
 
+echo "Running benchmarks with opium.exe"
+
 wrk2 \
   -t8 -c10000 -d60S \
   --timeout 2000 \
@@ -23,6 +25,8 @@ pid=$!
 
 # Wait for the server to start
 sleep 1
+
+echo "Running benchmarks with httpaf.exe"
 
 wrk2 \
   -t8 -c10000 -d60S \
