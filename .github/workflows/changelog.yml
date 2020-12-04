@@ -1,0 +1,23 @@
+name: Changelog
+
+on:
+  pull_request:
+    branches: [ master ]
+    types: [ opened, synchronize, reopened, labeled, unlabeled ]
+
+jobs:
+  build:
+    name: Check changelog entry
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Check CHANGES.md changed
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'no-changelog-needed') }}
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          ! git diff --exit-code origin/$BASE_REF -- CHANGES.md
