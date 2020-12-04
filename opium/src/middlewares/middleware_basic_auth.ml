@@ -10,9 +10,10 @@ let m ?unauthorized_handler ~key ~realm ~auth_callback () =
     let+ resp =
       match Request.authorization req with
       | None -> unauthorized_handler req
-      | Some (Other _) -> handler req
+      | Some (Other _) -> unauthorized_handler req
       | Some (Basic (username, password)) ->
-        (match auth_callback ~username ~password with
+        let* user_opt = auth_callback ~username ~password in
+        (match user_opt with
         | None -> unauthorized_handler req
         | Some user ->
           let env = Context.add key user env in

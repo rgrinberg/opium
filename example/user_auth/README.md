@@ -20,5 +20,5 @@ curl http://localhost:3000/ -X GET
 And that you are allows to access when you provide it:
 
 ```sh
-curl http://localhost:3000/ -X GET -H "Authorization: Basic YWRtaW46YWRtaW4="
+curl http://localhost:3000/ -X GET --user admin:admin
 ```

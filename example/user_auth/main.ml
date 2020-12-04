@@ -17,9 +17,9 @@ module User = struct
 end
 
 module Env_user = struct
-  type user' = User.t
+  type t = User.t
 
-  let key : user' Opium.Context.key = Opium.Context.Key.create ("user", User.sexp_of_t)
+  let key : t Opium.Context.key = Opium.Context.Key.create ("user", User.sexp_of_t)
 end
 
 let admin_handler req =
@@ -34,8 +34,8 @@ let unauthorized_handler _req =
 
 let auth_callback ~username ~password =
   match username, password with
-  | "admin", "admin" -> Some User.{ username }
-  | _ -> None
+  | "admin", "admin" -> Lwt.return_some User.{ username }
+  | _ -> Lwt.return_none
 ;;
 
 let auth_middleware =
