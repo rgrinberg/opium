@@ -58,7 +58,7 @@ jobs:
         if: steps.cache-opam.outputs.cache-hit != 'true'
         run: |
           opam install . --deps-only --with-doc --with-test --locked --unlock-base
-          opam install ocamlformat ppx_sexp_conv ppx_yojson_conv --skip-updates
+          opam install ocamlformat --skip-updates
 
       - name: Recover from an Opam broken state
         if: steps.cache-opam.outputs.cache-hit == 'true'

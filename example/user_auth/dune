@@ -1,5 +1,3 @@
 (executable
  (name main)
- (preprocess
-  (pps ppx_sexp_conv))
  (libraries opium))

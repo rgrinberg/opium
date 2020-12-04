@@ -137,6 +137,16 @@ let remove_cookie key t =
 let content_type t = header "Content-Type" t
 let set_content_type s t = add_header ("Content-Type", s) t
 
+let authorization t =
+  let s = header "Authorization" t in
+  Option.map Auth.credential_of_string s
+;;
+
+let set_authorization cred t =
+  let s = Auth.string_of_credential cred in
+  add_header ("Authorization", s) t
+;;
+
 let to_multipart_form_data
     ?(callback = fun ~name:_ ~filename:_ _line -> Lwt.return_unit)
     t

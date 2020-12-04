@@ -1,5 +1,3 @@
 (executable
  (name main)
- (preprocess
-  (pps ppx_yojson_conv))
  (libraries opium))
