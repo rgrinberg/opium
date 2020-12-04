@@ -5,6 +5,7 @@
 - New `Auth` module to work with `Authorization` header (#238)
 - New `basic_auth` middleware to protect handlers with a `Basic` authentication method (#238)
 - New `Response.of_file` API for conveniently creating a response of a file
+- Add a package `opium-graphql` to easily create GraphQL server with Opium (#235)
 
 ## Fixed
 
