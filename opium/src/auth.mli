@@ -33,12 +33,12 @@ end
 (** {3 [string_of_credential]} *)
 
 (** [string_of_credential cred] converts the credentials into a string usable in the
-    [Authentication] header. *)
+    [Authorization] header. *)
 val string_of_credential : Credential.t -> string
 
 (** {3 [credential_of_string]} *)
 
-(** [credential_of_string s] parses a string from the [Authentication] header into
+(** [credential_of_string s] parses a string from the [Authorization] header into
     credentials. *)
 val credential_of_string : string -> Credential.t
 
