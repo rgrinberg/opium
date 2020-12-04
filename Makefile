@@ -23,7 +23,7 @@ help: ## Print the help message
 	@echo "Welcome to Opium!"
 	@echo "================="
 	@echo ""
-	@echo "Here are the following commands you can use:"
+	@echo "Here are the commands you can use:"
 	@echo ""
 	@echo "- build       to build the project, including non installable libraries and executables"
 	@echo "- test        to run the unit tests"
