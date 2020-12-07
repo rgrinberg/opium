@@ -238,6 +238,23 @@ val of_svg
   -> [ `Svg ] Tyxml_svg.elt
   -> t
 
+(** {3 [of_file]} *)
+
+(** [of_file ?version ?reason ?headers ?env fname] creates a new response from a file
+    [fname] by reading its content and streaming the response.
+
+    The content type of the response will be set automatically based on the file name
+    [fname]. You can override it by providing your own "Content-Type" header.
+
+    {3 Example} *)
+val of_file
+  :  ?version:Version.t
+  -> ?reason:string
+  -> ?headers:Headers.t
+  -> ?env:Context.t
+  -> string
+  -> t Lwt.t
+
 (** {3 [redirect_to]} *)
 
 (** [redirect_to ?status ?version ?reason ?headers ?env target] creates a new Redirect

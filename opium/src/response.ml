@@ -161,6 +161,23 @@ let of_json ?version ?status ?reason ?headers ?env body =
     (body |> Yojson.Safe.to_string)
 ;;
 
+let of_file ?version ?reason ?headers ?env fname =
+  let open Lwt.Syntax in
+  let* body = Body.of_file fname in
+  match body with
+  | Error status ->
+    let res =
+      make ?version ~status:(status :> Httpaf.Status.t) ?reason ?headers ?env ()
+    in
+    Lwt.return res
+  | Ok body ->
+    let mime_type = Magic_mime.lookup fname in
+    let headers = Option.value ~default:Headers.empty headers in
+    let headers = Httpaf.Headers.add_unless_exists headers "Content-Type" mime_type in
+    let res = make ?version ~status:`OK ?reason ~headers ?env ~body () in
+    Lwt.return res
+;;
+
 let status t = t.status
 let set_status s t = { t with status = s }
 let content_type t = header "Content-Type" t

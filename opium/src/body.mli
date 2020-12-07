@@ -25,6 +25,11 @@ val of_bigstring : Bigstringaf.t -> t
 (** [of_stream] takes a [string Lwt_stream.t] and creates a HTTP body from it. *)
 val of_stream : ?length:Int64.t -> string Lwt_stream.t -> t
 
+(** [of_file ?local_path fname] creates a response body by reading the file with the name
+    [fname] at the path [local_path]. If no [local_path] is given, fname must contain the
+    complete path of the file. *)
+val of_file : ?local_path:string -> string -> (t, [> `Not_found ]) result Lwt.t
+
 (** [empty] represents a body of size 0L. *)
 val empty : t
 
