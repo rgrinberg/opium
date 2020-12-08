@@ -1,6 +1,6 @@
-{0 Opium Testing}
+{0 Opium GraphQL}
 
-[opium-testing] provides Opium handlers to serve GraphQL APIs.
+[opium-graphql] provides Opium handlers to serve GraphQL APIs.
 
 {1 Installation}
 
