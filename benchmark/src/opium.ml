@@ -29,4 +29,4 @@ let text =
 ;;
 
 let handler _req = Response.of_plain_text text |> Lwt.return
-let _ = App.empty |> App.post "/" handler |> App.run_command
+let _ = App.empty |> App.get "/" handler |> App.run_command
