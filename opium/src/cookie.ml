@@ -489,7 +489,7 @@ let cookie_of_header ?signed_with cookie_key (key, value) =
     String.split_on_char ';' value
     |> List.map (Astring.String.cut ~sep:"=")
     |> List.find_map (function
-           | Some (k, value) when k = cookie_key ->
+           | Some (k, value) when String.trim k = cookie_key ->
              let value =
                match signed_with with
                | Some signer -> String.trim value |> Signer.unsign signer

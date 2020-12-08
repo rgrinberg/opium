@@ -58,6 +58,18 @@ let () =
               let cookie_value = Request.cookie "cookie" request |> Option.get in
               check string "same values" "value" cookie_value;
               Lwt.return () )
+        ; ( "returns the second cookie with the matching key"
+          , fun () ->
+              let request =
+                Request.get "/"
+                |> Request.add_cookie ("cookie1", "value1")
+                |> Request.add_cookie ("cookie2", "value2")
+              in
+              let cookie_value1 = Request.cookie "cookie1" request |> Option.get in
+              let cookie_value2 = Request.cookie "cookie2" request |> Option.get in
+              check string "same values" "value2" cookie_value1;
+              check string "same values" "value2" cookie_value2;
+              Lwt.return () )
         ; ( "returns the cookie with the matching key and same signature"
           , fun () ->
               let request =
