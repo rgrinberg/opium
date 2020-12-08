@@ -6,6 +6,10 @@
 - New `basic_auth` middleware to protect handlers with a `Basic` authentication method (#238)
 - New `Response.of_file` API for conveniently creating a response of a file
 
+## Fixed
+
+- Fix reading cookie values when multiple cookies are present in `Cookie` header
+
 # 0.19.0
 
 This release is a complete rewrite of the Opium's internal that switches from Cohttp to Httpaf.
