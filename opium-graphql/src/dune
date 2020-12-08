@@ -1,0 +1,11 @@
+(rule
+ (targets asset.ml)
+ (deps
+  (source_tree ../asset))
+ (action
+  (run %{bin:ocaml-crunch} -m plain ../asset -o asset.ml)))
+
+(library
+ (name opium_graphql)
+ (public_name opium-graphql)
+ (libraries opium graphql graphql-lwt lwt str))

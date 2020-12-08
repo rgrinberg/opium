@@ -4,11 +4,16 @@
 
 - New `Auth` module to work with `Authorization` header (#238)
 - New `basic_auth` middleware to protect handlers with a `Basic` authentication method (#238)
-- New `Response.of_file` API for conveniently creating a response of a file
+- New `Response.of_file` API for conveniently creating a response of a file (#244)
+- Add a package `opium-graphql` to easily create GraphQL server with Opium (#235)
+
+## Changed
+
+- `Request.of_json/to_json` and `Response.of_json/to_json` now take a `Yojson.Basic.t` instead of a `Yojson.Safe.t`. (#235)
 
 ## Fixed
 
-- Fix reading cookie values when multiple cookies are present in `Cookie` header
+- Fix reading cookie values when multiple cookies are present in `Cookie` header (#246)
 
 # 0.19.0
 

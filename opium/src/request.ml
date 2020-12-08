@@ -26,7 +26,7 @@ let of_json ?version ?headers ?env ~body target meth =
     ?env
     target
     meth
-    (body |> Yojson.Safe.to_string)
+    (body |> Yojson.Basic.to_string)
 ;;
 
 let of_urlencoded ?version ?headers ?env ~body target meth =
@@ -43,7 +43,7 @@ let of_urlencoded ?version ?headers ?env ~body target meth =
 let to_json_exn t =
   let open Lwt.Syntax in
   let* body = t.body |> Body.copy |> Body.to_string in
-  Lwt.return @@ Yojson.Safe.from_string body
+  Lwt.return @@ Yojson.Basic.from_string body
 ;;
 
 let to_json t =

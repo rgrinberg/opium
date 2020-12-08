@@ -78,3 +78,21 @@
   alcotest
   alcotest-lwt
   (odoc :with-doc)))
+
+(package
+ (name opium-graphql)
+ (synopsis "Run GraphQL servers with Opium")
+ (description
+   "This package allows you to execute Opium requests against GraphQL schemas built with `graphql`.")
+ (depends
+  (ocaml
+   (>= 4.08))
+  (opium
+   (= :version))
+  (lwt
+   (>= 5.3.0))
+  graphql
+  graphql-lwt
+  (crunch :build)
+  (alcotest :with-test)
+  (alcotest-lwt :with-test)))

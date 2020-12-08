@@ -1,0 +1,4 @@
+(tests
+ (names request_test)
+ (libraries alcotest alcotest-lwt opium opium-graphql)
+ (package opium-graphql))

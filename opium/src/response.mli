@@ -87,7 +87,7 @@ val of_json
   -> ?reason:string
   -> ?headers:Headers.t
   -> ?env:Context.t
-  -> Yojson.Safe.t
+  -> Yojson.Basic.t
   -> t
 
 (** {3 [of_html]} *)
@@ -303,7 +303,7 @@ val redirect_to
     [body] will be:
 
     {[ `Assoc [ "Hello", `String "World" ] ]} *)
-val to_json : t -> Yojson.Safe.t option Lwt.t
+val to_json : t -> Yojson.Basic.t option Lwt.t
 
 (** {3 [to_json_exn]} *)
 
@@ -311,7 +311,7 @@ val to_json : t -> Yojson.Safe.t option Lwt.t
 
     If the body of the response cannot be parsed as a JSON structure, an
     [Invalid_argument] exception is raised. Use {!to_json} to return an option instead. *)
-val to_json_exn : t -> Yojson.Safe.t Lwt.t
+val to_json_exn : t -> Yojson.Basic.t Lwt.t
 
 (** {3 [to_plain_text]} *)
 

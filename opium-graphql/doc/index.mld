@@ -1,0 +1,112 @@
+{0 Opium Testing}
+
+[opium-testing] provides Opium handlers to serve GraphQL APIs.
+
+{1 Installation}
+
+To install [opium-graphql], you can add it to your [dune-project]'s package stanza:
+
+{%html: <pre>
+(package
+ (name my_app)
+ (depends
+  (ocaml
+   (>= 4.08))
+  opium
+  opium-graphql))
+</pre>%}
+
+And let Dune generate the Opam file for you. Or you can add it directly to your [.opam] file:
+
+{%html: <pre>
+depends: [
+  "opium"
+  "opium-graphql"
+]
+</pre>%}
+
+{1 Usage}
+
+Here's a sample application that serves a schema with a node [user]:
+
+{[
+open Opium
+
+module Schema = struct
+  open Graphql_lwt
+
+  type context = unit
+
+  type user =
+    { id : int
+    ; name : string
+    }
+
+  let users = [ { id = 1; name = "Alice" }; { id = 2; name = "Bob" } ]
+
+  let user : (context, user option) Graphql_lwt.Schema.typ =
+    Schema.(
+      obj "user" ~doc:"A user in the system" ~fields:(fun _ ->
+          [ field
+              "id"
+              ~doc:"Unique user identifier"
+              ~typ:(non_null int)
+              ~args:Arg.[]
+              ~resolve:(fun _info p -> p.id)
+          ; field
+              "name"
+              ~typ:(non_null string)
+              ~args:Arg.[]
+              ~resolve:(fun _info p -> p.name)
+          ]))
+  ;;
+
+  let schema =
+    Graphql_lwt.Schema.(
+      schema
+        [ field
+            "users"
+            ~typ:(non_null (list (non_null user)))
+            ~args:Arg.[]
+            ~resolve:(fun _info () -> users)
+        ])
+  ;;
+end
+
+let graphql =
+  let handler = Opium_graphql.make_handler ~make_context:(fun _req -> ()) Schema.schema in
+  Opium.App.all "/" handler
+;;
+
+let graphiql =
+  let handler = Opium_graphql.graphiql_handler ~graphql_endpoint:"/" in
+  Opium.App.get "/graphiql" handler
+;;
+
+let _ =
+  Logs.set_reporter (Logs_fmt.reporter ());
+  Logs.set_level (Some Logs.Debug);
+  App.empty |> graphql |> graphiql |> App.run_command
+;;
+]}
+
+The example provides two endpoints:
+
+- [/] that serves the actual GraphQL API
+- [/graphiql] that serves the GraphiQL tool
+
+To test the API, you can go on the GraphiQL tool and run the following query:
+
+{[
+query {
+  users {
+    name
+  }
+}
+]}
+
+{1 API documentation}
+
+{!modules:
+Opium_graphql
+}
