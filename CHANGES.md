@@ -6,7 +6,7 @@
 - New `basic_auth` middleware to protect handlers with a `Basic` authentication method (#238)
 - New `Response.of_file` API for conveniently creating a response of a file (#244)
 - Add a package `opium-graphql` to easily create GraphQL server with Opium (#235)
-- Use pre-forking to spawn multiple processes that will handle incoming requests (#239)
+- Add a function `App.run_multicore` that uses pre-forking and spawns multiple processes that will handle incoming requests (#239)
 
 ## Changed
 
