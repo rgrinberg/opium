@@ -189,15 +189,19 @@ let any methods route action t =
 
 let all = any [ `GET; `POST; `DELETE; `PUT; `HEAD; `OPTIONS ]
 
-let start app =
-  (* We initialize the middlewares first, because the logger middleware initializes the
-     logger. *)
-  let middlewares = attach_middleware app in
+let setup_logger app =
   if app.verbose
   then (
     Logs.set_reporter (Logs_fmt.reporter ());
     Logs.set_level (Some Logs.Info));
-  if app.debug then Logs.set_level (Some Logs.Debug);
+  if app.debug then Logs.set_level (Some Logs.Debug)
+;;
+
+let start app =
+  (* We initialize the middlewares first, because the logger middleware initializes the
+     logger. *)
+  let middlewares = attach_middleware app in
+  setup_logger app;
   Logs.info (fun f ->
       f
         "Starting Opium on %s:%d with %d cores%s"
@@ -205,23 +209,27 @@ let start app =
         app.port
         app.jobs
         (if app.debug then " (debug mode)" else ""));
-  match app.jobs with
-  | 1 ->
-    Lwt.async (fun () ->
-        let* _server =
-          run_unix
-            ?backlog:app.backlog
-            ~middlewares
-            ~host:app.host
-            ~port:app.port
-            app.not_found
-        in
-        Lwt.return_unit);
-    let forever, _ = Lwt.wait () in
-    Lwt_main.run forever
-  | i when i > 1 ->
-    run_unix_multicore ~middlewares ~host:app.host ~port:app.port ~jobs:i app.not_found
-  | _ -> failwith "The number of jobs must be superior or equal to 1"
+  run_unix ?backlog:app.backlog ~middlewares ~host:app.host ~port:app.port app.not_found
+;;
+
+let start_multicore app =
+  (* We initialize the middlewares first, because the logger middleware initializes the
+     logger. *)
+  let middlewares = attach_middleware app in
+  setup_logger app;
+  Logs.info (fun f ->
+      f
+        "Starting Opium on %s:%d with %d cores%s"
+        app.host
+        app.port
+        app.jobs
+        (if app.debug then " (debug mode)" else ""));
+  run_unix_multicore
+    ~middlewares
+    ~host:app.host
+    ~port:app.port
+    ~jobs:app.jobs
+    app.not_found
 ;;
 
 let hashtbl_add_multi tbl x y =
@@ -254,7 +262,7 @@ let print_middleware_f middlewares =
   |> List.iter ~f:(Printf.printf "> %s \n")
 ;;
 
-let cmd_run app port jobs host print_routes print_middleware debug verbose _errors =
+let setup_app app port jobs host print_routes print_middleware debug verbose _errors =
   let app = { app with debug; verbose; host; port; jobs } in
   if print_routes
   then (
@@ -266,7 +274,7 @@ let cmd_run app port jobs host print_routes print_middleware debug verbose _erro
     let middlewares = app.middlewares in
     print_middleware_f middlewares;
     exit 0);
-  app |> start
+  app
 ;;
 
 module Cmds = struct
@@ -315,7 +323,7 @@ module Cmds = struct
   let term =
     let open Cmdliner.Term in
     fun app ->
-      pure cmd_run
+      pure setup_app
       $ pure app
       $ port app.port
       $ jobs app.jobs
@@ -338,14 +346,33 @@ let run_command' app =
   let open Cmdliner in
   let cmd = Cmds.term app in
   match Term.eval (cmd, Cmds.info app.name) with
-  | `Ok a -> `Ok a
+  | `Ok a ->
+    Lwt.async (fun () ->
+        let* _server = start a in
+        Lwt.return_unit);
+    let forever, _ = Lwt.wait () in
+    `Ok forever
   | `Error _ -> `Error
   | _ -> `Not_running
 ;;
 
 let run_command app =
   match app |> run_command' with
-  | `Ok a -> a
+  | `Ok a ->
+    Lwt.async (fun () ->
+        let* _server = a in
+        Lwt.return_unit);
+    let forever, _ = Lwt.wait () in
+    Lwt_main.run forever
   | `Error -> exit 1
   | `Not_running -> exit 0
+;;
+
+let run_multicore app =
+  let open Cmdliner in
+  let cmd = Cmds.term app in
+  match Term.eval (cmd, Cmds.info app.name) with
+  | `Ok a -> start_multicore a
+  | `Error _ -> exit 1
+  | _ -> exit 0
 ;;

@@ -5,6 +5,7 @@ This directory contains small, self-contained, examples of Opium applications.
 These examples showcase specific features of Opium, they do not demonstrate how to build a full-fledged web servers.
 
 - [`hello_world`](./hello_world): Demonstration of simple Opium application
+- [`exit_hook`](./exit_hook): How to clean up an and exit an Opium app
 - [`file_upload`](./file_upload): How to upload a file with a multipart form
 - [`html_response`](./html_response): How to implement HTML handlers
 - [`json_response`](./json_response): How to implement JSON handlers
