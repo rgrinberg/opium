@@ -13,10 +13,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v1
 
       - name: Check CHANGES.md changed
-        if: ${{ !contains(github.event.pull_request.labels.*.name, 'no-changelog-needed') }}
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'no changelog') }}
         env:
           BASE_REF: ${{ github.event.pull_request.base.ref }}
         run: |

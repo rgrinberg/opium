@@ -13,6 +13,7 @@ bug-reports: "https://github.com/rgrinberg/opium/issues"
 depends: [
   "angstrom" {= "0.15.0"}
   "astring" {= "0.8.5" & with-doc}
+  "base-bigarray" {= "base"}
   "base-bytes" {= "base"}
   "base-threads" {= "base"}
   "base-unix" {= "base"}
@@ -29,10 +30,11 @@ depends: [
   "faraday" {= "0.7.2"}
   "fpath" {= "0.7.3" & with-doc}
   "hmap" {= "0.8.1"}
-  "httpaf" {= "0.6.6"}
+  "httpaf" {= "0.7.0"}
   "lwt" {= "5.3.0"}
   "mmap" {= "1.1.0"}
   "ocaml" {= "4.11.1"}
+  "ocaml-base-compiler" {= "4.11.1"}
   "ocaml-config" {= "1"}
   "ocaml-syntax-shims" {= "1.0.0"}
   "ocamlbuild" {= "0.14.0"}
