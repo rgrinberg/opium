@@ -157,7 +157,7 @@ val of_json
   :  ?version:Version.t
   -> ?headers:Headers.t
   -> ?env:Context.t
-  -> body:Yojson.Safe.t
+  -> body:Yojson.Basic.t
   -> string
   -> Method.t
   -> t
@@ -227,7 +227,7 @@ val to_plain_text : t -> string Lwt.t
     [body] will be:
 
     {[ `Assoc [ "Hello", `String "World" ] ]} *)
-val to_json : t -> Yojson.Safe.t option Lwt.t
+val to_json : t -> Yojson.Basic.t option Lwt.t
 
 (** {3 [to_json_exn]} *)
 
@@ -235,7 +235,7 @@ val to_json : t -> Yojson.Safe.t option Lwt.t
 
     If the body of the request cannot be parsed as a JSON structure, an [Invalid_argument]
     exception is raised. Use {!to_json} to return an option instead. *)
-val to_json_exn : t -> Yojson.Safe.t Lwt.t
+val to_json_exn : t -> Yojson.Basic.t Lwt.t
 
 (** {3 [to_urlencoded]} *)
 

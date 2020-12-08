@@ -67,7 +67,7 @@ let graphql =
 ;;
 
 let graphiql =
-  let handler = Opium_graphql.graphiql_handler ~graphql_endpoint:"/" in
+  let handler = Opium_graphql.make_graphiql_handler ~graphql_endpoint:"/" in
   Opium.App.get "/graphiql" handler
 ;;
 

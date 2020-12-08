@@ -1,7 +1,7 @@
 open Opium
 
 let sys_json _req =
-  let json : Yojson.Safe.t =
+  let json : Yojson.Basic.t =
     `Assoc [ "os-type", `String Sys.os_type; "ocaml-version", `String Sys.ocaml_version ]
   in
   Response.of_json json |> Lwt.return

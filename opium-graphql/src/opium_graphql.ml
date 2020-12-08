@@ -91,12 +91,6 @@ end
 
 module Schema = Graphql_lwt.Schema
 
-let ( >>= ) = Lwt.( >>= )
-
-let respond_string ~status ~body () =
-  Lwt.return (Opium.Response.of_plain_text ~status body)
-;;
-
 let execute_query ctx schema variables operation_name query =
   match Graphql_parser.parse query with
   | Ok doc -> Schema.execute schema ctx ?variables ?operation_name doc
@@ -104,23 +98,19 @@ let execute_query ctx schema variables operation_name query =
 ;;
 
 let execute_request schema ctx req =
-  Opium.Body.to_string req.Opium.Request.body
-  >>= fun body_string ->
+  let open Lwt.Syntax in
+  let* body_string = Opium.Body.to_string req.Opium.Request.body in
   match Params.extract req body_string with
-  | Error err -> respond_string ~status:`Bad_request ~body:err ()
+  | Error err -> Opium.Response.of_plain_text ~status:`Bad_request err |> Lwt.return
   | Ok (query, variables, operation_name) ->
-    execute_query ctx schema variables operation_name query
-    >>= (function
-    | Ok (`Response data) ->
-      let body = Yojson.Basic.to_string data in
-      respond_string ~status:`OK ~body ()
+    let+ result = execute_query ctx schema variables operation_name query in
+    (match result with
+    | Ok (`Response data) -> Opium.Response.of_json ~status:`OK data
     | Ok (`Stream stream) ->
       Graphql_lwt.Schema.Io.Stream.close stream;
       let body = "Subscriptions are only supported via websocket transport" in
-      respond_string ~status:`Bad_request ~body ()
-    | Error err ->
-      let body = Yojson.Basic.to_string err in
-      respond_string ~status:`Bad_request ~body ())
+      Opium.Response.of_plain_text ~status:`Bad_request body
+    | Error err -> Opium.Response.of_json ~status:`Bad_request err)
 ;;
 
 let make_handler
@@ -135,13 +125,13 @@ let make_handler
     then
       (* TODO: Add subscription support when there is a good solution for websockets with
          Httpaf *)
-      respond_string
+      Opium.Response.of_plain_text
         ~status:`Internal_server_error
-        ~body:"Subscriptions are not supported (yet)"
-        ()
+        "Subscriptions are not supported (yet)"
+      |> Lwt.return
     else execute_request schema (make_context req) req
   | `POST -> execute_request schema (make_context req) req
-  | _ -> respond_string ~status:`Not_found ~body:"" ()
+  | _ -> Opium.Response.make ~status:`Method_not_allowed () |> Lwt.return
 ;;
 
 let graphiql_etag =
@@ -173,5 +163,7 @@ let make_graphiql_handler ~graphql_endpoint req =
   in
   if accept_html
   then h req
-  else respond_string ~status:`Bad_request ~body:"Clients must accept text/html" ()
+  else
+    Opium.Response.of_plain_text ~status:`Bad_request "Clients must accept text/html"
+    |> Lwt.return
 ;;
