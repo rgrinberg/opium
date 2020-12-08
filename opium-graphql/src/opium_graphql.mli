@@ -1,49 +1,29 @@
-module Params : sig
-  type t =
-    { query : string option
-    ; variables : (string * Yojson.Basic.t) list option
-    ; operation_name : string option
-    }
+(** [execute_request schema context request] executes the request [request] on the schema
+    [schema] with the context [context].
 
-  val empty : t
-  val of_uri_exn : Uri.t -> t
-  val of_json_body_exn : string -> t
-  val of_graphql_body : string -> t
-  val merge : t -> t -> t
-  val post_params_exn : Opium.Request.t -> string -> t
-  val of_req_exn : Opium.Request.t -> string -> t
+    You most likely want to use [make_handler] instead of this, but if can be useful for
+    unit tests. *)
+val execute_request
+  :  'a Graphql_lwt.Schema.schema
+  -> 'a
+  -> Rock.Request.t
+  -> Rock.Response.t Lwt.t
 
-  val extract
-    :  Opium.Request.t
-    -> string
-    -> ( string * (string * Graphql_parser.const_value) list option * string option
-       , string )
-       result
-end
+(** [make_handler ?make_context] builds a [Rock] handler that serves a GraphQL API.
 
-module Schema = Graphql_lwt.Schema
-
-val execute_query
-  :  'a
-  -> 'a Schema.schema
-  -> Schema.variables option
-  -> string option
-  -> string
-  -> [ `Response of Yojson.Basic.t
-     | `Stream of Yojson.Basic.t Schema.response Schema.Io.Stream.t
-     ]
-     Schema.response
-     Lwt.t
-
-val execute_request : 'a Schema.schema -> 'a -> Opium.Request.t -> Opium.Response.t Lwt.t
-
+    [make_context] is the callback that will create the GraphQL context for each request
+    and will be passed to resolvers. *)
 val make_handler
-  :  ?make_context:(Opium.Request.t -> unit)
-  -> unit Schema.schema
-  -> Opium.Request.t
-  -> Opium.Response.t Lwt.t
+  :  make_context:(Rock.Request.t -> 'a)
+  -> 'a Graphql_lwt.Schema.schema
+  -> Rock.Handler.t
 
-val graphiql_handler
-  :  graphql_endpoint:string
-  -> Opium.Request.t
-  -> Opium.Response.t Lwt.t
+(** [make_graphiql_handler ~graphql_endpoint] builds a [Rock] handler that serves an HTML
+    page with the GraphiQL tool.
+
+    The [graphql_endpoint] is the URI of the GraphQL API. For instance, if the API is at
+    the root on the same server, [graphql_endpoint] is [/].
+
+    The HTML content of the tool is served from the memory. An [ETag] header is added to
+    the response. *)
+val make_graphiql_handler : graphql_endpoint:string -> Rock.Handler.t

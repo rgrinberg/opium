@@ -123,7 +123,11 @@ let execute_request schema ctx req =
       respond_string ~status:`Bad_request ~body ())
 ;;
 
-let make_handler ?(make_context = fun _req -> ()) schema req =
+let make_handler
+    : type a.
+      make_context:(Rock.Request.t -> a) -> a Graphql_lwt.Schema.schema -> Rock.Handler.t
+  =
+ fun ~make_context schema req ->
   match req.Opium.Request.meth with
   | `GET ->
     if Httpaf.Headers.get req.Opium.Request.headers "Connection" = Some "Upgrade"
@@ -149,7 +153,7 @@ let graphiql_etag =
   |> Base64.encode_exn
 ;;
 
-let graphiql_handler ~graphql_endpoint req =
+let make_graphiql_handler ~graphql_endpoint req =
   let accept_html =
     match Httpaf.Headers.get req.Opium.Request.headers "accept" with
     | None -> false
