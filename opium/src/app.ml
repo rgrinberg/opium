@@ -204,10 +204,9 @@ let start app =
   setup_logger app;
   Logs.info (fun f ->
       f
-        "Starting Opium on %s:%d with %d cores%s"
+        "Starting Opium on %s:%d%s"
         app.host
         app.port
-        app.jobs
         (if app.debug then " (debug mode)" else ""));
   run_unix ?backlog:app.backlog ~middlewares ~host:app.host ~port:app.port app.not_found
 ;;
