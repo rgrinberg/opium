@@ -46,7 +46,7 @@ let suite =
     , fun () ->
         let body =
           Opium.Body.of_string
-            (Yojson.Basic.to_string (`Assoc [ "query", `String "{ hello }" ]))
+            (Yojson.Safe.to_string (`Assoc [ "query", `String "{ hello }" ]))
         in
         test_case
           ~req:(Opium.Request.make ~headers:json_content_type ~body default_uri `POST)
@@ -81,7 +81,7 @@ let suite =
     , fun () ->
         let body =
           Opium.Body.of_string
-            (Yojson.Basic.to_string
+            (Yojson.Safe.to_string
                (`Assoc
                  [ ( "query"
                    , `String
@@ -98,7 +98,7 @@ let suite =
     , fun () ->
         let body =
           Opium.Body.of_string
-            (Yojson.Basic.to_string
+            (Yojson.Safe.to_string
                (`Assoc
                  [ ( "query"
                    , `String
@@ -121,7 +121,7 @@ let suite =
     , fun () ->
         let body =
           Opium.Body.of_string
-            (Yojson.Basic.to_string
+            (Yojson.Safe.to_string
                (`Assoc
                  [ "query", `String "query A($name: String!) { hello(name: $name) }"
                  ; "variables", `Assoc [ "name", `String "world" ]
@@ -135,7 +135,7 @@ let suite =
     , fun () ->
         let body =
           Opium.Body.of_string
-            (Yojson.Basic.to_string
+            (Yojson.Safe.to_string
                (`Assoc
                  [ "query", `String "query A($name: String!) { hello(name: $name) }" ]))
         in

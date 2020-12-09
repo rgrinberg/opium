@@ -91,6 +91,8 @@ end
 
 module Schema = Graphql_lwt.Schema
 
+let basic_to_safe json = json |> Yojson.Basic.to_string |> Yojson.Safe.from_string
+
 let execute_query ctx schema variables operation_name query =
   match Graphql_parser.parse query with
   | Ok doc -> Schema.execute schema ctx ?variables ?operation_name doc
@@ -105,12 +107,12 @@ let execute_request schema ctx req =
   | Ok (query, variables, operation_name) ->
     let+ result = execute_query ctx schema variables operation_name query in
     (match result with
-    | Ok (`Response data) -> Opium.Response.of_json ~status:`OK data
+    | Ok (`Response data) -> data |> basic_to_safe |> Opium.Response.of_json ~status:`OK
     | Ok (`Stream stream) ->
       Graphql_lwt.Schema.Io.Stream.close stream;
       let body = "Subscriptions are only supported via websocket transport" in
       Opium.Response.of_plain_text ~status:`Bad_request body
-    | Error err -> Opium.Response.of_json ~status:`Bad_request err)
+    | Error err -> err |> basic_to_safe |> Opium.Response.of_json ~status:`Bad_request)
 ;;
 
 let make_handler
