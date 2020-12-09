@@ -8,10 +8,6 @@
 - Add a package `opium-graphql` to easily create GraphQL server with Opium (#235)
 - Add a function `App.run_multicore` that uses pre-forking and spawns multiple processes that will handle incoming requests (#239)
 
-## Changed
-
-- `Request.of_json/to_json` and `Response.of_json/to_json` now take a `Yojson.Basic.t` instead of a `Yojson.Safe.t`. (#235)
-
 ## Fixed
 
 - Fix reading cookie values when multiple cookies are present in `Cookie` header (#246)
