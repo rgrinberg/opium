@@ -1,3 +1,9 @@
+# Unreleased
+
+## Fixed
+
+- Handle ECONNABORTED in accept (#250)
+
 # 0.20.0
 
 ## Added
