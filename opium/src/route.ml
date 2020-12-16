@@ -80,7 +80,7 @@ let to_string l =
 
 let rec match_url t url ({ params; splat } as matches) =
   match t, url with
-  | [], [] -> Some matches
+  | [], [] -> Some { matches with splat = List.rev splat }
   | [ FullSplat ], rest ->
     let splat' =
       List.filter_map
@@ -89,8 +89,8 @@ let rec match_url t url ({ params; splat } as matches) =
           | `Text s -> Some s)
         rest
     in
-    Some { matches with splat = List.rev splat' @ splat }
-  | FullSplat :: _, _ -> assert false (* splat can't be last *)
+    Some { matches with splat = splat' @ List.rev splat }
+  | FullSplat :: _, _ -> assert false (* splat can only be last *)
   | Match x :: t, `Text y :: url when x = y -> match_url t url matches
   | Slash :: t, `Delim :: url -> match_url t url matches
   | Splat :: t, `Text s :: url ->

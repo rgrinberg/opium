@@ -75,7 +75,7 @@ let splat_route3 () =
     check
       (option matches_t)
       "matches"
-      (Some { Route.params = []; splat = [ "123"; "splat"; "test" ] })
+      (Some { Route.params = []; splat = [ "test"; "splat"; "123" ] })
       matches)
 ;;
 
@@ -138,7 +138,7 @@ let empty_route () =
 let test_double_splat () =
   let r = Route.of_string "/**" in
   let matching_urls =
-    [ "/test", [ "test" ]; "/", []; "/user/123/foo/bar", [ "bar"; "foo"; "123"; "user" ] ]
+    [ "/test", [ "test" ]; "/", []; "/user/123/foo/bar", [ "user"; "123"; "foo"; "bar" ] ]
   in
   matching_urls
   |> List.iter (fun (u, splat) ->
