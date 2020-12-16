@@ -68,6 +68,16 @@ let splat_route2 () =
   Alcotest.(check (option matches_t) "unexpected match" None m)
 ;;
 
+let splat_route3 () =
+  let r = Route.of_string "/*/*/*" in
+  let matches = Route.match_url r "/test/splat/123" in
+  Alcotest.(
+    check
+      (option matches_t)
+      "matches"
+      (Some { Route.params = []; splat = [ "123"; "splat"; "test" ] })
+      matches)
+
 let test_match_2_params () =
   let r = Route.of_string "/xxx/:x/:y" in
   let m = match_get_params r "/xxx/123/456" in
@@ -126,12 +136,19 @@ let empty_route () =
 
 let test_double_splat () =
   let r = Route.of_string "/**" in
-  let matching_urls = [ "/test"; "/"; "/user/123/foo/bar" ] in
+  let matching_urls = [
+    "/test", ["test"];
+    "/", [];
+    "/user/123/foo/bar", ["bar"; "foo"; "123"; "user" ]
+  ] in
   matching_urls
-  |> List.iter (fun u ->
-         match Route.match_url r u with
-         | None -> Alcotest.fail ("Failed to match " ^ u)
-         | Some _ -> ())
+  |> List.iter (fun (u, splat) ->
+      Alcotest.(
+        check
+          (option matches_t)
+          "matches"
+          (Some { Route.params = []; splat })
+          (Route.match_url r u)))
 ;;
 
 let test_query_params_dont_impact_match () =
@@ -159,6 +176,7 @@ let () =
     ; ( "splat"
       , [ "splat match 1", `Quick, splat_route1
         ; "splat match 2", `Quick, splat_route2
+        ; "splat match 3", `Quick, splat_route3
         ; "test double splat", `Quick, test_double_splat
         ] )
     ; ( "conversion"
