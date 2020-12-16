@@ -1,3 +1,10 @@
+# Unreleased
+
+## Fixed
+
+- Fix Fullsplat behavior (routes with `**`)
+- Undo splat reverse order. Now, the matches for `/*/*/*` with the url `/a/b/c` will return `["a"; "b"; "c"]`
+
 # 0.20.0
 
 ## Added
