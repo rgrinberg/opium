@@ -50,9 +50,14 @@ let run_unix_multicore ?middlewares ~host ~port ~jobs handler =
     (let+ () = Lwt_unix.bind socket listen_address in
      Lwt_unix.listen socket (Lwt_unix.somaxconn () [@ocaml.warning "-3"]));
   let rec accept_loop socket instance =
-    let* socket', sockaddr' = Lwt_unix.accept socket in
-    Lwt.async (fun () -> connection_handler sockaddr' socket');
-    accept_loop socket instance
+    Lwt.try_bind
+      (fun () -> Lwt_unix.accept socket)
+      (fun (socket', sockaddr') ->
+        Lwt.async (fun () -> connection_handler sockaddr' socket');
+        accept_loop socket instance)
+      (function
+        | Unix.Unix_error (Unix.ECONNABORTED, _, _) -> accept_loop socket instance
+        | e -> Lwt.fail e)
   in
   for i = 1 to jobs do
     flush_all ();
