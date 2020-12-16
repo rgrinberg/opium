@@ -77,6 +77,7 @@ let splat_route3 () =
       "matches"
       (Some { Route.params = []; splat = [ "123"; "splat"; "test" ] })
       matches)
+;;
 
 let test_match_2_params () =
   let r = Route.of_string "/xxx/:x/:y" in
@@ -136,19 +137,17 @@ let empty_route () =
 
 let test_double_splat () =
   let r = Route.of_string "/**" in
-  let matching_urls = [
-    "/test", ["test"];
-    "/", [];
-    "/user/123/foo/bar", ["bar"; "foo"; "123"; "user" ]
-  ] in
+  let matching_urls =
+    [ "/test", [ "test" ]; "/", []; "/user/123/foo/bar", [ "bar"; "foo"; "123"; "user" ] ]
+  in
   matching_urls
   |> List.iter (fun (u, splat) ->
-      Alcotest.(
-        check
-          (option matches_t)
-          "matches"
-          (Some { Route.params = []; splat })
-          (Route.match_url r u)))
+         Alcotest.(
+           check
+             (option matches_t)
+             "matches"
+             (Some { Route.params = []; splat })
+             (Route.match_url r u)))
 ;;
 
 let test_query_params_dont_impact_match () =

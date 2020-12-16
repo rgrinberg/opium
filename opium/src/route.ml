@@ -82,11 +82,12 @@ let rec match_url t url ({ params; splat } as matches) =
   match t, url with
   | [], [] -> Some matches
   | [ FullSplat ], rest ->
-    let splat' = List.filter_map
-      ~f:(function
-        | `Delim -> None
-        | `Text s -> Some s)
-      rest
+    let splat' =
+      List.filter_map
+        ~f:(function
+          | `Delim -> None
+          | `Text s -> Some s)
+        rest
     in
     Some { matches with splat = List.rev splat' @ splat }
   | FullSplat :: _, _ -> assert false (* splat can't be last *)
