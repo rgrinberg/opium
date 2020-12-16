@@ -1,3 +1,9 @@
+# Unreleased
+
+## Fixed
+
+- Fix Fullsplat behavior (routes with `**`)
+
 # 0.20.0
 
 ## Added
