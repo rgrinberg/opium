@@ -35,7 +35,6 @@ depends: [
   "mmap" {= "1.1.0"}
   "ocaml" {= "4.11.1"}
   "ocaml-base-compiler" {= "4.11.1"}
-  "ocaml-config" {= "1"}
   "ocaml-syntax-shims" {= "1.0.0"}
   "ocamlbuild" {= "0.14.0"}
   "ocamlfind" {= "1.8.1"}
