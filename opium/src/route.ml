@@ -86,7 +86,7 @@ let rec match_url t url ({ params; splat } as matches) =
       List.filter_map
         ~f:(function
           | `Delim -> None
-          | `Text s -> Some s)
+          | `Text s -> Some (Uri.pct_decode s))
         rest
     in
     Some { matches with splat = splat' @ List.rev splat }

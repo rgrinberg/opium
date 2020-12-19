@@ -150,6 +150,17 @@ let test_double_splat () =
              (Route.match_url r u)))
 ;;
 
+let test_double_splat_escape () =
+  let r = Route.of_string "/**" in
+  let matches = Route.match_url r "/%23/%23a" in
+  Alcotest.(
+    check
+      (option matches_t)
+      "matches"
+      (Some { Route.params = []; splat = [ "#"; "#a" ] })
+      matches)
+;;
+
 let test_query_params_dont_impact_match () =
   let r2 = Route.of_string "/foo/:message" in
   Alcotest.(
@@ -192,6 +203,7 @@ let () =
       , [ ( "test query params dont impact match"
           , `Quick
           , test_query_params_dont_impact_match )
+        ; "test double splat escape", `Quick, test_double_splat_escape
         ] )
     ]
 ;;
