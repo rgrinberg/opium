@@ -87,6 +87,9 @@ module Params = struct
     ; unnamed : string list
     }
 
+  let make ~named ~unnamed = { named; unnamed }
+  let all_named t = t.named
+
   let sexp_of_t { named; unnamed } =
     let open Sexp_conv in
     Sexp.List
@@ -98,6 +101,8 @@ module Params = struct
       ]
   ;;
 
+  let equal = ( = )
+  let pp fmt t = Sexp.pp_hum fmt (sexp_of_t t)
   let named t name = List.assoc name t.named
   let unnamed t = t.unnamed
   let empty = { named = []; unnamed = [] }
