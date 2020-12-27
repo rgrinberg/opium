@@ -1,22 +1,49 @@
 open Sexplib0
-module Route = Opium.Route
+module Router = Opium.Private.Router
+
+module Route = struct
+  include Opium.Route
+
+  module Matches = struct
+    type t =
+      { params : (string * string) list
+      ; splat : string list
+      }
+
+    let equal = ( = )
+
+    let pp fmt { params; splat } =
+      let sexp =
+        Router.Params.make ~named:params ~unnamed:splat |> Router.Params.sexp_of_t
+      in
+      Sexp.pp_hum fmt sexp
+    ;;
+
+    let of_params params =
+      let splat = Router.Params.unnamed params in
+      let params = List.rev (Router.Params.all_named params) in
+      { params; splat }
+    ;;
+  end
+
+  let match_url r u =
+    let router = Router.add Router.empty r () in
+    match Router.match_url router u with
+    | None -> None
+    | Some ((), params) -> Some (Matches.of_params params)
+  ;;
+
+  include Matches
+end
 
 let slist t = Alcotest.slist t compare
 let params = slist Alcotest.(pair string string)
-
-let matches_t : Route.matches Alcotest.testable =
-  (module struct
-    type t = Route.matches
-
-    let equal r1 r2 = r1.Route.splat = r2.Route.splat && r1.Route.params = r2.Route.params
-    let pp f t = Sexp.pp_hum f (Route.sexp_of_matches t)
-  end)
-;;
+let matches_t : Route.Matches.t Alcotest.testable = (module Route.Matches)
 
 let match_get_params route url =
   match Route.match_url route url with
   | None -> None
-  | Some { Route.params; _ } -> Some params
+  | Some p -> Some p.params
 ;;
 
 let string_of_match = function
