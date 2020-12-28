@@ -40,13 +40,25 @@ module Params : sig
   (** Extract a single named parameter *)
   val named : t -> string -> string
 
+  (** only for testing *)
   val all_named : t -> (string * string) list
 
   (** Only for testing *)
-  val make : named:(string * string) list -> unnamed:string list -> t
+  val make
+    :  named:(string * string) list
+    -> unnamed:string list
+    -> full_splat:string option
+    -> t
 
-  (** Etract all unnamed "**" parameters in order *)
+  (** Etract all unnamed "*" parameters in order *)
   val unnamed : t -> string list
+
+  (** [full_splat t] returns the raw string matched by "**". *)
+  val full_splat : t -> string option
+
+  (** [splat t] extracts unnamed + full_splat in a single list. This is present to match
+      the old routing behavior *)
+  val splat : t -> string list
 
   val sexp_of_t : t -> Sexp.t
   val equal : t -> t -> bool

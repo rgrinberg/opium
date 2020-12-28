@@ -85,12 +85,13 @@ module Params = struct
   type t =
     { named : (string * string) list
     ; unnamed : string list
+    ; full_splat : string option
     }
 
-  let make ~named ~unnamed = { named; unnamed }
+  let make ~named ~unnamed ~full_splat = { named; unnamed; full_splat }
   let all_named t = t.named
 
-  let sexp_of_t { named; unnamed } =
+  let sexp_of_t { named; unnamed; full_splat } =
     let open Sexp_conv in
     Sexp.List
       [ List
@@ -98,6 +99,7 @@ module Params = struct
           ; sexp_of_list (sexp_of_pair sexp_of_string sexp_of_string) named
           ]
       ; List [ Atom "unnamed"; sexp_of_list sexp_of_string unnamed ]
+      ; List [ Atom "full_splat"; (sexp_of_option sexp_of_string) full_splat ]
       ]
   ;;
 
@@ -105,12 +107,20 @@ module Params = struct
   let pp fmt t = Sexp.pp_hum fmt (sexp_of_t t)
   let named t name = List.assoc name t.named
   let unnamed t = t.unnamed
-  let empty = { named = []; unnamed = [] }
 
-  let create route captured =
+  let splat t =
+    match t.full_splat with
+    | None -> t.unnamed
+    | Some r -> t.unnamed @ String.split_on_char ~sep:'/' r
+  ;;
+
+  let full_splat t = t.full_splat
+  let empty = { named = []; unnamed = []; full_splat = None }
+
+  let create route captured (remainder : string option) =
     let rec loop acc (route : Route.t) captured =
       match route, captured with
-      | Full_splat, [] -> acc
+      | Full_splat, [] -> { acc with full_splat = remainder }
       | Nil, [] -> acc
       | Literal (_, route), _ -> loop acc route captured
       | Param (None, route), p :: captured ->
@@ -119,7 +129,7 @@ module Params = struct
       | Param (Some name, route), p :: captured ->
         let acc = { acc with named = (name, p) :: acc.named } in
         loop acc route captured
-      | Full_splat, rest -> { acc with unnamed = List.rev_append rest acc.unnamed }
+      | Full_splat, _ :: _ -> assert false
       | Param (_, _), [] -> assert false
       | Nil, _ :: _ -> assert false
     in
@@ -157,38 +167,89 @@ let rec sexp_of_t f t =
 let empty_with data = Node { data; literal = Smap.empty; param = None }
 let empty = empty_with None
 
+module Tokens : sig
+  type t
+
+  val create : string -> t
+  val next : t -> (t * string) option
+  val remainder : t -> string option
+end = struct
+  type t =
+    { start : int
+    ; s : string
+    }
+
+  let create s =
+    if s = ""
+    then { s; start = 0 }
+    else if s.[0] = '/'
+    then { s; start = 1 }
+    else { s; start = 0 }
+  ;;
+
+  let remainder t =
+    let len = String.length t.s in
+    if t.start >= len
+    then None
+    else if t.start = 0
+    then Some t.s
+    else (
+      let res = String.sub t.s ~pos:t.start ~len:(len - t.start) in
+      Some res)
+  ;;
+
+  let next t =
+    let len = String.length t.s in
+    if t.start >= len
+    then None
+    else (
+      match String.index_from_opt t.s t.start '/' with
+      | None ->
+        let res =
+          let len = len - t.start in
+          String.sub t.s ~pos:t.start ~len
+        in
+        Some ({ t with start = len }, res)
+      | Some j ->
+        let res =
+          let len = j - t.start in
+          String.sub t.s ~pos:t.start ~len
+        in
+        Some ({ t with start = j + 1 }, res))
+  ;;
+end
+
 let match_url t url =
-  let tokens = String.split_on_char ~sep:'/' url in
-  match tokens with
-  | "" :: tokens ->
-    let accept a route captured =
-      let params = Params.create route (List.rev captured) in
-      Some (a, params)
-    in
-    let rec loop t captured tokens =
-      match t with
-      | Accept (a, route) -> accept a route (List.rev_append tokens captured)
-      | Node t ->
-        (match tokens with
-        | [ "" ] | [] ->
-          (match t.data with
+  let tokens = Tokens.create url in
+  let accept a route captured remainder =
+    let params = Params.create route (List.rev captured) remainder in
+    Some (a, params)
+  in
+  let rec loop t captured (tokens : Tokens.t) =
+    match t with
+    | Accept (a, route) ->
+      let remainder = Tokens.remainder tokens in
+      accept a route captured remainder
+    | Node t ->
+      (match Tokens.next tokens with
+      | None ->
+        (match t.data with
+        | None -> None
+        | Some (a, route) -> accept a route captured None)
+      | Some (tokens, s) ->
+        let param =
+          match t.param with
           | None -> None
-          | Some (a, route) -> accept a route captured)
-        | s :: tokens ->
-          let param =
-            match t.param with
-            | None -> None
-            | Some node -> loop node (s :: captured) tokens
-          in
-          (match param with
-          | Some _ -> param
-          | None ->
-            (match Smap.find_opt s t.literal with
-            | None -> None
-            | Some node -> (loop [@tailcall]) node captured tokens)))
-    in
-    loop t [] tokens
-  | _ -> None
+          | Some node -> loop node (s :: captured) tokens
+        in
+        (match param with
+        | Some _ -> param
+        | None ->
+          (match Smap.find_opt s t.literal with
+          | None -> None
+          | Some node -> (loop [@tailcall]) node captured tokens)))
+  in
+  loop t [] tokens
 ;;
 
 let match_route t route =

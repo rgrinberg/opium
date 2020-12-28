@@ -14,7 +14,8 @@ module Route = struct
 
     let pp fmt { params; splat } =
       let sexp =
-        Router.Params.make ~named:params ~unnamed:splat |> Router.Params.sexp_of_t
+        Router.Params.make ~named:params ~unnamed:splat ~full_splat:None
+        |> Router.Params.sexp_of_t
       in
       Sexp.pp_hum fmt sexp
     ;;
