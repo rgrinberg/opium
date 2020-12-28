@@ -172,7 +172,7 @@ let%expect_test "full splat + collision checking" =
   (Failure "duplicate routes")
   Raised at Stdlib.failwith in file "stdlib.ml", line 29, characters 17-33
   Called from Stdlib__list.fold_left in file "list.ml", line 121, characters 24-34
-  Called from Opium_tests__Opium_router_tests.(fun) in file "opium/test/opium_router_tests.ml", line 164, characters 9-45
+  Called from Opium_tests__Opium_router_tests.(fun) in file "opium/test/opium_router_tests.ml", line 173, characters 9-45
   Called from Expect_test_collector.Make.Instance.exec in file "collector/expect_test_collector.ml", line 244, characters 12-19 |}]
 ;;
 
