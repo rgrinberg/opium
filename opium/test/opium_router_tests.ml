@@ -192,18 +192,8 @@ let%expect_test "full splat" =
   test "/test";
   test "/";
   test "/user/123/foo/bar";
-  [%expect.unreachable]
-  [@@expect.uncaught_exn
-    {|
-  (* CR expect_test_collector: This test expectation appears to contain a backtrace.
-     This is strongly discouraged as backtraces are fragile.
-     Please change this test to not include a backtrace. *)
-
-  "Assert_failure opium/src/router.ml:200:22"
-  Raised at Opium__Router.match_route.loop in file "opium/src/router.ml", line 200, characters 22-34
-  Called from Opium__Router.match_route in file "opium/src/router.ml", line 224, characters 8-20
-  Called from Opium__Router.add in file "opium/src/router.ml", line 264, characters 8-27
-  Called from Stdlib__list.fold_left in file "list.ml", line 121, characters 24-34
-  Called from Opium_tests__Opium_router_tests.(fun) in file "opium/test/opium_router_tests.ml", line 190, characters 15-35
-  Called from Expect_test_collector.Make.Instance.exec in file "collector/expect_test_collector.ml", line 244, characters 12-19 |}]
+  [%expect{|
+    matched with params: ((named ()) (unnamed ()))
+    matched with params: ((named ()) (unnamed ()))
+    matched with params: ((named ()) (unnamed ())) |}]
 ;;

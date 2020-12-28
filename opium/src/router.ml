@@ -197,7 +197,17 @@ let match_route t route =
     | Accept (a, r) -> [ a, r ]
     | Node t ->
       (match route with
-      | Full_splat -> assert false
+      | Full_splat ->
+        let here =
+          match t.data with
+          | None -> []
+          | Some (a, r) -> [ a, r ]
+        in
+        let by_param = by_param t.param route in
+        let by_literal =
+          Smap.fold (fun _ node acc -> loop node route :: acc) t.literal [] |> List.concat
+        in
+        List.concat [ here; by_param; by_literal ]
       | Nil ->
         (match t.data with
         | None -> []
