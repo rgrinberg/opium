@@ -86,7 +86,7 @@ let%expect_test "we can extract parameter after match" =
   test_match_url router "/foo/100/200/300";
   [%expect
     {|
-    matched with params: ((named ((bar 100))) (unnamed (baz)))
+    matched with params: ((named ((bar baz))) (unnamed (100)))
     no match
     no match |}]
 ;;
@@ -174,4 +174,14 @@ let%expect_test "full splat + collision checking" =
   Called from Stdlib__list.fold_left in file "list.ml", line 121, characters 24-34
   Called from Opium_tests__Opium_router_tests.(fun) in file "opium/test/opium_router_tests.ml", line 164, characters 9-45
   Called from Expect_test_collector.Make.Instance.exec in file "collector/expect_test_collector.ml", line 244, characters 12-19 |}]
+;;
+
+let%expect_test "two parameters" =
+  let router = of_routes' [ "/test/:format/:name/:baz" ] in
+  let test = test_match_url router in
+  test "/test/json/bar/blah";
+  [%expect
+    {|
+    matched with params: ((named ((baz blah) (name bar) (format json)))
+                          (unnamed ())) |}]
 ;;

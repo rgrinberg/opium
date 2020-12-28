@@ -162,7 +162,7 @@ let match_url t url =
   match tokens with
   | "" :: tokens ->
     let accept a route captured =
-      let params = Params.create route captured in
+      let params = Params.create route (List.rev captured) in
       Some (a, params)
     in
     let rec loop t captured tokens =
