@@ -119,7 +119,7 @@ module Params = struct
       | Param (Some name, route), p :: captured ->
         let acc = { acc with named = (name, p) :: acc.named } in
         loop acc route captured
-      | Full_splat, _ :: _ -> assert false
+      | Full_splat, rest -> { acc with unnamed = List.rev_append rest acc.unnamed }
       | Param (_, _), [] -> assert false
       | Nil, _ :: _ -> assert false
     in
@@ -167,7 +167,7 @@ let match_url t url =
     in
     let rec loop t captured tokens =
       match t with
-      | Accept (a, route) -> accept a route captured
+      | Accept (a, route) -> accept a route (List.rev_append tokens captured)
       | Node t ->
         (match tokens with
         | [ "" ] | [] ->
@@ -205,6 +205,7 @@ let match_route t route =
         in
         let by_param = by_param t.param route in
         let by_literal =
+          (* TODO remove duplication with [Param] case *)
           Smap.fold (fun _ node acc -> loop node route :: acc) t.literal [] |> List.concat
         in
         List.concat [ here; by_param; by_literal ]

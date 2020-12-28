@@ -155,9 +155,9 @@ let%expect_test "full splat node matches" =
   test "/foo/";
   [%expect
     {|
-    matched with params: ((named ()) (unnamed ()))
-    matched with params: ((named ()) (unnamed ()))
-    matched with params: ((named ()) (unnamed ())) |}]
+    matched with params: ((named ()) (unnamed (bar)))
+    matched with params: ((named ()) (unnamed (bar foo)))
+    matched with params: ((named ()) (unnamed (""))) |}]
 ;;
 
 let%expect_test "full splat + collision checking" =
@@ -190,10 +190,15 @@ let%expect_test "full splat" =
   let router = of_routes' [ "/**" ] in
   let test = test_match_url router in
   test "/test";
+  test "/test/";
   test "/";
+  test "";
   test "/user/123/foo/bar";
-  [%expect{|
+  [%expect
+    {|
+    matched with params: ((named ()) (unnamed (test)))
+    matched with params: ((named ()) (unnamed (test "")))
+    matched with params: ((named ()) (unnamed ("")))
     matched with params: ((named ()) (unnamed ()))
-    matched with params: ((named ()) (unnamed ()))
-    matched with params: ((named ()) (unnamed ())) |}]
+    matched with params: ((named ()) (unnamed (user 123 foo bar))) |}]
 ;;
