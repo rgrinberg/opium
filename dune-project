@@ -56,11 +56,14 @@
   yojson
   tyxml
   mirage-crypto
-  base64
+  (base64
+   (>= 3.0.0))
   astring
   re
   uri
   multipart-form-data
+  (result
+   (>= 1.5))
   (odoc :with-doc)
   (alcotest :with-test)
   (alcotest-lwt :with-test)))

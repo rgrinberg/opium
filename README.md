@@ -1,7 +1,7 @@
 Opium
 =====
 
-The current master branch is a WIP port to httpaf. If you are looking for the last version published to opam (that was using Cohttp), please take a look at https://github.com/rgrinberg/opium/tree/0.18.0
+Since version 0.19.0, Opium uses httpaf. The last version that used Cohttp can be found at https://github.com/rgrinberg/opium/tree/0.18.0
 
 ## Executive Summary
 
@@ -43,8 +43,8 @@ For the **API documentation**:
 
 The following **tutorials** walk through various usecases of Opium:
 
-- [A Lightweight OCaml Webapp Tutorial](https://shonfeder.gitlab.io/ocaml_webapp/) 
-  covers a simple webapp generating dynamic HTML on the backend and 
+- [A Lightweight OCaml Webapp Tutorial](https://shonfeder.gitlab.io/ocaml_webapp/)
+  covers a simple webapp generating dynamic HTML on the backend and
   interfacing with PostgreSQL.
 
 For **examples** of idiomatic usage, see the [./examples directory](./examples)
@@ -132,7 +132,7 @@ $ dune exec examples/hello_world.exe &
 then call
 
 ```sh
-curl http://localhost:3000/person/john_doe/42 
+curl http://localhost:3000/person/john_doe/42
 ```
 
 You should see the greeting
