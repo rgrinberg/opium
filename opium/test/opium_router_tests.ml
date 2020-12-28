@@ -172,7 +172,7 @@ let%expect_test "full splat + collision checking" =
   (Failure "duplicate routes")
   Raised at Stdlib.failwith in file "stdlib.ml", line 29, characters 17-33
   Called from Stdlib__list.fold_left in file "list.ml", line 121, characters 24-34
-  Called from Opium_tests__Opium_router_tests.(fun) in file "opium/test/opium_router_tests.ml", line 173, characters 9-45
+  Called from Opium_tests__Opium_router_tests.(fun) in file "opium/test/opium_router_tests.ml", line 164, characters 9-45
   Called from Expect_test_collector.Make.Instance.exec in file "collector/expect_test_collector.ml", line 244, characters 12-19 |}]
 ;;
 
@@ -184,4 +184,26 @@ let%expect_test "two parameters" =
     {|
     matched with params: ((named ((baz blah) (name bar) (format json)))
                           (unnamed ())) |}]
+;;
+
+let%expect_test "full splat" =
+  let router = of_routes' [ "/**" ] in
+  let test = test_match_url router in
+  test "/test";
+  test "/";
+  test "/user/123/foo/bar";
+  [%expect.unreachable]
+  [@@expect.uncaught_exn
+    {|
+  (* CR expect_test_collector: This test expectation appears to contain a backtrace.
+     This is strongly discouraged as backtraces are fragile.
+     Please change this test to not include a backtrace. *)
+
+  "Assert_failure opium/src/router.ml:200:22"
+  Raised at Opium__Router.match_route.loop in file "opium/src/router.ml", line 200, characters 22-34
+  Called from Opium__Router.match_route in file "opium/src/router.ml", line 224, characters 8-20
+  Called from Opium__Router.add in file "opium/src/router.ml", line 264, characters 8-27
+  Called from Stdlib__list.fold_left in file "list.ml", line 121, characters 24-34
+  Called from Opium_tests__Opium_router_tests.(fun) in file "opium/test/opium_router_tests.ml", line 190, characters 15-35
+  Called from Expect_test_collector.Make.Instance.exec in file "collector/expect_test_collector.ml", line 244, characters 12-19 |}]
 ;;
