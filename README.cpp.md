@@ -1,7 +1,7 @@
 Opium
 =====
 
-The current master branch is a WIP port to httpaf. If you are looking for the last version published to opam (that was using Cohttp), please take a look at https://github.com/rgrinberg/opium/tree/0.18.0
+Since version 0.19.0, Opium uses httpaf. The last version that used Cohttp can be found at https://github.com/rgrinberg/opium/tree/0.18.0
 
 ## Executive Summary
 
