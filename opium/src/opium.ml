@@ -12,6 +12,13 @@ module Route = Route
 module Auth = Auth
 module Router = Middleware_router
 
+module Session = struct
+  exception Session_not_found = Middleware_cookie_session.Session_not_found
+
+  let find = Middleware_cookie_session.find
+  let set = Middleware_cookie_session.set
+end
+
 module Handler = struct
   let serve = Handler_serve.h
 end
@@ -29,4 +36,5 @@ module Middleware = struct
   let method_required = Middleware_method_required.m
   let head = Middleware_head.m
   let basic_auth = Middleware_basic_auth.m
+  let cookie_session = Middleware_cookie_session.m
 end
