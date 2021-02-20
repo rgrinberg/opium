@@ -20,7 +20,6 @@ depends: [
   "bigarray-compat" {= "1.0.0"}
   "bigstringaf" {= "0.7.0"}
   "cmdliner" {= "1.0.4" & with-doc}
-  "conf-libev" {= "4-11"}
   "conf-m4" {= "1"}
   "conf-pkg-config" {= "2"}
   "cppo" {= "1.6.7"}

@@ -24,7 +24,6 @@ depends: [
   "bigstringaf" {= "0.7.0"}
   "biniou" {= "1.2.1"}
   "cmdliner" {= "1.0.4"}
-  "conf-libev" {= "4-11"}
   "conf-m4" {= "1"}
   "conf-pkg-config" {= "2"}
   "cppo" {= "1.6.7"}
