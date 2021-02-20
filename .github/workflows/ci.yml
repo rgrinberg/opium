@@ -44,11 +44,7 @@ jobs:
 
       - name: Install system dependencies (Windows)
         if: runner.os == 'Windows'
-        run: opam depext conf-libev conf-pkg-config
-
-      - name: Install system dependencies (Unix)
-        if: runner.os != 'Windows'
-        run: opam depext conf-libev
+        run: opam depext conf-pkg-config
 
       - name: Update opam repository
         if: steps.cache-opam.outputs.cache-hit != 'true'

@@ -46,7 +46,6 @@
   (lwt
    (>= 5.3.0))
   httpaf-lwt-unix
-  conf-libev
   logs
   fmt
   mtime
