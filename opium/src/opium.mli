@@ -20,6 +20,13 @@ module Router : sig
   val splat : Request.t -> string list
 end
 
+module Session : sig
+  exception Session_not_found
+
+  val find : string -> Request.t -> string option
+  val set : string * string option -> Response.t -> Response.t
+end
+
 (** Collection of handlers commonly used to build Opium applications *)
 module Handler : sig
   (** [serve ?mime_type ?etag ?headers read] returns a handler that will serve the result
@@ -240,4 +247,19 @@ module Middleware : sig
     -> auth_callback:(username:string -> password:string -> 'a option Lwt.t)
     -> unit
     -> Rock.Middleware.t
+
+  (** {3 [cookie_session]} *)
+
+  (** [cookie_session ?cookie_key signed_with] creates a middleware for handling sessions
+      where the actual session is stored in a signed cookie where the [cookie_key] is set
+      to "_session" by default. You have to provide cookie signer as [signed_with]
+      argument that is used by the middleware to sign and verify cookies.
+
+      The session data is stored in the session cookie. The cookie is only signed,
+      therefore the data is readable by the client.
+
+      The data size is very limited (up to 4 KB). In order to associate more data with a
+      session, store a reference in the cookie with this middleware and take care of
+      persisting the actual data with a cache or persistence service. *)
+  val cookie_session : ?cookie_key:string -> Cookie.Signer.t -> Rock.Middleware.t
 end

@@ -9,6 +9,8 @@
 
 ## Added
 
+- New `Session` module to fetch and set session values
+- New `cookie_session` middleware that persists session data in cookie
 - New `Auth` module to work with `Authorization` header (#238)
 - New `basic_auth` middleware to protect handlers with a `Basic` authentication method (#238)
 - New `Response.of_file` API for conveniently creating a response of a file (#244)
