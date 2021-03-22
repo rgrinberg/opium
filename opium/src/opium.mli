@@ -167,8 +167,8 @@ module Middleware : sig
 
       The behaviour of the middleware is similar to {!static}, since the latter is used
       with a [read] function that reads from the local filesystem. Unlike {!static}, this
-      middleware supplies a default [etag_of_fname] which derives an appropriate ETag
-      from the last modification timestamp of the served file. *)
+      middleware supplies a default [etag_of_fname] which derives an appropriate ETag from
+      the last modification timestamp of the served file. *)
   val static_unix
     :  local_path:string
     -> ?uri_prefix:string
