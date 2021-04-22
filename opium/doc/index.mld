@@ -54,7 +54,6 @@ let greet req =
   Printf.sprintf "Hello, %s" name |> Response.of_plain_text |> Lwt.return
 
 let () =
-  let open App in
   App.empty
   |> App.get "/" hello
   |> App.get "/greet/:name" greet
