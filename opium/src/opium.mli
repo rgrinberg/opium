@@ -156,7 +156,7 @@ module Middleware : sig
          (string -> (Body.t, [ Status.client_error | Status.server_error ]) Lwt_result.t)
     -> ?uri_prefix:string
     -> ?headers:Headers.t
-    -> ?etag_of_fname:(string -> string option)
+    -> ?etag_of_fname:(string -> string option Lwt.t)
     -> unit
     -> Rock.Middleware.t
 
@@ -165,13 +165,15 @@ module Middleware : sig
   (** [static_unix ~local_path ?uri_prefix ?headers ?etag_of_fname ()] creates a
       middleware that is used to serve static content from a local filesystem.
 
-      The behaviour of the middleware is the same as {!static}, since the latter is used
-      with a [read] function that reads from the local filesystem. *)
+      The behaviour of the middleware is similar to {!static}, since the latter is used
+      with a [read] function that reads from the local filesystem. Unlike {!static}, this
+      middleware supplies a default [etag_of_fname] which derives an appropriate ETag from
+      the last modification timestamp of the served file. *)
   val static_unix
     :  local_path:string
     -> ?uri_prefix:string
     -> ?headers:Headers.t
-    -> ?etag_of_fname:(string -> string option)
+    -> ?etag_of_fname:(string -> string option Lwt.t)
     -> unit
     -> Rock.Middleware.t
 

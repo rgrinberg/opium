@@ -38,10 +38,10 @@ let m ~read ?(uri_prefix = "/") ?headers ?etag_of_fname () =
         let legal_path = chop_prefix local_path ~prefix:uri_prefix in
         let read () = read legal_path in
         let mime_type = Magic_mime.lookup legal_path in
-        let etag =
+        let* etag =
           match etag_of_fname with
           | Some f -> f legal_path
-          | None -> None
+          | None -> Lwt.return None
         in
         let* res = Handler_serve.h read ~mime_type ?etag ?headers req in
         match res.status with
