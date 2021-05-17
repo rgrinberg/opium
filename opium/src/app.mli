@@ -24,6 +24,8 @@ val host : string -> builder
     request to the Opium server. *)
 val backlog : int -> builder
 
+val debug : bool -> builder
+val verbose : bool -> builder
 val port : int -> builder
 val jobs : int -> builder
 val cmd_name : string -> builder

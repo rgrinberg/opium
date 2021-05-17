@@ -146,6 +146,8 @@ let to_handler app =
   service
 ;;
 
+let debug debug t = { t with debug }
+let verbose verbose t = { t with verbose }
 let port port t = { t with port }
 let jobs jobs t = { t with jobs }
 let backlog backlog t = { t with backlog = Some backlog }
