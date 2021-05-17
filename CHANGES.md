@@ -4,6 +4,7 @@
 
 - Change type signature of static and static_unix middlewares to get ETag as promise.
 - Make static_unix middleware derive ETag from file modification timestamp.
+- `App.debug` and `App.verbose`
 
 ## Fixed
 
