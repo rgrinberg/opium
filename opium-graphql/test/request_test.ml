@@ -7,9 +7,10 @@ let schema =
           "hello"
           ~typ:(non_null string)
           ~args:Arg.[ arg "name" ~typ:string ]
-          ~resolve:(fun _ () -> function
-            | None -> "world"
-            | Some name -> name)
+          ~resolve:
+            (fun _ () -> function
+              | None -> "world"
+              | Some name -> name)
       ])
 ;;
 
