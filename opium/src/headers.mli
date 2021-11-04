@@ -29,8 +29,7 @@
     {i Note.} Unless otherwise specified, all operations preserve header field order and
     all reference to equality on names is assumed to be case-insensitive.
 
-    See {{:https://tools.ietf.org/html/rfc7230#section-3.2} RFC7230§3.2} for more
-    details. *)
+    See {{:https://tools.ietf.org/html/rfc7230#section-3.2} RFC7230§3.2} for more details. *)
 
 type t = Httpaf.Headers.t
 

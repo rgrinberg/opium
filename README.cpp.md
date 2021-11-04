@@ -43,8 +43,8 @@ For the **API documentation**:
 
 The following **tutorials** walk through various usecases of Opium:
 
-- [A Lightweight OCaml Webapp Tutorial](https://shonfeder.gitlab.io/ocaml_webapp/) 
-  covers a simple webapp generating dynamic HTML on the backend and 
+- [A Lightweight OCaml Webapp Tutorial](https://shonfeder.gitlab.io/ocaml_webapp/)
+  covers a simple webapp generating dynamic HTML on the backend and
   interfacing with PostgreSQL.
 
 For **examples** of idiomatic usage, see the [./examples directory](./examples)
@@ -80,7 +80,7 @@ $ dune exec examples/hello_world.exe &
 then call
 
 ```sh
-curl http://localhost:3000/person/john_doe/42 
+curl http://localhost:3000/person/john_doe/42
 ```
 
 You should see the greeting

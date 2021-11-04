@@ -474,7 +474,8 @@ val add_cookie : ?sign_with:Cookie.Signer.t -> Cookie.value -> t -> t
 (** {3 [add_cookie_unless_exists]} *)
 
 (** [add_cookie_unless_exists ?sign_with ?expires ?scope ?same_site ?secure ?http_only
-    value t] adds a cookie with value [value] to the request [t].
+    value t]
+    adds a cookie with value [value] to the request [t].
 
     If a cookie with the same key already exists, it will remain untouched.
 
