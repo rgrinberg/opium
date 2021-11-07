@@ -14,6 +14,7 @@ jobs:
         os:
           - macos-latest
           - ubuntu-latest
+          - windows-latest
         ocaml-compiler:
           - 4.11.x
           - 4.08.x
@@ -27,7 +28,7 @@ jobs:
         with:
           ocaml-compiler: ${{ matrix.ocaml-compiler }}
           dune-cache: ${{ matrix.os != 'macos-latest' }}
-          opam-depext-flag: --with-test
+          opam-depext-flags: --with-test
 
       - run: opam install . --deps-only --with-test
 
