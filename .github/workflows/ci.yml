@@ -17,7 +17,9 @@ jobs:
           - windows-latest
         ocaml-compiler:
           - 4.11.x
-          - 4.08.x
+        include:
+          - os: ubuntu-latest
+            ocaml-compiler: 4.08.x
 
     steps:
       - name: Checkout code
