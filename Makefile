@@ -39,7 +39,7 @@ all:
 dev: ## Install development dependencies
 	opam update
 	opam install -y dune-release merlin ocamlformat utop ocaml-lsp-server
-	opam install --deps-only --with-test --with-doc -y --locked .
+	opam install --deps-only --with-test --with-doc -y .
 
 .PHONY: switch
 switch: deps ## Create an opam switch and install development dependencies
@@ -48,10 +48,6 @@ switch: deps ## Create an opam switch and install development dependencies
 	[[ $(shell opam switch show) == $(shell pwd) ]] || \
 		opam switch create -y . 4.11.0 --deps-only --with-test --with-doc
 	opam install -y dune-release merlin ocamlformat utop ocaml-lsp-server
-
-.PHONY: lock
-lock: ## Generate a lock file
-	opam lock -y .
 
 .PHONY: build
 build: ## Build the project, including non installable libraries and executables
