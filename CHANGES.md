@@ -11,6 +11,10 @@
 - Fix Fullsplat behavior (routes with `**`)
 - Undo splat reverse order. Now, the matches for `/*/*/*` with the url `/a/b/c` will return `["a"; "b"; "c"]`
 
+## Changed
+
+- Update various opium-testing apis to avoid raising warning 16
+
 # 0.20.0
 
 ## Added
