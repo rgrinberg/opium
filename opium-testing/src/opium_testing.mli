@@ -50,6 +50,7 @@ val check_status'
   -> expected:Opium.Status.t
   -> actual:Opium.Status.t
   -> unit
+  -> unit
 
 (** {3 [check_meth]} *)
 
@@ -61,7 +62,12 @@ val check_meth : ?msg:string -> Opium.Method.t -> Opium.Method.t -> unit
 (** [check_meth' ?msg t1 t2] checks that the method [t1] and [t2] are equal.
 
     This is a labeled variant of {!check_meth} *)
-val check_meth' : ?msg:string -> expected:Opium.Method.t -> actual:Opium.Method.t -> unit
+val check_meth'
+  :  ?msg:string
+  -> expected:Opium.Method.t
+  -> actual:Opium.Method.t
+  -> unit
+  -> unit
 
 (** {3 [check_version]} *)
 
@@ -78,6 +84,7 @@ val check_version'
   -> expected:Opium.Version.t
   -> actual:Opium.Version.t
   -> unit
+  -> unit
 
 (** {3 [check_body]} *)
 
@@ -89,7 +96,12 @@ val check_body : ?msg:string -> Opium.Body.t -> Opium.Body.t -> unit
 (** [check_body' ?msg t1 t2] checks that the body [t1] and [t2] are equal.
 
     This is a labeled variant of {!check_body} *)
-val check_body' : ?msg:string -> expected:Opium.Body.t -> actual:Opium.Body.t -> unit
+val check_body'
+  :  ?msg:string
+  -> expected:Opium.Body.t
+  -> actual:Opium.Body.t
+  -> unit
+  -> unit
 
 (** {3 [check_request]} *)
 
@@ -105,6 +117,7 @@ val check_request'
   :  ?msg:string
   -> expected:Opium.Request.t
   -> actual:Opium.Request.t
+  -> unit
   -> unit
 
 (** {3 [check_response]} *)
@@ -122,6 +135,7 @@ val check_response'
   -> expected:Opium.Response.t
   -> actual:Opium.Response.t
   -> unit
+  -> unit
 
 (** {3 [check_cookie]} *)
 
@@ -137,6 +151,7 @@ val check_cookie'
   :  ?msg:string
   -> expected:Opium.Cookie.t
   -> actual:Opium.Cookie.t
+  -> unit
   -> unit
 
 (** {3 [check_body_contains]} *)

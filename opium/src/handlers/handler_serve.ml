@@ -1,6 +1,6 @@
 open Import
 
-let respond_with_file ?headers ~read =
+let respond_with_file ?headers read =
   let open Lwt.Syntax in
   let* body = read () in
   match body with
@@ -41,5 +41,5 @@ let h ?mime_type ?etag ?(headers = Httpaf.Headers.empty) read req =
   in
   if request_matches_etag
   then Lwt.return @@ Response.make ~status:`Not_modified ~headers ()
-  else respond_with_file ~read ~headers
+  else respond_with_file ~headers read
 ;;

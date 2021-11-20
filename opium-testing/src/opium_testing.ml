@@ -34,7 +34,7 @@ let check_status ?msg expected t =
   Alcotest.check Testable.status message expected t
 ;;
 
-let check_status' ?msg ~expected ~actual = check_status ?msg expected actual
+let check_status' ?msg ~expected ~actual () = check_status ?msg expected actual
 
 let check_meth ?msg expected t =
   let message =
@@ -45,7 +45,7 @@ let check_meth ?msg expected t =
   Alcotest.check Testable.meth message expected t
 ;;
 
-let check_meth' ?msg ~expected ~actual = check_meth ?msg expected actual
+let check_meth' ?msg ~expected ~actual () = check_meth ?msg expected actual
 
 let check_version ?msg expected t =
   let message =
@@ -56,7 +56,7 @@ let check_version ?msg expected t =
   Alcotest.check Testable.version message expected t
 ;;
 
-let check_version' ?msg ~expected ~actual = check_version ?msg expected actual
+let check_version' ?msg ~expected ~actual () = check_version ?msg expected actual
 
 let check_body ?msg expected t =
   let message =
@@ -67,7 +67,7 @@ let check_body ?msg expected t =
   Alcotest.check Testable.body message expected t
 ;;
 
-let check_body' ?msg ~expected ~actual = check_body ?msg expected actual
+let check_body' ?msg ~expected ~actual () = check_body ?msg expected actual
 
 let check_request ?msg expected t =
   let message =
@@ -78,7 +78,7 @@ let check_request ?msg expected t =
   Alcotest.check Testable.request message expected t
 ;;
 
-let check_request' ?msg ~expected ~actual = check_request ?msg expected actual
+let check_request' ?msg ~expected ~actual () = check_request ?msg expected actual
 
 let check_response ?msg expected t =
   let message =
@@ -89,7 +89,7 @@ let check_response ?msg expected t =
   Alcotest.check Testable.response message expected t
 ;;
 
-let check_response' ?msg ~expected ~actual = check_response ?msg expected actual
+let check_response' ?msg ~expected ~actual () = check_response ?msg expected actual
 
 let string_contains s1 s2 =
   let re = Str.regexp_string s2 in
@@ -120,4 +120,4 @@ let check_cookie ?msg expected t =
   Alcotest.check Testable.cookie message expected t
 ;;
 
-let check_cookie' ?msg ~expected ~actual = check_cookie ?msg expected actual
+let check_cookie' ?msg ~expected ~actual () = check_cookie ?msg expected actual
