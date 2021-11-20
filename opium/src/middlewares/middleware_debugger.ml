@@ -92,8 +92,7 @@ let m =
         Logs.err ~src:log_src (fun f -> f "%s" (Nifty.Exn.to_string exn));
         let* res_string = format_error { req with body } exn in
         let body = Body.of_string res_string in
-        Rock.Server_connection.halt
-          (Response.make ~status:`Internal_server_error ~body ()))
+        Server_connection.halt (Response.make ~status:`Internal_server_error ~body ()))
   in
   Rock.Middleware.create ~name:"Debugger" ~filter
 ;;

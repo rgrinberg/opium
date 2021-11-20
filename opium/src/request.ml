@@ -1,6 +1,26 @@
 open Import
 include Rock.Request
 
+let sexp_of_sockaddr addr =
+  let open Sexp_conv in
+  match addr with
+  | Unix.ADDR_UNIX path -> sexp_of_list sexp_of_string [ "ADDR_UNIX"; path ]
+  | ADDR_INET (inet_addr, port) ->
+    Sexp.(
+      List
+        [ Atom "ADDR_INET"
+        ; List
+            [ sexp_of_pair
+                sexp_of_string
+                sexp_of_string
+                ("inet_addr", Unix.string_of_inet_addr inet_addr)
+            ; sexp_of_pair sexp_of_string sexp_of_int ("port", port)
+            ]
+        ])
+;;
+
+let sockaddr = Context.Key.create ("client_sockaddr", sexp_of_sockaddr)
+
 let of_string'
     ?(content_type = "text/plain")
     ?version

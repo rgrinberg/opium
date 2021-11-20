@@ -18,15 +18,14 @@ let make_connection_handler ~host ~port ?middlewares handler =
   let inet_addr = host_entry.h_addr_list.(0) in
   let listen_address = Unix.ADDR_INET (inet_addr, port) in
   let connection_handler addr fd =
-    let f ~request_handler ~error_handler =
-      Httpaf_lwt_unix.Server.create_connection_handler
-        ~request_handler:(fun _ -> request_handler)
-        ~error_handler:(fun _ -> error_handler)
-        addr
-        fd
-    in
-    let app = Rock.App.create ?middlewares ~handler () in
-    Rock.Server_connection.run f app
+    Httpaf_lwt_unix.Server.create_connection_handler
+      ~request_handler:(fun addr ->
+        Server_connection.create_request_handler
+          addr
+          (Rock.App.create ?middlewares ~handler ()))
+      ~error_handler:(fun addr -> Server_connection.default_error_handler addr)
+      addr
+      fd
   in
   Lwt.return (listen_address, connection_handler)
 ;;

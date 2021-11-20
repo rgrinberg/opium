@@ -24,6 +24,8 @@ type t = Rock.Request.t =
   ; env : Context.t
   }
 
+val sockaddr : Unix.sockaddr Context.key
+
 (** {1 Constructors} *)
 
 (** {3 [make]} *)

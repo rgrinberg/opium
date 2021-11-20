@@ -1,15 +1,22 @@
 (** Collection of functions to run a server from a Rock app. *)
 
 type error_handler =
-  Httpaf.Headers.t -> Httpaf.Server_connection.error -> (Httpaf.Headers.t * Body.t) Lwt.t
+  Unix.sockaddr
+  -> Httpaf.Headers.t
+  -> Httpaf.Server_connection.error
+  -> (Httpaf.Headers.t * Body.t) Lwt.t
 
-val run
-  :  (request_handler:Httpaf.Server_connection.request_handler
-      -> error_handler:Httpaf.Server_connection.error_handler
-      -> 'a Lwt.t)
-  -> ?error_handler:error_handler
-  -> App.t
-  -> 'a Lwt.t
+val default_error_handler : Unix.sockaddr -> Httpaf.Server_connection.error_handler
+
+val create_error_handler
+  :  error_handler
+  -> Unix.sockaddr
+  -> Httpaf.Server_connection.error_handler
+
+val create_request_handler
+  :  Unix.sockaddr
+  -> Rock.App.t
+  -> Httpaf.Server_connection.request_handler
 
 (** The Halt exception can be raised to interrupt the normal processing flow of a request.
 
