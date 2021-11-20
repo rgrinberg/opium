@@ -7,6 +7,7 @@ type t =
   ; meth : Httpaf.Method.t
   ; body : Body.t
   ; env : Context.t
+  ; peer_addr : string
   }
 
 (** {1 Constructors} *)
@@ -23,6 +24,7 @@ val make
   -> ?body:Body.t
   -> ?env:Context.t
   -> ?headers:Httpaf.Headers.t
+  -> peer_addr:string
   -> string
   -> Httpaf.Method.t
   -> t
@@ -39,6 +41,7 @@ val get
   -> ?body:Body.t
   -> ?env:Context.t
   -> ?headers:Httpaf.Headers.t
+  -> peer_addr:string
   -> string
   -> t
 
@@ -54,6 +57,7 @@ val post
   -> ?body:Body.t
   -> ?env:Context.t
   -> ?headers:Httpaf.Headers.t
+  -> peer_addr:string
   -> string
   -> t
 
@@ -69,6 +73,7 @@ val put
   -> ?body:Body.t
   -> ?env:Context.t
   -> ?headers:Httpaf.Headers.t
+  -> peer_addr:string
   -> string
   -> t
 
@@ -84,5 +89,6 @@ val delete
   -> ?body:Body.t
   -> ?env:Context.t
   -> ?headers:Httpaf.Headers.t
+  -> peer_addr:string
   -> string
   -> t

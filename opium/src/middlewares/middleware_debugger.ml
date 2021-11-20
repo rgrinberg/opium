@@ -1,3 +1,5 @@
+open Import
+
 let log_src = Logs.Src.create "opium.server"
 
 let style =
@@ -77,7 +79,7 @@ let format_error req exn =
 </html>
     |}
     style
-    (Nifty.Exn.to_string exn)
+    (Exn.to_string exn)
     request_string
 ;;
 
@@ -89,10 +91,11 @@ let m =
     Lwt.catch
       (fun () -> handler req)
       (fun exn ->
-        Logs.err ~src:log_src (fun f -> f "%s" (Nifty.Exn.to_string exn));
+        Logs.err ~src:log_src (fun f -> f "%s" (Exn.to_string exn));
         let* res_string = format_error { req with body } exn in
         let body = Body.of_string res_string in
-        Server_connection.halt (Response.make ~status:`Internal_server_error ~body ()))
+        Rock.Server_connection.halt
+          (Response.make ~status:`Internal_server_error ~body ()))
   in
   Rock.Middleware.create ~name:"Debugger" ~filter
 ;;

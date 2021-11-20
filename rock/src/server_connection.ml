@@ -22,7 +22,7 @@ let default_error_handler _sockaddr ?request:_ error start_response =
 ;;
 
 type error_handler =
-  Unix.sockaddr
+  string
   -> Httpaf.Headers.t
   -> Httpaf.Server_connection.error
   -> (Httpaf.Headers.t * Body.t) Lwt.t
@@ -66,17 +66,17 @@ let read_httpaf_body body =
       promise)
 ;;
 
-let httpaf_request_to_request ?body req =
+let httpaf_request_to_request ?body ~peer_addr req =
   let headers =
     req.Httpaf.Request.headers |> Httpaf.Headers.to_list |> Httpaf.Headers.of_rev_list
   in
-  Request.make ~headers ?body req.target req.meth
+  Request.make ~headers ?body ~peer_addr req.target req.meth
 ;;
 
-let create_request_handler sockaddr app =
-  let { Rock.App.middlewares; handler } = app in
-  let filters = ListLabels.map ~f:(fun m -> m.Rock.Middleware.filter) middlewares in
-  let service = Rock.Filter.apply_all filters handler in
+let create_request_handler peer_addr app =
+  let { App.middlewares; handler } = app in
+  let filters = ListLabels.map ~f:(fun m -> m.Middleware.filter) middlewares in
+  let service = Filter.apply_all filters handler in
   fun reqd ->
     Lwt.async (fun () ->
         let req = Httpaf.Reqd.request reqd in
@@ -97,9 +97,7 @@ let create_request_handler sockaddr app =
           f reqd (Httpaf.Response.create ~headers status) body;
           Lwt.return_unit
         in
-        let request = httpaf_request_to_request ~body req in
-        let env = Context.add Request.sockaddr sockaddr request.env in
-        let request = { request with env } in
+        let request = httpaf_request_to_request ~peer_addr ~body req in
         Lwt.catch
           (fun () ->
             let* { Response.body; headers; status; _ } =

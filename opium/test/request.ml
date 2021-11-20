@@ -4,6 +4,7 @@ open Opium
 open Lwt.Syntax
 
 let test_case n f = test_case n `Quick (fun _switch () -> f ())
+let default_peer_addr = "5.6.7.1:12345"
 
 let run_quick n l =
   Lwt_main.run
@@ -38,6 +39,7 @@ let () =
           , fun () ->
               let request =
                 Request.of_urlencoded
+                  ~peer_addr:default_peer_addr
                   ~body:
                     [ "key1", [ "value1-1" ]
                     ; "key2", [ "value2-1" ]
@@ -54,14 +56,18 @@ let () =
     ; ( "cookie"
       , [ ( "returns the cookie with the matching key"
           , fun () ->
-              let request = Request.get "/" |> Request.add_cookie ("cookie", "value") in
+              let request =
+                Request.get ~peer_addr:default_peer_addr "/"
+                |> Request.add_cookie ("cookie", "value")
+              in
               let cookie_value = Request.cookie "cookie" request |> Option.get in
               check string "same values" "value" cookie_value;
               Lwt.return () )
         ; ( "returns the cookie with the matching key and same signature"
           , fun () ->
               let request =
-                Request.get "/" |> Request.add_cookie ~sign_with:signer ("cookie", "value")
+                Request.get ~peer_addr:default_peer_addr "/"
+                |> Request.add_cookie ~sign_with:signer ("cookie", "value")
               in
               let cookie_value =
                 Request.cookie ~signed_with:signer "cookie" request |> Option.get
@@ -71,14 +77,15 @@ let () =
         ; ( "does not return a cookie if the signatures don't match"
           , fun () ->
               let request =
-                Request.get "/" |> Request.add_cookie ~sign_with:signer ("cookie", "value")
+                Request.get ~peer_addr:default_peer_addr "/"
+                |> Request.add_cookie ~sign_with:signer ("cookie", "value")
               in
               let cookie_value = Request.cookie ~signed_with:signer_2 "cookie" request in
               check (option string) "cookie is None" None cookie_value;
               Lwt.return () )
         ; ( "does not return a cookie if the request does not have a Cookie header"
           , fun () ->
-              let request = Request.get "/" in
+              let request = Request.get ~peer_addr:default_peer_addr "/" in
               let cookie_value = Request.cookie "cookie" request in
               check (option string) "cookie is None" None cookie_value;
               Lwt.return () )
@@ -87,7 +94,7 @@ let () =
       , [ ( "returns all the cookies of the request"
           , fun () ->
               let request =
-                Request.get "/"
+                Request.get ~peer_addr:default_peer_addr "/"
                 |> Request.add_cookie ("cookie", "value")
                 |> Request.add_cookie ~sign_with:signer ("signed_cookie", "value2")
                 |> Request.add_cookie ("cookie2", "value3")
@@ -105,7 +112,7 @@ let () =
         ; ( "does not return the cookies with invalid signatures"
           , fun () ->
               let request =
-                Request.get "/"
+                Request.get "/" ~peer_addr:default_peer_addr
                 |> Request.add_cookie ("cookie", "value")
                 |> Request.add_cookie ~sign_with:signer ("signed_cookie", "value2")
                 |> Request.add_cookie ~sign_with:signer_2 ("cookie2", "value3")
@@ -121,20 +128,29 @@ let () =
     ; ( "add_cookie"
       , [ ( "adds a cookie to the request"
           , fun () ->
-              let request = Request.get "/" |> Request.add_cookie ("cookie", "value") in
+              let request =
+                Request.get ~peer_addr:default_peer_addr "/"
+                |> Request.add_cookie ("cookie", "value")
+              in
               check_request
-                (Request.get "/" ~headers:(Headers.of_list [ "Cookie", "cookie=value" ]))
+                (Request.get
+                   ~peer_addr:default_peer_addr
+                   "/"
+                   ~headers:(Headers.of_list [ "Cookie", "cookie=value" ]))
                 request;
               Lwt.return () )
         ; ( "replaces the value of an existing cookie"
           , fun () ->
               let request =
-                Request.get "/"
+                Request.get "/" ~peer_addr:default_peer_addr
                 |> Request.add_cookie ("cookie", "value")
                 |> Request.add_cookie ("cookie", "value2")
               in
               check_request
-                (Request.get "/" ~headers:(Headers.of_list [ "Cookie", "cookie=value2" ]))
+                (Request.get
+                   ~peer_addr:default_peer_addr
+                   "/"
+                   ~headers:(Headers.of_list [ "Cookie", "cookie=value2" ]))
                 request;
               Lwt.return () )
         ] )
@@ -142,21 +158,28 @@ let () =
       , [ ( "adds a cookie to the request"
           , fun () ->
               let request =
-                Request.get "/" |> Request.add_cookie_unless_exists ("cookie", "value")
+                Request.get ~peer_addr:default_peer_addr "/"
+                |> Request.add_cookie_unless_exists ("cookie", "value")
               in
               check_request
-                (Request.get "/" ~headers:(Headers.of_list [ "Cookie", "cookie=value" ]))
+                (Request.get
+                   ~peer_addr:default_peer_addr
+                   "/"
+                   ~headers:(Headers.of_list [ "Cookie", "cookie=value" ]))
                 request;
               Lwt.return () )
         ; ( "does not add a cookie to the request if the same key exists"
           , fun () ->
               let request =
-                Request.get "/"
+                Request.get "/" ~peer_addr:default_peer_addr
                 |> Request.add_cookie ("cookie", "value")
                 |> Request.add_cookie_unless_exists ("cookie", "value2")
               in
               check_request
-                (Request.get "/" ~headers:(Headers.of_list [ "Cookie", "cookie=value" ]))
+                (Request.get
+                   ~peer_addr:default_peer_addr
+                   "/"
+                   ~headers:(Headers.of_list [ "Cookie", "cookie=value" ]))
                 request;
               Lwt.return () )
         ] )
@@ -164,13 +187,16 @@ let () =
       , [ ( "removes a cookie from the request"
           , fun () ->
               let request =
-                Request.get "/"
+                Request.get "/" ~peer_addr:default_peer_addr
                 |> Request.add_cookie ("cookie", "value")
                 |> Request.add_cookie ("cookie2", "value2")
                 |> Request.remove_cookie "cookie2"
               in
               check_request
-                (Request.get "/" ~headers:(Headers.of_list [ "Cookie", "cookie=value" ]))
+                (Request.get
+                   ~peer_addr:default_peer_addr
+                   "/"
+                   ~headers:(Headers.of_list [ "Cookie", "cookie=value" ]))
                 request;
               Lwt.return () )
         ] )

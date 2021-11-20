@@ -1,46 +1,28 @@
 open Import
 include Rock.Request
 
-let sexp_of_sockaddr addr =
-  let open Sexp_conv in
-  match addr with
-  | Unix.ADDR_UNIX path -> sexp_of_list sexp_of_string [ "ADDR_UNIX"; path ]
-  | ADDR_INET (inet_addr, port) ->
-    Sexp.(
-      List
-        [ Atom "ADDR_INET"
-        ; List
-            [ sexp_of_pair
-                sexp_of_string
-                sexp_of_string
-                ("inet_addr", Unix.string_of_inet_addr inet_addr)
-            ; sexp_of_pair sexp_of_string sexp_of_int ("port", port)
-            ]
-        ])
-;;
-
-let sockaddr = Context.Key.create ("client_sockaddr", sexp_of_sockaddr)
-
 let of_string'
     ?(content_type = "text/plain")
     ?version
     ?env
     ?(headers = Headers.empty)
+    ~peer_addr
     target
     meth
     body
   =
   let headers = Headers.add_unless_exists headers "Content-Type" content_type in
-  make ?version ~headers ~body:(Body.of_string body) ?env target meth
+  make ?version ~headers ~body:(Body.of_string body) ?env ~peer_addr target meth
 ;;
 
-let of_plain_text ?version ?headers ?env ~body target meth =
-  of_string' ?version ?env ?headers target meth body
+let of_plain_text ?version ?headers ?env ~peer_addr ~body target meth =
+  of_string' ?version ?env ?headers ~peer_addr target meth body
 ;;
 
-let of_json ?version ?headers ?env ~body target meth =
+let of_json ?version ?headers ?env ~peer_addr ~body target meth =
   of_string'
     ~content_type:"application/json"
+    ~peer_addr
     ?version
     ?headers
     ?env
@@ -49,12 +31,13 @@ let of_json ?version ?headers ?env ~body target meth =
     (body |> Yojson.Safe.to_string)
 ;;
 
-let of_urlencoded ?version ?headers ?env ~body target meth =
+let of_urlencoded ?version ?headers ?env ~peer_addr ~body target meth =
   of_string'
     ~content_type:"application/x-www-form-urlencoded"
     ?version
     ?headers
     ?env
+    ~peer_addr
     target
     meth
     (body |> Uri.encoded_of_query)
@@ -225,7 +208,7 @@ let query_list t = t.target |> Uri.of_string |> Uri.query
 let query key t = query_list t |> find_in_query key
 let query_exn key t = query key t |> Option.get
 
-let sexp_of_t { version; target; headers; meth; body; env } =
+let sexp_of_t { version; target; headers; meth; body; env; peer_addr } =
   let open Sexp_conv in
   let open Sexp in
   List
@@ -235,6 +218,7 @@ let sexp_of_t { version; target; headers; meth; body; env } =
     ; List [ Atom "headers"; Headers.sexp_of_t headers ]
     ; List [ Atom "body"; Body.sexp_of_t body ]
     ; List [ Atom "env"; Context.sexp_of_t env ]
+    ; List [ Atom "peer_addr"; sexp_of_string peer_addr ]
     ]
 ;;
 
@@ -251,3 +235,5 @@ let pp_hum fmt t =
     Body.pp_hum
     t.body
 ;;
+
+let peer_addr t = t.peer_addr
