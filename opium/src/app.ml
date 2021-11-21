@@ -7,7 +7,13 @@ let err_invalid_host host =
   Lwt.fail_invalid_arg ("Could not get host info for `" ^ host ^ "`")
 ;;
 
-let make_connection_handler ~host ~port ?middlewares handler =
+let sockaddr_to_string = function
+  | Unix.ADDR_UNIX x -> x
+  | ADDR_INET (inet_addr, port) ->
+    Printf.sprintf "%s:%d" (Unix.string_of_inet_addr inet_addr) port
+;;
+
+let make_connection_handler ~host ~port ?middlewares handler error_handler =
   let* host_entry =
     Lwt.catch
       (fun () -> Lwt_unix.gethostbyname host)
@@ -17,30 +23,30 @@ let make_connection_handler ~host ~port ?middlewares handler =
   in
   let inet_addr = host_entry.h_addr_list.(0) in
   let listen_address = Unix.ADDR_INET (inet_addr, port) in
+  let app = Rock.App.create ?middlewares ~handler () in
   let connection_handler addr fd =
-    let f ~request_handler ~error_handler =
-      Httpaf_lwt_unix.Server.create_connection_handler
-        ~request_handler:(fun _ -> request_handler)
-        ~error_handler:(fun _ -> error_handler)
-        addr
-        fd
-    in
-    let app = Rock.App.create ?middlewares ~handler () in
-    Rock.Server_connection.run f app
+    Httpaf_lwt_unix.Server.create_connection_handler
+      ~request_handler:(fun addr ->
+        Rock.Server_connection.to_httpaf_request_handler (sockaddr_to_string addr) app)
+      ~error_handler:(fun addr ->
+        (Rock.Server_connection.to_httpaf_error_handler error_handler)
+          (sockaddr_to_string addr))
+      addr
+      fd
   in
   Lwt.return (listen_address, connection_handler)
 ;;
 
-let run_unix ?backlog ?middlewares ~host ~port handler =
+let run_unix ?backlog ?middlewares ~host ~port handler error_handler =
   let* listen_address, connection_handler =
-    make_connection_handler ?middlewares ~host ~port handler
+    make_connection_handler ?middlewares ~host ~port handler error_handler
   in
   Lwt_io.establish_server_with_client_socket ?backlog listen_address connection_handler
 ;;
 
-let run_unix_multicore ?middlewares ~host ~port ~jobs handler =
+let run_unix_multicore ?middlewares ~host ~port ~jobs handler error_handler =
   let listen_address, connection_handler =
-    Lwt_main.run @@ make_connection_handler ?middlewares ~host ~port handler
+    Lwt_main.run @@ make_connection_handler ?middlewares ~host ~port handler error_handler
   in
   let socket =
     Lwt_unix.socket (Unix.domain_of_sockaddr listen_address) Unix.SOCK_STREAM 0
@@ -79,6 +85,7 @@ type t =
   ; middlewares : Rock.Middleware.t list
   ; name : string
   ; not_found : Rock.Handler.t
+  ; error_handler : Rock.Server_connection.error_handler
   }
 
 type builder = t -> t
@@ -119,6 +126,7 @@ let empty =
   ; routes = []
   ; middlewares = []
   ; not_found = default_not_found
+  ; error_handler = Rock.Server_connection.default_error_handler
   }
 ;;
 
@@ -164,6 +172,7 @@ let not_found action t =
   { t with not_found = action }
 ;;
 
+let with_error_handler error_handler t = { t with error_handler }
 let get route action = register ~meth:`GET ~route:(Route.of_string route) ~action
 let post route action = register ~meth:`POST ~route:(Route.of_string route) ~action
 let delete route action = register ~meth:`DELETE ~route:(Route.of_string route) ~action
@@ -210,7 +219,13 @@ let start app =
         app.host
         app.port
         (if app.debug then " (debug mode)" else ""));
-  run_unix ?backlog:app.backlog ~middlewares ~host:app.host ~port:app.port app.not_found
+  run_unix
+    ?backlog:app.backlog
+    ~middlewares
+    ~host:app.host
+    ~port:app.port
+    app.not_found
+    app.error_handler
 ;;
 
 let start_multicore app =
@@ -231,6 +246,7 @@ let start_multicore app =
     ~port:app.port
     ~jobs:app.jobs
     app.not_found
+    app.error_handler
 ;;
 
 let hashtbl_add_multi tbl x y =

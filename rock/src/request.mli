@@ -86,3 +86,6 @@ val delete
   -> ?headers:Httpaf.Headers.t
   -> string
   -> t
+
+val with_client_address : t -> string -> t
+val client_address : t -> string option

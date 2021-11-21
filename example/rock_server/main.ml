@@ -39,17 +39,24 @@ let app =
     ()
 ;;
 
+let sockaddr_to_string = function
+  | Unix.ADDR_UNIX x -> x
+  | ADDR_INET (inet_addr, port) ->
+    Printf.sprintf "%s:%d" (Unix.string_of_inet_addr inet_addr) port
+;;
+
 let run () =
   let listen_address = Unix.(ADDR_INET (inet_addr_loopback, 8080)) in
   let connection_handler addr fd =
-    let f ~request_handler ~error_handler =
-      Httpaf_lwt_unix.Server.create_connection_handler
-        ~request_handler:(fun _ -> request_handler)
-        ~error_handler:(fun _ -> error_handler)
-        addr
-        fd
-    in
-    Rock.Server_connection.run f app
+    Httpaf_lwt_unix.Server.create_connection_handler
+      ~request_handler:(fun addr ->
+        Rock.Server_connection.to_httpaf_request_handler (sockaddr_to_string addr) app)
+      ~error_handler:(fun addr ->
+        Rock.Server_connection.(
+          to_httpaf_error_handler Server_connection.default_error_handler)
+          (sockaddr_to_string addr))
+      addr
+      fd
   in
   Lwt.async (fun () ->
       let* _ =
