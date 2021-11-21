@@ -7,6 +7,12 @@ let err_invalid_host host =
   Lwt.fail_invalid_arg ("Could not get host info for `" ^ host ^ "`")
 ;;
 
+let sockaddr_to_string = function
+  | Unix.ADDR_UNIX x -> x
+  | ADDR_INET (inet_addr, port) ->
+    Printf.sprintf "%s:%d" (Unix.string_of_inet_addr inet_addr) port
+;;
+
 let make_connection_handler ~host ~port ?middlewares handler =
   let* host_entry =
     Lwt.catch
@@ -17,16 +23,15 @@ let make_connection_handler ~host ~port ?middlewares handler =
   in
   let inet_addr = host_entry.h_addr_list.(0) in
   let listen_address = Unix.ADDR_INET (inet_addr, port) in
+  let app = Rock.App.create ?middlewares ~handler () in
   let connection_handler addr fd =
-    let f ~request_handler ~error_handler =
-      Httpaf_lwt_unix.Server.create_connection_handler
-        ~request_handler:(fun _ -> request_handler)
-        ~error_handler:(fun _ -> error_handler)
-        addr
-        fd
-    in
-    let app = Rock.App.create ?middlewares ~handler () in
-    Rock.Server_connection.run f app
+    Httpaf_lwt_unix.Server.create_connection_handler
+      ~request_handler:(fun addr ->
+        Rock.Server_connection.create_request_handler (sockaddr_to_string addr) app)
+      ~error_handler:(fun addr ->
+        Rock.Server_connection.default_error_handler (sockaddr_to_string addr))
+      addr
+      fd
   in
   Lwt.return (listen_address, connection_handler)
 ;;

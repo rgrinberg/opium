@@ -4,7 +4,7 @@ exception Halt of Response.t
 
 let halt response = raise (Halt response)
 
-let default_error_handler ?request:_ error start_response =
+let default_error_handler _sockaddr ?request:_ error start_response =
   let open Httpaf in
   let message =
     match error with
@@ -21,15 +21,21 @@ let default_error_handler ?request:_ error start_response =
   Body.close_writer body
 ;;
 
+type error_handler =
+  string
+  -> Httpaf.Headers.t
+  -> Httpaf.Server_connection.error
+  -> (Httpaf.Headers.t * Body.t) Lwt.t
+
 let create_error_handler handler =
-  let error_handler ?request error start_response =
+  let error_handler sockaddr ?request error start_response =
     let req_headers =
       match request with
       | None -> Httpaf.Headers.empty
       | Some req -> req.Httpaf.Request.headers
     in
     Lwt.async (fun () ->
-        let* headers, body = handler req_headers error in
+        let* headers, body = handler sockaddr req_headers error in
         let headers =
           match Body.length body with
           | None -> headers
@@ -46,9 +52,6 @@ let create_error_handler handler =
   in
   error_handler
 ;;
-
-type error_handler =
-  Httpaf.Headers.t -> Httpaf.Server_connection.error -> (Httpaf.Headers.t * Body.t) Lwt.t
 
 let read_httpaf_body body =
   Lwt_stream.from (fun () ->
@@ -70,11 +73,11 @@ let httpaf_request_to_request ?body req =
   Request.make ~headers ?body req.target req.meth
 ;;
 
-let run server_handler ?error_handler app =
+let create_request_handler peer_addr app =
   let { App.middlewares; handler } = app in
   let filters = ListLabels.map ~f:(fun m -> m.Middleware.filter) middlewares in
   let service = Filter.apply_all filters handler in
-  let request_handler reqd =
+  fun reqd ->
     Lwt.async (fun () ->
         let req = Httpaf.Reqd.request reqd in
         let req_body = Httpaf.Reqd.request_body reqd in
@@ -94,7 +97,9 @@ let run server_handler ?error_handler app =
           f reqd (Httpaf.Response.create ~headers status) body;
           Lwt.return_unit
         in
-        let request = httpaf_request_to_request ~body req in
+        let request =
+          Request.with_client_address (httpaf_request_to_request ~body req) peer_addr
+        in
         Lwt.catch
           (fun () ->
             let* { Response.body; headers; status; _ } =
@@ -133,11 +138,4 @@ let run server_handler ?error_handler app =
           (fun exn ->
             Httpaf.Reqd.report_exn reqd exn;
             Lwt.return_unit))
-  in
-  let error_handler =
-    match error_handler with
-    | None -> default_error_handler
-    | Some h -> create_error_handler h
-  in
-  server_handler ~request_handler ~error_handler
 ;;
