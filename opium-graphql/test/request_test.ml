@@ -21,7 +21,6 @@ let check_body actual expected =
 ;;
 
 let default_uri = "/"
-let default_peer_addr = ""
 let json_content_type = Opium.Headers.of_list [ "Content-Type", "application/json" ]
 let graphql_content_type = Opium.Headers.of_list [ "Content-Type", "application/graphql" ]
 let default_response_body = `Assoc [ "data", `Assoc [ "hello", `String "world" ] ]
@@ -38,7 +37,7 @@ let suite =
     , `Quick
     , fun () ->
         test_case
-          ~req:(Opium.Request.make default_uri ~peer_addr:default_peer_addr `POST)
+          ~req:(Opium.Request.make default_uri `POST)
           ~rsp:
             (Opium.Response.of_plain_text
                ~status:`Bad_request
@@ -51,32 +50,20 @@ let suite =
             (Yojson.Safe.to_string (`Assoc [ "query", `String "{ hello }" ]))
         in
         test_case
-          ~req:
-            (Opium.Request.make
-               ~headers:json_content_type
-               ~body
-               default_uri
-               ~peer_addr:default_peer_addr
-               `POST)
+          ~req:(Opium.Request.make ~headers:json_content_type ~body default_uri `POST)
           ~rsp:(Opium.Response.of_json ~status:`OK default_response_body) )
   ; ( "POST with graphql body"
     , `Quick
     , fun () ->
         let body = Opium.Body.of_string "{ hello }" in
         test_case
-          ~req:
-            (Opium.Request.make
-               ~headers:graphql_content_type
-               ~body
-               default_uri
-               ~peer_addr:default_peer_addr
-               `POST)
+          ~req:(Opium.Request.make ~headers:graphql_content_type ~body default_uri `POST)
           ~rsp:(Opium.Response.of_json ~status:`OK default_response_body) )
   ; ( "GET with empty query string"
     , `Quick
     , fun () ->
         test_case
-          ~req:(Opium.Request.make default_uri ~peer_addr:default_peer_addr `GET)
+          ~req:(Opium.Request.make default_uri `GET)
           ~rsp:
             (Opium.Response.of_plain_text
                ~status:`Bad_request
@@ -88,7 +75,7 @@ let suite =
         let query = Some [ "query", [ query ] ] in
         let uri = Uri.with_uri ~query (Uri.of_string default_uri) in
         test_case
-          ~req:(Opium.Request.make (Uri.to_string uri) ~peer_addr:default_peer_addr `GET)
+          ~req:(Opium.Request.make (Uri.to_string uri) `GET)
           ~rsp:(Opium.Response.of_json ~status:`OK default_response_body) )
   ; ( "operation name in JSON body"
     , `Quick
@@ -105,13 +92,7 @@ let suite =
                  ]))
         in
         test_case
-          ~req:
-            (Opium.Request.make
-               ~headers:json_content_type
-               ~body
-               default_uri
-               ~peer_addr:default_peer_addr
-               `POST)
+          ~req:(Opium.Request.make ~headers:json_content_type ~body default_uri `POST)
           ~rsp:(Opium.Response.of_json ~status:`OK default_response_body) )
   ; ( "operation name in query string"
     , `Quick
@@ -133,7 +114,6 @@ let suite =
             (Opium.Request.make
                ~headers:json_content_type
                ~body
-               ~peer_addr:default_peer_addr
                (Uri.to_string uri)
                `POST)
           ~rsp:(Opium.Response.of_json ~status:`OK default_response_body) )
@@ -149,13 +129,7 @@ let suite =
                  ]))
         in
         test_case
-          ~req:
-            (Opium.Request.make
-               ~headers:json_content_type
-               ~body
-               default_uri
-               ~peer_addr:default_peer_addr
-               `POST)
+          ~req:(Opium.Request.make ~headers:json_content_type ~body default_uri `POST)
           ~rsp:(Opium.Response.of_json ~status:`OK default_response_body) )
   ; ( "variables in query string"
     , `Quick
@@ -175,7 +149,6 @@ let suite =
             (Opium.Request.make
                ~headers:json_content_type
                ~body
-               ~peer_addr:default_peer_addr
                (Uri.to_string uri)
                `POST)
           ~rsp:(Opium.Response.of_json ~status:`OK default_response_body) )

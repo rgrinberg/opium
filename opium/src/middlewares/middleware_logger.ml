@@ -81,7 +81,7 @@ let m =
     Lwt.catch
       (fun () -> respond handler req)
       (fun exn ->
-        Logs.err ~src:log_src (fun f -> f "%s" (Exn.to_string exn));
+        Logs.err ~src:log_src (fun f -> f "%s" (Nifty.Exn.to_string exn));
         Lwt.fail exn)
   in
   Rock.Middleware.create ~name:"Logger" ~filter

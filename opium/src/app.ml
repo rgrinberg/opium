@@ -20,11 +20,10 @@ let make_connection_handler ~host ~port ?middlewares handler =
   let connection_handler addr fd =
     Httpaf_lwt_unix.Server.create_connection_handler
       ~request_handler:(fun addr ->
-        Rock.Server_connection.create_request_handler
-          (Unix.string_of_sockaddr addr)
+        Server_connection.create_request_handler
+          addr
           (Rock.App.create ?middlewares ~handler ()))
-      ~error_handler:(fun addr ->
-        Rock.Server_connection.default_error_handler (Unix.string_of_sockaddr addr))
+      ~error_handler:(fun addr -> Server_connection.default_error_handler addr)
       addr
       fd
   in

@@ -51,22 +51,3 @@ module String = struct
     len >= prefix_len && check_prefix s ~prefix prefix_len 0
   ;;
 end
-
-module Unix = struct
-  include Unix
-
-  let string_of_sockaddr addr =
-    match addr with
-    | Unix.ADDR_UNIX path -> path
-    | ADDR_INET (inet_addr, port) ->
-      Printf.sprintf "%s:%d" (Unix.string_of_inet_addr inet_addr) port
-  ;;
-end
-
-module Exn = struct
-  type t = exn
-
-  let sexp_of_t = Sexp_conv.sexp_of_exn
-  let pp fmt t = Sexp.pp fmt t
-  let to_string t = Printexc.to_string t
-end

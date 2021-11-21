@@ -2,7 +2,6 @@ open Opium
 
 let request = Alcotest.of_pp Request.pp_hum
 let response = Alcotest.of_pp Response.pp_hum
-let peer_addr = "1.2.3.4:56789"
 
 let with_service ?middlewares ?handler f =
   let handler =
@@ -25,7 +24,7 @@ let test_regular_request () =
   let open Lwt.Syntax in
   let+ res =
     with_service ~middlewares:[ Middleware.allow_cors () ] (fun service ->
-        let req = Request.make ~peer_addr "/" `GET in
+        let req = Request.make "/" `GET in
         service req)
   in
   check_response
@@ -45,7 +44,6 @@ let test_overwrite_origin () =
       (fun service ->
         let req =
           Request.make
-            ~peer_addr
             "/"
             `GET
             ~headers:(Headers.of_list [ "origin", "http://example.com" ])
@@ -66,7 +64,7 @@ let test_return_204_for_options () =
   let open Lwt.Syntax in
   let+ res =
     with_service ~middlewares:[ Middleware.allow_cors () ] (fun service ->
-        let req = Request.make "/" ~peer_addr `OPTIONS in
+        let req = Request.make "/" `OPTIONS in
         service req)
   in
   check_response
@@ -92,7 +90,6 @@ let test_allow_request_headers () =
       (fun service ->
         let req =
           Request.make
-            ~peer_addr
             "/"
             `OPTIONS
             ~headers:

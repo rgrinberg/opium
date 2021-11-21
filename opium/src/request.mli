@@ -22,8 +22,9 @@ type t = Rock.Request.t =
   ; meth : Method.t
   ; body : Body.t
   ; env : Context.t
-  ; peer_addr : string
   }
+
+val sockaddr : Unix.sockaddr Context.key
 
 (** {1 Constructors} *)
 
@@ -39,7 +40,6 @@ val make
   -> ?body:Body.t
   -> ?env:Context.t
   -> ?headers:Headers.t
-  -> peer_addr:string
   -> string
   -> Method.t
   -> t
@@ -56,7 +56,6 @@ val get
   -> ?body:Body.t
   -> ?env:Context.t
   -> ?headers:Headers.t
-  -> peer_addr:string
   -> string
   -> t
 
@@ -72,7 +71,6 @@ val post
   -> ?body:Body.t
   -> ?env:Context.t
   -> ?headers:Headers.t
-  -> peer_addr:string
   -> string
   -> t
 
@@ -88,7 +86,6 @@ val put
   -> ?body:Body.t
   -> ?env:Context.t
   -> ?headers:Headers.t
-  -> peer_addr:string
   -> string
   -> t
 
@@ -104,7 +101,6 @@ val delete
   -> ?body:Body.t
   -> ?env:Context.t
   -> ?headers:Headers.t
-  -> peer_addr:string
   -> string
   -> t
 
@@ -133,7 +129,6 @@ val of_plain_text
   :  ?version:Version.t
   -> ?headers:Headers.t
   -> ?env:Context.t
-  -> peer_addr:string
   -> body:string
   -> string
   -> Method.t
@@ -164,7 +159,6 @@ val of_json
   :  ?version:Version.t
   -> ?headers:Headers.t
   -> ?env:Context.t
-  -> peer_addr:string
   -> body:Yojson.Safe.t
   -> string
   -> Method.t
@@ -195,7 +189,6 @@ val of_urlencoded
   :  ?version:Version.t
   -> ?headers:Headers.t
   -> ?env:Context.t
-  -> peer_addr:string
   -> body:(string * string list) list
   -> string
   -> Method.t
@@ -634,9 +627,3 @@ val pp : Format.formatter -> t -> unit
 (** [pp_hum] formats the request [t] as a standard HTTP request *)
 val pp_hum : Format.formatter -> t -> unit
   [@@ocaml.toplevel_printer]
-
-(** {3 [peer_addr]} *)
-
-(** [peer_addr] returns a string representation of the client socket that sent the
-    request. *)
-val peer_addr : t -> string
