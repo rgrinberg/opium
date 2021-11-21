@@ -50,9 +50,11 @@ let run () =
   let connection_handler addr fd =
     Httpaf_lwt_unix.Server.create_connection_handler
       ~request_handler:(fun addr ->
-        Rock.Server_connection.create_request_handler (sockaddr_to_string addr) app)
+        Rock.Server_connection.to_httpaf_request_handler (sockaddr_to_string addr) app)
       ~error_handler:(fun addr ->
-        Rock.Server_connection.default_error_handler (sockaddr_to_string addr))
+        Rock.Server_connection.(
+          to_httpaf_error_handler Server_connection.default_error_handler)
+          (sockaddr_to_string addr))
       addr
       fd
   in

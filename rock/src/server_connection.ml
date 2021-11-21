@@ -4,9 +4,15 @@ exception Halt of Response.t
 
 let halt response = raise (Halt response)
 
-let default_error_handler _sockaddr ?request:_ error start_response =
-  let open Httpaf in
+type error_handler =
+  string
+  -> Httpaf.Headers.t
+  -> Httpaf.Server_connection.error
+  -> (Httpaf.Headers.t * Body.t) Lwt.t
+
+let default_error_handler _sockaddr headers error =
   let message =
+    let open Httpaf in
     match error with
     | `Exn _e ->
       (* TODO: log error *)
@@ -15,19 +21,11 @@ let default_error_handler _sockaddr ?request:_ error start_response =
       Status.default_reason_phrase error
   in
   let len = Int.to_string (String.length message) in
-  let headers = Headers.of_list [ "Content-Length", len ] in
-  let body = start_response headers in
-  Body.write_string body message;
-  Body.close_writer body
+  let headers = Httpaf.Headers.replace headers "Content-Length" len in
+  Lwt.return (headers, Body.of_string message)
 ;;
 
-type error_handler =
-  string
-  -> Httpaf.Headers.t
-  -> Httpaf.Server_connection.error
-  -> (Httpaf.Headers.t * Body.t) Lwt.t
-
-let create_error_handler handler =
+let to_httpaf_error_handler handler =
   let error_handler sockaddr ?request error start_response =
     let req_headers =
       match request with
@@ -73,7 +71,7 @@ let httpaf_request_to_request ?body req =
   Request.make ~headers ?body req.target req.meth
 ;;
 
-let create_request_handler peer_addr app =
+let to_httpaf_request_handler peer_addr app =
   let { App.middlewares; handler } = app in
   let filters = ListLabels.map ~f:(fun m -> m.Middleware.filter) middlewares in
   let service = Filter.apply_all filters handler in

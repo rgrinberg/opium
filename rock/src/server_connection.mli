@@ -6,14 +6,17 @@ type error_handler =
   -> Httpaf.Server_connection.error
   -> (Httpaf.Headers.t * Body.t) Lwt.t
 
-val default_error_handler : string -> Httpaf.Server_connection.error_handler
-
-val create_error_handler
+val to_httpaf_error_handler
   :  error_handler
   -> string
   -> Httpaf.Server_connection.error_handler
 
-val create_request_handler : string -> App.t -> Httpaf.Server_connection.request_handler
+val default_error_handler : error_handler
+
+val to_httpaf_request_handler
+  :  string
+  -> App.t
+  -> Httpaf.Server_connection.request_handler
 
 (** The Halt exception can be raised to interrupt the normal processing flow of a request.
 
