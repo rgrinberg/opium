@@ -11,3 +11,4 @@ module Service = Service
 module Filter = Filter
 module Handler = Handler
 module Middleware = Middleware
+module Server_connection = Server_connection
