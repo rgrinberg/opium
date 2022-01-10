@@ -13,3 +13,6 @@ _build/
 
 # Local OPAM switch
 _opam/
+
+# Nix-build geenrated artifact
+result

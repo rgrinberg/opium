@@ -96,3 +96,8 @@ release: ## Release the latest version
 	opam exec -- dune-release publish distrib --verbose -n opium
 	opam exec -- dune-release opam pkg -n opium
 	opam exec -- dune-release opam submit -n opium
+	
+.PHONY: opam-selection
+opam-selection: nix/opam-selection.nix
+nix/opam-selection.nix: default.nix
+	nix-shell -A resolve $<
