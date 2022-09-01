@@ -200,5 +200,5 @@ For example:
 
 ```
 # run in debug mode on port 9000
-$ dune exec dune build example/simple_middleware/main.exe -- -p 9000 -d
+$ dune exec example/simple_middleware/main.exe -- -p 9000 -d
 ```
