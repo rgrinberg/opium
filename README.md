@@ -195,10 +195,10 @@ $ dune build example/simple_middleware/main.ml
 ```
 
 Here we also use the ability of Opium to generate a cmdliner term to run your
-app. Run your executable with `-h` to see the options that are available to you.
+app. Run your executable with `--help` to see the options that are available to you.
 For example:
 
 ```
 # run in debug mode on port 9000
-$ dune exec dune build example/simple_middleware/main.exe -- -p 9000 -d
+$ dune exec example/simple_middleware/main.exe -- -p 9000 -d
 ```
