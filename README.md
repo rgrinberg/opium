@@ -47,7 +47,7 @@ The following **tutorials** walk through various usecases of Opium:
   covers a simple webapp generating dynamic HTML on the backend and
   interfacing with PostgreSQL.
 
-For **examples** of idiomatic usage, see the [./examples directory](./examples)
+For **examples** of idiomatic usage, see the [./example directory](./example)
 and the simple examples below.
 
 [hosted-docs]: https://rgrinberg.github.io/opium/
