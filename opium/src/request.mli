@@ -267,6 +267,35 @@ val to_json_exn : t -> Yojson.Safe.t Lwt.t
     {[ [ "username", [ "admin" ]; "password", [ "password" ] ] ]} *)
 val to_urlencoded : t -> (string * string list) list Lwt.t
 
+(** [to_urlencoded_json t] parses the body of the request [t] from a urlencoded format to a json object.
+
+    This function exist to offer a simple way to get all of the key-values pairs, but most
+    of the time, you'll probably only want the value of a key given. If you don't need the
+    entire list of values, it is recommended to use {!urlencoded} instead.
+
+    If the body of the request cannot be parsed as a urlencoded string, [None] is 
+    returned.
+
+    {3 Example}
+
+    {[
+      let request =
+        Request.of_urlencoded
+          ~body:[ "username", [ "admin" ]
+                ; "password", [ "password" ]
+                ; "user_ids", [ "1"; "2"; "3" ] ]
+          "/"
+          `POST
+      ;;
+
+      let values = Request.to_urlencoded_json request
+    ]}
+
+    [values] will be:
+
+    {[ { "username": "admin", "password": "password", "user_ids": [ "1", "2", "3"] } ]} *)
+val to_urlencoded_json : t -> Yojson.Safe.t option Lwt.t
+
 (** {3 [to_multipart_form_data]} *)
 
 (** [to_multipart_form_data ?callback t] parses the body of the request [t] from a
