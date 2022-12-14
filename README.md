@@ -125,19 +125,14 @@ let _ =
 
 compile and run with:
 
-```sh
+```sh-session
 $ dune exec examples/hello_world.exe &
 ```
 
-then call
+then make a request to be greeted with a JSON response
 
-```sh
-curl http://localhost:3000/person/john_doe/42
-```
-
-You should see the greeting
-
-```json
+```sh-session
+$ curl http://localhost:3000/person/john_doe/42
 {"name":"john_doe","age":42}
 ```
 
@@ -198,7 +193,7 @@ Here we also use the ability of Opium to generate a cmdliner term to run your
 app. Run your executable with `--help` to see the options that are available to you.
 For example:
 
-```
+```sh-session
 # run in debug mode on port 9000
 $ dune exec example/simple_middleware/main.exe -- -p 9000 -d
 ```
