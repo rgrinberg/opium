@@ -396,6 +396,12 @@ let to_set_cookie_header t =
     | Some domain -> Printf.sprintf "%s; Domain=%s" v domain
   in
   let v =
+    match t.same_site with
+    | `None -> Printf.sprintf "%s; SameSite=None" v
+    | `Strict -> Printf.sprintf "%s; SameSite=Strict" v
+    | `Lax -> Printf.sprintf "%s; SameSite=Lax" v
+  in
+  let v =
     match t.expires with
     | `Date ptime ->
       Printf.sprintf "%s; Expires=%s" v (Ptime.to_date_time ptime |> Date.serialize)
