@@ -1,3 +1,7 @@
+module Private = struct
+  module Router = Router
+end
+
 module Context = Context
 module Headers = Headers
 module Cookie = Cookie
@@ -8,8 +12,8 @@ module Body = Body
 module Request = Request
 module Response = Response
 module App = App
-module Route = Route
 module Auth = Auth
+module Route = Router.Route
 module Router = Middleware_router
 
 module Handler = struct
