@@ -32,76 +32,76 @@ let index_view ?(success = false) () =
   layout
     ~title:"Opium file upload"
     [ (if success
-      then
-        div
-          ~a:[ a_class [ "mx-auto mt-16 max-w-lg rounded-md bg-green-50 p-4" ] ]
-          [ div
-              ~a:[ a_class [ "flex" ] ]
-              [ div
-                  ~a:[ a_class [ "flex-shrink-0" ] ]
-                  [ svg
-                      ~a:
-                        [ Tyxml.Svg.a_class [ "h-5 w-5 text-green-400" ]
-                        ; Tyxml.Svg.a_viewBox (0., 0., 20., 20.)
-                        ; Tyxml.Svg.a_fill `CurrentColor
-                        ]
-                      [ Tyxml.Svg.path
-                          ~a:
-                            [ a_svg_custom "fill-rule" "evenodd"
-                            ; Tyxml.Svg.a_d
-                                "M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 \
-                                 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 \
-                                 1.414l2 2a1 1 0 001.414 0l4-4z"
-                            ; a_svg_custom "clip-rule" "evenodd"
-                            ]
-                          []
-                      ]
-                  ]
-              ; div
-                  ~a:[ a_class [ "ml-3" ] ]
-                  [ p
-                      ~a:[ a_class [ "text-sm leading-5 font-medium text-green-800" ] ]
-                      [ txt "Successfully uploaded" ]
-                  ]
-              ; div
-                  ~a:[ a_class [ "ml-auto pl-3" ] ]
-                  [ div
-                      ~a:[ a_class [ "-mx-1.5 -my-1.5" ] ]
-                      [ button
-                          ~a:
-                            [ a_class
-                                [ "inline-flex rounded-md p-1.5 text-green-500 \
-                                   hover:bg-green-100 focus:outline-none \
-                                   focus:bg-green-100 transition ease-in-out \
-                                   duration-150"
-                                ]
-                            ; a_aria "label" [ "Dismiss" ]
-                            ]
-                          [ svg
-                              ~a:
-                                [ Tyxml.Svg.a_class [ "h-5 w-5" ]
-                                ; Tyxml.Svg.a_viewBox (0., 0., 20., 20.)
-                                ; Tyxml.Svg.a_fill `CurrentColor
-                                ]
-                              [ Tyxml.Svg.path
-                                  ~a:
-                                    [ a_svg_custom "fill-rule" "evenodd"
-                                    ; Tyxml.Svg.a_d
-                                        "M4.293 4.293a1 1 0 011.414 0L10 \
-                                         8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 \
-                                         10l4.293 4.293a1 1 0 01-1.414 1.414L10 \
-                                         11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 \
-                                         10 4.293 5.707a1 1 0 010-1.414z"
-                                    ; a_svg_custom "clip-rule" "evenodd"
-                                    ]
-                                  []
-                              ]
-                          ]
-                      ]
-                  ]
-              ]
-          ]
-      else div [])
+       then
+         div
+           ~a:[ a_class [ "mx-auto mt-16 max-w-lg rounded-md bg-green-50 p-4" ] ]
+           [ div
+               ~a:[ a_class [ "flex" ] ]
+               [ div
+                   ~a:[ a_class [ "flex-shrink-0" ] ]
+                   [ svg
+                       ~a:
+                         [ Tyxml.Svg.a_class [ "h-5 w-5 text-green-400" ]
+                         ; Tyxml.Svg.a_viewBox (0., 0., 20., 20.)
+                         ; Tyxml.Svg.a_fill `CurrentColor
+                         ]
+                       [ Tyxml.Svg.path
+                           ~a:
+                             [ a_svg_custom "fill-rule" "evenodd"
+                             ; Tyxml.Svg.a_d
+                                 "M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 \
+                                  00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 \
+                                  1.414l2 2a1 1 0 001.414 0l4-4z"
+                             ; a_svg_custom "clip-rule" "evenodd"
+                             ]
+                           []
+                       ]
+                   ]
+               ; div
+                   ~a:[ a_class [ "ml-3" ] ]
+                   [ p
+                       ~a:[ a_class [ "text-sm leading-5 font-medium text-green-800" ] ]
+                       [ txt "Successfully uploaded" ]
+                   ]
+               ; div
+                   ~a:[ a_class [ "ml-auto pl-3" ] ]
+                   [ div
+                       ~a:[ a_class [ "-mx-1.5 -my-1.5" ] ]
+                       [ button
+                           ~a:
+                             [ a_class
+                                 [ "inline-flex rounded-md p-1.5 text-green-500 \
+                                    hover:bg-green-100 focus:outline-none \
+                                    focus:bg-green-100 transition ease-in-out \
+                                    duration-150"
+                                 ]
+                             ; a_aria "label" [ "Dismiss" ]
+                             ]
+                           [ svg
+                               ~a:
+                                 [ Tyxml.Svg.a_class [ "h-5 w-5" ]
+                                 ; Tyxml.Svg.a_viewBox (0., 0., 20., 20.)
+                                 ; Tyxml.Svg.a_fill `CurrentColor
+                                 ]
+                               [ Tyxml.Svg.path
+                                   ~a:
+                                     [ a_svg_custom "fill-rule" "evenodd"
+                                     ; Tyxml.Svg.a_d
+                                         "M4.293 4.293a1 1 0 011.414 0L10 \
+                                          8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 \
+                                          10l4.293 4.293a1 1 0 01-1.414 1.414L10 \
+                                          11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 \
+                                          10 4.293 5.707a1 1 0 010-1.414z"
+                                     ; a_svg_custom "clip-rule" "evenodd"
+                                     ]
+                                   []
+                               ]
+                           ]
+                       ]
+                   ]
+               ]
+           ]
+       else div [])
     ; form
         ~a:[ a_enctype "multipart/form-data"; a_action "/upload"; a_method `Post ]
         [ div

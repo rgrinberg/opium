@@ -107,23 +107,24 @@ let execute_request schema ctx req =
   | Ok (query, variables, operation_name) ->
     let+ result = execute_query ctx schema variables operation_name query in
     (match result with
-    | Ok (`Response data) -> data |> basic_to_safe |> Opium.Response.of_json ~status:`OK
-    | Ok (`Stream stream) ->
-      Graphql_lwt.Schema.Io.Stream.close stream;
-      let body = "Subscriptions are only supported via websocket transport" in
-      Opium.Response.of_plain_text ~status:`Bad_request body
-    | Error err -> err |> basic_to_safe |> Opium.Response.of_json ~status:`Bad_request)
+     | Ok (`Response data) -> data |> basic_to_safe |> Opium.Response.of_json ~status:`OK
+     | Ok (`Stream stream) ->
+       Graphql_lwt.Schema.Io.Stream.close stream;
+       let body = "Subscriptions are only supported via websocket transport" in
+       Opium.Response.of_plain_text ~status:`Bad_request body
+     | Error err -> err |> basic_to_safe |> Opium.Response.of_json ~status:`Bad_request)
 ;;
 
 let make_handler
-    : type a.
-      make_context:(Rock.Request.t -> a) -> a Graphql_lwt.Schema.schema -> Rock.Handler.t
+  : type a.
+    make_context:(Rock.Request.t -> a) -> a Graphql_lwt.Schema.schema -> Rock.Handler.t
   =
- fun ~make_context schema req ->
+  fun ~make_context schema req ->
   match req.Opium.Request.meth with
   | `GET ->
-    if Httpaf.Headers.get req.Opium.Request.headers "Connection" = Some "Upgrade"
-       && Httpaf.Headers.get req.Opium.Request.headers "Upgrade" = Some "websocket"
+    if
+      Httpaf.Headers.get req.Opium.Request.headers "Connection" = Some "Upgrade"
+      && Httpaf.Headers.get req.Opium.Request.headers "Upgrade" = Some "websocket"
     then
       (* TODO: Add subscription support when there is a good solution for websockets with
          Httpaf *)
@@ -155,12 +156,12 @@ let make_graphiql_handler ~graphql_endpoint req =
       ~etag:graphiql_etag
       ~mime_type:"text/html; charset=utf-8"
       (fun () ->
-        match Asset.read "graphiql.html" with
-        | None -> Lwt.return_error `Internal_server_error
-        | Some body ->
-          let regexp = Str.regexp_string "%%GRAPHQL_API%%" in
-          let body = Str.global_replace regexp graphql_endpoint body in
-          Lwt.return_ok (Opium.Body.of_string body))
+         match Asset.read "graphiql.html" with
+         | None -> Lwt.return_error `Internal_server_error
+         | Some body ->
+           let regexp = Str.regexp_string "%%GRAPHQL_API%%" in
+           let body = Str.global_replace regexp graphql_endpoint body in
+           Lwt.return_ok (Opium.Body.of_string body))
   in
   if accept_html
   then h req

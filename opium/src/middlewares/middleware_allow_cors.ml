@@ -77,14 +77,14 @@ let options_cors_headers ~max_age ~headers ~methods request =
 ;;
 
 let m
-    ?(origins = default_origin)
-    ?(credentials = default_credentials)
-    ?(max_age = default_max_age)
-    ?(headers = default_headers)
-    ?(expose = default_expose)
-    ?(methods = default_methods)
-    ?(send_preflight_response = default_send_preflight_response)
-    ()
+      ?(origins = default_origin)
+      ?(credentials = default_credentials)
+      ?(max_age = default_max_age)
+      ?(headers = default_headers)
+      ?(expose = default_expose)
+      ?(methods = default_methods)
+      ?(send_preflight_response = default_send_preflight_response)
+      ()
   =
   let open Lwt.Syntax in
   let filter handler req =

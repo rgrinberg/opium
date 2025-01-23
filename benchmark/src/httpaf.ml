@@ -47,11 +47,11 @@ let benchmark =
 let error_handler ?request:_ error start_response =
   let response_body = start_response Headers.empty in
   (match error with
-  | `Exn exn ->
-    Body.write_string response_body (Printexc.to_string exn);
-    Body.write_string response_body "\n"
-  | #Status.standard as error ->
-    Body.write_string response_body (Status.default_reason_phrase error));
+   | `Exn exn ->
+     Body.write_string response_body (Printexc.to_string exn);
+     Body.write_string response_body "\n"
+   | #Status.standard as error ->
+     Body.write_string response_body (Status.default_reason_phrase error));
   Body.close_writer response_body
 ;;
 
@@ -61,11 +61,11 @@ let () =
   let request_handler _ = benchmark in
   let error_handler _ = error_handler in
   Lwt.async (fun () ->
-      Lwt_io.establish_server_with_client_socket
-        ~backlog:11_000
-        listen_address
-        (Server.create_connection_handler ~request_handler ~error_handler)
-      >>= fun _server -> Lwt.return_unit);
+    Lwt_io.establish_server_with_client_socket
+      ~backlog:11_000
+      listen_address
+      (Server.create_connection_handler ~request_handler ~error_handler)
+    >>= fun _server -> Lwt.return_unit);
   let forever, _ = Lwt.wait () in
   Lwt_main.run forever
 ;;

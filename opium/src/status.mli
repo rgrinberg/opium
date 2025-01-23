@@ -128,13 +128,16 @@ val is_informational : t -> bool
 (** [is_successful t] is true iff [t] belongs to the Successful class of status codes. *)
 val is_successful : t -> bool
 
-(** [is_redirection t] is true iff [t] belongs to the Redirection class of status codes. *)
+(** [is_redirection t] is true iff [t] belongs to the Redirection class of status codes.
+*)
 val is_redirection : t -> bool
 
-(** [is_client_error t] is true iff [t] belongs to the Client Error class of status codes. *)
+(** [is_client_error t] is true iff [t] belongs to the Client Error class of status codes.
+*)
 val is_client_error : t -> bool
 
-(** [is_server_error t] is true iff [t] belongs to the Server Error class of status codes. *)
+(** [is_server_error t] is true iff [t] belongs to the Server Error class of status codes.
+*)
 val is_server_error : t -> bool
 
 (** [is_error t] is true iff [t] belongs to the Client Error or Server Error class of
@@ -154,8 +157,8 @@ val sexp_of_t : t -> Sexplib0.Sexp.t
 
 (** [pp] formats the request [t] as an s-expression *)
 val pp : Format.formatter -> t -> unit
-  [@@ocaml.toplevel_printer]
+[@@ocaml.toplevel_printer]
 
 (** [pp_hum] formats the request [t] as a standard HTTP request *)
 val pp_hum : Format.formatter -> t -> unit
-  [@@ocaml.toplevel_printer]
+[@@ocaml.toplevel_printer]

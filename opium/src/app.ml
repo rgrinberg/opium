@@ -189,10 +189,10 @@ let any methods route action t =
   if List.length methods = 0
   then
     Logs.warn (fun f ->
-        f
-          "Warning: you're using [any] attempting to bind to '%s' but your list\n\
-          \        of http methods is empty route"
-          route);
+      f
+        "Warning: you're using [any] attempting to bind to '%s' but your list of http \
+         methods is empty route"
+        route);
   let route = Route.of_string route in
   methods
   |> List.fold_left ~init:t ~f:(fun app meth -> app |> register ~meth ~route ~action)
@@ -214,11 +214,11 @@ let start app =
   let middlewares = attach_middleware app in
   setup_logger app;
   Logs.info (fun f ->
-      f
-        "Starting Opium on %s:%d%s"
-        app.host
-        app.port
-        (if app.debug then " (debug mode)" else ""));
+    f
+      "Starting Opium on %s:%d%s"
+      app.host
+      app.port
+      (if app.debug then " (debug mode)" else ""));
   run_unix
     ?backlog:app.backlog
     ~middlewares
@@ -234,12 +234,12 @@ let start_multicore app =
   let middlewares = attach_middleware app in
   setup_logger app;
   Logs.info (fun f ->
-      f
-        "Starting Opium on %s:%d with %d cores%s"
-        app.host
-        app.port
-        app.jobs
-        (if app.debug then " (debug mode)" else ""));
+    f
+      "Starting Opium on %s:%d with %d cores%s"
+      app.host
+      app.port
+      app.jobs
+      (if app.debug then " (debug mode)" else ""));
   run_unix_multicore
     ~middlewares
     ~host:app.host
@@ -263,12 +263,12 @@ let print_routes_f routes =
   Printf.printf "%d Routes:\n" (Hashtbl.length routes_tbl);
   Hashtbl.iter
     (fun key data ->
-      Printf.printf
-        "> %s (%s)\n"
-        (Route.to_string key)
-        (data
-        |> List.map ~f:(fun m -> Httpaf.Method.to_string m |> String.uppercase_ascii)
-        |> String.concat ~sep:" "))
+       Printf.printf
+         "> %s (%s)\n"
+         (Route.to_string key)
+         (data
+          |> List.map ~f:(fun m -> Httpaf.Method.to_string m |> String.uppercase_ascii)
+          |> String.concat ~sep:" "))
     routes_tbl
 ;;
 

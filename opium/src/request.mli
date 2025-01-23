@@ -114,7 +114,9 @@ val delete
 
     The request initialized with:
 
-    {[ Request.of_plain_text ~body:"Hello World" "/target" `POST ]}
+    {[
+      Request.of_plain_text ~body:"Hello World" "/target" `POST
+    ]}
 
     Will be represented as:
 
@@ -122,7 +124,8 @@ val delete
 POST /target HTTP/HTTP/1.1
 Content-Type: text/plain
 
-Hello World </pre>%} *)
+Hello World </pre>%}
+*)
 val of_plain_text
   :  ?version:Version.t
   -> ?headers:Headers.t
@@ -144,7 +147,9 @@ val of_plain_text
 
     The request initialized with:
 
-    {[ Request.of_json ~body:(`Assoc [ "Hello", `String "World" ]) "/target" `POST ]}
+    {[
+      Request.of_json ~body:(`Assoc [ "Hello", `String "World" ]) "/target" `POST
+    ]}
 
     Will be represented as:
 
@@ -152,7 +157,8 @@ val of_plain_text
 POST /target HTTP/HTTP/1.1
 Content-Type: application/json
 
-{"Hello":"World"} </pre> %} *)
+{"Hello":"World"} </pre> %}
+*)
 val of_json
   :  ?version:Version.t
   -> ?headers:Headers.t
@@ -174,7 +180,9 @@ val of_json
 
     The request initialized with:
 
-    {[ Request.of_urlencoded ~body:[ "key", [ "value" ] ] "/target" `POST ]}
+    {[
+      Request.of_urlencoded ~body:[ "key", [ "value" ] ] "/target" `POST
+    ]}
 
     Will be represented as:
 
@@ -182,7 +190,8 @@ val of_json
 POST /target HTTP/HTTP/1.1
 Content-Type: application/x-www-form-urlencoded
 
-key=value </pre> %} *)
+key=value </pre> %}
+*)
 val of_urlencoded
   :  ?version:Version.t
   -> ?headers:Headers.t
@@ -207,7 +216,9 @@ val of_urlencoded
 
     [body] will be:
 
-    {[ "Hello world!" ]} *)
+    {[
+      "Hello world!"
+    ]} *)
 val to_plain_text : t -> string Lwt.t
 
 (** {3 [to_json]} *)
@@ -226,7 +237,9 @@ val to_plain_text : t -> string Lwt.t
 
     [body] will be:
 
-    {[ `Assoc [ "Hello", `String "World" ] ]} *)
+    {[
+      `Assoc [ "Hello", `String "World" ]
+    ]} *)
 val to_json : t -> Yojson.Safe.t option Lwt.t
 
 (** {3 [to_json_exn]} *)
@@ -264,7 +277,9 @@ val to_json_exn : t -> Yojson.Safe.t Lwt.t
 
     [values] will be:
 
-    {[ [ "username", [ "admin" ]; "password", [ "password" ] ] ]} *)
+    {[
+      [ "username", [ "admin" ]; "password", [ "password" ] ]
+    ]} *)
 val to_urlencoded : t -> (string * string list) list Lwt.t
 
 (** {3 [to_multipart_form_data]} *)
@@ -426,7 +441,8 @@ val set_content_type : string -> t -> t
 
 (** {3 [authorization]} *)
 
-(** [authorization t] returns the value of the header [Authorization] of the request [t]. *)
+(** [authorization t] returns the value of the header [Authorization] of the request [t].
+*)
 val authorization : t -> Auth.Credential.t option
 
 (** {3 [set_authorization]} *)
@@ -473,8 +489,7 @@ val add_cookie : ?sign_with:Cookie.Signer.t -> Cookie.value -> t -> t
 
 (** {3 [add_cookie_unless_exists]} *)
 
-(** [add_cookie_unless_exists ?sign_with ?expires ?scope ?same_site ?secure ?http_only
-    value t]
+(** [add_cookie_unless_exists ?sign_with ?expires ?scope ?same_site ?secure ?http_only value t]
     adds a cookie with value [value] to the request [t].
 
     If a cookie with the same key already exists, it will remain untouched.
@@ -517,7 +532,9 @@ val remove_cookie : string -> t -> t
 
     [username] will be:
 
-    {[ Some "admin" ]} *)
+    {[
+      Some "admin"
+    ]} *)
 val urlencoded : string -> t -> string option Lwt.t
 
 (** {3 [urlencoded_exn]} *)
@@ -530,7 +547,8 @@ val urlencoded : string -> t -> string option Lwt.t
     values associated to the key, you can use {!to_urlencoded}.
 
     If the key could not be found or if the request could not be parsed as urlencoded, an
-    [Invalid_argument] exception is raised. Use {!urlencoded} to return an option instead. *)
+    [Invalid_argument] exception is raised. Use {!urlencoded} to return an option instead.
+*)
 val urlencoded_exn : string -> t -> string Lwt.t
 
 (** {3 [urlencoded_list]} *)
@@ -539,7 +557,7 @@ val urlencoded_exn : string -> t -> string Lwt.t
     body of the request [t].
 
     If the key could not be found or if the request could not be parsed as urlencoded, an
-    empty list [\[\]] is returned instead. *)
+    empty list [[]] is returned instead. *)
 val urlencoded_list : string -> t -> string list Lwt.t
 
 (** {2 URI} *)
@@ -565,7 +583,9 @@ val urlencoded_list : string -> t -> string list Lwt.t
 
     [query] will be:
 
-    {[ Some "value" ]} *)
+    {[
+      Some "value"
+    ]} *)
 val query : string -> t -> string option
 
 (** {3 [query_exn]} *)
@@ -604,7 +624,9 @@ val query_exn : string -> t -> string
 
     [values] will be:
 
-    {[ [ "key", [ "value" ]; "key2", [ "value2" ] ] ]} *)
+    {[
+      [ "key", [ "value" ]; "key2", [ "value2" ] ]
+    ]} *)
 val query_list : t -> (string * string list) list
 
 (** {1 Utilities} *)
@@ -618,10 +640,10 @@ val sexp_of_t : t -> Sexplib0.Sexp.t
 
 (** [pp] formats the request [t] as an s-expression *)
 val pp : Format.formatter -> t -> unit
-  [@@ocaml.toplevel_printer]
+[@@ocaml.toplevel_printer]
 
 (** {3 [pp_hum]} *)
 
 (** [pp_hum] formats the request [t] as a standard HTTP request *)
 val pp_hum : Format.formatter -> t -> unit
-  [@@ocaml.toplevel_printer]
+[@@ocaml.toplevel_printer]

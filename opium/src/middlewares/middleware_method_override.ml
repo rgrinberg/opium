@@ -12,8 +12,8 @@ let m =
         match method_result with
         | Some m ->
           (match Method.of_string m with
-          | (`PUT | `DELETE | `Other "PATCH") as m -> m
-          | _ -> req.meth)
+           | (`PUT | `DELETE | `Other "PATCH") as m -> m
+           | _ -> req.meth)
         | None -> req.meth
       in
       handler { req with meth = method_ }

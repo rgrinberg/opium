@@ -1,14 +1,14 @@
 open Import
 
 module Method_map = Map.Make (struct
-  type t = Method.t
+    type t = Method.t
 
-  let compare a b =
-    let left = String.uppercase_ascii (Method.to_string a) in
-    let right = String.uppercase_ascii (Method.to_string b) in
-    String.compare left right
-  ;;
-end)
+    let compare a b =
+      let left = String.uppercase_ascii (Method.to_string a) in
+      let right = String.uppercase_ascii (Method.to_string b) in
+      String.compare left right
+    ;;
+  end)
 
 type 'a t = (Route.t * 'a) list Method_map.t
 
@@ -33,7 +33,7 @@ let add t ~route ~meth ~action =
 let matching_endpoint endpoints meth uri =
   let endpoints = get endpoints meth in
   List.find_map endpoints ~f:(fun ep ->
-      uri |> Route.match_url (fst ep) |> Option.map (fun p -> ep, p))
+    uri |> Route.match_url (fst ep) |> Option.map (fun p -> ep, p))
 ;;
 
 module Env = struct

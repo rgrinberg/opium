@@ -23,9 +23,11 @@ let check_response ?headers ?status res =
 let test_regular_request () =
   let open Lwt.Syntax in
   let+ res =
-    with_service ~middlewares:[ Middleware.allow_cors () ] (fun service ->
-        let req = Request.make "/" `GET in
-        service req)
+    with_service
+      ~middlewares:[ Middleware.allow_cors () ]
+      (fun service ->
+         let req = Request.make "/" `GET in
+         service req)
   in
   check_response
     ~headers:
@@ -42,13 +44,13 @@ let test_overwrite_origin () =
     with_service
       ~middlewares:[ Middleware.allow_cors ~origins:[ "http://example.com" ] () ]
       (fun service ->
-        let req =
-          Request.make
-            "/"
-            `GET
-            ~headers:(Headers.of_list [ "origin", "http://example.com" ])
-        in
-        service req)
+         let req =
+           Request.make
+             "/"
+             `GET
+             ~headers:(Headers.of_list [ "origin", "http://example.com" ])
+         in
+         service req)
   in
   check_response
     ~headers:
@@ -63,9 +65,11 @@ let test_overwrite_origin () =
 let test_return_204_for_options () =
   let open Lwt.Syntax in
   let+ res =
-    with_service ~middlewares:[ Middleware.allow_cors () ] (fun service ->
-        let req = Request.make "/" `OPTIONS in
-        service req)
+    with_service
+      ~middlewares:[ Middleware.allow_cors () ]
+      (fun service ->
+         let req = Request.make "/" `OPTIONS in
+         service req)
   in
   check_response
     ~status:`No_content
@@ -88,14 +92,14 @@ let test_allow_request_headers () =
     with_service
       ~middlewares:[ Middleware.allow_cors ~headers:[ "*" ] () ]
       (fun service ->
-        let req =
-          Request.make
-            "/"
-            `OPTIONS
-            ~headers:
-              (Headers.of_list [ "access-control-request-headers", "header-1,header-2" ])
-        in
-        service req)
+         let req =
+           Request.make
+             "/"
+             `OPTIONS
+             ~headers:
+               (Headers.of_list [ "access-control-request-headers", "header-1,header-2" ])
+         in
+         service req)
   in
   check_response
     ~status:`No_content

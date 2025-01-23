@@ -10,7 +10,7 @@ let run_quick n l =
   @@ Alcotest_lwt.run
        n
        (ListLabels.map l ~f:(fun (n, l) ->
-            n, ListLabels.map l ~f:(fun (n, el) -> test_case n el)))
+          n, ListLabels.map l ~f:(fun (n, el) -> test_case n el)))
 ;;
 
 let signer =

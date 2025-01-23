@@ -8,13 +8,13 @@ type t =
   }
 
 let make
-    ?(version = { Httpaf.Version.major = 1; minor = 1 })
-    ?(status = `OK)
-    ?reason
-    ?(headers = Httpaf.Headers.empty)
-    ?(body = Body.empty)
-    ?(env = Context.empty)
-    ()
+      ?(version = { Httpaf.Version.major = 1; minor = 1 })
+      ?(status = `OK)
+      ?reason
+      ?(headers = Httpaf.Headers.empty)
+      ?(body = Body.empty)
+      ?(env = Context.empty)
+      ()
   =
   { version; status; reason; headers; body; env }
 ;;

@@ -2,13 +2,13 @@ open Import
 include Rock.Request
 
 let of_string'
-    ?(content_type = "text/plain")
-    ?version
-    ?env
-    ?(headers = Headers.empty)
-    target
-    meth
-    body
+      ?(content_type = "text/plain")
+      ?version
+      ?env
+      ?(headers = Headers.empty)
+      target
+      meth
+      body
   =
   let headers = Headers.add_unless_exists headers "Content-Type" content_type in
   make ?version ~headers ~body:(Body.of_string body) ?env target meth
@@ -50,10 +50,9 @@ let to_json t =
   let open Lwt.Syntax in
   Lwt.catch
     (fun () ->
-      let+ json = to_json_exn t in
-      Some json)
-    (function
-      | _ -> Lwt.return None)
+       let+ json = to_json_exn t in
+       Some json)
+    (function _ -> Lwt.return None)
 ;;
 
 let to_plain_text t = Body.copy t.body |> Body.to_string
@@ -72,8 +71,8 @@ let add_header_or_replace (k, v) t =
   { t with
     headers =
       (if Headers.mem t.headers k
-      then Headers.replace t.headers k v
-      else Headers.add t.headers k v)
+       then Headers.replace t.headers k v
+       else Headers.add t.headers k v)
   }
 ;;
 
@@ -128,7 +127,7 @@ let remove_cookie key t =
   let cookie_header =
     cookies t
     |> List.filter_map ~f:(fun (k, v) ->
-           if not (String.equal k key) then Some (Cookie.make (k, v)) else None)
+      if not (String.equal k key) then Some (Cookie.make (k, v)) else None)
     |> Cookie.to_cookie_header
   in
   add_header_or_replace cookie_header t
@@ -148,8 +147,8 @@ let set_authorization cred t =
 ;;
 
 let to_multipart_form_data
-    ?(callback = fun ~name:_ ~filename:_ _line -> Lwt.return_unit)
-    t
+      ?(callback = fun ~name:_ ~filename:_ _line -> Lwt.return_unit)
+      t
   =
   match t.meth, content_type t with
   | `POST, Some content_type
@@ -175,8 +174,8 @@ let find_in_query key query =
   |> List.assoc_opt key
   |> fun opt ->
   Option.bind opt (function
-      | [] -> None
-      | x :: _ -> Some x)
+    | [] -> None
+    | x :: _ -> Some x)
 ;;
 
 let find_list_in_query key query =

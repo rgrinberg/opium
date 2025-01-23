@@ -89,8 +89,8 @@ let pp_hum fmt t =
     fmt
     "%s"
     (match t.content with
-    | `Empty -> ""
-    | `String s -> s
-    | `Bigstring b -> Bigstringaf.to_string b
-    | `Stream _ -> "<stream>")
+     | `Empty -> ""
+     | `String s -> s
+     | `Bigstring b -> Bigstringaf.to_string b
+     | `Stream _ -> "<stream>")
 ;;

@@ -12,12 +12,12 @@ let client_address =
 ;;
 
 let make
-    ?(version = { Httpaf.Version.major = 1; minor = 1 })
-    ?(body = Body.empty)
-    ?(env = Context.empty)
-    ?(headers = Httpaf.Headers.empty)
-    target
-    meth
+      ?(version = { Httpaf.Version.major = 1; minor = 1 })
+      ?(body = Body.empty)
+      ?(env = Context.empty)
+      ?(headers = Httpaf.Headers.empty)
+      target
+      meth
   =
   { version; target; headers; meth; body; env }
 ;;

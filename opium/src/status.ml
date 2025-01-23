@@ -6,23 +6,23 @@ let rec default_reason_phrase status =
   | #Httpaf.Status.standard as status -> Httpaf.Status.default_reason_phrase status
   | `Code n when n >= 400 && n <= 599 ->
     (match Httpaf.Status.of_code n with
-    | `Code 421 -> "Misdirected Request"
-    | `Code 422 -> "Unprocessable Entity"
-    | `Code 423 -> "Locked"
-    | `Code 424 -> "Failed Dependency"
-    | `Code 428 -> "Precondition Required"
-    | `Code 429 -> "Too Many Requests"
-    | `Code 431 -> "Request Header Fields Too Large"
-    | `Code 444 -> "Connection Closed Without Response"
-    | `Code 451 -> "Unavailable For Legal Reasons"
-    | `Code 499 -> "Client Closed Request"
-    | `Code 506 -> "Variant Also Negotiates"
-    | `Code 507 -> "Insufficient Storage"
-    | `Code 508 -> "Loop Detected"
-    | `Code 510 -> "Not Extended"
-    | `Code 511 -> "Network Authentication Required"
-    | `Code _ -> "Unknown Error"
-    | status -> default_reason_phrase status)
+     | `Code 421 -> "Misdirected Request"
+     | `Code 422 -> "Unprocessable Entity"
+     | `Code 423 -> "Locked"
+     | `Code 424 -> "Failed Dependency"
+     | `Code 428 -> "Precondition Required"
+     | `Code 429 -> "Too Many Requests"
+     | `Code 431 -> "Request Header Fields Too Large"
+     | `Code 444 -> "Connection Closed Without Response"
+     | `Code 451 -> "Unavailable For Legal Reasons"
+     | `Code 499 -> "Client Closed Request"
+     | `Code 506 -> "Variant Also Negotiates"
+     | `Code 507 -> "Insufficient Storage"
+     | `Code 508 -> "Loop Detected"
+     | `Code 510 -> "Not Extended"
+     | `Code 511 -> "Network Authentication Required"
+     | `Code _ -> "Unknown Error"
+     | status -> default_reason_phrase status)
   | _ -> ""
 ;;
 
@@ -148,8 +148,8 @@ let rec long_reason_phrase status =
   | `Code 511 -> "The client needs to authenticate to gain network access."
   | `Code n when n >= 400 && n <= 599 ->
     (match Httpaf.Status.of_code n with
-    | `Code _ -> "The response returned an non-standard HTTP error code."
-    | status -> long_reason_phrase status)
+     | `Code _ -> "The response returned an non-standard HTTP error code."
+     | status -> long_reason_phrase status)
   | _ -> ""
 ;;
 

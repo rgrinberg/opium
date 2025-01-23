@@ -59,10 +59,10 @@ let run () =
       fd
   in
   Lwt.async (fun () ->
-      let* _ =
-        Lwt_io.establish_server_with_client_socket listen_address connection_handler
-      in
-      Lwt.return_unit);
+    let* _ =
+      Lwt_io.establish_server_with_client_socket listen_address connection_handler
+    in
+    Lwt.return_unit);
   let forever, _ = Lwt.wait () in
   Lwt_main.run forever
 ;;
