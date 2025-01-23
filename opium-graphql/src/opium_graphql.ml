@@ -139,9 +139,8 @@ let make_handler
 let graphiql_etag =
   Asset.read "graphiql.html"
   |> Option.get
-  |> Cstruct.of_string
-  |> Mirage_crypto.Hash.digest `MD5
-  |> Cstruct.to_string
+  |> Digestif.MD5.digest_string
+  |> Digestif.MD5.to_raw_string
   |> Base64.encode_exn
 ;;
 

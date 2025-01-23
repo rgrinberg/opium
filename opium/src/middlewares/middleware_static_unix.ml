@@ -8,9 +8,8 @@ let default_etag ~local_path fname =
     let* stat = Lwt_unix.stat fpath in
     let hash =
       Marshal.to_string stat.st_mtime []
-      |> Cstruct.of_string
-      |> Mirage_crypto.Hash.digest `MD5
-      |> Cstruct.to_string
+      |> Digestif.MD5.digest_string
+      |> Digestif.MD5.to_raw_string
       |> Base64.encode_exn
     in
     Lwt.return_some hash

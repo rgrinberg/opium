@@ -65,18 +65,11 @@ module Signer = struct
     else constant_time_compare' a b 0
   ;;
 
-  let derive_key t =
-    Mirage_crypto.Hash.mac
-      `SHA1
-      ~key:(Cstruct.of_string t.secret)
-      (Cstruct.of_string t.salt)
-  ;;
+  let derive_key t = Digestif.SHA1.(hmac_string ~key:t.secret t.salt |> to_hex)
 
   let get_signature t value =
-    value
-    |> Cstruct.of_string
-    |> Mirage_crypto.Hash.mac `SHA1 ~key:(derive_key t)
-    |> Cstruct.to_string
+    Digestif.SHA1.hmac_string ~key:(derive_key t) value
+    |> Digestif.SHA1.to_raw_string
     |> Base64.encode_exn
   ;;
 

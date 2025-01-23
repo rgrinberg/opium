@@ -23,7 +23,7 @@ depends: [
   "magic-mime"
   "yojson"
   "tyxml"
-  "mirage-crypto"
+  "digestif"
   "base64" {>= "3.0.0"}
   "astring"
   "re"

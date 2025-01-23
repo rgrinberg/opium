@@ -18,9 +18,9 @@
 (package
  (name rock)
  (synopsis
-   "Minimalist framework to build extensible HTTP servers and clients")
+  "Minimalist framework to build extensible HTTP servers and clients")
  (description
-   "Rock is a Unix indpendent API to build extensible HTTP servers and clients. It provides building blocks such as middlewares and handlers (a.k.a controllers).")
+  "Rock is a Unix indpendent API to build extensible HTTP servers and clients. It provides building blocks such as middlewares and handlers (a.k.a controllers).")
  (depends
   (ocaml
    (>= 4.08))
@@ -37,7 +37,7 @@
  (name opium)
  (synopsis "OCaml web framework")
  (description
-   "Opium is a web framework for OCaml that provides everything you need to build safe, fast and extensible web applications.")
+  "Opium is a web framework for OCaml that provides everything you need to build safe, fast and extensible web applications.")
  (depends
   (ocaml
    (>= 4.08))
@@ -54,7 +54,7 @@
   magic-mime
   yojson
   tyxml
-  mirage-crypto
+  digestif
   (base64
    (>= 3.0.0))
   astring
@@ -71,7 +71,7 @@
  (name opium-testing)
  (synopsis "Testing library for Opium")
  (description
-   "A library that provides helpers to easily test your Opium applications.")
+  "A library that provides helpers to easily test your Opium applications.")
  (depends
   (ocaml
    (>= 4.08))
@@ -85,7 +85,7 @@
  (name opium-graphql)
  (synopsis "Run GraphQL servers with Opium")
  (description
-   "This package allows you to execute Opium requests against GraphQL schemas built with `graphql`.")
+  "This package allows you to execute Opium requests against GraphQL schemas built with `graphql`.")
  (depends
   (ocaml
    (>= 4.08))

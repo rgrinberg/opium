@@ -29,7 +29,10 @@ module Schema = struct
 
   let user : (context, user option) Graphql_lwt.Schema.typ =
     Schema.(
-      obj "user" ~doc:"A user in the system" ~fields:(fun _ ->
+      obj
+        "user"
+        ~doc:"A user in the system"
+        ~fields:
           [ field
               "id"
               ~doc:"Unique user identifier"
@@ -46,7 +49,7 @@ module Schema = struct
               ~typ:(non_null role)
               ~args:Arg.[]
               ~resolve:(fun _info p -> p.role)
-          ]))
+          ])
   ;;
 
   let schema =

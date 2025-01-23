@@ -340,8 +340,8 @@ module Cmds = struct
   let term =
     let open Cmdliner.Term in
     fun app ->
-      pure setup_app
-      $ pure app
+      const setup_app
+      $ const app
       $ port app.port
       $ jobs app.jobs
       $ host app.host
@@ -354,31 +354,30 @@ module Cmds = struct
 
   let info name =
     let doc = Printf.sprintf "%s (Opium App)" name in
-    let man = [] in
-    Term.info name ~doc ~man
+    Cmd.info name ~doc ~man:[]
   ;;
 end
 
 let run_command' app =
   let open Cmdliner in
-  let cmd = Cmds.term app in
-  match Term.eval (cmd, Cmds.info app.name) with
-  | `Ok a ->
+  let cmd = Cmd.v (Cmds.info app.name) (Cmds.term app) in
+  match Cmd.eval_value cmd with
+  | Ok (`Ok a) ->
     Lwt.async (fun () ->
-        let* _server = start a in
-        Lwt.return_unit);
+      let* _server = start a in
+      Lwt.return_unit);
     let forever, _ = Lwt.wait () in
     `Ok forever
-  | `Error _ -> `Error
-  | _ -> `Not_running
+  | Error _ -> `Error
+  | Ok (`Version | `Help) -> `Not_running
 ;;
 
 let run_command app =
   match app |> run_command' with
   | `Ok a ->
     Lwt.async (fun () ->
-        let* _server = a in
-        Lwt.return_unit);
+      let* _server = a in
+      Lwt.return_unit);
     let forever, _ = Lwt.wait () in
     Lwt_main.run forever
   | `Error -> exit 1
@@ -387,9 +386,9 @@ let run_command app =
 
 let run_multicore app =
   let open Cmdliner in
-  let cmd = Cmds.term app in
-  match Term.eval (cmd, Cmds.info app.name) with
-  | `Ok a -> start_multicore a
-  | `Error _ -> exit 1
-  | _ -> exit 0
+  let cmd = Cmd.v (Cmds.info app.name) (Cmds.term app) in
+  match Cmd.eval_value cmd with
+  | Ok (`Ok a) -> start_multicore a
+  | Error _ -> exit 1
+  | Ok (`Version | `Help) -> exit 0
 ;;
