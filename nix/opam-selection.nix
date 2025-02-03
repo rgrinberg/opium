@@ -638,7 +638,6 @@ in
         dune-configurator dune
         cppo;
         ocaml-syntax-shims = selection.ocaml-syntax-shims or null;
-        conf-libev = selection.conf-libev or null;
         base-unix = selection.base-unix or null;
         base-threads = selection.base-threads or null;
       };
