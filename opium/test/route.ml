@@ -142,12 +142,12 @@ let test_double_splat () =
   in
   matching_urls
   |> List.iter (fun (u, splat) ->
-         Alcotest.(
-           check
-             (option matches_t)
-             "matches"
-             (Some { Route.params = []; splat })
-             (Route.match_url r u)))
+    Alcotest.(
+      check
+        (option matches_t)
+        "matches"
+        (Some { Route.params = []; splat })
+        (Route.match_url r u)))
 ;;
 
 let test_double_splat_escape () =

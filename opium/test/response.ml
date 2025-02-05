@@ -7,7 +7,7 @@ let run_quick n l =
   Alcotest.run
     n
     (ListLabels.map l ~f:(fun (n, l) ->
-         n, ListLabels.map l ~f:(fun (n, el) -> Alcotest.test_case n `Quick el)))
+       n, ListLabels.map l ~f:(fun (n, el) -> Alcotest.test_case n `Quick el)))
 ;;
 
 let signer =

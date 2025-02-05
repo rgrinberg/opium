@@ -23,13 +23,14 @@
     appending each subsequent field value to the combined field value in order, separated
     by a comma.
     {i The order in which header fields with the same field name are received is therefore
-       significant to the interpretation of the combined field value}; a proxy MUST NOT
+    significant to the interpretation of the combined field value}; a proxy MUST NOT
     change the order of these field values when forwarding a message.
 
     {i Note.} Unless otherwise specified, all operations preserve header field order and
     all reference to equality on names is assumed to be case-insensitive.
 
-    See {{:https://tools.ietf.org/html/rfc7230#section-3.2} RFC7230§3.2} for more details. *)
+    See {{:https://tools.ietf.org/html/rfc7230#section-3.2} RFC7230§3.2} for more details.
+*)
 
 type t = Httpaf.Headers.t
 
@@ -49,7 +50,7 @@ val empty : t
     transmission order. The following equations should hold:
 
     - [to_list (of_list lst) = lst]
-    - [get (of_list \[("k", "v1"); ("k", "v2")\]) "k" = Some "v2"]. *)
+    - [get (of_list [("k", "v1"); ("k", "v2")]) "k" = Some "v2"]. *)
 val of_list : (name * value) list -> t
 
 (** [of_list assoc] is a collection of header fields defined by the association list
@@ -57,7 +58,7 @@ val of_list : (name * value) list -> t
     the intended trasmission order. The following equations should hold:
 
     - [to_list (of_rev_list lst) = List.rev lst]
-    - [get (of_rev_list \[("k", "v1"); ("k", "v2")\]) "k" = Some "v1"]. *)
+    - [get (of_rev_list [("k", "v1"); ("k", "v2")]) "k" = Some "v1"]. *)
 val of_rev_list : (name * value) list -> t
 
 (** [to_list t] is the association list of header fields contained in [t] in transmission
@@ -76,7 +77,8 @@ val to_rev_list : t -> (name * value) list
 val add : t -> name -> value -> t
 
 (** [add_unless_exists t name value] is a collection of header fields that is the same as
-    [t] if [t] already inclues [name], and otherwise is equivalent to [add t name value]. *)
+    [t] if [t] already inclues [name], and otherwise is equivalent to [add t name value].
+*)
 val add_unless_exists : t -> name -> value -> t
 
 (** [add_list t assoc] is a collection of header fields that is the same as [t] except
@@ -95,7 +97,7 @@ val add_list_unless_exists : t -> (name * value) list -> t
       add_list
         t
         (List.concat_map assoc ~f:(fun (name, values) ->
-             List.map values ~f:(fun value -> name, value)))
+           List.map values ~f:(fun value -> name, value)))
     ]}
 
     but is implemented more efficiently. For example,
@@ -152,8 +154,8 @@ val sexp_of_t : t -> Sexplib0.Sexp.t
 
 (** [pp] formats the request [t] as an s-expression *)
 val pp : Format.formatter -> t -> unit
-  [@@ocaml.toplevel_printer]
+[@@ocaml.toplevel_printer]
 
 (** [pp_hum] formats the request [t] as a standard HTTP request *)
 val pp_hum : Format.formatter -> t -> unit
-  [@@ocaml.toplevel_printer]
+[@@ocaml.toplevel_printer]

@@ -13,8 +13,8 @@ module List = struct
     | [] -> None
     | x :: l ->
       (match f x with
-      | Some _ as result -> result
-      | None -> find_map ~f l)
+       | Some _ as result -> result
+       | None -> find_map ~f l)
   ;;
 
   let replace_or_add ~f to_add l =

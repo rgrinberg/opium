@@ -36,7 +36,8 @@ val not_found : (Request.t -> (Headers.t * Body.t) Lwt.t) -> builder
 
 val with_error_handler : Rock.Server_connection.error_handler -> builder
 
-(** A route is a function that returns a buidler that hooks up a handler to a url mapping *)
+(** A route is a function that returns a buidler that hooks up a handler to a url mapping
+*)
 type route = string -> Rock.Handler.t -> builder
 
 (** Method specific routes *)

@@ -120,8 +120,7 @@ module Middleware : sig
 
   (** {3 [allow_cors]} *)
 
-  (** [allow_cors ?origins ?credentials ?max_age ?headers ?expose ?methods
-      ?send_preflight_response ()]
+  (** [allow_cors ?origins ?credentials ?max_age ?headers ?expose ?methods ?send_preflight_response ()]
       creates a middleware that adds Cross-Origin Resource Sharing (CORS) header to the
       responses. *)
   val allow_cors

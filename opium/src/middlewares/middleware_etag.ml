@@ -5,11 +5,8 @@ open Import
 
 let etag_of_body body =
   let encode s =
-    s
-    |> Cstruct.of_string
-    |> Mirage_crypto.Hash.digest `MD5
-    |> Cstruct.to_string
-    |> Base64.encode_exn
+    let open Digestif.MD5 in
+    s |> digest_string |> to_raw_string |> Base64.encode_exn
   in
   match body.Body.content with
   | `String s -> Some (encode s)

@@ -2,12 +2,12 @@ open Import
 include Rock.Response
 
 let redirect_to
-    ?(status : Status.redirection = `Found)
-    ?version
-    ?reason
-    ?(headers = Headers.empty)
-    ?env
-    location
+      ?(status : Status.redirection = `Found)
+      ?version
+      ?reason
+      ?(headers = Headers.empty)
+      ?env
+      location
   =
   let headers = Headers.add_unless_exists headers "Location" location in
   make ?version ~status:(status :> Status.t) ?reason ~headers ?env ()
@@ -21,8 +21,8 @@ let add_header_or_replace (k, v) t =
   { t with
     headers =
       (if Headers.mem t.headers k
-      then Headers.replace t.headers k v
-      else Headers.add t.headers k v)
+       then Headers.replace t.headers k v
+       else Headers.add t.headers k v)
   }
 ;;
 
@@ -45,15 +45,15 @@ let remove_header key t = { t with headers = Headers.remove t.headers key }
 let cookie ?signed_with key t =
   headers "Set-Cookie" t
   |> List.find_map ~f:(fun v ->
-         match Cookie.of_set_cookie_header ?signed_with ("Set-Cookie", v) with
-         | Some (Cookie.{ value = k, _; _ } as c) when String.equal k key -> Some c
-         | _ -> None)
+    match Cookie.of_set_cookie_header ?signed_with ("Set-Cookie", v) with
+    | Some (Cookie.{ value = k, _; _ } as c) when String.equal k key -> Some c
+    | _ -> None)
 ;;
 
 let cookies ?signed_with t =
   headers "Set-Cookie" t
   |> List.filter_map ~f:(fun v ->
-         Cookie.of_set_cookie_header ?signed_with ("Set-Cookie", v))
+    Cookie.of_set_cookie_header ?signed_with ("Set-Cookie", v))
 ;;
 
 let add_cookie ?sign_with ?expires ?scope ?same_site ?secure ?http_only value t =
@@ -85,14 +85,14 @@ let add_cookie_or_replace ?sign_with ?expires ?scope ?same_site ?secure ?http_on
 ;;
 
 let add_cookie_unless_exists
-    ?sign_with
-    ?expires
-    ?scope
-    ?same_site
-    ?secure
-    ?http_only
-    (k, v)
-    t
+      ?sign_with
+      ?expires
+      ?scope
+      ?same_site
+      ?secure
+      ?http_only
+      (k, v)
+      t
   =
   let cookies = cookies t in
   if List.exists cookies ~f:(fun Cookie.{ value = cookie, _; _ } -> String.equal cookie k)
@@ -103,13 +103,13 @@ let add_cookie_unless_exists
 let remove_cookie key t = add_cookie_or_replace ~expires:(`Max_age 0L) (key, "") t
 
 let of_string'
-    ?(content_type = "text/plain")
-    ?version
-    ?status
-    ?reason
-    ?env
-    ?(headers = Headers.empty)
-    body
+      ?(content_type = "text/plain")
+      ?version
+      ?status
+      ?reason
+      ?env
+      ?(headers = Headers.empty)
+      body
   =
   let headers = Headers.add_unless_exists headers "Content-Type" content_type in
   make ?version ?status ?reason ~headers ~body:(Body.of_string body) ?env ()
@@ -203,10 +203,9 @@ let to_json t =
   let open Lwt.Syntax in
   Lwt.catch
     (fun () ->
-      let+ json = to_json_exn t in
-      Some json)
-    (function
-      | _ -> Lwt.return None)
+       let+ json = to_json_exn t in
+       Some json)
+    (function _ -> Lwt.return None)
 ;;
 
 let to_plain_text t = Body.copy t.body |> Body.to_string

@@ -11,10 +11,12 @@
 
 - Fix Fullsplat behavior (routes with `**`)
 - Undo splat reverse order. Now, the matches for `/*/*/*` with the url `/a/b/c` will return `["a"; "b"; "c"]`
+- deprecated `Term` commands
 
 ## Changed
 
 - Update various opium-testing apis to avoid raising warning 16
+- replacing `mirage-crypto` with `digestif`, because `mirage-crypto` doesn't provide `md5` and `sha1` anymore
 
 # 0.20.0
 

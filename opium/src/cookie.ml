@@ -37,8 +37,8 @@ module List = struct
     | [] -> None
     | x :: l ->
       (match f x with
-      | Some _ as result -> result
-      | None -> find_map f l)
+       | Some _ as result -> result
+       | None -> find_map f l)
   ;;
 end
 
@@ -65,18 +65,11 @@ module Signer = struct
     else constant_time_compare' a b 0
   ;;
 
-  let derive_key t =
-    Mirage_crypto.Hash.mac
-      `SHA1
-      ~key:(Cstruct.of_string t.secret)
-      (Cstruct.of_string t.salt)
-  ;;
+  let derive_key t = Digestif.SHA1.(hmac_string ~key:t.secret t.salt |> to_hex)
 
   let get_signature t value =
-    value
-    |> Cstruct.of_string
-    |> Mirage_crypto.Hash.mac `SHA1 ~key:(derive_key t)
-    |> Cstruct.to_string
+    Digestif.SHA1.hmac_string ~key:(derive_key t) value
+    |> Digestif.SHA1.to_raw_string
     |> Base64.encode_exn
   ;;
 
@@ -209,10 +202,10 @@ end
 
 module Cookie_map = struct
   include Map.Make (struct
-    type t = int * string
+      type t = int * string
 
-    let compare (c1, s1) (c2, s2) = if String.equal s1 s2 then 0 else Int.compare c1 c2
-  end)
+      let compare (c1, s1) (c2, s2) = if String.equal s1 s2 then 0 else Int.compare c1 c2
+    end)
 
   let filter_value (fn : 'a -> bool) (map : 'a t) = filter (fun _key v -> fn v) map
 end
@@ -229,8 +222,8 @@ module Attributes = struct
   let keep_numbers s =
     Astring.String.filter
       (fun c ->
-        let code = Char.code c in
-        if code = 45 || (code >= 48 && code <= 57) then true else false)
+         let code = Char.code c in
+         if code = 45 || (code >= 48 && code <= 57) then true else false)
       s
   ;;
 
@@ -262,9 +255,10 @@ module Attributes = struct
         |> Astring.String.drop ~max:1 ~sat:(( = ) '.')
         |> String.lowercase_ascii
       in
-      if domain = ""
-         || Astring.String.is_suffix domain ~affix:"."
-         || Astring.String.is_prefix domain ~affix:"."
+      if
+        domain = ""
+        || Astring.String.is_suffix domain ~affix:"."
+        || Astring.String.is_prefix domain ~affix:"."
       then amap
       else String_map.update "domain" (force_set domain) amap
     | key :: value when String.lowercase_ascii key |> String.trim = "expires" ->
@@ -319,13 +313,13 @@ type t =
   }
 
 let make
-    ?(expires = `Session)
-    ?(scope = Uri.empty)
-    ?(same_site = `Lax)
-    ?(secure = false)
-    ?(http_only = false)
-    ?sign_with
-    (key, value)
+      ?(expires = `Session)
+      ?(scope = Uri.empty)
+      ?(same_site = `Lax)
+      ?(secure = false)
+      ?(http_only = false)
+      ?sign_with
+      (key, value)
   =
   let value =
     match sign_with with
@@ -339,8 +333,8 @@ let maybe_unsign_with ?signer ?expires ?scope ?secure ?http_only (k, v) =
   match signer with
   | Some signer ->
     (match String.trim v |> Signer.unsign signer with
-    | Some v -> Some (make ?expires ?scope ?secure ?http_only (String.trim k, v))
-    | None -> None)
+     | Some v -> Some (make ?expires ?scope ?secure ?http_only (String.trim k, v))
+     | None -> None)
   | None -> Some (make ?expires ?scope ?secure ?http_only (String.trim k, String.trim v))
 ;;
 
@@ -348,39 +342,37 @@ let of_set_cookie_header ?signed_with ?origin:_ ((_, value) : header) =
   match Astring.String.cut ~sep:";" value with
   | None ->
     Option.bind (Astring.String.cut value ~sep:"=") (fun (k, v) ->
-        if String.trim k = "" then None else maybe_unsign_with ?signer:signed_with (k, v))
+      if String.trim k = "" then None else maybe_unsign_with ?signer:signed_with (k, v))
   | Some (cookie, attrs) ->
     Option.bind (Astring.String.cut cookie ~sep:"=") (fun (k, v) ->
-        if k = ""
-        then None
-        else (
-          let attrs =
-            String.split_on_char ';' attrs
-            |> List.map String.trim
-            |> Attributes.list_to_map
-          in
-          let expires =
-            (match
-               Attributes.String_map.find_opt "expires" attrs
-               |> Option.map (fun v -> "expires", v)
-             with
-            | Some _ as opt -> opt
-            | _ ->
-              Attributes.String_map.find_opt "max-age" attrs
-              |> Option.map (fun v -> "max-age", v))
-            |> fun o -> Option.bind o (fun a -> expires_of_tuple a)
-          in
-          let secure = Attributes.String_map.key_exists ~key:"secure" attrs in
-          let http_only = Attributes.String_map.key_exists ~key:"http_only" attrs in
-          let domain : string option = Attributes.String_map.find_opt "domain" attrs in
-          let path = Attributes.String_map.find_opt "path" attrs in
-          let scope =
-            Uri.empty
-            |> fun uri ->
-            Uri.with_host uri domain
-            |> fun uri -> Option.map (Uri.with_path uri) path |> Option.value ~default:uri
-          in
-          maybe_unsign_with ?signer:signed_with ?expires ~scope ~secure ~http_only (k, v)))
+      if k = ""
+      then None
+      else (
+        let attrs =
+          String.split_on_char ';' attrs |> List.map String.trim |> Attributes.list_to_map
+        in
+        let expires =
+          (match
+             Attributes.String_map.find_opt "expires" attrs
+             |> Option.map (fun v -> "expires", v)
+           with
+           | Some _ as opt -> opt
+           | _ ->
+             Attributes.String_map.find_opt "max-age" attrs
+             |> Option.map (fun v -> "max-age", v))
+          |> fun o -> Option.bind o (fun a -> expires_of_tuple a)
+        in
+        let secure = Attributes.String_map.key_exists ~key:"secure" attrs in
+        let http_only = Attributes.String_map.key_exists ~key:"http_only" attrs in
+        let domain : string option = Attributes.String_map.find_opt "domain" attrs in
+        let path = Attributes.String_map.find_opt "path" attrs in
+        let scope =
+          Uri.empty
+          |> fun uri ->
+          Uri.with_host uri domain
+          |> fun uri -> Option.map (Uri.with_path uri) path |> Option.value ~default:uri
+        in
+        maybe_unsign_with ?signer:signed_with ?expires ~scope ~secure ~http_only (k, v)))
 ;;
 
 let to_set_cookie_header t =
@@ -418,8 +410,8 @@ let is_expired ?now t =
   | None -> false
   | Some than ->
     (match t.expires with
-    | `Date e -> Ptime.is_earlier ~than e
-    | _ -> false)
+     | `Date e -> Ptime.is_earlier ~than e
+     | _ -> false)
 ;;
 
 let is_not_expired ?now t = not (is_expired ?now t)
@@ -435,8 +427,9 @@ let is_not_too_old ?(elapsed = 0L) t = not (is_too_old ~elapsed t)
 let has_matching_domain ~scope t =
   match Uri.host scope, Uri.host t.scope with
   | Some domain, Some cookie_domain ->
-    if String.contains cookie_domain '.'
-       && (Astring.String.is_suffix domain ~affix:cookie_domain || domain = cookie_domain)
+    if
+      String.contains cookie_domain '.'
+      && (Astring.String.is_suffix domain ~affix:cookie_domain || domain = cookie_domain)
     then true
     else false
   | _ -> true
@@ -466,15 +459,15 @@ let to_cookie_header ?now ?(elapsed = 0L) ?(scope = Uri.of_string "/") tl =
     let cookie_map : string Cookie_map.t =
       tl
       |> List.filter (fun c ->
-             is_not_expired ?now c
-             && has_matching_domain ~scope c
-             && has_matching_path ~scope c
-             && is_secure ~scope c)
+        is_not_expired ?now c
+        && has_matching_domain ~scope c
+        && has_matching_path ~scope c
+        && is_secure ~scope c)
       |> List.fold_left
            (fun m c ->
-             idx := !idx + 1;
-             let key, _value = c.value in
-             Cookie_map.update (!idx, key) (fun _ -> Some c) m)
+              idx := !idx + 1;
+              let key, _value = c.value in
+              Cookie_map.update (!idx, key) (fun _ -> Some c) m)
            Cookie_map.empty
       |> Cookie_map.filter_value (is_not_too_old ~elapsed)
       |> Cookie_map.map (fun c -> snd c.value)
@@ -495,14 +488,14 @@ let cookie_of_header ?signed_with cookie_key (key, value) =
     String.split_on_char ';' value
     |> List.map (Astring.String.cut ~sep:"=")
     |> List.find_map (function
-           | Some (k, value) when String.trim k = cookie_key ->
-             let value =
-               match signed_with with
-               | Some signer -> String.trim value |> Signer.unsign signer
-               | None -> Some (String.trim value)
-             in
-             Option.map (fun el -> String.trim k, el) value
-           | _ -> None)
+      | Some (k, value) when String.trim k = cookie_key ->
+        let value =
+          match signed_with with
+          | Some signer -> String.trim value |> Signer.unsign signer
+          | None -> Some (String.trim value)
+        in
+        Option.map (fun el -> String.trim k, el) value
+      | _ -> None)
   | _ -> None
 ;;
 
@@ -511,8 +504,8 @@ let cookie_of_headers ?signed_with cookie_key headers =
     | [] -> None
     | header :: rest ->
       (match cookie_of_header ?signed_with cookie_key header with
-      | Some cookie -> Some cookie
-      | None -> aux rest)
+       | Some cookie -> Some cookie
+       | None -> aux rest)
   in
   aux headers
 ;;
@@ -523,21 +516,21 @@ let cookies_of_header ?signed_with (key, value) =
     String.split_on_char ';' value
     |> List.map (Astring.String.cut ~sep:"=")
     |> List.filter_map (function
-           | Some (key, value) ->
-             let value =
-               match signed_with with
-               | Some signer -> String.trim value |> Signer.unsign signer
-               | None -> Some (String.trim value)
-             in
-             Option.map (fun el -> String.trim key, el) value
-           | None -> None)
+      | Some (key, value) ->
+        let value =
+          match signed_with with
+          | Some signer -> String.trim value |> Signer.unsign signer
+          | None -> Some (String.trim value)
+        in
+        Option.map (fun el -> String.trim key, el) value
+      | None -> None)
   | _ -> []
 ;;
 
 let cookies_of_headers ?signed_with headers =
   ListLabels.fold_left headers ~init:[] ~f:(fun acc header ->
-      let cookies = cookies_of_header ?signed_with header in
-      acc @ cookies)
+    let cookies = cookies_of_header ?signed_with header in
+    acc @ cookies)
 ;;
 
 let sexp_of_t t =
@@ -547,18 +540,18 @@ let sexp_of_t t =
     [ List
         [ Atom "expires"
         ; (match t.expires with
-          | `Session -> List [ Atom "session" ]
-          | `Max_age a -> List [ Atom "max_age"; Atom (Int64.to_string a) ]
-          | `Date d -> List [ Atom "date"; Atom (Format.asprintf "%a" Ptime.pp d) ])
+           | `Session -> List [ Atom "session" ]
+           | `Max_age a -> List [ Atom "max_age"; Atom (Int64.to_string a) ]
+           | `Date d -> List [ Atom "date"; Atom (Format.asprintf "%a" Ptime.pp d) ])
         ]
     ; List [ Atom "scope"; sexp_of_string (Format.asprintf "%a" Uri.pp t.scope) ]
     ; List
         [ Atom "same_site"
         ; sexp_of_string
             (match t.same_site with
-            | `None -> "none"
-            | `Strict -> "strict"
-            | `Lax -> "lax")
+             | `None -> "none"
+             | `Strict -> "strict"
+             | `Lax -> "lax")
         ]
     ; List [ Atom "secure"; sexp_of_bool t.secure ]
     ; List [ Atom "http_only"; sexp_of_bool t.http_only ]

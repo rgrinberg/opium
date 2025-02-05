@@ -42,7 +42,9 @@ val make
 
     The response initialized with:
 
-    {[ Response.of_plain_text "Hello World" ]}
+    {[
+      Response.of_plain_text "Hello World"
+    ]}
 
     Will be represented as:
 
@@ -72,7 +74,9 @@ val of_plain_text
 
     The response initialized with:
 
-    {[ Response.of_json (`Assoc [ "Hello", `String "World" ]) ]}
+    {[
+      Response.of_json (`Assoc [ "Hello", `String "World" ])
+    ]}
 
     Will be represented as:
 
@@ -80,7 +84,8 @@ val of_plain_text
 HTTP/1.1 200 
 Content-Type: application/json
 
-{"Hello":"World"} </pre> %} *)
+{"Hello":"World"} </pre> %}
+*)
 val of_json
   :  ?version:Version.t
   -> ?status:Status.t
@@ -125,7 +130,8 @@ Content-Type: text/html; charset=utf-8
 &lt;!DOCTYPE html&gt;
 &lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;&lt;head&gt;&lt;title&gt;Title&lt;/title&gt;&lt;/head&gt;
  &lt;body&gt;&lt;h1&gt;Hello World!&lt;/h1&gt;&lt;/body&gt;
-&lt;/html&gt; </pre> %} *)
+&lt;/html&gt; </pre> %}
+*)
 val of_html
   :  ?version:Version.t
   -> ?status:Status.t
@@ -171,7 +177,8 @@ Content-Type: application/xml charset=utf-8
 
 &lt;note&gt;&lt;to&gt;Tove&lt;/to&gt;&lt;from&gt;Jani&lt;/from&gt;&lt;heading&gt;Reminder&lt;/heading&gt;
  &lt;body&gt;Don't forget me this weekend!&lt;/body&gt;
-&lt;/note&gt; </pre> %} *)
+&lt;/note&gt; </pre> %}
+*)
 val of_xml
   :  ?version:Version.t
   -> ?status:Status.t
@@ -227,7 +234,8 @@ Content-Type: image/svg+xml
 &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot;
  xmlns:xlink=&quot;http://www.w3.org/1999/xlink&quot;&gt;
  &lt;circle cx=&quot;50&quot; cy=&quot;50&quot; r=&quot;40&quot; fill=&quot;black&quot;&gt;&lt;/circle&gt;
-&lt;/svg&gt; </pre> %} *)
+&lt;/svg&gt; </pre> %}
+*)
 val of_svg
   :  ?version:Version.t
   -> ?status:Status.t
@@ -266,7 +274,9 @@ val of_file
 
     The response initialized with:
 
-    {[ Response.redirect_to "/redirected" ]}
+    {[
+      Response.redirect_to "/redirected"
+    ]}
 
     Will be represented as:
 
@@ -302,7 +312,9 @@ val redirect_to
 
     [body] will be:
 
-    {[ `Assoc [ "Hello", `String "World" ] ]} *)
+    {[
+      `Assoc [ "Hello", `String "World" ]
+    ]} *)
 val to_json : t -> Yojson.Safe.t option Lwt.t
 
 (** {3 [to_json_exn]} *)
@@ -326,7 +338,9 @@ val to_json_exn : t -> Yojson.Safe.t Lwt.t
 
     [body] will be:
 
-    {[ "Hello world!" ]} *)
+    {[
+      "Hello world!"
+    ]} *)
 val to_plain_text : t -> string Lwt.t
 
 (** {1 Getters and Setters} *)
@@ -534,8 +548,7 @@ val add_cookie
 
 (** {3 [add_cookie_or_replace]} *)
 
-(** [add_cookie_or_replace ?sign_with ?expires ?scope ?same_site ?secure ?http_only value
-    t]
+(** [add_cookie_or_replace ?sign_with ?expires ?scope ?same_site ?secure ?http_only value t]
     adds a cookie with value [value] to the response [t]. If a cookie with the same key
     already exists, its value will be replaced with the new value of [value]. If
     [sign_with] is provided, the cookie will be signed with the given Signer. *)
@@ -552,8 +565,7 @@ val add_cookie_or_replace
 
 (** {3 [add_cookie_unless_exists]} *)
 
-(** [add_cookie_unless_exists ?sign_with ?expires ?scope ?same_site ?secure ?http_only
-    value t]
+(** [add_cookie_unless_exists ?sign_with ?expires ?scope ?same_site ?secure ?http_only value t]
     adds a cookie with value [value] to the response [t].
 
     If a cookie with the same key already exists, it will remain untouched.
@@ -587,10 +599,10 @@ val sexp_of_t : t -> Sexplib0.Sexp.t
 
 (** [pp] formats the response [t] as an s-expression *)
 val pp : Format.formatter -> t -> unit
-  [@@ocaml.toplevel_printer]
+[@@ocaml.toplevel_printer]
 
 (** {3 [pp_hum]} *)
 
 (** [pp_hum] formats the response [t] as a standard HTTP response *)
 val pp_hum : Format.formatter -> t -> unit
-  [@@ocaml.toplevel_printer]
+[@@ocaml.toplevel_printer]

@@ -7,10 +7,9 @@ let schema =
           "hello"
           ~typ:(non_null string)
           ~args:Arg.[ arg "name" ~typ:string ]
-          ~resolve:
-            (fun _ () -> function
-              | None -> "world"
-              | Some name -> name)
+          ~resolve:(fun _ () -> function
+            | None -> "world"
+            | Some name -> name)
       ])
 ;;
 
@@ -84,12 +83,12 @@ let suite =
           Opium.Body.of_string
             (Yojson.Safe.to_string
                (`Assoc
-                 [ ( "query"
-                   , `String
-                       "query A { hello(name: \"world\") } query B { hello(name: \
-                        \"fail\") }" )
-                 ; "operationName", `String "A"
-                 ]))
+                   [ ( "query"
+                     , `String
+                         "query A { hello(name: \"world\") } query B { hello(name: \
+                          \"fail\") }" )
+                   ; "operationName", `String "A"
+                   ]))
         in
         test_case
           ~req:(Opium.Request.make ~headers:json_content_type ~body default_uri `POST)
@@ -101,11 +100,11 @@ let suite =
           Opium.Body.of_string
             (Yojson.Safe.to_string
                (`Assoc
-                 [ ( "query"
-                   , `String
-                       "query A { hello(name: \"world\") } query B { hello(name: \
-                        \"fail\") }" )
-                 ]))
+                   [ ( "query"
+                     , `String
+                         "query A { hello(name: \"world\") } query B { hello(name: \
+                          \"fail\") }" )
+                   ]))
         in
         let query = Some [ "operationName", [ "A" ] ] in
         let uri = Uri.with_uri ~query (Uri.of_string default_uri) in
@@ -124,9 +123,9 @@ let suite =
           Opium.Body.of_string
             (Yojson.Safe.to_string
                (`Assoc
-                 [ "query", `String "query A($name: String!) { hello(name: $name) }"
-                 ; "variables", `Assoc [ "name", `String "world" ]
-                 ]))
+                   [ "query", `String "query A($name: String!) { hello(name: $name) }"
+                   ; "variables", `Assoc [ "name", `String "world" ]
+                   ]))
         in
         test_case
           ~req:(Opium.Request.make ~headers:json_content_type ~body default_uri `POST)
@@ -138,7 +137,7 @@ let suite =
           Opium.Body.of_string
             (Yojson.Safe.to_string
                (`Assoc
-                 [ "query", `String "query A($name: String!) { hello(name: $name) }" ]))
+                   [ "query", `String "query A($name: String!) { hello(name: $name) }" ]))
         in
         let query =
           Some [ "operationName", [ "A" ]; "variables", [ "{\"name\":\"world\"}" ] ]

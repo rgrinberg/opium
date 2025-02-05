@@ -6,8 +6,8 @@ let sexp_of_t m =
   let l =
     fold
       (fun (B (k, v)) l ->
-        let name, to_sexp = Key.info k in
-        List [ Atom name; to_sexp v ] :: l)
+         let name, to_sexp = Key.info k in
+         List [ Atom name; to_sexp v ] :: l)
       m
       []
   in

@@ -39,9 +39,9 @@ let of_list l =
   let last_i = List.length l - 1 in
   l
   |> List.mapi ~f:(fun i s ->
-         match parse_param s with
-         | FullSplat when i <> last_i -> invalid_arg "** is only allowed at the end"
-         | x -> x)
+    match parse_param s with
+    | FullSplat when i <> last_i -> invalid_arg "** is only allowed at the end"
+    | x -> x)
 ;;
 
 let split_slash_delim =
@@ -50,16 +50,16 @@ let split_slash_delim =
     path
     |> Re.split_full re
     |> List.map ~f:(function
-           | `Text s -> `Text s
-           | `Delim _ -> `Delim)
+      | `Text s -> `Text s
+      | `Delim _ -> `Delim)
 ;;
 
 let split_slash path =
   path
   |> split_slash_delim
   |> List.map ~f:(function
-         | `Text s -> s
-         | `Delim -> "/")
+    | `Text s -> s
+    | `Delim -> "/")
 ;;
 
 let of_string path = path |> split_slash |> of_list
@@ -68,11 +68,11 @@ let to_string l =
   let r =
     l
     |> List.filter_map ~f:(function
-           | Match s -> Some s
-           | Param s -> Some (":" ^ s)
-           | Splat -> Some "*"
-           | FullSplat -> Some "**"
-           | Slash -> None)
+      | Match s -> Some s
+      | Param s -> Some (":" ^ s)
+      | Splat -> Some "*"
+      | FullSplat -> Some "**"
+      | Slash -> None)
     |> String.concat ~sep:"/"
   in
   "/" ^ r
