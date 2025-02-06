@@ -63,6 +63,23 @@ let to_urlencoded t =
   body |> Uri.query_of_encoded |> Lwt.return
 ;;
 
+let to_urlencoded_json t =
+  let open Lwt.Syntax in
+  let+ body = to_urlencoded t in
+  let kv =
+    List.map
+      ~f:(function
+        | (k, [v]) -> (k, `String v)
+        | (k, xs) ->
+          let vs = List.map ~f:(fun t -> `String t) xs in
+          (k, `List vs))
+      body
+  in
+  match kv with
+  | [] -> None
+  | xs -> Some (`Assoc xs)
+;;
+
 let header header t = Headers.get t.headers header
 let headers header t = Headers.get_multi t.headers header
 let add_header (k, v) t = { t with headers = Headers.add t.headers k v }
