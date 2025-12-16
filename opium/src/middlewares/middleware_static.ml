@@ -21,6 +21,12 @@ let chop_prefix ~prefix s =
   String.sub s ~pos:(String.length prefix) ~len:String.(length s - length prefix)
 ;;
 
+let chop_query_string s =
+  match String.index_opt s '?' with
+  | Some i -> String.sub ~pos:0 ~len:i s
+  | None -> s
+;;
+
 let _add_opt_header_unless_exists headers k v =
   match headers with
   | Some h -> Httpaf.Headers.add_unless_exists h k v
@@ -35,7 +41,7 @@ let m ~read ?(uri_prefix = "/") ?headers ?etag_of_fname () =
       let local_path = req.target in
       if local_path |> is_prefix ~prefix:uri_prefix
       then (
-        let legal_path = chop_prefix local_path ~prefix:uri_prefix in
+        let legal_path = chop_prefix local_path ~prefix:uri_prefix |> chop_query_string in
         let read () = read legal_path in
         let mime_type = Magic_mime.lookup legal_path in
         let* etag =
