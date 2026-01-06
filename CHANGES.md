@@ -6,6 +6,7 @@
 - Make static_unix middleware derive ETag from file modification timestamp.
 - `App.debug` and `App.verbose`
 - Give access to client's sockaddr from within an Opium handler
+- Change static files middleware to remove query string from path that is looked up on disk
 
 ## Fixed
 
